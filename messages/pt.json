@@ -6,5 +6,18 @@
     "Auth": {
         "createUser": "Criar novo usuário",
         "nameLabel": "Como você se chama?"
+    },
+    "Onboarding": {
+        "title": "Bem-vindo",
+        "subtitle": "Vamos configurar seu perfil para começar a treinar.",
+        "nameLabel": "Seu nome",
+        "weightLabel": "Peso (kg)",
+        "heightLabel": "Altura (cm)",
+        "createButton": "Criar Perfil",
+        "noUsers": "Nenhum usuário encontrado. Crie o primeiro!"
+    },
+    "Profiles": {
+        "title": "Quem está treinando?",
+        "addNew": "Adicionar novo perfil"
     }
 }
