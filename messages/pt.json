@@ -1,0 +1,10 @@
+{
+    "Common": {
+        "welcome": "Bem-vindo ao seu treino",
+        "selectUser": "Selecione um perfil"
+    },
+    "Auth": {
+        "createUser": "Criar novo usuário",
+        "nameLabel": "Como você se chama?"
+    }
+}
