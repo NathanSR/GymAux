@@ -15,34 +15,50 @@ export interface Exercise {
     name: string;
     description: string;
     mediaUrl?: string; // Link para GIF ou vídeo educativo
-    category: 'Peito' | 'Costas' | 'Pernas' | 'Ombros' | 'Braços' | 'Core';
+    category: "chest" | "back" | "legs" | "shoulders" | "arms" | "core" | "cardio";
     tags: string[];    // ex: ['halteres', 'composto']
 }
 
 export interface Workout {
     id?: number;
-    userId: number;   // Relacionamento com User
-    name: string;     // ex: "Treino A - Superior"
+    userId: number;
+    name: string;
+    createdAt: Date;
     exercises: {
-        exerciseId: number;
+        exerciseId: number;      // ID do exercício na tabela 'exercises'
         sets: number;
         reps: string;
-        restTime: number; // em segundos
+        restTime: number;        // em segundos
     }[];
+    description?: string;
+}
+
+export interface Schedule {
+    id?: number;
+    userId: number;
+    workouts: (number | null)[]; // Cada índice representa um dia da semana (0=Domingo, 1=Segunda, ..., 6=Sábado)
+    startDate: Date;
+    endDate?: Date;
+    active: boolean;
+    lastCompleted: number; // Index do último treino completado em workouts
 }
 
 export interface TrainingLog {
     id?: number;
     userId: number;
     workoutId: number;
+    workoutName: string; // Snapshot do nome para caso o Workout original mude
     date: Date;
-    workoutName: string;
-    exercisesExecuted: {
-        name: string;
+    executions: {
+        exerciseId: number;
+        exerciseName: string; // Snapshot do nome
         sets: {
             reps: number;
             weight: number;
+            rpe?: number; // Rate of Perceived Exertion (1-10)
             completed: boolean;
         }[];
     }[];
+    weight: number; // peso do usuário no dia do treino
+    description?: string;
 }

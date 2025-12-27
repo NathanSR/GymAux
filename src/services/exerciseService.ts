@@ -1,0 +1,42 @@
+import { db } from '@/config/db';
+import { Exercise } from '@/config/types';
+
+export const ExerciseService = {
+    // Buscar todos
+    async getAllExercises() {
+        return await db.exercises.toArray();
+    },
+
+    // Buscar por ID
+    async getExerciseById(id: number) {
+        return await db.exercises.get(id);
+    },
+
+    // Criar novo com regras de negócio
+    async createExercise(exerciseData: Omit<Exercise, 'id' | 'createdAt'>) {
+        // Exemplo de regra de negócio: Garantir que o nome esteja capitalizado
+        const formattedName = exerciseData.name.trim();
+
+        if (formattedName.length < 2) {
+            throw new Error("Name too short");
+        }
+
+        return await db.exercises.add({
+            ...exerciseData,
+            name: formattedName,
+            description: exerciseData.description.trim(),
+            mediaUrl: exerciseData.mediaUrl?.trim() || undefined,
+            category: exerciseData.category,
+            tags: exerciseData.tags,
+        });
+    },
+
+    // Deletar usuário e seus treinos (cascata manual)
+    async deleteExercise(id: number) {
+        return await db.transaction('rw', [db.exercises, db.workouts, db.history], async () => {
+            await db.history.where('exerciseId').equals(id).delete();
+            await db.workouts.where('exerciseId').equals(id).delete();
+            await db.exercises.delete(id);
+        });
+    }
+};

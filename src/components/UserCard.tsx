@@ -15,8 +15,8 @@ export default function UserCard({ user }: UserCardProps) {
         // 1. Salva o ID do usuário ativo para persistência simples
         localStorage.setItem('activeUserId', user.id!.toString());
 
-        // 2. Redireciona para o Dashboard (vamos criar essa rota a seguir)
-        router.push('/dashboard');
+        // 2. Redireciona para o Home (vamos criar essa rota a seguir)
+        router.push('/home');
     };
 
     return (

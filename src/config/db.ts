@@ -1,5 +1,6 @@
 import Dexie, { type Table } from 'dexie';
-import { Exercise, TrainingLog, User, Workout } from './types';
+import { Exercise, TrainingLog, User, Workout, Schedule } from './types';
+import { DEFAULT_EXERCISES } from "./seedExercises";
 
 // --- Configuração do Banco ---
 
@@ -8,6 +9,7 @@ export class GymDatabase extends Dexie {
     exercises!: Table<Exercise>;
     workouts!: Table<Workout>;
     history!: Table<TrainingLog>;
+    schedules!: Table<Schedule>;
 
     constructor() {
         super('GymAppDB');
@@ -17,8 +19,23 @@ export class GymDatabase extends Dexie {
             users: '++id, name',
             exercises: '++id, name, category, *tags', // * significa que podemos buscar dentro do array de tags
             workouts: '++id, userId, name',
-            history: '++id, userId, date, workoutId'
+            history: '++id, userId, date, workoutId',
+            schedules: '++id, userId, active'
         });
+
+        // Esta lógica roda apenas na criação do banco
+        this.on('populate', () => {
+            this.populateExercises();
+        });
+    }
+
+    async populateExercises() {
+        try {
+            await this.exercises.bulkAdd(DEFAULT_EXERCISES);
+            console.log("Banco de dados populado com exercícios iniciais.");
+        } catch (error) {
+            console.error("Erro ao popular exercícios:", error);
+        }
     }
 }
 
