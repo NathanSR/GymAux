@@ -1,15 +1,8 @@
-import React, { use, useState } from 'react';
+import { useState } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import {
     Save,
     Plus,
-    Trash2,
-    GripVertical,
-    Clock,
-    Dumbbell,
-    FileText,
-    AlertCircle,
-    ChevronDown
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { ExerciseSelector } from '../exercises/ExerciseSelector';
@@ -23,17 +16,12 @@ import {
     PointerSensor,
     useSensor,
     useSensors,
-    DragOverlay,
-    defaultDropAnimationSideEffects
 } from '@dnd-kit/core';
 import {
-    arrayMove,
     SortableContext,
     sortableKeyboardCoordinates,
     verticalListSortingStrategy,
-    useSortable
 } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
 import { SortableExerciseItem } from './SortableExerciseItem';
 
 

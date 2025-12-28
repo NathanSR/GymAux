@@ -1,11 +1,11 @@
 "use client";
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { ChevronLeft } from 'lucide-react';
 import { useRouter } from '@/i18n/routing';
 import { useTranslations } from 'next-intl';
 import ExerciseForm from '@/components/exercises/ExerciseForm';
-import { db } from '@/config/db';
+import { ExerciseService } from '@/services/exerciseService';
 
 export default function NewExercisePage() {
     const router = useRouter();
@@ -20,7 +20,7 @@ export default function NewExercisePage() {
                 tags: data.tags ? data.tags.split(',').map((t: string) => t.trim()).filter(Boolean) : []
             };
 
-            await db.exercises.add(formattedData);
+            await ExerciseService.createExercise(formattedData);
             router.push('/exercises');
         } catch (error) {
             console.error("Erro ao criar exercício:", error);

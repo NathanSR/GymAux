@@ -1,35 +1,21 @@
 "use client";
 
-import React, { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import {
     ChevronLeft,
     Search,
-    Filter,
     Dumbbell,
-    ExternalLink,
     Info,
     PlayCircle,
-    X,
-    Video,
-    Save,
-    AlertCircle,
     Plus,
     Edit
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { db } from '@/config/db';
 import { useRouter } from '@/i18n/routing';
+import { ExerciseService } from '@/services/exerciseService';
 
 
-/**
- * Nota: As importações de módulos locais e bibliotecas foram comentadas
- * para permitir a visualização no Canvas. Descomente-as no seu VS Code.
- */
-// import { useTranslations, useLocale } from 'next-intl';
-// import { db } from '@/config/db';
-// import { useLiveQuery } from 'dexie-react-hooks';
-// import { useRouter } from '@/i18n/routing';
 
 export default function ExerciseLibraryPage() {
     const router = useRouter();
@@ -44,7 +30,7 @@ export default function ExerciseLibraryPage() {
 
     const categories = ["all", "chest", "back", "legs", "shoulders", "arms", "core", "cardio"];
 
-    const exercises = useLiveQuery(() => db.exercises.toArray());
+    const exercises = useLiveQuery(() => ExerciseService.getAllExercises(), []);
 
     // Filtro de Exercícios
     const filteredExercises = useMemo(() => {

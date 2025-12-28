@@ -35,6 +35,7 @@ export interface Workout {
 
 export interface Schedule {
     id?: number;
+    name: string;
     userId: number;
     workouts: (number | null)[]; // Cada índice representa um dia da semana (0=Domingo, 1=Segunda, ..., 6=Sábado)
     startDate: Date;
@@ -43,7 +44,7 @@ export interface Schedule {
     lastCompleted: number; // Index do último treino completado em workouts
 }
 
-export interface TrainingLog {
+export interface History {
     id?: number;
     userId: number;
     workoutId: number;

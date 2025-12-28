@@ -31,6 +31,19 @@ export const ExerciseService = {
         });
     },
 
+    async updateExercise(id: number, updateData: Partial<Omit<Exercise, 'id' | 'createdAt'>>) {
+        // Exemplo de regra de negócio: Não permitir atualização para nome vazio
+        if (updateData.name !== undefined) {
+            const formattedName = updateData.name.trim();
+
+            if (formattedName.length < 2) {
+                throw new Error("Name too short");
+            }
+        }
+
+        return await db.exercises.update(id, updateData);
+    },
+
     // Deletar usuário e seus treinos (cascata manual)
     async deleteExercise(id: number) {
         return await db.transaction('rw', [db.exercises, db.workouts, db.history], async () => {

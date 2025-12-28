@@ -1,25 +1,19 @@
 'use client'
 
-import React, { useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import {
     Plus,
     Search,
-    ChevronRight,
-    Play,
     MoreVertical,
-    Clock,
-    Dumbbell,
     Calendar,
     LayoutGrid,
     ChevronLeft,
     Edit
 } from 'lucide-react';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { db } from '@/config/db';
 import { useSession } from '@/hooks/useSession';
 import { useRouter } from '@/i18n/routing';
-
-
+import { WorkoutService } from '@/services/workoutService';
 
 
 export default function WorkoutsPage() {
@@ -29,7 +23,7 @@ export default function WorkoutsPage() {
     const { activeUser } = useSession();
 
     const workouts = useLiveQuery(() =>
-        db.workouts.where('userId').equals(activeUser?.id ?? -1).toArray(),
+        WorkoutService.getWorkoutsByUserId(activeUser?.id ?? -1),
         [activeUser?.id]) || [];
 
     // Filtro de Treinos
@@ -85,7 +79,7 @@ export default function WorkoutsPage() {
                                 <div className="flex items-center gap-2">
                                     <div className={`w-2 h-2 rounded-full bg-lime-400`} />
                                     <span className="text-[10px] font-black uppercase text-zinc-400 tracking-widest">
-                                        {workout.exercises.length} Exercícios
+                                        {workout?.exercises?.length || 0} Exercícios
                                     </span>
                                 </div>
                                 <h3 className="text-lg font-black leading-tight max-w-[200px]">

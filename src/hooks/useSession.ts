@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { db } from '@/config/db';
 import { User } from '@/config/types';
+import { userService } from '@/services/userService';
 
 export function useSession() {
     const [activeUser, setActiveUser] = useState<User | null>(null);
@@ -12,7 +12,7 @@ export function useSession() {
         const loadUser = async () => {
             const id = localStorage.getItem('activeUserId');
             if (id) {
-                const user = await db.users.get(Number(id));
+                const user = await userService.getUserById(Number(id));
                 if (user) setActiveUser(user);
             }
             setLoading(false);

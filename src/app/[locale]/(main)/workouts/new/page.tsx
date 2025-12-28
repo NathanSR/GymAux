@@ -1,14 +1,14 @@
 "use client"
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { ChevronLeft } from 'lucide-react';
 import { useRouter } from '@/i18n/routing';
 import { useTranslations } from 'next-intl';
 import WorkoutForm from '@/components/workouts/WorkoutForm';
-import { db } from '@/config/db';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { ExerciseSelector } from '@/components/exercises/ExerciseSelector';
 import { useSession } from '@/hooks/useSession';
+import { WorkoutService } from '@/services/workoutService';
+import { ExerciseService } from '@/services/exerciseService';
 
 export default function NewWorkoutPage() {
     const router = useRouter();
@@ -18,13 +18,13 @@ export default function NewWorkoutPage() {
     const { activeUser } = useSession()
 
     // Buscamos os exercícios disponíveis para popular o select no form
-    const availableExercises = useLiveQuery(() => db.exercises.toArray()) || [];
+    const availableExercises = useLiveQuery(() => ExerciseService.getAllExercises()) || [];
 
     const handleCreate = async (data: any) => {
         setIsLoading(true);
         try {
             // O dado já vem estruturado pelo WorkoutForm
-            await db.workouts.add({
+            await WorkoutService.createWorkout({
                 ...data,
                 userId: activeUser?.id,
                 createdAt: new Date(),

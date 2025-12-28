@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import {
     Play,
     Calendar,
@@ -19,9 +19,11 @@ import {
 import { useTranslations } from 'next-intl';
 import { useSession } from '@/hooks/useSession';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { db } from '@/config/db';
 import { useRouter } from '@/i18n/routing';
 import { MenuTab } from '@/components/MenuTab';
+import { ScheduleService } from '@/services/scheduleService';
+import { WorkoutService } from '@/services/workoutService';
+import { HistoryService } from '@/services/historyService';
 
 
 
@@ -35,15 +37,15 @@ export default function HomePage() {
     const { activeUser, loading } = useSession();
 
     const activeSchedule = useLiveQuery(() =>
-        db.schedules.where('userId').equals(activeUser?.id ?? -1).filter(s => s.active === true).first(),
+        ScheduleService.getActiveSchedule(activeUser?.id ?? -1),
         [activeUser?.id]);
 
     const workouts = useLiveQuery(() =>
-        db.workouts.where('userId').equals(activeUser?.id ?? -1).toArray(),
+        WorkoutService.getWorkoutsByUserId(activeUser?.id ?? -1),
         [activeUser?.id]) || [];
 
     const history = useLiveQuery(() =>
-        db.history.where('userId').equals(activeUser?.id ?? -1).reverse().toArray(),
+        HistoryService.getUserHistory(activeUser?.id ?? -1),
         [activeUser?.id]) || [];
 
     const locale = "pt";
@@ -165,6 +167,13 @@ export default function HomePage() {
                     >
                         <div className="bg-blue-500/10 p-4 rounded-2xl text-blue-500"><PlusCircle size={28} /></div>
                         <span className="text-sm font-black uppercase tracking-tighter">{t('newWorkout')}</span>
+                    </button>
+                    <button
+                        onClick={() => router.push('/schedules')}
+                        className="bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 p-6 rounded-[32px] flex flex-col items-center gap-3 active:scale-95 shadow-sm cursor-pointer"
+                    >
+                        <div className="bg-cyan-500/10 p-4 rounded-2xl text-cyan-500"><PlusCircle size={28} /></div>
+                        <span className="text-sm font-black uppercase tracking-tighter">{t('newSchedule')}</span>
                     </button>
                     <button className="bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 p-6 rounded-[32px] flex flex-col items-center gap-3 active:scale-95 shadow-sm cursor-pointer">
                         <div className="bg-purple-500/10 p-4 rounded-2xl text-purple-500"><Calendar size={28} /></div>

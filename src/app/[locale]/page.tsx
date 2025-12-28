@@ -1,19 +1,19 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { db } from '@/config/db';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useState } from 'react';
 import UserForm from '@/components/UserForm';
 import UserCard from '@/components/UserCard';
 import { Plus } from 'lucide-react';
+import { userService } from '@/services/userService';
 
 export default function HomePage() {
     const t = useTranslations();
     const [isCreating, setIsCreating] = useState(false);
 
     // Busca usuários no Dexie
-    const users = useLiveQuery(() => db.users.toArray());
+    const users = useLiveQuery(() => userService.getAllUsers(), []);
 
     // Se o banco ainda estiver carregando
     if (!users) return null;

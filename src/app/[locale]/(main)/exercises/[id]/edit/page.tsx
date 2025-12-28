@@ -1,12 +1,12 @@
 "use client"
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { ChevronLeft, Trash2, Loader2 } from 'lucide-react';
 import { useRouter } from '@/i18n/routing';
 import { useTranslations } from 'next-intl';
 import ExerciseForm from '@/components/exercises/ExerciseForm';
-import { db } from '@/config/db';
 import { useParams } from 'next/navigation';
+import { ExerciseService } from '@/services/exerciseService';
 
 export default function EditExercisePage() {
     const router = useRouter();
@@ -17,7 +17,7 @@ export default function EditExercisePage() {
 
     useEffect(() => {
         const fetchExercise = async () => {
-            const data: any = await db.exercises.get(Number(id));
+            const data: any = await ExerciseService.getExerciseById(Number(id));
             if (data) setExercise(data);
             else router.push('/exercises');
         };
@@ -34,7 +34,7 @@ export default function EditExercisePage() {
                     : data.tags
             };
 
-            await db.exercises.update(Number(id), formattedData);
+            await ExerciseService.updateExercise(Number(id), formattedData);
             router.push('/exercises');
         } catch (error) {
             console.error("Erro ao atualizar:", error);
@@ -45,7 +45,7 @@ export default function EditExercisePage() {
 
     const handleDelete = async () => {
         if (confirm(t('confirmDelete'))) {
-            await db.exercises.delete(Number(id));
+            await ExerciseService.deleteExercise(Number(id));
             router.push('/exercises');
         }
     };

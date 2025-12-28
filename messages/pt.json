@@ -260,5 +260,18 @@
         "noResults": "Nenhum exercício encontrado.",
         "tagsLabel": "Tags",
         "watchVideo": "Ver execução"
+    },
+    "ScheduleForm": {
+        "save": "Salvar Cronograma",
+        "name": "Nome do Cronograma",
+        "startDate": "Data de Início",
+        "endDate": "Data de Término (Opcional)",
+        "active": "Cronograma Ativo",
+        "workouts_title": "Distribuição Semanal",
+        "select_workout": "Selecionar Treino",
+        "no_workout": "Descanso",
+        "create_title": "Novo Cronograma",
+        "edit_title": "Editar Cronograma",
+        "last_completed": "Último Índice Completado"
     }
 }

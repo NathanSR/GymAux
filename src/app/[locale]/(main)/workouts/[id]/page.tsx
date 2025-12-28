@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { ChevronLeft, Trash2, Loader2 } from 'lucide-react';
 import { useRouter } from '@/i18n/routing';
 import { useTranslations } from 'next-intl';
 import WorkoutForm from '@/components/workouts/WorkoutForm';
-import { db } from '@/config/db';
 import { useParams } from 'next/navigation';
 import { useLiveQuery } from 'dexie-react-hooks';
+import { ExerciseService } from '@/services/exerciseService';
+import { WorkoutService } from '@/services/workoutService';
 
 export default function EditWorkoutPage() {
     const router = useRouter();
@@ -15,12 +16,12 @@ export default function EditWorkoutPage() {
     const [isSaving, setIsSaving] = useState(false);
 
     // Procurar exercícios disponíveis para o formulário
-    const availableExercises = useLiveQuery(() => db.exercises.toArray()) || [];
+    const availableExercises = useLiveQuery(() => ExerciseService.getAllExercises()) || [];
 
     useEffect(() => {
         const fetchWorkout = async () => {
             try {
-                const data: any = await db.workouts.get(Number(id));
+                const data: any = await WorkoutService.getWorkoutById(Number(id));
                 if (data) {
                     setWorkout(data);
                 } else {
@@ -37,7 +38,7 @@ export default function EditWorkoutPage() {
     const handleUpdate = async (data: any) => {
         setIsSaving(true);
         try {
-            await db.workouts.update(Number(id), {
+            await WorkoutService.updateWorkout(Number(id), {
                 ...data,
                 updatedAt: new Date()
             });
@@ -53,7 +54,7 @@ export default function EditWorkoutPage() {
         // Nota: Em produção, recomenda-se um modal de confirmação costumizado
         if (confirm(t('confirmDeleteWorkout'))) {
             try {
-                await db.workouts.delete(Number(id));
+                await WorkoutService.deleteWorkout(Number(id));
                 router.push('/workouts');
             } catch (error) {
                 console.error("Erro ao eliminar treino:", error);
