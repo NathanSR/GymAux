@@ -21,8 +21,12 @@ export const ScheduleService = {
      */
     async getActiveSchedule(userId: number) {
         return await db.schedules
-            .where({ userId, active: 1 }) // No Dexie, booleanos costumam ser mapeados como 1/0 em índices
+            .where({ userId, active: true }) // No Dexie, booleanos costumam ser mapeados como 1/0 em índices
             .first();
+    },
+
+    async getScheduleById(id: number) {
+        return await db.schedules.get(id);
     },
 
     /**
@@ -39,6 +43,11 @@ export const ScheduleService = {
         // Validação: O array de treinos deve ter exatamente 7 posições
         if (scheduleData.workouts.length !== 7) {
             throw new Error("O cronograma deve conter exatamente 7 dias (domingo a sábado).");
+        }
+
+        const activeSchedule = await this.getActiveSchedule(scheduleData.userId);
+        if (scheduleData.active && activeSchedule) {
+            throw new Error("Já existe um cronograma ativo para este usuário.");
         }
 
         return await db.transaction('rw', db.schedules, async () => {
@@ -68,6 +77,19 @@ export const ScheduleService = {
 
         return await db.schedules.update(id, {
             lastCompleted: workoutIndex
+        });
+    },
+
+    /**
+         * Atualiza um cronograma existente.
+         */
+    async updateSchedule(id: number, scheduleData: Partial<Schedule>) {
+        const schedule = await db.schedules.get(id);
+        if (!schedule) throw new Error("Cronograma não encontrado.");
+
+        return await db.schedules.update(id, {
+            ...scheduleData,
+            // Mantém a data de criação original, apenas atualiza o que foi enviado
         });
     },
 

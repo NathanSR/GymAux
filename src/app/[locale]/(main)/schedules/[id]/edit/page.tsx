@@ -20,9 +20,17 @@ export default function EditSchedulePage() {
 
     useEffect(() => {
         const fetchSchedule = async () => {
-            const data: any = await ScheduleService.getActiveSchedule(Number(id));
-            if (data) setInitialData(data);
-            else router.push('/schedules');
+            try {
+                const data: any = await ScheduleService.getScheduleById(Number(id));
+                if (data) {
+                    setInitialData(data);
+                } else {
+                    router.push('/schedules');
+                }
+            } catch (error) {
+                console.error("Erro ao carregar cronograma:", error);
+                router.push('/schedules');
+            }
         };
         fetchSchedule();
     }, [id, router]);
@@ -30,7 +38,7 @@ export default function EditSchedulePage() {
     const handleUpdate = async (data: any) => {
         setLoading(true);
         try {
-            await WorkoutService.updateWorkout(Number(id), {
+            await ScheduleService.updateSchedule(Number(id), {
                 ...data,
                 updatedAt: new Date()
             });
