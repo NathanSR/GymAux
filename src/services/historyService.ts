@@ -5,16 +5,21 @@ export const HistoryService = {
     /**
      * Salva a conclusão de um treino no histórico.
      */
-    async logWorkout(historyData: Omit<History, 'id'>) {
+    async createWorkout(historyData: Omit<History, 'id'>) {
         // Validação básica de segurança
-        if (historyData.executions.length === 0) {
-            throw new Error("Não é possível salvar um treino sem exercícios executados.");
-        }
+        // if (historyData.executions!.length === 0) {
+        //     throw new Error("Não é possível salvar um treino sem exercícios executados.");
+        // }
 
-        return await db.history.add({
+        const dataToSave = {
             ...historyData,
-            date: historyData.date || new Date()
-        });
+            date: historyData.date || new Date(),
+            completed: historyData.completed || false
+        };
+
+        const id = await db.history.add(dataToSave);
+
+        return { ...dataToSave, id } as History;
     },
 
     /**
@@ -46,16 +51,46 @@ export const HistoryService = {
         const history = await db.history
             .where('userId')
             .equals(userId)
+            // .and(log => log.completed === false)
             .reverse()
             .sortBy('date');
 
         // Filtra manualmente nas execuções para encontrar o exercício (Dexie não indexa profundamente arrays de objetos)
         for (const log of history) {
-            const exerciseLog = log.executions.find(e => e.exerciseId === exerciseId);
+            const exerciseLog = log.executions!.find(e => e.exerciseId === exerciseId);
             if (exerciseLog) return exerciseLog;
         }
 
         return null;
+    },
+
+    /**
+     * Busca o histórico pendente de um exercício.
+     */
+    async getPendingHistory(userId: number) {
+        const history = await db.history
+            .where('userId')
+            .equals(userId)
+            .and(log => log.completed === false)
+            .reverse()
+            .sortBy('date');
+
+        return history[0];
+    },
+
+    /**
+     * Busca o histórico pendente de um exercício.
+     */
+    async getLastHistory(userId: number) {
+        const history = await db.history
+            .where('userId')
+            .equals(userId)
+            .reverse()
+            .sortBy('date');
+
+        if (history.length === 0) return null;
+
+        return history[0] as History;
     },
 
     /**
@@ -88,5 +123,22 @@ export const HistoryService = {
      */
     async updateDescription(id: number, description: string) {
         return await db.history.update(id, { description });
-    }
+    },
+
+    /**
+     * Atualiza um histórico existente.
+     */
+    async updateHistory(id: number, historyData: Partial<History>) {
+        const history = await db.history.get(id);
+        if (!history)
+            throw new Error("Histórico não encontrado.");
+
+        if (historyData.weight && historyData.weight > 0)
+            await db.users.update(history.userId, { weight: historyData.weight });
+
+        return await db.history.update(id, {
+            ...historyData,
+            // Mantém a data de criação original, apenas atualiza o que foi enviado
+        });
+    },
 };

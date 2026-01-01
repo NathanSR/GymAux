@@ -26,8 +26,9 @@ export interface Workout {
     createdAt: Date;
     exercises: {
         exerciseId: number;      // ID do exercício na tabela 'exercises'
+        exerciseName: string;
         sets: number;
-        reps: string;
+        reps: number;
         restTime: number;        // em segundos
     }[];
     description?: string;
@@ -50,16 +51,17 @@ export interface History {
     workoutId: number;
     workoutName: string; // Snapshot do nome para caso o Workout original mude
     date: Date;
-    executions: {
+    executions?: {
         exerciseId: number;
         exerciseName: string; // Snapshot do nome
         sets: {
             reps: number;
-            weight: number;
+            weight?: number;
             rpe?: number; // Rate of Perceived Exertion (1-10)
             completed: boolean;
         }[];
     }[];
-    weight: number; // peso do usuário no dia do treino
+    weight?: number; // peso do usuário no dia do treino
     description?: string;
+    completed?: boolean;
 }

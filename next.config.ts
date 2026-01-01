@@ -6,6 +6,10 @@ const withNextIntl = createNextIntlPlugin();
 const withPWA = withPWAInit({
   dest: "public",
   disable: process.env.NODE_ENV === "development",
+  extendDefaultRuntimeCaching: true,
+  workboxOptions: {
+    disableDevLogs: true,
+  },
 });
 
 const nextConfig = {};

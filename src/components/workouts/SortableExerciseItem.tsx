@@ -104,9 +104,13 @@ export function SortableExerciseItem({
                     <span className="block text-[8px] font-black text-zinc-400 uppercase mb-1 tracking-tighter">Reps</span>
                     <input {...register(`exercises.${index}.reps`)} className="w-full bg-transparent font-black outline-none" />
                 </div>
-                <div className="bg-zinc-50 dark:bg-zinc-950 p-3 rounded-2xl border dark:border-zinc-800 focus-within:ring-1 focus-within:ring-lime-400 transition-all">
+                {/* <div className="bg-zinc-50 dark:bg-zinc-950 p-3 rounded-2xl border dark:border-zinc-800 focus-within:ring-1 focus-within:ring-lime-400 transition-all">
                     <span className="block text-[8px] font-black text-zinc-400 uppercase mb-1 tracking-tighter">Carga (kg)</span>
                     <input type="number" step="0.5" {...register(`exercises.${index}.weight`)} className="w-full bg-transparent font-black outline-none" />
+                </div> */}
+                <div className="bg-zinc-50 dark:bg-zinc-950 p-3 rounded-2xl border dark:border-zinc-800 focus-within:ring-1 focus-within:ring-lime-400 transition-all">
+                    <span className="block text-[8px] font-black text-zinc-400 uppercase mb-1 tracking-tighter">Descanso (s)</span>
+                    <input type="number" step="0.5" {...register(`exercises.${index}.restTime`)} className="w-full bg-transparent font-black outline-none" />
                 </div>
             </div>
         </div>

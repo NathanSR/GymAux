@@ -42,7 +42,7 @@ export default function WorkoutForm({ initialData, availableExercises = [], onSu
         defaultValues: initialData || {
             name: '',
             description: '',
-            exercises: [{ exerciseId: '', sets: 3, reps: 12, weight: 0 }]
+            exercises: [{ exerciseId: '', exerciseName: '', sets: 3, reps: 12, restTime: 45 }]
         }
     });
 
@@ -84,7 +84,7 @@ export default function WorkoutForm({ initialData, availableExercises = [], onSu
                 exerciseName: exercise.name,
                 sets: 3,
                 reps: '12',
-                weight: 0
+                restTime: 45
             });
         } else {
             update(activeIndex, {
@@ -102,7 +102,7 @@ export default function WorkoutForm({ initialData, availableExercises = [], onSu
         setIsQuickDrawerOpen(false);
     }
 
-    return (
+    return (<>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-8 pb-20">
             {/* Informações Básicas */}
             <section className="space-y-4">
@@ -191,19 +191,19 @@ export default function WorkoutForm({ initialData, availableExercises = [], onSu
                     )}
                 </button>
             </div>
-
-            <ExerciseSelector
-                isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
-                onSelect={addExerciseToWorkout}
-            />
-
-            <QuickExerciseDrawer
-                isOpen={isQuickDrawerOpen}
-                onClose={() => setIsQuickDrawerOpen(false)}
-                onExerciseCreated={handleQuickCreated}
-            />
-
         </form>
+        <ExerciseSelector
+            isOpen={isModalOpen}
+            onClose={() => setIsModalOpen(false)}
+            onSelect={addExerciseToWorkout}
+        />
+
+        <QuickExerciseDrawer
+            isOpen={isQuickDrawerOpen}
+            onClose={() => setIsQuickDrawerOpen(false)}
+            onExerciseCreated={handleQuickCreated}
+        />
+    </>
+
     );
 }

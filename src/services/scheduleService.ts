@@ -21,7 +21,9 @@ export const ScheduleService = {
      */
     async getActiveSchedule(userId: number) {
         return await db.schedules
-            .where({ userId, active: true }) // No Dexie, booleanos costumam ser mapeados como 1/0 em índices
+            .where('userId') // No Dexie, booleanos costumam ser mapeados como 1/0 em índices
+            .equals(userId)
+            .and(schedule => schedule.active)
             .first();
     },
 
@@ -45,10 +47,10 @@ export const ScheduleService = {
             throw new Error("O cronograma deve conter exatamente 7 dias (domingo a sábado).");
         }
 
-        const activeSchedule = await this.getActiveSchedule(scheduleData.userId);
-        if (scheduleData.active && activeSchedule) {
-            throw new Error("Já existe um cronograma ativo para este usuário.");
-        }
+        // const activeSchedule = await this.getActiveSchedule(scheduleData.userId);
+        // if (scheduleData.active && activeSchedule) {
+        //     throw new Error("Já existe um cronograma ativo para este usuário.");
+        // }
 
         return await db.transaction('rw', db.schedules, async () => {
             // Se o novo cronograma for marcado como ativo, desativa os outros do usuário
