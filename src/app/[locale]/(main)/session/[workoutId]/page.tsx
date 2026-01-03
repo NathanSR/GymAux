@@ -182,7 +182,7 @@ export default function ActiveWorkoutPage() {
         return (
             <div className="min-h-screen bg-zinc-950 text-white p-6 flex flex-col items-center justify-center max-w-md mx-auto">
                 <button
-                    onClick={() => router.back()}
+                    onClick={() => router.push('/home')}
                     className="fixed left-8 top-8 p-2 rounded-xl bg-zinc-100 dark:bg-zinc-900 text-zinc-500 hover:text-zinc-900 dark:hover:text-white transition-colors"
                 >
                     <ChevronLeft size={24} />

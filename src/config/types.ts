@@ -50,7 +50,6 @@ export interface History {
     userId: number;
     workoutId: number;
     workoutName: string; // Snapshot do nome para caso o Workout original mude
-    date: Date;
     executions?: {
         exerciseId: number;
         exerciseName: string; // Snapshot do nome
@@ -63,5 +62,7 @@ export interface History {
     }[];
     weight?: number; // peso do usuário no dia do treino
     description?: string;
+    startDate: Date;
+    endDate?: Date;
     completed?: boolean;
 }

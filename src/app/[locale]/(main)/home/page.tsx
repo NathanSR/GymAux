@@ -61,6 +61,11 @@ export default function HomePage() {
             .then(h => h.at(-1)),
         [activeUser?.id]) || null;
 
+    const historyList = useLiveQuery(() =>
+        HistoryService
+            .getUserHistory(activeUser?.id ?? -1, 1, 4),
+        [activeUser?.id]) || [];
+
     const locale = "pt";
 
     const today = new Date();
@@ -292,7 +297,7 @@ export default function HomePage() {
                     <div className="flex justify-between items-center mb-6">
                         <h3 className="font-black text-lg flex items-center gap-2 uppercase italic tracking-tight">
                             <HistoryIcon size={20} className="text-lime-500" />
-                            Atividade
+                            Histórico
                         </h3>
                         <button className="text-[10px] text-lime-600 dark:text-lime-400 font-black uppercase tracking-widest flex items-center gap-1">
                             Ver tudo <ChevronRight size={14} />
@@ -300,21 +305,26 @@ export default function HomePage() {
                     </div>
 
                     <div className="space-y-4">
-                        {[1, 2].map((item) => (
-                            <div key={item} className="flex items-center gap-4 p-3 bg-zinc-50 dark:bg-zinc-800/50 rounded-2xl border border-zinc-100 dark:border-zinc-800">
-                                <div className="w-10 h-10 bg-lime-400/20 rounded-xl flex items-center justify-center text-lime-500">
-                                    <CheckCircle2 size={20} />
+                        {historyList.map((item) => {
+                            const timeAgo = moment(item.endDate).fromNow();
+                            const duration = moment.duration(moment(item.endDate).diff(moment(item.startDate)));
+                            const minutes = Math.floor(duration.asMinutes());
+                            return (
+                                <div key={item.id} className="flex items-center gap-4 p-3 bg-zinc-50 dark:bg-zinc-800/50 rounded-2xl border border-zinc-100 dark:border-zinc-800">
+                                    <div className="w-10 h-10 bg-lime-400/20 rounded-xl flex items-center justify-center text-lime-500">
+                                        <CheckCircle2 size={20} />
+                                    </div>
+                                    <div className="flex-1">
+                                        <p className="text-sm font-black uppercase tracking-tight">{item.workoutName} Concluído</p>
+                                        <p className="text-[10px] text-zinc-500 font-bold">{timeAgo} • {minutes} min</p>
+                                    </div>
+                                    {/* <div className="text-right">
+                                        <p className="text-xs font-black">12.4t</p>
+                                        <p className="text-[9px] text-zinc-500 uppercase">Volume</p>
+                                    </div> */}
                                 </div>
-                                <div className="flex-1">
-                                    <p className="text-sm font-black uppercase tracking-tight">Treino A Concluído</p>
-                                    <p className="text-[10px] text-zinc-500 font-bold">Ontem • 48 min</p>
-                                </div>
-                                <div className="text-right">
-                                    <p className="text-xs font-black">12.4t</p>
-                                    <p className="text-[9px] text-zinc-500 uppercase">Volume</p>
-                                </div>
-                            </div>
-                        ))}
+                            )
+                        })}
                     </div>
                 </section>
             </div>

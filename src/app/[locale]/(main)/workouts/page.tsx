@@ -42,7 +42,7 @@ export default function WorkoutsPage() {
             <header className="sticky top-0 z-30 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-md border-b border-zinc-100 dark:border-zinc-900 px-6 py-4">
                 <div className="flex items-center justify-between mb-4">
                     <button
-                        onClick={() => router.back()}
+                        onClick={() => router.push('/home')}
                         className="p-2 rounded-xl bg-zinc-100 dark:bg-zinc-900 text-zinc-500 cursor-pointer">
                         <ChevronLeft size={24} />
                     </button>
@@ -82,7 +82,7 @@ export default function WorkoutsPage() {
                                         {workout?.exercises?.length || 0} Exercícios
                                     </span>
                                 </div>
-                                <h3 className="text-lg font-black leading-tight max-w-[200px]">
+                                <h3 className="text-lg font-black leading-tight text-wrap">
                                     {workout.name}
                                 </h3>
                                 <div className="flex items-center gap-3 pt-2">
@@ -103,7 +103,7 @@ export default function WorkoutsPage() {
                         </div>
 
                         {/* Ações de Edição */}
-                        <div className="mt-6 pt-4 border-t border-zinc-50 dark:border-zinc-800 flex justify-between items-center text-zinc-400">
+                        {/* <div className="mt-6 pt-4 border-t border-zinc-50 dark:border-zinc-800 flex justify-between items-center text-zinc-400">
                             <button className="text-[10px] font-black uppercase tracking-widest hover:text-lime-500 transition-colors">
                                 Ver detalhes
                             </button>
@@ -113,7 +113,7 @@ export default function WorkoutsPage() {
                             >
                                 <MoreVertical size={18} />
                             </button>
-                        </div>
+                        </div> */}
                     </div>
                 ))}
 

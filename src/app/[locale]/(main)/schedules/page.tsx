@@ -46,7 +46,7 @@ export default function SchedulesPage() {
             <header className="sticky top-0 z-30 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-md border-b border-zinc-100 dark:border-zinc-900 px-6 py-4">
                 <div className="flex items-center justify-between mb-4">
                     <button
-                        onClick={() => router.back()}
+                        onClick={() => router.push('/home')}
                         className="p-2 rounded-xl bg-zinc-100 dark:bg-zinc-900 text-zinc-500 cursor-pointer hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors">
                         <ChevronLeft size={24} />
                     </button>

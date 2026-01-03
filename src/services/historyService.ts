@@ -13,7 +13,7 @@ export const HistoryService = {
 
         const dataToSave = {
             ...historyData,
-            date: historyData.date || new Date(),
+            startDate: historyData.startDate || new Date(),
             completed: historyData.completed || false
         };
 
@@ -25,11 +25,15 @@ export const HistoryService = {
     /**
      * Busca todo o histórico de um usuário específico, ordenado pela data mais recente.
      */
-    async getUserHistory(userId: number) {
+    async getUserHistory(userId: number, page: number = 1, limit: number = 12) {
+        const offset = (page - 1) * limit;
+
         return await db.history
             .where('userId')
             .equals(userId)
             .reverse() // Do mais novo para o mais antigo
+            .offset(offset)
+            .limit(limit)
             .sortBy('date');
     },
 
@@ -107,7 +111,7 @@ export const HistoryService = {
         return await db.history
             .where('userId')
             .equals(userId)
-            .filter(log => log.date >= startDate && log.date <= endDate)
+            .filter(log => log.startDate >= startDate && log.startDate <= endDate)
             .toArray();
     },
 
