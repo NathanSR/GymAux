@@ -1,27 +1,21 @@
 "use client";
 
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import {
     Play,
     Calendar,
-    PlusCircle,
     Trophy,
     History as HistoryIcon,
-    AlertCircle,
     ChevronRight,
     Languages,
     Moon,
     Sun,
     Clock,
     Dumbbell,
-    Hand,
     Settings,
     LogOut,
     User,
     CheckCircle2,
-    Shuffle,
-    FastForward,
-    ArrowRightCircle,
     Book,
     Bed,
 } from 'lucide-react';
@@ -29,11 +23,9 @@ import { useTranslations } from 'next-intl';
 import { useSession } from '@/hooks/useSession';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useRouter } from '@/i18n/routing';
-import { MenuTab } from '@/components/MenuTab';
 import { ScheduleService } from '@/services/scheduleService';
 import { WorkoutService } from '@/services/workoutService';
 import { HistoryService } from '@/services/historyService';
-import { History } from '@/config/types';
 import moment from 'moment';
 import Swal from 'sweetalert2';
 
@@ -50,7 +42,6 @@ export default function HomePage() {
     const startTodayDate = moment().startOf('day').toDate();
     const endTodayDate = moment().endOf('day').toDate();
     const [showProfileMenu, setShowProfileMenu] = useState(false);
-    const [selectedWorkoutId, setSelectedWorkoutId] = useState<number | null>(null);
     const { activeUser, loading } = useSession();
 
     const activeSchedule = useLiveQuery(() =>
@@ -62,7 +53,7 @@ export default function HomePage() {
         WorkoutService.getWorkoutById(activeSchedule?.workouts?.[dayOfWeek] ?? -1),
         [activeSchedule?.id]
     );
-    const estimatedTimeTodayWorkout = Math.round(todayWorkout?.exercises.reduce((acc, exercise) => (acc + ((exercise.sets * exercise.reps * 2.5) + exercise.restTime) / 60), 0) || 0);
+    const estimatedTimeTodayWorkout = Math.round(todayWorkout?.exercises.reduce((acc: number, exercise) => (acc + ((exercise.sets * (exercise.reps * 2.5 + exercise.restTime)) / 60)), 0) || 0);
 
     const todayHistory = useLiveQuery(() =>
         HistoryService
