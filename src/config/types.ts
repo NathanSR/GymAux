@@ -62,7 +62,7 @@ export interface History {
     }[];
     weight?: number; // peso do usuário no dia do treino
     description?: string;
-    startDate: Date;
+    date: Date;
     endDate?: Date;
     completed?: boolean;
 }

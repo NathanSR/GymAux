@@ -8,9 +8,11 @@ import { ChevronLeft, Clock, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import Swal from "sweetalert2";
 
 // --- PÁGINA: EditSchedulePage ---
 export default function EditSchedulePage() {
+    const theme = "dark";
     const router = useRouter();
     const t = useTranslations();
     const { id } = useParams();
@@ -51,15 +53,28 @@ export default function EditSchedulePage() {
     };
 
     const handleDelete = async () => {
-        // Nota: Em produção, recomenda-se um modal de confirmação costumizado
-        if (confirm(t('confirmDeleteSchedule'))) {
-            try {
-                await ScheduleService.deleteSchedule(Number(id));
-                router.push('/schedules');
-            } catch (error) {
-                console.error("Erro ao eliminar cronograma:", error);
+        Swal.fire({
+            title: t('confirmDeleteTitle') || 'Excluir Exercício?',
+            text: t('confirmDeleteText') || "Esta ação não pode ser desfeita!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ef4444', // red-600 (cor de perigo)
+            cancelButtonColor: '#6b7280',  // gray-500
+            confirmButtonText: t('confirmDeleteButton') || 'Sim, deletar',
+            cancelButtonText: 'Cancelar',
+            background: theme === 'dark' ? '#1f2937' : '#ffffff',
+            color: theme === 'dark' ? '#f9fafb' : '#111827',
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                try {
+                    await ScheduleService.deleteSchedule(Number(id));
+                    router.push('/schedules');
+                } catch (error) {
+                    console.error("Erro ao deletar:", error);
+                    // Opcional: Alerta de erro caso a deleção falhe
+                }
             }
-        }
+        });
     };
 
     if (!initialData) return (

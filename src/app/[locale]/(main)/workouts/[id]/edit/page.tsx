@@ -9,8 +9,10 @@ import { useParams } from 'next/navigation';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { ExerciseService } from '@/services/exerciseService';
 import { WorkoutService } from '@/services/workoutService';
+import Swal from 'sweetalert2';
 
 export default function EditWorkoutPage() {
+    const theme = "dark";
     const router = useRouter();
     const { id } = useParams();
     const t = useTranslations('Workouts');
@@ -53,15 +55,28 @@ export default function EditWorkoutPage() {
     };
 
     const handleDelete = async () => {
-        // Nota: Em produção, recomenda-se um modal de confirmação costumizado
-        if (confirm(t('confirmDeleteWorkout'))) {
-            try {
-                await WorkoutService.deleteWorkout(Number(id));
-                router.push('/workouts');
-            } catch (error) {
-                console.error("Erro ao eliminar treino:", error);
+        Swal.fire({
+            title: t('confirmDeleteTitle') || 'Excluir Exercício?',
+            text: t('confirmDeleteText') || "Esta ação não pode ser desfeita!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ef4444', // red-600 (cor de perigo)
+            cancelButtonColor: '#6b7280',  // gray-500
+            confirmButtonText: t('confirmDeleteButton') || 'Sim, deletar',
+            cancelButtonText: 'Cancelar',
+            background: theme === 'dark' ? '#1f2937' : '#ffffff',
+            color: theme === 'dark' ? '#f9fafb' : '#111827',
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                try {
+                    await WorkoutService.deleteWorkout(Number(id));
+                    router.push('/workouts');
+                } catch (error) {
+                    console.error("Erro ao deletar:", error);
+                    // Opcional: Alerta de erro caso a deleção falhe
+                }
             }
-        }
+        });
     };
 
     if (!workout) {

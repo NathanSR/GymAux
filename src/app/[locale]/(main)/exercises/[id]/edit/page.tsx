@@ -7,8 +7,10 @@ import { useTranslations } from 'next-intl';
 import ExerciseForm from '@/components/exercises/ExerciseForm';
 import { useParams } from 'next/navigation';
 import { ExerciseService } from '@/services/exerciseService';
+import Swal from 'sweetalert2';
 
 export default function EditExercisePage() {
+    const theme = 'dark';
     const router = useRouter();
     const { id } = useParams();
     const t = useTranslations('Exercises');
@@ -44,10 +46,28 @@ export default function EditExercisePage() {
     };
 
     const handleDelete = async () => {
-        if (confirm(t('confirmDelete'))) {
-            await ExerciseService.deleteExercise(Number(id));
-            router.push('/exercises');
-        }
+        Swal.fire({
+            title: t('confirmDeleteTitle') || 'Excluir Exercício?',
+            text: t('confirmDeleteText') || "Esta ação não pode ser desfeita!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ef4444', // red-600 (cor de perigo)
+            cancelButtonColor: '#6b7280',  // gray-500
+            confirmButtonText: t('confirmDeleteButton') || 'Sim, deletar',
+            cancelButtonText: 'Cancelar',
+            background: theme === 'dark' ? '#1f2937' : '#ffffff',
+            color: theme === 'dark' ? '#f9fafb' : '#111827',
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                try {
+                    await ExerciseService.deleteExercise(Number(id));
+                    router.push('/exercises');
+                } catch (error) {
+                    console.error("Erro ao deletar:", error);
+                    // Opcional: Alerta de erro caso a deleção falhe
+                }
+            }
+        });
     };
 
     if (!exercise) {

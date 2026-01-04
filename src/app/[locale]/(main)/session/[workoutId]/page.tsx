@@ -7,13 +7,16 @@ import { WorkoutService } from '@/services/workoutService';
 import { History, Workout } from '@/config/types';
 import { RestTimer } from '@/components/session/RestTimer';
 import { useRouter } from '@/i18n/routing';
-import { set, useForm } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { HistoryService } from '@/services/historyService';
 import { useSession } from '@/hooks/useSession';
 import { WorkoutDrawer } from '@/components/session/WorkoutDrawer';
+import moment from 'moment';
+import Swal from 'sweetalert2';
 
 
 export default function ActiveWorkoutPage() {
+    const theme = "dark";
     const { workoutId } = useParams();
     const router = useRouter();
     const { activeUser } = useSession()
@@ -76,7 +79,7 @@ export default function ActiveWorkoutPage() {
                         userId: activeUser.id as number,
                         workoutId: workout.id as number,
                         workoutName: workout.name,
-                        date: new Date(),
+                        date: moment().toDate(),
                         executions: [],
                         completed: false
                     });
@@ -125,7 +128,8 @@ export default function ActiveWorkoutPage() {
             executions: updatedExecutions,
             weight: Number(getValues("userWeight")),
             description: getValues("description"),
-            completed: currentStep === 'completion'
+            completed: currentStep === 'completion',
+            endDate: currentStep === 'completion' ? moment().toDate() : undefined
         });
     };
 
@@ -135,6 +139,7 @@ export default function ActiveWorkoutPage() {
             weight: Number(formData.weight),
             reps: Number(formData.reps),
             rpe: Number(formData.rpe),
+            completed: true
         };
 
         let updatedExecutions = [...workoutExecutions];
@@ -171,6 +176,25 @@ export default function ActiveWorkoutPage() {
         } else {
             setCurrentStep('completion');
         }
+    };
+
+    const handleForceFinishWorkout = () => {
+        Swal.fire({
+            title: 'Finalizar Treino?',
+            text: "Você ainda possui exercícios pendentes. Deseja encerrar mesmo assim?",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#10b981', // emerald-500 (sucesso/conclusão)
+            cancelButtonColor: '#6b7280',  // gray-500
+            confirmButtonText: 'Sim, finalizar',
+            cancelButtonText: 'Continuar treinando',
+            background: theme === 'dark' ? '#1f2937' : '#ffffff',
+            color: theme === 'dark' ? '#f9fafb' : '#111827',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                setCurrentStep('completion');
+            }
+        });
     };
 
     const onFinishWorkout = () => {
@@ -338,7 +362,7 @@ export default function ActiveWorkoutPage() {
                     </form>}
                     <button
                         type="button"
-                        onClick={() => setCurrentStep('completion')}
+                        onClick={handleForceFinishWorkout}
                         className="mt-4 cursor-pointer w-full py-4 bg-zinc-900 text-red-500/60 rounded-[24px] font-black uppercase text-[10px] border border-zinc-800 tracking-widest"
                     >
                         Finalizar Agora

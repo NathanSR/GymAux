@@ -8,15 +8,18 @@ import {
     Calendar,
     LayoutGrid,
     ChevronLeft,
-    Edit
+    Edit,
+    Play
 } from 'lucide-react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useSession } from '@/hooks/useSession';
 import { useRouter } from '@/i18n/routing';
 import { WorkoutService } from '@/services/workoutService';
+import Swal from 'sweetalert2';
 
 
 export default function WorkoutsPage() {
+    const theme = "dark";
     const router = useRouter();
     const [searchQuery, setSearchQuery] = useState('');
 
@@ -34,6 +37,25 @@ export default function WorkoutsPage() {
         }) || [];
     }, [searchQuery, workouts]);
 
+    const onPlayWorkout = (workoutId: number) => {
+        Swal.fire({
+            title: 'Iniciar Treino?',
+            text: "Você está pronto para começar?",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#2563eb', // blue-600
+            cancelButtonColor: '#ef4444', // red-500
+            confirmButtonText: 'Sim, vamos!',
+            cancelButtonText: 'Agora não',
+            // Adaptação de tema via Tailwind/CSS
+            background: theme === 'dark' ? '#1f2937' : '#ffffff', // gray-800 ou white
+            color: theme === 'dark' ? '#f9fafb' : '#111827',      // gray-50 ou gray-900
+        }).then((result) => {
+            if (result.isConfirmed) {
+                router.push(`/session/${workoutId}`);
+            }
+        });
+    }
 
     return (
         <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white pb-24 transition-colors">
@@ -72,58 +94,53 @@ export default function WorkoutsPage() {
                 {filteredWorkouts.map((workout) => (
                     <div
                         key={workout.id}
-                        className="group relative bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 rounded-[36px] p-6 shadow-sm overflow-hidden active:scale-[0.98] transition-all"
+                        className="group relative bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 rounded-[32px] p-6 shadow-sm transition-all"
                     >
-                        <div className="flex justify-between items-start relative z-10">
-                            <div className="space-y-3">
+                        <div className="flex flex-row justify-between items-center gap-4">
+
+                            {/* Lado Esquerdo: Informações do Treino */}
+                            <div className="flex-1 space-y-2">
                                 <div className="flex items-center gap-2">
-                                    <div className={`w-2 h-2 rounded-full bg-lime-400`} />
+                                    <div className="w-2 h-2 rounded-full bg-lime-400" />
                                     <span className="text-[10px] font-black uppercase text-zinc-400 tracking-widest">
                                         {workout?.exercises?.length || 0} Exercícios
                                     </span>
                                 </div>
-                                <h3 className="text-lg font-black leading-tight text-wrap">
+
+                                <h3 className="text-xl font-black leading-tight text-zinc-900 dark:text-zinc-100">
                                     {workout.name}
                                 </h3>
-                                <div className="flex items-center gap-3 pt-2">
-                                    <div className="flex items-center gap-1 text-zinc-400 font-bold text-[10px] uppercase">
-                                        <Calendar size={12} />
-                                        {workout.createdAt.toLocaleDateString()}
-                                    </div>
+
+                                <div className="flex items-center gap-1 text-zinc-400 font-bold text-[10px] uppercase">
+                                    <Calendar size={12} />
+                                    {workout.createdAt.toLocaleDateString()}
                                 </div>
                             </div>
 
-                            <button
-                                className='flex gap-2 text-lime-500 text-sm items-center cursor-pointer'
-                                onClick={() => router.push(`/workouts/${workout.id}/edit`)}
-                            >
-                                <Edit size={24} className="text-lime-300 dark:text-lime-700" />
-                                Editar
-                            </button>
-                        </div>
+                            {/* Lado Direito: Ações em Coluna */}
+                            <div className="flex flex-col gap-2 min-w-[120px]">
+                                {/* Botão Play - Ação Primária */}
+                                <button
+                                    onClick={() => onPlayWorkout(workout.id as number)}
+                                    className="flex items-center justify-center gap-2 bg-lime-400 hover:bg-lime-500 text-zinc-950 py-3 px-4 rounded-2xl font-black text-xs uppercase tracking-wider transition-all active:scale-95 cursor-pointer shadow-sm shadow-lime-400/20"
+                                >
+                                    <Play size={16} fill="currentColor" />
+                                    Treinar
+                                </button>
 
-                        {/* Ações de Edição */}
-                        {/* <div className="mt-6 pt-4 border-t border-zinc-50 dark:border-zinc-800 flex justify-between items-center text-zinc-400">
-                            <button className="text-[10px] font-black uppercase tracking-widest hover:text-lime-500 transition-colors">
-                                Ver detalhes
-                            </button>
-                            <button
-                                onClick={() => console.log('Edit', workout.id)}
-                                className="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-xl transition-colors"
-                            >
-                                <MoreVertical size={18} />
-                            </button>
-                        </div> */}
+                                {/* Botão Editar - Ação Secundária */}
+                                <button
+                                    onClick={() => router.push(`/workouts/${workout.id}/edit`)}
+                                    className="flex items-center justify-center gap-2 bg-zinc-50 dark:bg-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-700 text-zinc-600 dark:text-zinc-300 py-3 px-4 rounded-2xl font-bold text-xs uppercase tracking-wider transition-all active:scale-95 cursor-pointer border border-zinc-200 dark:border-zinc-700"
+                                >
+                                    <Edit size={16} />
+                                    Editar
+                                </button>
+                            </div>
+
+                        </div>
                     </div>
                 ))}
-
-                {/* Empty State Simplificado */}
-                {filteredWorkouts.length === 0 && (
-                    <div className="py-20 text-center space-y-4 opacity-40">
-                        <LayoutGrid size={48} className="mx-auto" />
-                        <p className="font-bold text-sm">Nenhum treino criado ainda.</p>
-                    </div>
-                )}
             </main>
         </div>
     );

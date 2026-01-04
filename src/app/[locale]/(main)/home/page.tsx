@@ -21,7 +21,9 @@ import {
     CheckCircle2,
     Shuffle,
     FastForward,
-    ArrowRightCircle
+    ArrowRightCircle,
+    Book,
+    Bed,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useSession } from '@/hooks/useSession';
@@ -33,6 +35,7 @@ import { WorkoutService } from '@/services/workoutService';
 import { HistoryService } from '@/services/historyService';
 import { History } from '@/config/types';
 import moment from 'moment';
+import Swal from 'sweetalert2';
 
 
 
@@ -40,36 +43,40 @@ export default function HomePage() {
     const t = useTranslations('Home');
     const router = useRouter();
 
-    // Simulação de hooks que falhariam sem a instalação local
-    const [isDarkMode, setIsDarkMode] = useState(true);
+    const theme = "dark"
+    const locale = "pt";
+    const today = moment().toDate();
+    const dayOfWeek = moment().day();
+    const startTodayDate = moment().startOf('day').toDate();
+    const endTodayDate = moment().endOf('day').toDate();
     const [showProfileMenu, setShowProfileMenu] = useState(false);
     const [selectedWorkoutId, setSelectedWorkoutId] = useState<number | null>(null);
-
     const { activeUser, loading } = useSession();
 
     const activeSchedule = useLiveQuery(() =>
         ScheduleService.getActiveSchedule(activeUser?.id ?? -1),
-        [activeUser?.id]);
+        [activeUser?.id]
+    );
 
-    const workouts = useLiveQuery(() =>
-        WorkoutService.getWorkoutsByUserId(activeUser?.id ?? -1),
-        [activeUser?.id]) || [];
+    const todayWorkout = useLiveQuery(() =>
+        WorkoutService.getWorkoutById(activeSchedule?.workouts?.[dayOfWeek] ?? -1),
+        [activeSchedule?.id]
+    );
+    const estimatedTimeTodayWorkout = Math.round(todayWorkout?.exercises.reduce((acc, exercise) => (acc + ((exercise.sets * exercise.reps * 2.5) + exercise.restTime) / 60), 0) || 0);
 
     const todayHistory = useLiveQuery(() =>
         HistoryService
-            .getHistoryByRange(activeUser?.id ?? -1, moment().startOf('day').toDate(), moment().endOf('day').toDate())
-            .then(h => h.at(-1)),
-        [activeUser?.id]) || null;
+            .getHistoryByRange(activeUser?.id ?? -1, startTodayDate, endTodayDate)
+            .then(h => h.find(h => h.workoutId === todayWorkout?.id)),
+        [activeUser?.id, todayWorkout?.id]) || null;
 
     const historyList = useLiveQuery(() =>
         HistoryService
             .getUserHistory(activeUser?.id ?? -1, 1, 4),
-        [activeUser?.id]) || [];
+        [activeUser?.id, todayWorkout?.id]) || [];
 
-    const locale = "pt";
 
-    const today = new Date();
-    const dayOfWeek = today.getDay();
+
 
     const handleLogout = () => {
         router.push('/');
@@ -80,17 +87,6 @@ export default function HomePage() {
         day: 'numeric',
         month: 'long'
     }).format(today);
-
-    // 2. Identifica o treino de hoje usando a interface Schedule
-    const todayWorkout = useMemo(() => {
-        const id = selectedWorkoutId || activeSchedule?.workouts[dayOfWeek];
-        return workouts.find(w => w.id === id);
-    }, [dayOfWeek, activeSchedule, workouts, selectedWorkoutId]);
-
-    const tomorrowWorkout = useMemo(() => {
-        const id = selectedWorkoutId || activeSchedule?.workouts[dayOfWeek + 1];
-        return workouts.find(w => w.id === id);
-    }, [dayOfWeek, activeSchedule, workouts, selectedWorkoutId]);
 
     // 3. Lógica de Alerta de Ontem
     // const missedWorkout = useMemo(() => {
@@ -105,8 +101,28 @@ export default function HomePage() {
         </div>
     );
 
+    const onPlayWorkout = (workoutId: number) => {
+        Swal.fire({
+            title: 'Iniciar Treino?',
+            text: "Você está pronto para começar?",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#2563eb', // blue-600
+            cancelButtonColor: '#ef4444', // red-500
+            confirmButtonText: 'Sim, vamos!',
+            cancelButtonText: 'Agora não',
+            // Adaptação de tema via Tailwind/CSS
+            background: theme === 'dark' ? '#1f2937' : '#ffffff', // gray-800 ou white
+            color: theme === 'dark' ? '#f9fafb' : '#111827',      // gray-50 ou gray-900
+        }).then((result) => {
+            if (result.isConfirmed) {
+                router.push(`/session/${workoutId}`);
+            }
+        });
+    }
+
     return (
-        <div className={`${isDarkMode ? 'dark' : ''}`}>
+        <div className={`${theme === 'dark' ? 'dark' : ''}`}>
             <div className="min-h-screen bg-white dark:bg-zinc-950 text-zinc-900 dark:text-white p-6 pb-32 transition-colors duration-300 font-sans">
 
                 {/* --- HEADER COM MENU DE PERFIL --- */}
@@ -137,11 +153,11 @@ export default function HomePage() {
                                     </div>
 
                                     <button
-                                        onClick={() => { setIsDarkMode(!isDarkMode); setShowProfileMenu(false); }}
+                                        onClick={() => { setShowProfileMenu(false); }}
                                         className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-xl transition-colors"
                                     >
-                                        {isDarkMode ? <Sun size={18} className="text-amber-500" /> : <Moon size={18} className="text-indigo-500" />}
-                                        {isDarkMode ? 'Modo Claro' : 'Modo Escuro'}
+                                        {theme === 'dark' ? <Sun size={18} className="text-amber-500" /> : <Moon size={18} className="text-indigo-500" />}
+                                        {theme === 'dark' ? 'Modo Claro' : 'Modo Escuro'}
                                     </button>
 
                                     <button className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-xl transition-colors">
@@ -206,66 +222,26 @@ export default function HomePage() {
                                 <Dumbbell size={14} /> {todayWorkout?.exercises?.length || 0} Exercícios
                             </div>
                             <div className="flex items-center gap-1.5">
-                                <Clock size={14} /> Est. 50 min
+                                <Clock size={14} /> Est. {estimatedTimeTodayWorkout} min
                             </div>
                         </div>
 
                         <div className="flex flex-col gap-3">
                             <button
                                 disabled={!todayWorkout || todayHistory?.completed}
-                                className={`w-full py-5 rounded-2xl font-black flex items-center justify-center gap-3 transition-all shadow-lg active:scale-95 ${todayHistory?.completed
+                                className={` w-full py-5 rounded-2xl font-black flex items-center justify-center gap-3 transition-all shadow-lg active:scale-95 ${todayHistory?.completed || !todayWorkout
                                     ? 'bg-zinc-300 dark:bg-zinc-800 text-zinc-500 cursor-not-allowed'
-                                    : 'bg-zinc-950 text-white hover:scale-[1.02]'
+                                    : 'cursor-pointer bg-zinc-950 text-white hover:scale-[1.02]'
                                     }`}
-                                onClick={() => router.push(`/session/${todayWorkout?.id}`)}
+                                onClick={() => onPlayWorkout(todayWorkout?.id as number)}
                             >
-                                <Play size={20} fill="currentColor" />
-                                {todayHistory?.completed ? 'TREINO FINALIZADO' : 'INICIAR SESSÃO'}
+                                {todayHistory?.completed ? <CheckCircle2 size={20} /> : todayWorkout ? <Play size={20} fill="currentColor" /> : <Bed size={20} fill="currentColor" />}
+                                {!todayWorkout ? "DESCANSO" : todayHistory?.completed ? 'TREINO FINALIZADO' : 'INICIAR SESSÃO'}
                             </button>
 
-                            {!todayHistory?.completed && (
-                                <div className="grid grid-cols-2 gap-3 mt-1">
-                                    <button
-                                        onClick={() => setSelectedWorkoutId(workouts.find(w => w.id !== todayWorkout?.id)?.id as number)}
-                                        className="py-3 bg-white/20 dark:bg-black/20 rounded-xl text-[10px] font-black uppercase flex items-center justify-center gap-2 backdrop-blur-sm border border-black/5"
-                                    >
-                                        <Shuffle size={14} /> Outro Treino
-                                    </button>
-                                    <button className="py-3 bg-white/20 dark:bg-black/20 rounded-xl text-[10px] font-black uppercase flex items-center justify-center gap-2 backdrop-blur-sm border border-black/5">
-                                        Pular Dia
-                                    </button>
-                                </div>
-                            )}
                         </div>
                     </div>
                 </section>
-
-                {/* --- SEÇÃO DE ANTECIPAÇÃO (APARECE QUANDO CONCLUÍDO) --- */}
-                {todayHistory?.completed && tomorrowWorkout && (
-                    <section className="animate-in fade-in slide-in-from-top-4 duration-500 mb-8">
-                        <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl p-5 flex items-center justify-between group">
-                            <div className="flex items-center gap-4">
-                                <div className="w-12 h-12 bg-zinc-100 dark:bg-zinc-800 rounded-2xl flex items-center justify-center text-zinc-500">
-                                    <FastForward size={24} />
-                                </div>
-                                <div>
-                                    <p className="text-[10px] font-black uppercase text-zinc-500 tracking-widest">Próximo Treino</p>
-                                    <h4 className="text-sm font-black truncate max-w-[150px] dark:text-zinc-200">
-                                        {tomorrowWorkout.name}
-                                    </h4>
-                                </div>
-                            </div>
-
-                            <button
-                                onClick={() => router.push(`/session/${tomorrowWorkout?.id}`)}
-                                className="bg-lime-500 hover:bg-lime-400 text-zinc-950 px-4 py-3 rounded-xl font-black text-[11px] uppercase flex items-center gap-2 transition-all active:scale-95 shadow-sm"
-                            >
-                                Antecipar
-                                <ArrowRightCircle size={16} />
-                            </button>
-                        </div>
-                    </section>
-                )}
 
                 {/* Atalhos */}
                 <div className="grid grid-cols-2 gap-4 mb-10">
@@ -273,22 +249,29 @@ export default function HomePage() {
                         onClick={() => router.push('/exercises')}
                         className="bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 p-6 rounded-[32px] flex flex-col items-center gap-3 active:scale-95 shadow-sm cursor-pointer"
                     >
-                        <div className="bg-amber-500/10 p-4 rounded-2xl text-amber-500"><Hand size={28} /></div>
+                        <div className="bg-amber-500/10 p-4 rounded-2xl text-amber-500"><Book size={28} /></div>
                         <span className="text-sm font-black uppercase tracking-tighter">{t('exercises')}</span>
                     </button>
                     <button
                         onClick={() => router.push('/workouts')}
                         className="bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 p-6 rounded-[32px] flex flex-col items-center gap-3 active:scale-95 shadow-sm cursor-pointer"
                     >
-                        <div className="bg-blue-500/10 p-4 rounded-2xl text-blue-500"><PlusCircle size={28} /></div>
-                        <span className="text-sm font-black uppercase tracking-tighter">{t('newWorkout')}</span>
+                        <div className="bg-blue-500/10 p-4 rounded-2xl text-blue-500"><Dumbbell size={28} /></div>
+                        <span className="text-sm font-black uppercase tracking-tighter">{t('workouts')}</span>
                     </button>
                     <button
                         onClick={() => router.push('/schedules')}
                         className="bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 p-6 rounded-[32px] flex flex-col items-center gap-3 active:scale-95 shadow-sm cursor-pointer"
                     >
                         <div className="bg-cyan-500/10 p-4 rounded-2xl text-cyan-500"><Calendar size={28} /></div>
-                        <span className="text-sm font-black uppercase tracking-tighter">{t('newSchedule')}</span>
+                        <span className="text-sm font-black uppercase tracking-tighter">{t('schedules')}</span>
+                    </button>
+                    <button
+                        onClick={() => router.push('/histories')}
+                        className="bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 p-6 rounded-[32px] flex flex-col items-center gap-3 active:scale-95 shadow-sm cursor-pointer"
+                    >
+                        <div className="bg-cyan-500/10 p-4 rounded-2xl text-cyan-500"><HistoryIcon size={28} /></div>
+                        <span className="text-sm font-black uppercase tracking-tighter">{t('histories')}</span>
                     </button>
                 </div>
 
@@ -307,7 +290,7 @@ export default function HomePage() {
                     <div className="space-y-4">
                         {historyList.map((item) => {
                             const timeAgo = moment(item.endDate).fromNow();
-                            const duration = moment.duration(moment(item.endDate).diff(moment(item.startDate)));
+                            const duration = moment.duration(moment(item.endDate).diff(moment(item.date)));
                             const minutes = Math.floor(duration.asMinutes());
                             return (
                                 <div key={item.id} className="flex items-center gap-4 p-3 bg-zinc-50 dark:bg-zinc-800/50 rounded-2xl border border-zinc-100 dark:border-zinc-800">
