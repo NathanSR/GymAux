@@ -13,7 +13,7 @@ export const HistoryService = {
 
         const dataToSave = {
             ...historyData,
-            startDate: historyData.startDate || new Date(),
+            date: historyData.date || new Date(),
             completed: historyData.completed || false
         };
 
@@ -111,7 +111,7 @@ export const HistoryService = {
         return await db.history
             .where('userId')
             .equals(userId)
-            .filter(log => log.startDate >= startDate && log.startDate <= endDate)
+            .filter(log => log.date >= startDate && log.date <= endDate)
             .toArray();
     },
 

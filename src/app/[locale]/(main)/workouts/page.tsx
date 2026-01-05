@@ -16,6 +16,7 @@ import { useSession } from '@/hooks/useSession';
 import { useRouter } from '@/i18n/routing';
 import { WorkoutService } from '@/services/workoutService';
 import Swal from 'sweetalert2';
+import { SessionService } from '@/services/sessionService';
 
 
 export default function WorkoutsPage() {
@@ -36,26 +37,6 @@ export default function WorkoutsPage() {
             return matchesSearch;
         }) || [];
     }, [searchQuery, workouts]);
-
-    const onPlayWorkout = (workoutId: number) => {
-        Swal.fire({
-            title: 'Iniciar Treino?',
-            text: "Você está pronto para começar?",
-            icon: 'question',
-            showCancelButton: true,
-            confirmButtonColor: '#2563eb', // blue-600
-            cancelButtonColor: '#ef4444', // red-500
-            confirmButtonText: 'Sim, vamos!',
-            cancelButtonText: 'Agora não',
-            // Adaptação de tema via Tailwind/CSS
-            background: theme === 'dark' ? '#1f2937' : '#ffffff', // gray-800 ou white
-            color: theme === 'dark' ? '#f9fafb' : '#111827',      // gray-50 ou gray-900
-        }).then((result) => {
-            if (result.isConfirmed) {
-                router.push(`/session/${workoutId}`);
-            }
-        });
-    }
 
     return (
         <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white pb-24 transition-colors">
@@ -121,7 +102,7 @@ export default function WorkoutsPage() {
                             <div className="flex flex-col gap-2 min-w-[120px]">
                                 {/* Botão Play - Ação Primária */}
                                 <button
-                                    onClick={() => onPlayWorkout(workout.id as number)}
+                                    onClick={() => SessionService.onPlayWorkout(workout, router, theme)}
                                     className="flex items-center justify-center gap-2 bg-lime-400 hover:bg-lime-500 text-zinc-950 py-3 px-4 rounded-2xl font-black text-xs uppercase tracking-wider transition-all active:scale-95 cursor-pointer shadow-sm shadow-lime-400/20"
                                 >
                                     <Play size={16} fill="currentColor" />

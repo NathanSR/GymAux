@@ -1,5 +1,5 @@
 import Dexie, { type Table } from 'dexie';
-import { Exercise, History, User, Workout, Schedule } from './types';
+import { Exercise, History, User, Workout, Schedule, Session } from './types';
 import { DEFAULT_EXERCISES } from "./seedExercises";
 
 // --- Configuração do Banco ---
@@ -10,6 +10,7 @@ export class GymDatabase extends Dexie {
     workouts!: Table<Workout>;
     history!: Table<History>;
     schedules!: Table<Schedule>;
+    sessions!: Table<Session>;
 
     constructor() {
         super('GymAppDB');
@@ -20,7 +21,8 @@ export class GymDatabase extends Dexie {
             exercises: '++id, name, category, *tags', // * significa que podemos buscar dentro do array de tags
             workouts: '++id, userId, name',
             history: '++id, userId, date, workoutId',
-            schedules: '++id, name, userId, active'
+            schedules: '++id, name, userId, active',
+            sessions: '++id, userId, date, workoutId'
         });
 
         // Esta lógica roda apenas na criação do banco

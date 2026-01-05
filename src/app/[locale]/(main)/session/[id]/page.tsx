@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { ChevronLeft, Clock, Dumbbell, Check, ArrowRight, Plus, Trophy, Save, List } from 'lucide-react';
 import { useParams } from 'next/navigation';
 import { WorkoutService } from '@/services/workoutService';
-import { History, Workout } from '@/config/types';
+import { History, Session, Workout } from '@/config/types';
 import { RestTimer } from '@/components/session/RestTimer';
 import { useRouter } from '@/i18n/routing';
 import { useForm } from 'react-hook-form';
@@ -13,42 +13,64 @@ import { useSession } from '@/hooks/useSession';
 import { WorkoutDrawer } from '@/components/session/WorkoutDrawer';
 import moment from 'moment';
 import Swal from 'sweetalert2';
+import { SessionService } from '@/services/sessionService';
 
 
-export default function ActiveWorkoutPage() {
+export default function SessionPage() {
     const theme = "dark";
-    const { workoutId } = useParams();
+    const { id } = useParams();
     const router = useRouter();
-    const { activeUser } = useSession()
 
     const [currentStep, setCurrentStep] = useState<'executing' | 'resting' | 'completion'>('executing');
     const [currentExerciseIndex, setCurrentExerciseIndex] = useState(0);
     const [currentSetIndex, setCurrentSetIndex] = useState(0);
-    const [isResting, setIsResting] = useState(false);
-    const [history, setHistory] = useState<History>();
-    const [workoutExecutions, setWorkoutExecutions] = useState<any[]>([]);
+
+    const [session, setSession] = useState<Session | null>(null);
     const [showPreview, setShowPreview] = useState(false);
 
-    const [workout, setWorkout] = useState<Workout | null>(null);
+    const calculateStateProgress = (session: Session) => {
+        if (!session.exercisesDone || session.exercisesDone.length === 0) return;
 
+        const done = session.exercisesDone;
+        const lastExIndex = done.length - 1;
+        const lastExSetsDone = done[lastExIndex].sets.length;
+        const expectedSets = session.exercisesToDo?.[lastExIndex]?.sets || 0;
+
+        if (lastExSetsDone >= expectedSets) {
+            // Se terminou todas as séries do último exercício registrado
+            if (lastExIndex >= (session.exercisesToDo?.length || 0) - 1) {
+                setCurrentStep('completion');
+            } else {
+                setCurrentExerciseIndex(lastExIndex + 1);
+                setCurrentSetIndex(0);
+            }
+        } else {
+            // Se ainda faltam séries no exercício atual
+            setCurrentExerciseIndex(lastExIndex);
+            setCurrentSetIndex(lastExSetsDone);
+        }
+    };
+
+    // Carregar dados da sessão
     useEffect(() => {
-        const fetchWorkout = async () => {
+        const fetchSession = async () => {
             try {
-                const data: any = await WorkoutService.getWorkoutById(Number(workoutId));
+                const data: any = await SessionService.getSessionById(Number(id));
                 if (data) {
-                    setWorkout(data);
+                    setSession(data);
+                    calculateStateProgress(data);
                 } else {
-                    router.push('/workouts');
+                    router.push('/home');
                 }
             } catch (error) {
-                console.error("Erro ao carregar treino:", error);
-                router.push('/workouts');
+                console.error("Erro ao carregar sessão:", error);
+                router.push('/home');
             }
         };
-        fetchWorkout();
-    }, [workoutId, router]);
+        fetchSession();
+    }, [id, router]);
 
-    const currentExercise = workout?.exercises[currentExerciseIndex];
+    const currentExercise = session?.exercisesToDo?.[currentExerciseIndex];
 
     // Configuração do React Hook Form
     const { register, handleSubmit, watch, reset, getValues } = useForm({
@@ -61,88 +83,26 @@ export default function ActiveWorkoutPage() {
         }
     });
 
-    const isInitializing = useRef(false);
 
-    // Inicializa a sessão no banco de dados assim que o componente carrega
-    useEffect(() => {
-        if (!workout?.id || !activeUser?.id || isInitializing.current) return;
+    const synchronizeProgress = async (updatedExecutions: any) => {
+        if (!session) return;
 
-        const initializeDatabaseSession = async () => {
-            isInitializing.current = true; // Bloqueia novas execuções
-
-            try {
-                const existing = await HistoryService.getPendingHistory(activeUser?.id as number);
-                if (existing) {
-                    setHistory(existing);
-                } else {
-                    const data = await HistoryService.createWorkout({
-                        userId: activeUser.id as number,
-                        workoutId: workout.id as number,
-                        workoutName: workout.name,
-                        date: moment().toDate(),
-                        executions: [],
-                        completed: false
-                    });
-                    setHistory(data);
-                }
-            } finally {
-                // Se quiser permitir nova execução caso o workout mude, 
-                // isInitializing.current = false;
-            }
-        };
-
-        initializeDatabaseSession();
-    }, [activeUser, workout]);
-
-    useEffect(() => {
-        // Só executa se o history existir e tiver o campo executions
-        if (!history || !history.executions || history.executions.length === 0 || !workout) {
-            return;
-        }
-
-        setWorkoutExecutions(history.executions);
-
-        const lastExecutionIndex = history.executions.length - 1;
-        const lastSetIndex = history.executions[lastExecutionIndex].sets.length - 1;
-
-        if (workout.exercises[lastExecutionIndex]?.sets == lastSetIndex + 1) {
-            if (workout.exercises.length == lastExecutionIndex + 1) {
-                setCurrentStep('completion');
-            } else {
-                setCurrentSetIndex(0);
-                setCurrentExerciseIndex(lastExecutionIndex + 1);
-            }
-        } else {
-            setCurrentSetIndex(lastSetIndex + 1);
-            setCurrentExerciseIndex(lastExecutionIndex);
-        }
-
-    }, [history, workout]);
-
-
-
-    const synchronizeProgress = async (updatedExecutions: History["executions"]) => {
-        if (!history) return;
-
-        await HistoryService.updateHistory(history?.id as number, {
-            executions: updatedExecutions,
-            weight: Number(getValues("userWeight")),
-            description: getValues("description"),
-            completed: currentStep === 'completion',
-            endDate: currentStep === 'completion' ? moment().toDate() : undefined
+        await SessionService.syncSessionProgress(session?.id as number, {
+            exercisesDone: updatedExecutions,
         });
     };
 
     const handleSetCompletion = (formData: any) => {
+        if (!session) return;
+
         // Criando o objeto da série conforme a interface History.sets
         const newSet = {
             weight: Number(formData.weight),
             reps: Number(formData.reps),
             rpe: Number(formData.rpe),
-            completed: true
         };
 
-        let updatedExecutions = [...workoutExecutions];
+        let updatedExecutions = [...session.exercisesDone];
         const exIdx = updatedExecutions.findIndex((e: any) => e.exerciseId === currentExercise?.exerciseId);
 
         if (exIdx !== -1) {
@@ -150,27 +110,27 @@ export default function ActiveWorkoutPage() {
         } else {
             // Primeiro set deste exercício
             updatedExecutions.push({
-                exerciseId: currentExercise?.exerciseId,
-                exerciseName: currentExercise?.exerciseName,
+                exerciseId: currentExercise?.exerciseId as number,
+                exerciseName: currentExercise?.exerciseName as string,
                 sets: [newSet]
             });
         }
 
-        setWorkoutExecutions(updatedExecutions);
+        setSession({ ...session, exercisesDone: updatedExecutions })
         synchronizeProgress(updatedExecutions);
 
         // Resetar campos para a próxima série/exercício (opcional: manter peso anterior)
         reset({ ...getValues() });
 
-        setIsResting(true);
+        setCurrentStep('resting');
 
     };
 
     const moveToNextStep = () => {
-        setIsResting(false);
+        setCurrentStep('executing');
         if (currentSetIndex < (currentExercise?.sets || 0) - 1) {
             setCurrentSetIndex(prev => prev + 1);
-        } else if (currentExerciseIndex < (workout?.exercises.length || 0) - 1) {
+        } else if (currentExerciseIndex < (session?.exercisesToDo.length || 0) - 1) {
             setCurrentExerciseIndex(prev => prev + 1);
             setCurrentSetIndex(0);
         } else {
@@ -198,7 +158,8 @@ export default function ActiveWorkoutPage() {
     };
 
     const onFinishWorkout = () => {
-        synchronizeProgress(workoutExecutions);
+        synchronizeProgress(session?.exercisesDone);
+        SessionService.finishSession(session?.id as number, { weight: getValues().weight, description: getValues().description });
         router.push('/home');
     };
 
@@ -255,7 +216,7 @@ export default function ActiveWorkoutPage() {
             <WorkoutDrawer
                 showPreview={showPreview}
                 onClose={() => setShowPreview(false)}
-                exercises={workout?.exercises}
+                exercises={session?.exercisesToDo}
                 currentExerciseIndex={currentExerciseIndex}
             />
 
@@ -269,7 +230,7 @@ export default function ActiveWorkoutPage() {
                     <ChevronLeft size={24} />
                 </button>
                 <div className="">
-                    <h1 className="font-black text-zinc-500 uppercase tracking-widest truncate max-w-[200px]">{workout?.name}</h1>
+                    <h1 className="font-black text-zinc-500 uppercase tracking-widest truncate max-w-[200px]">{session?.workoutName}</h1>
                     <div className="flex items-center justify-center gap-1.5 mt-2">
                         {Array.from({ length: currentExercise?.sets || 0 }).map((_, i) => (
                             <div
@@ -294,7 +255,7 @@ export default function ActiveWorkoutPage() {
                     <div className="mb-8 animate-in slide-in-from-left duration-300">
                         <div className="flex items-center gap-2 mb-2">
                             <span className="text-[9px] font-black text-lime-400 uppercase tracking-widest bg-lime-400/10 px-2 py-1 rounded">
-                                Exercício {currentExerciseIndex + 1}/{workout?.exercises.length}
+                                Exercício {currentExerciseIndex + 1}/{session?.exercisesToDo.length}
                             </span>
                         </div>
                         <h2 className="text-3xl font-black uppercase tracking-tight italic leading-tight">
@@ -318,7 +279,7 @@ export default function ActiveWorkoutPage() {
                         </div>
                     </div>
 
-                    {isResting ? (
+                    {currentStep === 'resting' ? (
                         <RestTimer
                             seconds={currentExercise?.restTime || 0}
                             onFinish={moveToNextStep}

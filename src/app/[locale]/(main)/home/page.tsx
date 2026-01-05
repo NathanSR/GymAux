@@ -27,7 +27,7 @@ import { ScheduleService } from '@/services/scheduleService';
 import { WorkoutService } from '@/services/workoutService';
 import { HistoryService } from '@/services/historyService';
 import moment from 'moment';
-import Swal from 'sweetalert2';
+import { SessionService } from '@/services/sessionService';
 
 
 
@@ -91,26 +91,6 @@ export default function HomePage() {
             <div className="w-8 h-8 border-4 border-lime-400 border-t-transparent rounded-full animate-spin" />
         </div>
     );
-
-    const onPlayWorkout = (workoutId: number) => {
-        Swal.fire({
-            title: 'Iniciar Treino?',
-            text: "Você está pronto para começar?",
-            icon: 'question',
-            showCancelButton: true,
-            confirmButtonColor: '#2563eb', // blue-600
-            cancelButtonColor: '#ef4444', // red-500
-            confirmButtonText: 'Sim, vamos!',
-            cancelButtonText: 'Agora não',
-            // Adaptação de tema via Tailwind/CSS
-            background: theme === 'dark' ? '#1f2937' : '#ffffff', // gray-800 ou white
-            color: theme === 'dark' ? '#f9fafb' : '#111827',      // gray-50 ou gray-900
-        }).then((result) => {
-            if (result.isConfirmed) {
-                router.push(`/session/${workoutId}`);
-            }
-        });
-    }
 
     return (
         <div className={`${theme === 'dark' ? 'dark' : ''}`}>
@@ -224,7 +204,7 @@ export default function HomePage() {
                                     ? 'bg-zinc-300 dark:bg-zinc-800 text-zinc-500 cursor-not-allowed'
                                     : 'cursor-pointer bg-zinc-950 text-white hover:scale-[1.02]'
                                     }`}
-                                onClick={() => onPlayWorkout(todayWorkout?.id as number)}
+                                onClick={() => SessionService.onPlayWorkout(todayWorkout, router, theme)}
                             >
                                 {todayHistory?.completed ? <CheckCircle2 size={20} /> : todayWorkout ? <Play size={20} fill="currentColor" /> : <Bed size={20} fill="currentColor" />}
                                 {!todayWorkout ? "DESCANSO" : todayHistory?.completed ? 'TREINO FINALIZADO' : 'INICIAR SESSÃO'}
