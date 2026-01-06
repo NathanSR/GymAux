@@ -10,9 +10,11 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { ExerciseService } from '@/services/exerciseService';
 import { WorkoutService } from '@/services/workoutService';
 import Swal from 'sweetalert2';
+import { useTheme } from '@/context/ThemeContext';
 
 export default function EditWorkoutPage() {
-    const theme = "dark";
+    const { theme } = useTheme();
+
     const router = useRouter();
     const { id } = useParams();
     const t = useTranslations('Workouts');

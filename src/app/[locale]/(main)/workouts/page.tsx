@@ -17,10 +17,11 @@ import { useRouter } from '@/i18n/routing';
 import { WorkoutService } from '@/services/workoutService';
 import Swal from 'sweetalert2';
 import { SessionService } from '@/services/sessionService';
+import { useTheme } from '@/context/ThemeContext';
 
 
 export default function WorkoutsPage() {
-    const theme = "dark";
+    const { theme } = useTheme();
     const router = useRouter();
     const [searchQuery, setSearchQuery] = useState('');
 

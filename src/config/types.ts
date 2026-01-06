@@ -92,4 +92,9 @@ export interface Session {
             rpe?: number; // Rate of Perceived Exertion (1-10)
         }[];
     }[];
+    current: {
+        step: 'executing' | 'resting' | 'completion';
+        exerciseIndex: number;
+        setIndex: number;
+    }
 }

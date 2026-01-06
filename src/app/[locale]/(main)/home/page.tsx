@@ -28,21 +28,25 @@ import { WorkoutService } from '@/services/workoutService';
 import { HistoryService } from '@/services/historyService';
 import moment from 'moment';
 import { SessionService } from '@/services/sessionService';
+import { useTheme } from '@/context/ThemeContext';
+import { useLanguage } from '@/context/LanguageContext';
 
 
 
 export default function HomePage() {
     const t = useTranslations('Home');
     const router = useRouter();
+    const { activeUser, loading } = useSession();
 
-    const theme = "dark"
-    const locale = "pt";
+    const { theme } = useTheme();
+    const { language } = useLanguage();
+
     const today = moment().toDate();
     const dayOfWeek = moment().day();
     const startTodayDate = moment().startOf('day').toDate();
     const endTodayDate = moment().endOf('day').toDate();
+
     const [showProfileMenu, setShowProfileMenu] = useState(false);
-    const { activeUser, loading } = useSession();
 
     const activeSchedule = useLiveQuery(() =>
         ScheduleService.getActiveSchedule(activeUser?.id ?? -1),
@@ -66,25 +70,21 @@ export default function HomePage() {
             .getUserHistory(activeUser?.id ?? -1, 1, 4),
         [activeUser?.id, todayWorkout?.id]) || [];
 
-
+    const sessionList = useLiveQuery(() =>
+        SessionService
+            .getSessionsByUserId(activeUser?.id ?? -1),
+        [activeUser?.id, todayWorkout?.id]) || [];
 
 
     const handleLogout = () => {
         router.push('/');
     }
 
-    const formattedDate = new Intl.DateTimeFormat('pt-BR', {
+    const formattedDate = new Intl.DateTimeFormat('pt', {
         weekday: 'long',
         day: 'numeric',
         month: 'long'
     }).format(today);
-
-    // 3. Lógica de Alerta de Ontem
-    // const missedWorkout = useMemo(() => {
-    //     const yesterdayIdx = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
-    //     const yesterdayId = activeSchedule?.workouts[yesterdayIdx] || null;
-    //     return yesterdayId ? workouts!.find(w => w.id === yesterdayId) : null;
-    // }, [dayOfWeek, activeSchedule, workouts]);
 
     if (loading) return (
         <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
@@ -133,7 +133,7 @@ export default function HomePage() {
 
                                     <button className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-xl transition-colors">
                                         <Languages size={18} className="text-blue-500" />
-                                        Idioma: {locale.toUpperCase()}
+                                        Idioma: {language.toUpperCase()}
                                     </button>
 
                                     <button className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-xl transition-colors">
@@ -158,13 +158,13 @@ export default function HomePage() {
 
                 {/* Alerta de Treino Perdido */}
                 {/* {missedWorkout && (
-                    <div className="bg-orange-500/10 border border-orange-500/20 p-4 rounded-[24px] mb-8 flex items-center gap-4 animate-in fade-in slide-in-from-top-4">
-                        <div className="bg-orange-500 p-2 rounded-xl text-white">
+                    <div className="bg-lime-500/10 border border-lime-500/20 p-4 rounded-[24px] mb-8 flex items-center gap-4 animate-in fade-in slide-in-from-top-4">
+                        <div className="bg-lime-500 p-2 rounded-xl text-white">
                             <AlertCircle size={20} />
                         </div>
                         <div className="flex-1 text-sm">
-                            <p className="font-bold text-orange-600 dark:text-orange-500">{t('missedTitle')}</p>
-                            <p className="text-orange-800/70 dark:text-orange-200/50">{t('missedDesc', { name: missedWorkout.name })}</p>
+                            <p className="font-bold text-lime-600 dark:text-lime-500">{t('missedTitle')}</p>
+                            <p className="text-lime-800/70 dark:text-lime-200/50">{t('missedDesc', { name: missedWorkout.name })}</p>
                         </div>
                     </div>
                 )} */}
@@ -211,6 +211,76 @@ export default function HomePage() {
                             </button>
 
                         </div>
+                    </div>
+                </section>
+
+                {/* --- LISTA DE SESSÕES EM ABERTO --- */}
+                <section className="bg-white dark:bg-zinc-900 rounded-[32px] p-6 border border-zinc-200 dark:border-zinc-800 shadow-sm mb-10">
+                    <div className="flex items-center justify-between">
+                        <h2 className="text-xs font-black uppercase tracking-[0.2em] text-zinc-400">
+                            Sessões em Aberto
+                        </h2>
+                        <span className="px-2 py-0.5 bg-lime-100 dark:bg-lime-500/10 text-lime-600 dark:text-lime-400 text-[10px] font-black rounded-full">
+                            {sessionList.length} PENDENTES
+                        </span>
+                    </div>
+
+                    <div className="grid gap-3">
+                        {sessionList.map((session) => {
+                            // Cálculo de progresso simples
+                            const total = session.exercisesToDo.length;
+                            const done = session.exercisesDone.length;
+                            const progressPercent = Math.round((done / total) * 100);
+
+                            return (
+                                <div
+                                    key={session.id}
+                                    className="group relative flex flex-col gap-4 p-4 bg-white dark:bg-zinc-900 rounded-[24px] shadow-sm transition-all active:scale-[0.98]"
+                                >
+                                    <div className="flex items-center gap-4">
+                                        {/* Ícone de Status (Progress Circle Simulado) */}
+                                        <div className="relative w-12 h-12 flex items-center justify-center bg-lime-100 dark:bg-lime-500/10 rounded-2xl text-lime-500">
+                                            <HistoryIcon size={22} className="animate-pulse" />
+                                        </div>
+
+                                        <div className="flex-1 min-w-0">
+                                            <p className="text-sm font-black uppercase tracking-tight truncate text-zinc-800 dark:text-zinc-100">
+                                                {session.workoutName}
+                                            </p>
+                                            <div className="flex items-center gap-2 mt-0.5">
+                                                <div className="flex-1 h-1.5 bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden">
+                                                    <div
+                                                        className="h-full bg-lime-400 rounded-full"
+                                                        style={{ width: `${progressPercent}%` }}
+                                                    />
+                                                </div>
+                                                <span className="text-[10px] font-bold text-zinc-400 whitespace-nowrap">
+                                                    {done}/{total} EXS
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        {/* Botão Retomar */}
+                                        <button
+                                            onClick={() => router.push(`/session/${session.id}`)}
+                                            className="flex items-center justify-center w-10 h-10 bg-zinc-900 dark:bg-lime-400 text-white dark:text-zinc-950 rounded-xl hover:scale-105 transition-transform cursor-pointer shadow-lg"
+                                        >
+                                            <Play size={18} fill="currentColor" />
+                                        </button>
+                                    </div>
+
+                                    {/* Rodapé do Card com detalhes dos últimos exercícios */}
+                                    <div className="flex items-center justify-between pt-2 border-t border-zinc-50 dark:border-zinc-800/50">
+                                        <span className="text-[10px] text-zinc-400 font-medium">
+                                            Pausado em: {new Date(session.createdAt).toLocaleDateString()}
+                                        </span>
+                                        <p className="text-[10px] font-bold text-lime-500 uppercase tracking-wider">
+                                            Continuar de: {session.exercisesToDo[done]?.exerciseName || 'Próximo'}
+                                        </p>
+                                    </div>
+                                </div>
+                            );
+                        })}
                     </div>
                 </section>
 
@@ -272,10 +342,6 @@ export default function HomePage() {
                                         <p className="text-sm font-black uppercase tracking-tight">{item.workoutName} Concluído</p>
                                         <p className="text-[10px] text-zinc-500 font-bold">{timeAgo} • {minutes} min</p>
                                     </div>
-                                    {/* <div className="text-right">
-                                        <p className="text-xs font-black">12.4t</p>
-                                        <p className="text-[9px] text-zinc-500 uppercase">Volume</p>
-                                    </div> */}
                                 </div>
                             )
                         })}

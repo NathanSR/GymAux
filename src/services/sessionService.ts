@@ -39,10 +39,26 @@ export const SessionService = {
             workoutName: workout.name,
             createdAt: new Date(),
             exercisesToDo: workout.exercises,
-            exercisesDone: [] // Começa vazio
+            exercisesDone: [], // Começa vazio
+            current: {
+                exerciseIndex: 0,
+                setIndex: 0,
+                step: 'executing'
+            }
         };
 
         return await db.sessions.add(newSession as any);
+    },
+
+    /**
+     * Busca o sessão dentro de um intervalo de datas (para gráficos).
+     */
+    async getSessionByRange(userId: number, startDate: Date, endDate: Date) {
+        return await db.sessions
+            .where('userId')
+            .equals(userId)
+            .filter(log => log.createdAt >= startDate && log.createdAt <= endDate)
+            .toArray();
     },
 
     /**
@@ -53,6 +69,7 @@ export const SessionService = {
         return await db.sessions
             .where('userId')
             .equals(userId)
+            .reverse()
             .toArray();
     },
 

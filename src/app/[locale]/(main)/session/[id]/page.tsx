@@ -1,55 +1,49 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
-import { ChevronLeft, Clock, Dumbbell, Check, ArrowRight, Plus, Trophy, Save, List } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { ChevronLeft, Dumbbell, Check, ArrowRight, Trophy, List } from 'lucide-react';
 import { useParams } from 'next/navigation';
-import { WorkoutService } from '@/services/workoutService';
-import { History, Session, Workout } from '@/config/types';
+import { Session } from '@/config/types';
 import { RestTimer } from '@/components/session/RestTimer';
 import { useRouter } from '@/i18n/routing';
 import { useForm } from 'react-hook-form';
-import { HistoryService } from '@/services/historyService';
-import { useSession } from '@/hooks/useSession';
 import { WorkoutDrawer } from '@/components/session/WorkoutDrawer';
-import moment from 'moment';
 import Swal from 'sweetalert2';
 import { SessionService } from '@/services/sessionService';
+import { useTheme } from '@/context/ThemeContext';
 
 
 export default function SessionPage() {
-    const theme = "dark";
+    const { theme } = useTheme();
+
     const { id } = useParams();
     const router = useRouter();
-
-    const [currentStep, setCurrentStep] = useState<'executing' | 'resting' | 'completion'>('executing');
-    const [currentExerciseIndex, setCurrentExerciseIndex] = useState(0);
-    const [currentSetIndex, setCurrentSetIndex] = useState(0);
 
     const [session, setSession] = useState<Session | null>(null);
     const [showPreview, setShowPreview] = useState(false);
 
-    const calculateStateProgress = (session: Session) => {
-        if (!session.exercisesDone || session.exercisesDone.length === 0) return;
+    // const calculateStateProgress = (session: Session) => {
+    //     if (!session.exercisesDone || session.exercisesDone.length === 0) return;
 
-        const done = session.exercisesDone;
-        const lastExIndex = done.length - 1;
-        const lastExSetsDone = done[lastExIndex].sets.length;
-        const expectedSets = session.exercisesToDo?.[lastExIndex]?.sets || 0;
+    //     const done = session.exercisesDone;
+    //     const lastExIndex = done.length - 1;
+    //     const lastExSetsDone = done[lastExIndex].sets.length;
+    //     const expectedSets = session.exercisesToDo?.[lastExIndex]?.sets || 0;
 
-        if (lastExSetsDone >= expectedSets) {
-            // Se terminou todas as séries do último exercício registrado
-            if (lastExIndex >= (session.exercisesToDo?.length || 0) - 1) {
-                setCurrentStep('completion');
-            } else {
-                setCurrentExerciseIndex(lastExIndex + 1);
-                setCurrentSetIndex(0);
-            }
-        } else {
-            // Se ainda faltam séries no exercício atual
-            setCurrentExerciseIndex(lastExIndex);
-            setCurrentSetIndex(lastExSetsDone);
-        }
-    };
+    //     if (lastExSetsDone >= expectedSets) {
+    //         // Se terminou todas as séries do último exercício registrado
+    //         if (lastExIndex >= (session.exercisesToDo?.length || 0) - 1) {
+    //             setCurrentStep('completion');
+    //         } else {
+    //             setCurrentExerciseIndex(lastExIndex + 1);
+    //             setCurrentSetIndex(0);
+    //         }
+    //     } else {
+    //         // Se ainda faltam séries no exercício atual
+    //         setCurrentExerciseIndex(lastExIndex);
+    //         setCurrentSetIndex(lastExSetsDone);
+    //     }
+    // };
 
     // Carregar dados da sessão
     useEffect(() => {
@@ -58,7 +52,6 @@ export default function SessionPage() {
                 const data: any = await SessionService.getSessionById(Number(id));
                 if (data) {
                     setSession(data);
-                    calculateStateProgress(data);
                 } else {
                     router.push('/home');
                 }
@@ -70,7 +63,7 @@ export default function SessionPage() {
         fetchSession();
     }, [id, router]);
 
-    const currentExercise = session?.exercisesToDo?.[currentExerciseIndex];
+    const currentExercise = session?.exercisesToDo?.[session.current?.exerciseIndex || 0];
 
     // Configuração do React Hook Form
     const { register, handleSubmit, watch, reset, getValues } = useForm({
@@ -84,12 +77,10 @@ export default function SessionPage() {
     });
 
 
-    const synchronizeProgress = async (updatedExecutions: any) => {
+    const synchronizeProgress = async () => {
         if (!session) return;
 
-        await SessionService.syncSessionProgress(session?.id as number, {
-            exercisesDone: updatedExecutions,
-        });
+        await SessionService.syncSessionProgress(session.id as number, { ...session });
     };
 
     const handleSetCompletion = (formData: any) => {
@@ -116,29 +107,36 @@ export default function SessionPage() {
             });
         }
 
-        setSession({ ...session, exercisesDone: updatedExecutions })
-        synchronizeProgress(updatedExecutions);
-
         // Resetar campos para a próxima série/exercício (opcional: manter peso anterior)
         reset({ ...getValues() });
 
-        setCurrentStep('resting');
+        session.current.step = 'resting';
+        setSession({ ...session, exercisesDone: updatedExecutions } as Session);
+        synchronizeProgress();
 
     };
 
+
     const moveToNextStep = () => {
-        setCurrentStep('executing');
-        if (currentSetIndex < (currentExercise?.sets || 0) - 1) {
-            setCurrentSetIndex(prev => prev + 1);
-        } else if (currentExerciseIndex < (session?.exercisesToDo.length || 0) - 1) {
-            setCurrentExerciseIndex(prev => prev + 1);
-            setCurrentSetIndex(0);
+        if (!session) return null;
+
+        session.current.step = 'executing';
+        if (session.current.setIndex < (currentExercise?.sets || 0) - 1) {
+            session.current.setIndex = session.current.setIndex + 1;
+        } else if (session.current.exerciseIndex < session.exercisesToDo.length - 1) {
+            session.current.exerciseIndex = session.current.exerciseIndex + 1;
+            session.current.setIndex = 0;
         } else {
-            setCurrentStep('completion');
+            session.current.step = 'completion';
         }
+        setSession({ ...session } as Session);
+        synchronizeProgress();
+
     };
 
     const handleForceFinishWorkout = () => {
+        if (!session) return null;
+
         Swal.fire({
             title: 'Finalizar Treino?',
             text: "Você ainda possui exercícios pendentes. Deseja encerrar mesmo assim?",
@@ -152,18 +150,25 @@ export default function SessionPage() {
             color: theme === 'dark' ? '#f9fafb' : '#111827',
         }).then((result) => {
             if (result.isConfirmed) {
-                setCurrentStep('completion');
+                session.current.step = 'completion';
+                setSession({ ...session } as Session);
             }
         });
     };
 
-    const onFinishWorkout = () => {
-        synchronizeProgress(session?.exercisesDone);
-        SessionService.finishSession(session?.id as number, { weight: getValues().weight, description: getValues().description });
+    const onFinishWorkout = async () => {
+        if (!session) return null;
+
+        // synchronizeProgress();
+        await SessionService.finishSession(session.id as number, { weight: getValues().weight, description: getValues().description });
         router.push('/home');
     };
 
-    if (currentStep === 'completion') {
+
+    if (!session) return null;
+
+
+    if (session.current.step === 'completion') {
         return (
             <div className="min-h-screen bg-zinc-950 text-white p-6 flex flex-col items-center justify-center max-w-md mx-auto">
                 <button
@@ -209,6 +214,7 @@ export default function SessionPage() {
         );
     }
 
+
     return (
         <div className="min-h-screen bg-zinc-950 text-white flex flex-col font-sans">
 
@@ -216,8 +222,8 @@ export default function SessionPage() {
             <WorkoutDrawer
                 showPreview={showPreview}
                 onClose={() => setShowPreview(false)}
-                exercises={session?.exercisesToDo}
-                currentExerciseIndex={currentExerciseIndex}
+                exercises={session.exercisesToDo}
+                currentExerciseIndex={session.current.exerciseIndex || 0}
             />
 
 
@@ -230,12 +236,12 @@ export default function SessionPage() {
                     <ChevronLeft size={24} />
                 </button>
                 <div className="">
-                    <h1 className="font-black text-zinc-500 uppercase tracking-widest truncate max-w-[200px]">{session?.workoutName}</h1>
+                    <h1 className="font-black text-zinc-500 uppercase tracking-widest truncate max-w-[200px]">{session.workoutName}</h1>
                     <div className="flex items-center justify-center gap-1.5 mt-2">
                         {Array.from({ length: currentExercise?.sets || 0 }).map((_, i) => (
                             <div
                                 key={i}
-                                className={`h-1.5 w-6 rounded-full transition-all duration-300 ${i < currentSetIndex ? 'bg-lime-500' : i === currentSetIndex ? 'bg-white shadow-[0_0_8px_white]' : 'bg-zinc-800'
+                                className={`h-1.5 w-6 rounded-full transition-all duration-300 ${i < session.current.setIndex ? 'bg-lime-500' : i === session.current.setIndex ? 'bg-white shadow-[0_0_8px_white]' : 'bg-zinc-800'
                                     }`}
                             />
                         ))}
@@ -255,7 +261,7 @@ export default function SessionPage() {
                     <div className="mb-8 animate-in slide-in-from-left duration-300">
                         <div className="flex items-center gap-2 mb-2">
                             <span className="text-[9px] font-black text-lime-400 uppercase tracking-widest bg-lime-400/10 px-2 py-1 rounded">
-                                Exercício {currentExerciseIndex + 1}/{session?.exercisesToDo.length}
+                                Exercício {(session.current.exerciseIndex || 0) + 1}/{session.exercisesToDo.length}
                             </span>
                         </div>
                         <h2 className="text-3xl font-black uppercase tracking-tight italic leading-tight">
@@ -266,7 +272,7 @@ export default function SessionPage() {
                             <div className="flex flex-col">
                                 <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Série Atual</span>
                                 <span className="text-2xl font-black leading-none mt-1">
-                                    {currentSetIndex + 1}<span className="text-zinc-600 text-sm ml-1 font-bold">de {currentExercise?.sets}</span>
+                                    {session.current.setIndex + 1}<span className="text-zinc-600 text-sm ml-1 font-bold">de {currentExercise?.sets}</span>
                                 </span>
                             </div>
                             <div className="h-10 w-[1px] bg-zinc-800" />
@@ -279,7 +285,7 @@ export default function SessionPage() {
                         </div>
                     </div>
 
-                    {currentStep === 'resting' ? (
+                    {session.current.step === 'resting' ? (
                         <RestTimer
                             seconds={currentExercise?.restTime || 0}
                             onFinish={moveToNextStep}

@@ -8,9 +8,11 @@ import ExerciseForm from '@/components/exercises/ExerciseForm';
 import { useParams } from 'next/navigation';
 import { ExerciseService } from '@/services/exerciseService';
 import Swal from 'sweetalert2';
+import { useTheme } from '@/context/ThemeContext';
 
 export default function EditExercisePage() {
-    const theme = 'dark';
+    const { theme } = useTheme();
+
     const router = useRouter();
     const { id } = useParams();
     const t = useTranslations('Exercises');

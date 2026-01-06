@@ -1,9 +1,9 @@
 "use client";
 
 import { ScheduleForm } from "@/components/schedules/ScheduleForm";
+import { useTheme } from "@/context/ThemeContext";
 import { useRouter } from "@/i18n/routing";
 import { ScheduleService } from "@/services/scheduleService";
-import { WorkoutService } from "@/services/workoutService";
 import { ChevronLeft, Clock, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useParams } from "next/navigation";
@@ -12,7 +12,7 @@ import Swal from "sweetalert2";
 
 // --- PÁGINA: EditSchedulePage ---
 export default function EditSchedulePage() {
-    const theme = "dark";
+    const { theme } = useTheme();
     const router = useRouter();
     const t = useTranslations();
     const { id } = useParams();
