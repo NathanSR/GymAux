@@ -4,7 +4,7 @@ import Swal from 'sweetalert2';
 
 export const SessionService = {
 
-    async onPlayWorkout(workout: any, router: any, theme: any) {
+    async onPlayWorkout(workout: any, router: any, theme?: any) {
         Swal.fire({
             title: 'Iniciar Treino?',
             text: "Você está pronto para começar?",
