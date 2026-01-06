@@ -37,6 +37,15 @@
         "viewAll": "Ver tudo",
         "minutesShort": "min"
     },
+    "ProfileMenu": {
+        "title": "Configurações",
+        "themeLight": "Modo Claro",
+        "themeDark": "Modo Escuro",
+        "language": "Idioma",
+        "editProfile": "Editar Perfil",
+        "logout": "Sair da Conta",
+        "selectLanguage": "Selecionar Idioma"
+    },
     "Exercises": {
         "chest_bench_press": "Supino Reto com Barra",
         "chest_bench_press_desc": "O exercício fundamental para força e massa bruta do peitoral médio.",

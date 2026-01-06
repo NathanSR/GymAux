@@ -37,6 +37,15 @@
         "viewAll": "View all",
         "minutesShort": "min"
     },
+    "ProfileMenu": {
+        "title": "Settings",
+        "themeLight": "Light Mode",
+        "themeDark": "Dark Mode",
+        "language": "Language",
+        "editProfile": "Edit Profile",
+        "logout": "Log Out",
+        "selectLanguage": "Select Language"
+    },
     "Exercises": {
         "chest_bench_press": "Barbell Bench Press",
         "chest_bench_press_desc": "The fundamental exercise for strength and mass of the mid-chest.",

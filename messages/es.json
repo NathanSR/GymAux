@@ -37,6 +37,15 @@
         "viewAll": "Ver todo",
         "minutesShort": "min"
     },
+    "ProfileMenu": {
+        "title": "Configuraciones",
+        "themeLight": "Modo Claro",
+        "themeDark": "Modo Oscuro",
+        "language": "Idioma",
+        "editProfile": "Editar Perfil",
+        "logout": "Cerrar Sesión",
+        "selectLanguage": "Seleccionar Idioma"
+    },
     "Exercises": {
         "chest_bench_press": "Press de Banca con Barra",
         "chest_bench_press_desc": "El ejercicio fundamental para la fuerza y el volumen del pectoral medio.",
