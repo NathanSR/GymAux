@@ -11,6 +11,7 @@ import { ExerciseService } from '@/services/exerciseService';
 import { WorkoutService } from '@/services/workoutService';
 import Swal from 'sweetalert2';
 import { useTheme } from '@/context/ThemeContext';
+import { toast } from 'react-toastify';
 
 export default function EditWorkoutPage() {
     const { theme } = useTheme();
@@ -48,6 +49,7 @@ export default function EditWorkoutPage() {
                 ...data,
                 updatedAt: new Date()
             });
+            toast.success(t('updatedWorkout'));
             router.push('/workouts');
         } catch (error) {
             console.error("Erro ao atualizar treino:", error);

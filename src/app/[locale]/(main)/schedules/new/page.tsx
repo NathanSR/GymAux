@@ -7,6 +7,7 @@ import { ScheduleService } from "@/services/scheduleService";
 import { ChevronLeft } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
+import { toast } from "react-toastify";
 
 // --- PÁGINA: CreateSchedulePage ---
 export default function CreateSchedulePage() {
@@ -25,6 +26,8 @@ export default function CreateSchedulePage() {
                 userId: activeUser?.id,
                 createdAt: new Date(),
             });
+            toast.success(t('createdSchedule'));
+
             router.back();
         } catch (error) {
             console.error("Erro ao criar cronograma de treino:", error);

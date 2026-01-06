@@ -9,6 +9,7 @@ import { useParams } from 'next/navigation';
 import { ExerciseService } from '@/services/exerciseService';
 import Swal from 'sweetalert2';
 import { useTheme } from '@/context/ThemeContext';
+import { toast } from 'react-toastify';
 
 export default function EditExercisePage() {
     const { theme } = useTheme();
@@ -39,6 +40,7 @@ export default function EditExercisePage() {
             };
 
             await ExerciseService.updateExercise(Number(id), formattedData);
+            toast.success(t('updatedExercise'));
             router.push('/exercises');
         } catch (error) {
             console.error("Erro ao atualizar:", error);

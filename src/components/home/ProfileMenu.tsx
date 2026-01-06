@@ -10,7 +10,7 @@ import {
     X
 } from "lucide-react";
 import { useRouter } from '@/i18n/routing';
-import { useTheme } from 'next-themes';
+import { useTheme } from '@/context/ThemeContext';
 import { useLanguage } from '@/context/LanguageContext';
 
 interface ProfileMenuProps {
@@ -24,7 +24,7 @@ const ProfileMenu: React.FC<ProfileMenuProps> = ({
 }) => {
 
     const router = useRouter();
-    const { theme } = useTheme();
+    const { theme, toggleTheme } = useTheme();
     const { language } = useLanguage();
 
     const handleProfileEdit = () => {
@@ -51,7 +51,7 @@ const ProfileMenu: React.FC<ProfileMenuProps> = ({
             {/* Menu Dropdown */}
             <div className="absolute right-0 mt-3 w-64 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-[24px] shadow-2xl z-20 p-2 animate-in fade-in zoom-in-95 duration-200">
                 {/* Cabeçalho do Menu */}
-                <div className="px-4 py-3 border-b border-zinc-100 dark:border-zinc-800 mb-1 flex justify-between items-center">
+                <div className="px-4 py-2 border-b border-zinc-100 dark:border-zinc-800 mb-1 flex justify-between items-center">
                     <p className="text-[10px] font-black uppercase text-zinc-400 tracking-widest italic">
                         Configurações
                     </p>
@@ -65,8 +65,9 @@ const ProfileMenu: React.FC<ProfileMenuProps> = ({
 
                 <div className="space-y-1">
                     {/* Alternar Tema */}
-                    <button
+                    {/* <button
                         onClick={() => {
+                            toggleTheme()
                             setShowProfileMenu(false);
                         }}
                         className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-xl transition-colors text-zinc-700 dark:text-zinc-200"
@@ -79,7 +80,7 @@ const ProfileMenu: React.FC<ProfileMenuProps> = ({
                         <span className="flex-1 text-left">
                             {theme === 'dark' ? 'Modo Claro' : 'Modo Escuro'}
                         </span>
-                    </button>
+                    </button> */}
 
                     {/* Idioma (Placeholder) */}
                     <button className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-xl transition-colors text-zinc-700 dark:text-zinc-200">

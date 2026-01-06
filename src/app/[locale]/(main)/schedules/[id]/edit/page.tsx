@@ -8,6 +8,7 @@ import { ChevronLeft, Clock, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 import Swal from "sweetalert2";
 
 // --- PÁGINA: EditSchedulePage ---
@@ -44,6 +45,8 @@ export default function EditSchedulePage() {
                 ...data,
                 updatedAt: new Date()
             });
+            toast.success(t('editedSchedule'));
+
             router.back();
         } catch (error) {
             console.error("Erro ao atualizar treino:", error);

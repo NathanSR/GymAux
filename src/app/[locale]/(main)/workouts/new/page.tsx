@@ -9,6 +9,7 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { useSession } from '@/hooks/useSession';
 import { WorkoutService } from '@/services/workoutService';
 import { ExerciseService } from '@/services/exerciseService';
+import { toast } from 'react-toastify';
 
 export default function NewWorkoutPage() {
     const router = useRouter();
@@ -29,6 +30,7 @@ export default function NewWorkoutPage() {
                 userId: activeUser?.id,
                 createdAt: new Date(),
             });
+            toast.success(t('createdWorkout'));
             router.push('/workouts');
         } catch (error) {
             console.error("Erro ao criar treino:", error);

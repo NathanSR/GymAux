@@ -6,6 +6,7 @@ import { useRouter } from '@/i18n/routing';
 import { useTranslations } from 'next-intl';
 import ExerciseForm from '@/components/exercises/ExerciseForm';
 import { ExerciseService } from '@/services/exerciseService';
+import { toast } from 'react-toastify';
 
 export default function NewExercisePage() {
     const router = useRouter();
@@ -21,6 +22,7 @@ export default function NewExercisePage() {
             };
 
             await ExerciseService.createExercise(formattedData);
+            toast.success(t('createdExercise'));
             router.push('/exercises');
         } catch (error) {
             console.error("Erro ao criar exercício:", error);
