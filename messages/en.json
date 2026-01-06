@@ -3,11 +3,11 @@
         "welcome": "Welcome to your workout",
         "selectUser": "Select a profile"
     },
-    "Auth": {
-        "createUser": "Create new user",
-        "nameLabel": "What's your name?"
+    "Index": {
+        "title": "Who's training?",
+        "addNew": "Add new profile"
     },
-    "Onboarding": {
+    "UserRegister": {
         "title": "Welcome",
         "subtitle": "Let's set up your profile to start working out.",
         "nameLabel": "Your name",
@@ -16,27 +16,26 @@
         "createButton": "Create Profile",
         "noUsers": "No users found. Create the first one!"
     },
-    "Profiles": {
-        "title": "Who's training?",
-        "addNew": "Add new profile"
-    },
     "Home": {
-        "title": "Your Workouts",
-        "logout": "Log out",
-        "emptyState": "You haven't created any workouts.",
-        "createFirst": "Create First Workout",
-        "greeting": "Hello, {name}!",
-        "todayWorkoutLabel": "Today's Workout",
-        "noWorkoutToday": "No workout scheduled",
-        "startNow": "Start Workout",
-        "newWorkout": "New Workout",
-        "schedule": "Schedule",
-        "activeGoals": "Active Goals",
-        "viewAll": "View All",
-        "sessions": "sessions",
-        "exercisesCount": "Exercises",
-        "missedTitle": "Workout Missed!",
-        "missedDesc": "You missed the workout: {name}"
+        "greeting": "Hello, {name} 👋",
+        "defaultUser": "Athlete",
+        "completedToday": "Completed Today",
+        "todayWorkout": "Workout of the Day",
+        "restDay": "Well-deserved Rest",
+        "exercises": "Exercises",
+        "estimatedTime": "Est. {time} min",
+        "restButton": "REST DAY",
+        "finishedButton": "WORKOUT FINISHED",
+        "startButton": "START SESSION",
+        "openSessions": "Open Sessions",
+        "pendingCount": "{count} PENDING",
+        "exsCount": "{done}/{total} EXS",
+        "pausedAt": "Paused on: {date}",
+        "continueFrom": "Continue from: {exercise}",
+        "next": "Next",
+        "history": "History",
+        "viewAll": "View all",
+        "minutesShort": "min"
     },
     "Exercises": {
         "chest_bench_press": "Barbell Bench Press",

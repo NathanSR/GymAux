@@ -6,18 +6,14 @@ import {
     Trophy,
     History as HistoryIcon,
     ChevronRight,
-    Languages,
-    Moon,
-    Sun,
+    PlayCircle,
     Clock,
     Dumbbell,
-    Settings,
-    LogOut,
     User,
     CheckCircle2,
     Bed,
 } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl'; // Importado useLocale
 import { useSession } from '@/hooks/useSession';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useRouter } from '@/i18n/routing';
@@ -29,13 +25,12 @@ import { SessionService } from '@/services/sessionService';
 import { MenuTab } from '@/components/MenuTab';
 import ProfileMenu from '@/components/home/ProfileMenu';
 
-
-
 export default function HomePage() {
     const t = useTranslations('Home');
+    const tExercises = useTranslations('Exercises');
+    const locale = useLocale(); // Detecta o idioma atual (pt, en, es)
     const router = useRouter();
     const { activeUser, loading } = useSession();
-
 
     const today = moment().toDate();
     const dayOfWeek = moment().day();
@@ -53,6 +48,7 @@ export default function HomePage() {
         WorkoutService.getWorkoutById(activeSchedule?.workouts?.[dayOfWeek] ?? -1),
         [activeSchedule?.id]
     );
+
     const estimatedTimeTodayWorkout = Math.round(todayWorkout?.exercises.reduce((acc: number, exercise) => (acc + ((exercise.sets * (exercise.reps * 2.5 + exercise.restTime)) / 60)), 0) || 0);
 
     const todayHistory = useLiveQuery(() =>
@@ -71,7 +67,8 @@ export default function HomePage() {
             .getSessionsByUserId(activeUser?.id ?? -1),
         [activeUser?.id, todayWorkout?.id]) || [];
 
-    const formattedDate = new Intl.DateTimeFormat('pt', {
+    // Data formatada respeitando o locale dinâmico
+    const formattedDate = new Intl.DateTimeFormat(locale, {
         weekday: 'long',
         day: 'numeric',
         month: 'long'
@@ -86,14 +83,13 @@ export default function HomePage() {
     return (
         <div className="min-h-screen bg-white dark:bg-zinc-950 text-zinc-900 dark:text-white p-6 pb-32 transition-colors duration-300 font-sans">
 
-            {/* --- HEADER COM MENU DE PERFIL --- */}
             <header className="mb-8 flex justify-between items-center relative">
                 <div>
                     <p className="text-zinc-500 dark:text-zinc-400 text-[10px] font-black uppercase tracking-[0.2em] mb-1">
                         {formattedDate}
                     </p>
                     <h1 className="text-2xl font-black tracking-tight">
-                        Olá, {activeUser?.name || 'Atleta'} 👋
+                        {t('greeting', { name: activeUser?.name || t('defaultUser') })}
                     </h1>
                 </div>
 
@@ -104,16 +100,10 @@ export default function HomePage() {
                     >
                         <User size={24} />
                     </button>
-
-                    <ProfileMenu
-                        showProfileMenu={showProfileMenu}
-                        setShowProfileMenu={setShowProfileMenu}
-                    />
-
+                    <ProfileMenu showProfileMenu={showProfileMenu} setShowProfileMenu={setShowProfileMenu} />
                 </div>
             </header>
 
-            {/* --- CARD DE TREINO DO DIA (MELHORADO) --- */}
             <section className="relative group mb-8">
                 <div className={`absolute -inset-1 rounded-[40px] blur opacity-20 transition duration-1000 ${todayHistory ? 'bg-zinc-500' : 'bg-lime-400'}`}></div>
 
@@ -123,21 +113,21 @@ export default function HomePage() {
                     }`}>
                     <div className="flex justify-between items-start mb-6">
                         <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${todayHistory ? 'bg-gradient-to-br from-lime-400 to-lime-600 text-zinc-950' : 'bg-black/10'}`}>
-                            {todayHistory ? 'Concluído Hoje' : 'Treino do Dia'}
+                            {todayHistory ? t('completedToday') : t('todayWorkout')}
                         </span>
                         {todayHistory ? <CheckCircle2 size={22} className='text-lime-400' /> : <Trophy size={22} className="opacity-40" />}
                     </div>
 
                     <h2 className={`text-3xl font-black mb-2 leading-tight uppercase italic ${todayHistory ? 'opacity-50' : ''}`}>
-                        {todayWorkout ? todayWorkout.name : 'Descanso Merecido'}
+                        {todayWorkout ? todayWorkout.name : t('restDay')}
                     </h2>
 
                     <div className="flex items-center gap-6 mb-8 text-[10px] font-black uppercase tracking-wider opacity-70">
                         <div className="flex items-center gap-1.5">
-                            <Dumbbell size={14} /> {todayWorkout?.exercises?.length || 0} Exercícios
+                            <Dumbbell size={14} /> {todayWorkout?.exercises?.length || 0} {t('exercises')}
                         </div>
                         <div className="flex items-center gap-1.5">
-                            <Clock size={14} /> Est. {estimatedTimeTodayWorkout} min
+                            <Clock size={14} /> {t('estimatedTime', { time: estimatedTimeTodayWorkout })}
                         </div>
                     </div>
 
@@ -151,38 +141,31 @@ export default function HomePage() {
                             onClick={() => SessionService.onPlayWorkout(todayWorkout, router)}
                         >
                             {todayHistory ? <CheckCircle2 size={20} /> : todayWorkout ? <Play size={20} fill="currentColor" /> : <Bed size={20} fill="currentColor" />}
-                            {!todayWorkout ? "DESCANSO" : todayHistory ? 'TREINO FINALIZADO' : 'INICIAR SESSÃO'}
+                            {!todayWorkout ? t('restButton') : todayHistory ? t('finishedButton') : t('startButton')}
                         </button>
-
                     </div>
                 </div>
             </section>
 
-            {/* --- LISTA DE SESSÕES EM ABERTO --- */}
             <section className="bg-white dark:bg-zinc-900 rounded-[32px] p-6 border border-zinc-200 dark:border-zinc-800 shadow-sm mb-10">
                 <div className="flex items-center justify-between">
                     <h2 className="text-xs font-black uppercase tracking-[0.2em] text-zinc-400">
-                        Sessões em Aberto
+                        {t('openSessions')}
                     </h2>
                     <span className="px-2 py-0.5 bg-lime-100 dark:bg-lime-500/10 text-lime-600 dark:text-lime-400 text-[10px] font-black rounded-full">
-                        {sessionList.length} PENDENTES
+                        {t('pendingCount', { count: sessionList.length })}
                     </span>
                 </div>
 
                 <div className="grid gap-3">
                     {sessionList.map((session) => {
-                        // Cálculo de progresso simples
                         const total = session.exercisesToDo.length;
                         const done = session.exercisesDone.length;
                         const progressPercent = Math.round((done / total) * 100);
 
                         return (
-                            <div
-                                key={session.id}
-                                className="group relative flex flex-col gap-4 p-4 bg-white dark:bg-zinc-900 rounded-[24px] shadow-sm transition-all active:scale-[0.98]"
-                            >
+                            <div key={session.id} className="group relative flex flex-col gap-4 p-4 bg-white dark:bg-zinc-900 rounded-[24px] shadow-sm transition-all active:scale-[0.98]">
                                 <div className="flex items-center gap-4">
-                                    {/* Ícone de Status (Progress Circle Simulado) */}
                                     <div className="relative w-12 h-12 flex items-center justify-center bg-lime-100 dark:bg-lime-500/10 rounded-2xl text-lime-500">
                                         <HistoryIcon size={22} className="animate-pulse" />
                                     </div>
@@ -193,18 +176,14 @@ export default function HomePage() {
                                         </p>
                                         <div className="flex items-center gap-2 mt-0.5">
                                             <div className="flex-1 h-1.5 bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden">
-                                                <div
-                                                    className="h-full bg-lime-400 rounded-full"
-                                                    style={{ width: `${progressPercent}%` }}
-                                                />
+                                                <div className="h-full bg-lime-400 rounded-full" style={{ width: `${progressPercent}%` }} />
                                             </div>
                                             <span className="text-[10px] font-bold text-zinc-400 whitespace-nowrap">
-                                                {done}/{total} EXS
+                                                {t('exsCount', { done, total })}
                                             </span>
                                         </div>
                                     </div>
 
-                                    {/* Botão Retomar */}
                                     <button
                                         onClick={() => router.push(`/session/${session.id}`)}
                                         className="flex items-center justify-center w-10 h-10 bg-zinc-900 dark:bg-lime-400 text-white dark:text-zinc-950 rounded-xl hover:scale-105 transition-transform cursor-pointer shadow-lg"
@@ -213,13 +192,12 @@ export default function HomePage() {
                                     </button>
                                 </div>
 
-                                {/* Rodapé do Card com detalhes dos últimos exercícios */}
                                 <div className="flex items-center justify-between pt-2 border-t border-zinc-50 dark:border-zinc-800/50">
                                     <span className="text-[10px] text-zinc-400 font-medium">
-                                        Pausado em: {new Date(session.createdAt).toLocaleDateString()}
+                                        {t('pausedAt', { date: new Date(session.createdAt).toLocaleDateString(locale) })}
                                     </span>
                                     <p className="text-[10px] font-bold text-lime-500 uppercase tracking-wider">
-                                        Continuar de: {session.exercisesToDo[done]?.exerciseName || 'Próximo'}
+                                        {t('continueFrom', { exercise: tExercises(session.exercisesToDo[done]?.exerciseName) || t('next') })}
                                     </p>
                                 </div>
                             </div>
@@ -228,24 +206,23 @@ export default function HomePage() {
                 </div>
             </section>
 
-            {/* --- HISTÓRICO RÁPIDO (RECONSTITUÍDO) --- */}
             <section className="bg-white dark:bg-zinc-900 rounded-[32px] p-6 border border-zinc-200 dark:border-zinc-800 shadow-sm mb-10">
                 <div className="flex justify-between items-center mb-6">
                     <h3 className="font-black text-lg flex items-center gap-2 uppercase italic tracking-tight">
                         <HistoryIcon size={20} className="text-lime-500" />
-                        Histórico
+                        {t('history')}
                     </h3>
                     <button
                         onClick={() => router.push("/history")}
                         className="text-[10px] text-lime-600 dark:text-lime-400 font-black uppercase tracking-widest flex items-center gap-1"
                     >
-                        Ver tudo <ChevronRight size={14} />
+                        {t('viewAll')} <ChevronRight size={14} />
                     </button>
                 </div>
 
                 <div className="space-y-4">
                     {historyList.map((item) => {
-                        const timeAgo = moment(item.endDate).fromNow();
+                        const timeAgo = moment(item.endDate).locale(locale).fromNow();
                         const duration = moment.duration(moment(item.endDate).diff(moment(item.date)));
                         const minutes = Math.floor(duration.asMinutes());
                         return (
@@ -255,7 +232,7 @@ export default function HomePage() {
                                 </div>
                                 <div className="flex-1">
                                     <p className="text-sm font-black uppercase tracking-tight">{item.workoutName}</p>
-                                    <p className="text-[10px] text-zinc-500 font-bold">{timeAgo} • {minutes} min</p>
+                                    <p className="text-[10px] text-zinc-500 font-bold">{timeAgo} • {minutes} {t('minutesShort')}</p>
                                 </div>
                             </div>
                         )

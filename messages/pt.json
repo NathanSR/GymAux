@@ -3,11 +3,11 @@
         "welcome": "Bem-vindo ao seu treino",
         "selectUser": "Selecione um perfil"
     },
-    "Auth": {
-        "createUser": "Criar novo usuário",
-        "nameLabel": "Como você se chama?"
+    "Index": {
+        "title": "Quem está treinando?",
+        "addNew": "Adicionar novo perfil"
     },
-    "Onboarding": {
+    "UserRegister": {
         "title": "Bem-vindo",
         "subtitle": "Vamos configurar seu perfil para começar a treinar.",
         "nameLabel": "Seu nome",
@@ -16,27 +16,26 @@
         "createButton": "Criar Perfil",
         "noUsers": "Nenhum usuário encontrado. Crie o primeiro!"
     },
-    "Profiles": {
-        "title": "Quem está treinando?",
-        "addNew": "Adicionar novo perfil"
-    },
     "Home": {
-        "title": "Seus Treinos",
-        "logout": "Trocar Perfil",
-        "emptyState": "Você ainda não tem treinos criados.",
-        "createFirst": "Criar Primeiro Treino",
-        "greeting": "Olá, {name}!",
-        "todayWorkoutLabel": "Treino de Hoje",
-        "noWorkoutToday": "Descanso planejado",
-        "startNow": "Começar Treino",
-        "newWorkout": "Novo Treino",
-        "schedule": "Agenda",
-        "activeGoals": "Metas Ativas",
+        "greeting": "Olá, {name} 👋",
+        "defaultUser": "Atleta",
+        "completedToday": "Concluído Hoje",
+        "todayWorkout": "Treino do Dia",
+        "restDay": "Descanso Merecido",
+        "exercises": "Exercícios",
+        "estimatedTime": "Est. {time} min",
+        "restButton": "DESCANSO",
+        "finishedButton": "TREINO FINALIZADO",
+        "startButton": "INICIAR SESSÃO",
+        "openSessions": "Sessões em Aberto",
+        "pendingCount": "{count} PENDENTES",
+        "exsCount": "{done}/{total} EXS",
+        "pausedAt": "Pausado em: {date}",
+        "continueFrom": "Continuar de: {exercise}",
+        "next": "Próximo",
+        "history": "Histórico",
         "viewAll": "Ver tudo",
-        "sessions": "sessões",
-        "exercisesCount": "Exercícios",
-        "missedTitle": "Treino Perdido!",
-        "missedDesc": "Você pulou o treino: {name}"
+        "minutesShort": "min"
     },
     "Exercises": {
         "chest_bench_press": "Supino Reto com Barra",

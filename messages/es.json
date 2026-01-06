@@ -3,11 +3,11 @@
         "welcome": "Bienvenido a tu entrenamiento",
         "selectUser": "Selecciona un perfil"
     },
-    "Auth": {
-        "createUser": "Crear nuevo usuario",
-        "nameLabel": "¿Cómo te llamas?"
+    "Index": {
+        "title": "Quién está entrenando?",
+        "addNew": "Agregar nuevo perfil"
     },
-    "Onboarding": {
+    "UserRegister": {
         "title": "Bienvenido",
         "subtitle": "Vamos a configurar tu perfil para comenzar a entrenar.",
         "nameLabel": "Tu nombre",
@@ -16,27 +16,26 @@
         "createButton": "Crear Perfil",
         "noUsers": "No se encontraron usuarios. ¡Crea el primero!"
     },
-    "Profiles": {
-        "title": "Quién está entrenando?",
-        "addNew": "Agregar nuevo perfil"
-    },
     "Home": {
-        "title": "Tus Entrenamientos",
-        "logout": "Cambiar Perfil",
-        "emptyState": "Aún no has creado ningún entrenamiento.",
-        "createFirst": "Crear Primer Entrenamiento",
-        "greeting": "¡Hola, {name}!",
-        "todayWorkoutLabel": "Entrenamiento de Hoy",
-        "noWorkoutToday": "Descanso planeado",
-        "startNow": "Comenzar Entrenamiento",
-        "newWorkout": "Nuevo Entrenamiento",
-        "schedule": "Horario",
-        "activeGoals": "Objetivos Activos",
-        "viewAll": "Ver Todos",
-        "sessions": "sesiones",
-        "exercisesCount": "Ejercicios",
-        "missedTitle": "Entrenamiento Perdido!",
-        "missedDesc": "Saltaste el entrenamiento: {name}"
+        "greeting": "Hola, {name} 👋",
+        "defaultUser": "Atleta",
+        "completedToday": "Completado Hoy",
+        "todayWorkout": "Entrenamiento del Día",
+        "restDay": "Descanso Merecido",
+        "exercises": "Ejercicios",
+        "estimatedTime": "Est. {time} min",
+        "restButton": "DESCANSO",
+        "finishedButton": "ENTRENO FINALIZADO",
+        "startButton": "INICIAR SESIÓN",
+        "openSessions": "Sesiones Abiertas",
+        "pendingCount": "{count} PENDIENTES",
+        "exsCount": "{done}/{total} EJERS",
+        "pausedAt": "Pausado el: {date}",
+        "continueFrom": "Continuar desde: {exercise}",
+        "next": "Siguiente",
+        "history": "Historial",
+        "viewAll": "Ver todo",
+        "minutesShort": "min"
     },
     "Exercises": {
         "chest_bench_press": "Press de Banca con Barra",
@@ -234,7 +233,7 @@
         "horizontal": "Horizontal"
     },
     "WorkoutForm": {
-       "pageTitle": "Nuevo Treino",
+        "pageTitle": "Nuevo Treino",
         "basicInfo": "Informaciones Básicas",
         "workoutNameLabel": "Nombre del Entrenamiento",
         "workoutNamePlaceholder": "Ej: Pecho y Triceps",

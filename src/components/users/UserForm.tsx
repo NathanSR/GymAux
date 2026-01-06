@@ -5,7 +5,7 @@ import { useTranslations } from 'next-intl';
 import { useForm } from 'react-hook-form';
 
 export default function UserForm({ onCancel }: { onCancel?: () => void }) {
-    const t = useTranslations('Onboarding');
+    const t = useTranslations('UserRegister');
     const { register, handleSubmit } = useForm();
 
     const onSubmit = async (data: any) => {

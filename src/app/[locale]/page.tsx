@@ -25,10 +25,10 @@ export default function HomePage() {
                 <div className="w-full max-w-md space-y-6">
                     <div className="text-center">
                         <h1 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-white">
-                            {t('Onboarding.title')}
+                            {t('UserRegister.title')}
                         </h1>
                         <p className="text-zinc-500 dark:text-zinc-400 mt-2">
-                            {t('Onboarding.subtitle')}
+                            {t('UserRegister.subtitle')}
                         </p>
                     </div>
                     <UserForm onCancel={users.length > 0 ? () => setIsCreating(false) : undefined} />
@@ -41,7 +41,7 @@ export default function HomePage() {
     return (
         <main className="flex min-h-screen flex-col items-center justify-center p-6 bg-white dark:bg-zinc-950">
             <h1 className="text-2xl font-bold mb-8 text-zinc-900 dark:text-white">
-                {t('Profiles.title')}
+                {t('Index.title')}
             </h1>
 
             <div className="grid grid-cols-2 md:grid-cols-3 gap-6 w-full max-w-2xl">
@@ -57,7 +57,7 @@ export default function HomePage() {
                         <Plus className="text-zinc-500" />
                     </div>
                     <span className="text-sm font-medium text-zinc-600 dark:text-zinc-400">
-                        {t('Profiles.addNew')}
+                        {t('Index.addNew')}
                     </span>
                 </button>
             </div>
