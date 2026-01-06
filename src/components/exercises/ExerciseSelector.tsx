@@ -49,7 +49,7 @@ export const ExerciseSelector = ({ isOpen, onClose, onSelect }: { isOpen: boolea
                         <input
                             type="text"
                             placeholder="Buscar exercício..."
-                            className="w-full pl-10 pr-4 py-3 bg-zinc-100 dark:bg-zinc-900 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 transition-all dark:text-white"
+                            className="w-full pl-10 pr-4 py-3 bg-zinc-100 dark:bg-zinc-900 rounded-xl outline-none focus:ring-2 focus:ring-lime-500 transition-all dark:text-white"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
@@ -61,7 +61,7 @@ export const ExerciseSelector = ({ isOpen, onClose, onSelect }: { isOpen: boolea
                                 key={cat}
                                 onClick={() => setSelectedCategory(cat)}
                                 className={`px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all ${selectedCategory === cat
-                                    ? 'bg-blue-600 text-white'
+                                    ? 'bg-lime-600 text-white'
                                     : 'bg-zinc-100 dark:bg-zinc-900 text-zinc-500'
                                     }`}
                             >
@@ -76,16 +76,16 @@ export const ExerciseSelector = ({ isOpen, onClose, onSelect }: { isOpen: boolea
                         <button
                             key={ex.id}
                             onClick={() => onSelect(ex)}
-                            className="w-full flex items-center gap-4 p-4 rounded-2xl bg-zinc-50 dark:bg-zinc-900/50 hover:bg-blue-50 dark:hover:bg-blue-900/10 border border-transparent hover:border-blue-200 transition-all text-left group"
+                            className="w-full flex items-center gap-4 p-4 rounded-2xl bg-zinc-50 dark:bg-zinc-900/50 hover:bg-lime-50 dark:hover:bg-lime-900/10 border border-transparent hover:border-lime-200 transition-all text-left group"
                         >
-                            <div className="w-12 h-12 bg-zinc-200 dark:bg-zinc-800 rounded-xl flex items-center justify-center group-hover:bg-blue-100 dark:group-hover:bg-blue-900/30 transition-colors">
-                                <Dumbbell className="text-zinc-500 dark:text-zinc-400 group-hover:text-blue-500" size={20} />
+                            <div className="w-12 h-12 bg-zinc-200 dark:bg-zinc-800 rounded-xl flex items-center justify-center group-hover:bg-lime-100 dark:group-hover:bg-lime-900/30 transition-colors">
+                                <Dumbbell className="text-zinc-500 dark:text-zinc-400 group-hover:text-lime-500" size={20} />
                             </div>
                             <div className="flex-1">
                                 <p className="font-bold dark:text-white">{t(`Exercises.${ex.name}`)}</p>
                                 <p className="text-xs text-zinc-500 uppercase tracking-tight">{t(`Categories.${ex.category}`)}</p>
                             </div>
-                            <ArrowRight size={16} className="text-zinc-300 group-hover:text-blue-500 opacity-0 group-hover:opacity-100 transition-all" />
+                            <ArrowRight size={16} className="text-zinc-300 group-hover:text-lime-500 opacity-0 group-hover:opacity-100 transition-all" />
                         </button>
                     ))}
                 </div>

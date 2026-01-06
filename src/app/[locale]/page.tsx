@@ -51,7 +51,7 @@ export default function HomePage() {
 
                 <button
                     onClick={() => setIsCreating(true)}
-                    className="flex flex-col items-center justify-center gap-3 p-4 rounded-2xl border-2 border-dashed border-zinc-300 dark:border-zinc-800 hover:border-blue-500 transition-colors"
+                    className="flex flex-col items-center justify-center gap-3 p-4 rounded-2xl border-2 border-dashed border-zinc-300 dark:border-zinc-800 hover:border-lime-500 transition-colors"
                 >
                     <div className="w-16 h-16 rounded-full bg-zinc-100 dark:bg-zinc-900 flex items-center justify-center">
                         <Plus className="text-zinc-500" />

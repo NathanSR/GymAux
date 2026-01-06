@@ -10,7 +10,7 @@ export const SessionService = {
             text: "Você está pronto para começar?",
             icon: 'question',
             showCancelButton: true,
-            confirmButtonColor: '#2563eb', // blue-600
+            confirmButtonColor: '#22c55e', // lime-600
             cancelButtonColor: '#ef4444', // red-500
             confirmButtonText: 'Sim, vamos!',
             cancelButtonText: 'Agora não',

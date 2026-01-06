@@ -22,18 +22,18 @@ export default function UserCard({ user }: UserCardProps) {
     return (
         <button
             onClick={handleSelect}
-            className="group flex flex-col items-center gap-3 p-4 rounded-2xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 hover:border-blue-500 dark:hover:border-blue-500 hover:shadow-lg transition-all active:scale-95"
+            className="group flex flex-col items-center gap-3 p-4 rounded-2xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 hover:border-lime-500 dark:hover:border-lime-500 hover:shadow-lg transition-all active:scale-95"
         >
             <div className="relative">
                 {user.avatar ? (
                     <img
                         src={user.avatar}
                         alt={user.name}
-                        className="w-20 h-20 rounded-full object-cover border-2 border-transparent group-hover:border-blue-500 transition-colors"
+                        className="w-20 h-20 rounded-full object-cover border-2 border-transparent group-hover:border-lime-500 transition-colors"
                     />
                 ) : (
-                    <div className="w-20 h-20 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center border-2 border-transparent group-hover:border-blue-500 transition-colors">
-                        <UserIcon size={32} className="text-blue-600 dark:text-blue-400" />
+                    <div className="w-20 h-20 rounded-full bg-lime-100 dark:bg-lime-900/30 flex items-center justify-center border-2 border-transparent group-hover:border-lime-500 transition-colors">
+                        <UserIcon size={32} className="text-lime-600 dark:text-lime-400" />
                     </div>
                 )}
             </div>

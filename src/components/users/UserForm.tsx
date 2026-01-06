@@ -23,7 +23,7 @@ export default function UserForm({ onCancel }: { onCancel?: () => void }) {
                 <label className="block text-sm font-medium mb-1 dark:text-zinc-300">{t('nameLabel')}</label>
                 <input
                     {...register('name', { required: true })}
-                    className="w-full p-3 rounded-xl border dark:bg-zinc-900 dark:border-zinc-800 focus:ring-2 focus:ring-blue-500 outline-none"
+                    className="w-full p-3 rounded-xl border dark:bg-zinc-900 dark:border-zinc-800 focus:ring-2 focus:ring-lime-500 outline-none"
                     placeholder="Ex: João Silva"
                 />
             </div>
@@ -49,7 +49,7 @@ export default function UserForm({ onCancel }: { onCancel?: () => void }) {
 
             <button
                 type="submit"
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition-all shadow-lg shadow-blue-500/20"
+                className="w-full bg-lime-600 hover:bg-lime-700 text-white font-bold py-3 rounded-xl transition-all shadow-lg shadow-lime-500/20"
             >
                 {t('createButton')}
             </button>
