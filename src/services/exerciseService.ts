@@ -44,12 +44,8 @@ export const ExerciseService = {
         return await db.exercises.update(id, updateData);
     },
 
-    // Deletar usuário e seus treinos (cascata manual)
-    async deleteExercise(id: number) {
-        return await db.transaction('rw', [db.exercises, db.workouts, db.history], async () => {
-            await db.history.where('exerciseId').equals(id).delete();
-            await db.workouts.where('exerciseId').equals(id).delete();
-            await db.exercises.delete(id);
-        });
+    // Deletar exercicio
+    async deleteExerciseById(id: number) {
+        return await db.exercises.delete(id);
     }
 };

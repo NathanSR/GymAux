@@ -62,7 +62,7 @@ export default function EditExercisePage() {
         }).then(async (result) => {
             if (result.isConfirmed) {
                 try {
-                    await ExerciseService.deleteExercise(Number(id));
+                    await ExerciseService.deleteExerciseById(Number(id));
                     router.push('/exercises');
                 } catch (error) {
                     console.error("Erro ao deletar:", error);

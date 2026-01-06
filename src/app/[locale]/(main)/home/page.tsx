@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import {
     Play,
-    Calendar,
     Trophy,
     History as HistoryIcon,
     ChevronRight,
@@ -16,7 +15,6 @@ import {
     LogOut,
     User,
     CheckCircle2,
-    Book,
     Bed,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -271,38 +269,6 @@ export default function HomePage() {
                         })}
                     </div>
                 </section>
-
-                {/* Atalhos */}
-                {/* <div className="grid grid-cols-2 gap-4 mb-10">
-                    <button
-                        onClick={() => router.push('/exercises')}
-                        className="bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 p-6 rounded-[32px] flex flex-col items-center gap-3 active:scale-95 shadow-sm cursor-pointer"
-                    >
-                        <div className="bg-amber-500/10 p-4 rounded-2xl text-amber-500"><Book size={28} /></div>
-                        <span className="text-sm font-black uppercase tracking-tighter">{t('exercises')}</span>
-                    </button>
-                    <button
-                        onClick={() => router.push('/workouts')}
-                        className="bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 p-6 rounded-[32px] flex flex-col items-center gap-3 active:scale-95 shadow-sm cursor-pointer"
-                    >
-                        <div className="bg-blue-500/10 p-4 rounded-2xl text-blue-500"><Dumbbell size={28} /></div>
-                        <span className="text-sm font-black uppercase tracking-tighter">{t('workouts')}</span>
-                    </button>
-                    <button
-                        onClick={() => router.push('/schedules')}
-                        className="bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 p-6 rounded-[32px] flex flex-col items-center gap-3 active:scale-95 shadow-sm cursor-pointer"
-                    >
-                        <div className="bg-cyan-500/10 p-4 rounded-2xl text-cyan-500"><Calendar size={28} /></div>
-                        <span className="text-sm font-black uppercase tracking-tighter">{t('schedules')}</span>
-                    </button>
-                    <button
-                        onClick={() => router.push('/histories')}
-                        className="bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 p-6 rounded-[32px] flex flex-col items-center gap-3 active:scale-95 shadow-sm cursor-pointer"
-                    >
-                        <div className="bg-cyan-500/10 p-4 rounded-2xl text-cyan-500"><HistoryIcon size={28} /></div>
-                        <span className="text-sm font-black uppercase tracking-tighter">{t('histories')}</span>
-                    </button>
-                </div> */}
 
                 {/* --- HISTÓRICO RÁPIDO (RECONSTITUÍDO) --- */}
                 <section className="bg-white dark:bg-zinc-900 rounded-[32px] p-6 border border-zinc-200 dark:border-zinc-800 shadow-sm mb-10">
