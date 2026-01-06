@@ -3,8 +3,8 @@
 import { useTranslations } from 'next-intl';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useState } from 'react';
-import UserForm from '@/components/UserForm';
-import UserCard from '@/components/UserCard';
+import UserForm from '@/components/users/UserForm';
+import UserCard from '@/components/users/UserCard';
 import { Plus } from 'lucide-react';
 import { userService } from '@/services/userService';
 

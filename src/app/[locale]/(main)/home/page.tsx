@@ -135,7 +135,10 @@ export default function HomePage() {
                                         Idioma: {language.toUpperCase()}
                                     </button>
 
-                                    <button className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-xl transition-colors">
+                                    <button
+                                        onClick={() => router.push("/profile/edit")}
+                                        className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-xl transition-colors"
+                                    >
                                         <Settings size={18} className="text-zinc-500" />
                                         Perfil
                                     </button>

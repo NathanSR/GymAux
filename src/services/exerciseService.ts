@@ -3,7 +3,7 @@ import { Exercise } from '@/config/types';
 
 export const ExerciseService = {
     // Buscar todos
-    async getAllExercises() {
+    async getAllExercises(t?: () => any) {
         return await db.exercises.toArray();
     },
 

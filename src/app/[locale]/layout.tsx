@@ -8,6 +8,7 @@ import { notFound } from 'next/navigation';
 import { routing } from '@/i18n/routing';
 import { ThemeProvider } from "@/context/ThemeContext";
 import { LanguageProvider } from "@/context/LanguageContext";
+import { ToastContainer } from 'react-toastify';
 
 const geistSans = Geist({
 	variable: "--font-geist-sans",
@@ -56,6 +57,7 @@ export default async function RootLayout(props: {
 						</NextIntlClientProvider>
 					</ThemeProvider>
 				</LanguageProvider>
+				<ToastContainer pauseOnHover closeOnClick draggable />
 			</body>
 		</html>
 	);

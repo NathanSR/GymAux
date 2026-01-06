@@ -28,6 +28,20 @@ export const userService = {
         });
     },
 
+    // Atualizar com regras de negócio
+    async updateUser(id: number, updateData: Partial<Omit<User, 'id' | 'createdAt'>>) {
+        // Exemplo de regra de negócio: Garantir que o nome esteja capitalizado
+        if (updateData.name !== undefined) {
+            const formattedName = updateData.name.trim();
+
+            if (formattedName.length < 2) {
+                throw new Error("Name too short");
+            }
+        }
+
+        return await db.users.update(id, updateData);
+    },
+
     // Deletar usuário e seus treinos (cascata manual)
     async deleteUser(id: number) {
         return await db.transaction('rw', [db.users, db.workouts, db.history], async () => {
