@@ -12,12 +12,10 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { useSession } from '@/hooks/useSession';
 import { WorkoutService } from '@/services/workoutService';
 
-
-
-// --- COMPONENTE: ScheduleForm ---
 export const ScheduleForm = ({ initialData, onSubmit, isLoading }: { initialData?: any; onSubmit: (data: any) => void; isLoading?: boolean; }) => {
-    const t = useTranslations();
-    const { register, handleSubmit, control, watch, setValue, formState: { errors } } = useForm({
+    const t = useTranslations('ScheduleForm');
+
+    const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm({
         defaultValues: initialData || {
             name: '',
             userId: 1,
@@ -28,11 +26,8 @@ export const ScheduleForm = ({ initialData, onSubmit, isLoading }: { initialData
         }
     });
 
-    const daysOfWeek = [
-        'Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira',
-        'Quinta-feira', 'Sexta-feira', 'Sábado'
-    ];
-
+    // Obtém o array de dias traduzido
+    const daysOfWeek = t.raw('daysOfWeek') as string[];
     const currentWorkouts = watch('workouts');
 
     const handleWorkoutChange = (dayIndex: number, workoutId: string | null) => {
@@ -48,53 +43,53 @@ export const ScheduleForm = ({ initialData, onSubmit, isLoading }: { initialData
         [activeUser?.id]) || [];
 
     return (
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-8 animate-in fade-in duration-500">
             {/* Informações Básicas */}
-            <section className="bg-white dark:bg-zinc-900 p-6 rounded-[24px] border border-zinc-100 dark:border-zinc-800 shadow-sm">
+            <section className="bg-white dark:bg-zinc-900 p-6 rounded-[32px] border border-zinc-100 dark:border-zinc-800 shadow-sm space-y-6">
                 <div className="space-y-4">
                     <div>
-                        <label className="block text-[10px] font-black uppercase text-zinc-400 mb-2 px-1">
+                        <label className="block text-[10px] font-black uppercase text-zinc-400 mb-2 px-1 tracking-widest">
                             {t('name')}
                         </label>
                         <input
                             {...register('name', { required: true })}
-                            className="w-full bg-zinc-50 dark:bg-zinc-800 border-none rounded-xl py-4 px-4 outline-none focus:ring-2 focus:ring-lime-400 transition-all"
-                            placeholder="Ex: Minha Rotina de Verão"
+                            className="w-full bg-zinc-50 dark:bg-zinc-800 border-none rounded-2xl py-4 px-4 outline-none focus:ring-2 focus:ring-lime-400 transition-all font-bold text-zinc-900 dark:text-white"
+                            placeholder={t('namePlaceholder')}
                         />
-                        {errors.name && <span className="text-red-500 text-xs mt-1">Campo obrigatório</span>}
+                        {errors.name && <span className="text-red-500 text-[10px] font-bold uppercase mt-2 block px-1">{t('required')}</span>}
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-[10px] font-black uppercase text-zinc-400 mb-2 px-1">
+                            <label className="block text-[10px] font-black uppercase text-zinc-400 mb-2 px-1 tracking-widest">
                                 {t('startDate')}
                             </label>
                             <input
                                 type="date"
                                 {...register('startDate', { required: true })}
-                                className="w-full bg-zinc-50 dark:bg-zinc-800 border-none rounded-xl py-4 px-4 outline-none focus:ring-2 focus:ring-lime-400 transition-all text-sm"
+                                className="w-full bg-zinc-50 dark:bg-zinc-800 border-none rounded-2xl py-4 px-4 outline-none focus:ring-2 focus:ring-lime-400 transition-all text-sm font-bold dark:text-white"
                             />
                         </div>
                         <div>
-                            <label className="block text-[10px] font-black uppercase text-zinc-400 mb-2 px-1">
+                            <label className="block text-[10px] font-black uppercase text-zinc-400 mb-2 px-1 tracking-widest">
                                 {t('endDate')}
                             </label>
                             <input
                                 type="date"
                                 {...register('endDate')}
-                                className="w-full bg-zinc-50 dark:bg-zinc-800 border-none rounded-xl py-4 px-4 outline-none focus:ring-2 focus:ring-lime-400 transition-all text-sm"
+                                className="w-full bg-zinc-50 dark:bg-zinc-800 border-none rounded-2xl py-4 px-4 outline-none focus:ring-2 focus:ring-lime-400 transition-all text-sm font-bold dark:text-white"
                             />
                         </div>
                     </div>
 
-                    <div className="flex items-center justify-between p-4 bg-zinc-50 dark:bg-zinc-950 rounded-xl">
+                    <div className="flex items-center justify-between p-4 bg-zinc-50 dark:bg-zinc-950/50 rounded-2xl border border-zinc-100 dark:border-zinc-800/50">
                         <div className="flex items-center gap-3">
-                            <div className={`p-2 rounded-lg ${watch('active') ? 'bg-lime-400/10 text-lime-500' : 'bg-zinc-200 text-zinc-400'}`}>
+                            <div className={`p-2 rounded-xl transition-colors ${watch('active') ? 'bg-lime-400/10 text-lime-500' : 'bg-zinc-200 dark:bg-zinc-800 text-zinc-400'}`}>
                                 <CheckCircle2 size={20} />
                             </div>
                             <div>
-                                <p className="text-sm font-bold">{t('active')}</p>
-                                <p className="text-[10px] text-zinc-500 uppercase font-bold">Status do plano</p>
+                                <p className="text-sm font-black uppercase tracking-tight dark:text-white">{t('active')}</p>
+                                <p className="text-[10px] text-zinc-500 uppercase font-bold tracking-tighter">{t('statusInfo')}</p>
                             </div>
                         </div>
                         <label className="relative inline-flex items-center cursor-pointer">
@@ -106,26 +101,26 @@ export const ScheduleForm = ({ initialData, onSubmit, isLoading }: { initialData
             </section>
 
             {/* Workouts Grid */}
-            <section>
-                <h3 className="text-[10px] font-black uppercase text-zinc-400 mb-4 px-1 flex items-center gap-2">
-                    <Dumbbell size={14} /> {t('workouts_title')}
+            <section className="space-y-4">
+                <h3 className="text-[10px] font-black uppercase text-zinc-400 px-1 flex items-center gap-2 tracking-[0.2em]">
+                    <Dumbbell size={14} className="text-lime-500" /> {t('workoutsTitle')}
                 </h3>
                 <div className="grid grid-cols-1 gap-3">
                     {daysOfWeek.map((day, index) => (
-                        <div key={day} className="flex items-center gap-4 bg-white dark:bg-zinc-900 p-4 rounded-2xl border border-zinc-100 dark:border-zinc-800">
-                            <div className="w-10 h-10 rounded-xl bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center font-black text-xs text-zinc-500">
+                        <div key={day} className="flex items-center gap-4 bg-white dark:bg-zinc-900 p-4 rounded-[24px] border border-zinc-100 dark:border-zinc-800 transition-all hover:border-lime-200 dark:hover:border-lime-900/30">
+                            <div className="w-12 h-12 rounded-2xl bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center font-black text-sm text-zinc-500 dark:text-zinc-400 border border-transparent dark:border-zinc-700/50">
                                 {day.substring(0, 1)}
                             </div>
                             <div className="flex-1">
-                                <p className="text-xs font-bold mb-1">{day}</p>
+                                <p className="text-[10px] font-black uppercase text-zinc-400 tracking-widest mb-1">{day}</p>
                                 <select
                                     value={currentWorkouts[index] || ''}
                                     onChange={(e) => handleWorkoutChange(index, e.target.value)}
-                                    className="w-full bg-transparent border-none text-sm font-medium focus:ring-0 p-0 text-zinc-500"
+                                    className="w-full bg-transparent border-none text-sm font-bold focus:ring-0 p-0 text-zinc-900 dark:text-white cursor-pointer appearance-none"
                                 >
-                                    <option value="">{t('no_workout')}</option>
+                                    <option value="" className="dark:bg-zinc-900">{t('noWorkout')}</option>
                                     {workouts.map(w => (
-                                        <option key={w.id} value={w.id}>{w.name}</option>
+                                        <option key={w.id} value={w.id} className="dark:bg-zinc-900">{w.name}</option>
                                     ))}
                                 </select>
                             </div>
@@ -133,7 +128,7 @@ export const ScheduleForm = ({ initialData, onSubmit, isLoading }: { initialData
                                 <button
                                     type="button"
                                     onClick={() => handleWorkoutChange(index, null)}
-                                    className="p-2 text-zinc-300 hover:text-red-500 transition-colors"
+                                    className="p-3 bg-zinc-50 dark:bg-zinc-800 text-zinc-400 hover:text-red-500 rounded-xl transition-all cursor-pointer"
                                 >
                                     <X size={18} />
                                 </button>
@@ -146,13 +141,17 @@ export const ScheduleForm = ({ initialData, onSubmit, isLoading }: { initialData
             <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-lime-400 hover:bg-lime-500 text-zinc-950 font-black py-5 rounded-[24px] shadow-xl shadow-lime-500/20 transition-all flex items-center justify-center gap-3 active:scale-95 disabled:opacity-50"
+                className="w-full bg-lime-400 hover:bg-lime-500 text-zinc-950 font-black py-6 rounded-[28px] shadow-xl shadow-lime-500/20 transition-all flex items-center justify-center gap-3 active:scale-95 disabled:opacity-50 cursor-pointer uppercase tracking-widest text-xs"
             >
-                {isLoading ? <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-zinc-950"></div> : <Save size={20} />}
-                {t('save')}
+                {isLoading ? (
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-zinc-950"></div>
+                ) : (
+                    <>
+                        <Save size={20} />
+                        {t('save')}
+                    </>
+                )}
             </button>
         </form>
     );
 };
-
-

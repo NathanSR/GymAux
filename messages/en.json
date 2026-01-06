@@ -270,7 +270,9 @@
         "back": "Back",
         "legs": "Legs",
         "shoulders": "Shoulders",
-        "arms": "Arms"
+        "arms": "Arms",
+        "core": "Core",
+        "cardio": "Cardio"
     },
     "Tags": {
         "compound": "Compound",
@@ -291,19 +293,103 @@
         "vertical": "Vertical",
         "horizontal": "Horizontal"
     },
+    "WorkoutList": {
+        "title": "My Workouts",
+        "searchPlaceholder": "Search...",
+        "exercisesCount": "{count, plural, =0 {No exercises} =1 {# Exercise} other {# Exercises}}",
+        "train": "Train",
+        "edit": "Edit",
+        "noResults": "No workouts found"
+    },
+    "WorkoutRegister": {
+        "newWorkout": "New Workout",
+        "createdWorkout": "Workout created successfully!",
+        "errorCreating": "Error creating workout. Please try again.",
+        "loading": "Saving..."
+    },
+    "WorkoutEdit": {
+        "editWorkout": "Edit Workout",
+        "updatedWorkout": "Workout updated successfully!",
+        "loadingWorkout": "Loading workout...",
+        "confirmDeleteTitle": "Delete Workout?",
+        "confirmDeleteText": "This action cannot be undone!",
+        "confirmDeleteButton": "Yes, delete",
+        "cancelButton": "Cancel"
+    },
     "WorkoutForm": {
-        "pageTitle": "New Workout",
-        "basicInfo": "Basic Info",
-        "workoutNameLabel": "Workout Name",
-        "workoutNamePlaceholder": "Ex: Chest and Triceps",
+        "nameLabel": "Workout Name",
+        "namePlaceholder": "Ex: Workout A - Hypertrophy",
+        "nameRequired": "Workout name is required",
         "descriptionLabel": "Description (Optional)",
-        "descriptionPlaceholder": "Focus on hypertrophy...",
-        "exercisesTitle": "Exercise List",
+        "workoutExercises": "Workout Exercises",
+        "itemsCount": "{count, plural, =0 {No items} =1 {# item} other {# items}}",
         "addExercise": "Add Exercise",
-        "exNamePlaceholder": "Exercise Name",
-        "saveButton": "Save Workout",
-        "proTip": "You can organize this workout in your weekly calendar on the Agenda screen after saving it.",
-        "successTitle": "Workout Created!",
-        "successMessage": "Redirecting to home..."
+        "saveWorkout": "Save Workout",
+        "emptyExercise": "Select an exercise",
+        "selectExercise": "Select Exercise",
+        "sets": "Sets",
+        "reps": "Reps",
+        "rest": "Rest (s)"
+    },
+    "ExerciseSelector": {
+        "title": "Add Exercise",
+        "searchPlaceholder": "Search exercise...",
+        "allCategories": "All",
+        "noResults": "No exercises found"
+    },
+    "ScheduleList": {
+        "title": "Schedules",
+        "searchPlaceholder": "Search...",
+        "active": "Active",
+        "inactive": "Inactive",
+        "lastWorkout": "Last Workout: Day {day}",
+        "weeklyRoutine": "Weekly Routine",
+        "trainingDays": "{count, plural, =0 {No training days} =1 {# training day} other {# training days}}",
+        "noSchedules": "No schedules found",
+        "defaultName": "Schedule #{id}",
+        "dayLabels": [
+            "S",
+            "M",
+            "T",
+            "W",
+            "T",
+            "F",
+            "S"
+        ]
+    },
+    "ScheduleRegister": {
+        "createTitle": "New Schedule",
+        "createSuccess": "Schedule created successfully!",
+        "createError": "Error creating schedule"
+    },
+    "ScheduleEdit": {
+        "editTitle": "Edit Schedule",
+        "editSuccess": "Schedule updated!",
+        "loading": "Loading Schedule...",
+        "confirmDeleteTitle": "Delete Schedule?",
+        "confirmDeleteText": "This action cannot be undone!",
+        "confirmDeleteButton": "Yes, delete",
+        "cancelButton": "Cancel"
+    },
+    "ScheduleForm": {
+        "name": "Schedule Name",
+        "namePlaceholder": "e.g., My Summer Routine",
+        "required": "Required field",
+        "startDate": "Start Date",
+        "endDate": "End Date (Optional)",
+        "active": "Active Schedule",
+        "statusInfo": "Plan status",
+        "workoutsTitle": "Weekly Workouts",
+        "noWorkout": "Rest Day",
+        "save": "Save Schedule",
+        "daysOfWeek": [
+            "Sunday",
+            "Monday",
+            "Tuesday",
+            "Wednesday",
+            "Thursday",
+            "Friday",
+            "Saturday"
+        ]
     }
 }

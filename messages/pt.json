@@ -91,7 +91,7 @@
             "legs": "Pernas",
             "shoulders": "Ombros",
             "arms": "Braços",
-            "core": "Core",
+            "core": "Abdominal",
             "cardio": "Cardio"
         }
     },
@@ -265,6 +265,15 @@
         "cardio_swimming": "Natação",
         "cardio_swimming_desc": "Resistência total do corpo em ambiente aquático, ideal para recuperação e fôlego."
     },
+    "Categories": {
+        "chest": "Peito",
+        "back": "Costas",
+        "legs": "Pernas",
+        "shoulders": "Ombros",
+        "arms": "Braços",
+        "core": "Abdominal",
+        "cardio": "Cardio"
+    },
     "Tags": {
         "compound": "Composto",
         "isolation": "Isolado",
@@ -283,29 +292,103 @@
         "vertical": "Vertical",
         "horizontal": "Horizontal"
     },
+    "WorkoutList": {
+        "title": "Meus Treinos",
+        "searchPlaceholder": "Buscar...",
+        "exercisesCount": "{count, plural, =0 {Nenhum exercício} =1 {# Exercício} other {# Exercícios}}",
+        "train": "Treinar",
+        "edit": "Editar",
+        "noResults": "Nenhum treino encontrado"
+    },
+    "WorkoutRegister": {
+        "newWorkout": "Novo Treino",
+        "createdWorkout": "Treino criado com sucesso!",
+        "errorCreating": "Erro ao criar o treino. Tente novamente.",
+        "loading": "Salvando..."
+    },
+    "WorkoutEdit": {
+        "editWorkout": "Editar Treino",
+        "updatedWorkout": "Treino atualizado com sucesso!",
+        "loadingWorkout": "Carregando treino...",
+        "confirmDeleteTitle": "Excluir Treino?",
+        "confirmDeleteText": "Esta ação não pode ser desfeita!",
+        "confirmDeleteButton": "Sim, excluir",
+        "cancelButton": "Cancelar"
+    },
     "WorkoutForm": {
         "nameLabel": "Nome do Treino",
         "namePlaceholder": "Ex: Treino A - Hipertrofia",
-        "descriptionLabel": "Observações/Notas",
+        "nameRequired": "O nome do treino é obrigatório",
+        "descriptionLabel": "Descrição (Opcional)",
+        "workoutExercises": "Exercícios do Treino",
+        "itemsCount": "{count, plural, =0 {Nenhum item} =1 {# item} other {# itens}}",
         "addExercise": "Adicionar Exercício",
         "saveWorkout": "Salvar Treino",
+        "emptyExercise": "Selecione um exercício",
+        "selectExercise": "Selecionar Exercício",
         "sets": "Séries",
         "reps": "Reps",
-        "weight": "Carga (kg)",
-        "exerciseRequired": "Selecione um exercício",
-        "nameRequired": "O nome do treino é obrigatório"
+        "rest": "Descanso (s)"
+    },
+    "ExerciseSelector": {
+        "title": "Adicionar Exercício",
+        "searchPlaceholder": "Buscar exercício...",
+        "allCategories": "Todos",
+        "noResults": "Nenhum exercício encontrado"
+    },
+    "ScheduleList": {
+        "title": "Cronogramas",
+        "searchPlaceholder": "Buscar...",
+        "active": "Ativo",
+        "inactive": "Inativo",
+        "lastWorkout": "Último Treino: Dia {day}",
+        "weeklyRoutine": "Rotina Semanal",
+        "trainingDays": "{count, plural, =0 {Nenhum dia de treino} =1 {# dia de treino} other {# dias de treino}}",
+        "noSchedules": "Nenhum cronograma encontrado",
+        "defaultName": "Cronograma #{id}",
+        "dayLabels": [
+            "D",
+            "S",
+            "T",
+            "Q",
+            "Q",
+            "S",
+            "S"
+        ]
+    },
+    "ScheduleRegister": {
+        "createTitle": "Novo Cronograma",
+        "createSuccess": "Cronograma criado com sucesso!",
+        "createError": "Erro ao criar cronograma"
+    },
+    "ScheduleEdit": {
+        "editTitle": "Editar Cronograma",
+        "editSuccess": "Cronograma atualizado!",
+        "loading": "Carregando Cronograma...",
+        "confirmDeleteTitle": "Excluir Cronograma?",
+        "confirmDeleteText": "Esta ação não pode ser desfeita!",
+        "confirmDeleteButton": "Sim, excluir",
+        "cancelButton": "Cancelar"
     },
     "ScheduleForm": {
-        "save": "Salvar Cronograma",
         "name": "Nome do Cronograma",
+        "namePlaceholder": "Ex: Minha Rotina de Verão",
+        "required": "Campo obrigatório",
         "startDate": "Data de Início",
         "endDate": "Data de Término (Opcional)",
         "active": "Cronograma Ativo",
-        "workouts_title": "Distribuição Semanal",
-        "select_workout": "Selecionar Treino",
-        "no_workout": "Descanso",
-        "create_title": "Novo Cronograma",
-        "edit_title": "Editar Cronograma",
-        "last_completed": "Último Índice Completado"
+        "statusInfo": "Status do plano",
+        "workoutsTitle": "Treinos da Semana",
+        "noWorkout": "Dia de Descanso",
+        "save": "Salvar Cronograma",
+        "daysOfWeek": [
+            "Domingo",
+            "Segunda-feira",
+            "Terça-feira",
+            "Quarta-feira",
+            "Quinta-feira",
+            "Sexta-feira",
+            "Sábado"
+        ]
     }
 }

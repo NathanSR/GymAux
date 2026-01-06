@@ -12,13 +12,16 @@ import { WorkoutService } from '@/services/workoutService';
 import Swal from 'sweetalert2';
 import { useTheme } from '@/context/ThemeContext';
 import { toast } from 'react-toastify';
+import Loading from '@/app/[locale]/loading';
 
 export default function EditWorkoutPage() {
     const { theme } = useTheme();
-
     const router = useRouter();
     const { id } = useParams();
-    const t = useTranslations('Workouts');
+
+    // Namespace solicitado: WorkoutEdit
+    const t = useTranslations('WorkoutEdit');
+
     const [workout, setWorkout] = useState(null);
     const [isSaving, setIsSaving] = useState(false);
 
@@ -53,6 +56,7 @@ export default function EditWorkoutPage() {
             router.push('/workouts');
         } catch (error) {
             console.error("Erro ao atualizar treino:", error);
+            toast.error("Error updating workout");
         } finally {
             setIsSaving(false);
         }
@@ -60,16 +64,16 @@ export default function EditWorkoutPage() {
 
     const handleDelete = async () => {
         Swal.fire({
-            title: t('confirmDeleteTitle') || 'Excluir Exercício?',
-            text: t('confirmDeleteText') || "Esta ação não pode ser desfeita!",
+            title: t('confirmDeleteTitle'),
+            text: t('confirmDeleteText'),
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonColor: '#ef4444', // red-600 (cor de perigo)
-            cancelButtonColor: '#6b7280',  // gray-500
-            confirmButtonText: t('confirmDeleteButton') || 'Sim, deletar',
-            cancelButtonText: 'Cancelar',
-            background: theme === 'dark' ? '#1f2937' : '#ffffff',
-            color: theme === 'dark' ? '#f9fafb' : '#111827',
+            confirmButtonColor: '#ef4444',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: t('confirmDeleteButton'),
+            cancelButtonText: t('cancelButton'),
+            background: theme === 'dark' ? '#18181b' : '#ffffff',
+            color: theme === 'dark' ? '#ffffff' : '#18181b',
         }).then(async (result) => {
             if (result.isConfirmed) {
                 try {
@@ -77,36 +81,30 @@ export default function EditWorkoutPage() {
                     router.push('/workouts');
                 } catch (error) {
                     console.error("Erro ao deletar:", error);
-                    // Opcional: Alerta de erro caso a deleção falhe
                 }
             }
         });
     };
 
-    if (!workout) {
-        return (
-            <div className="min-h-screen flex items-center justify-center bg-zinc-50 dark:bg-zinc-950 transition-colors">
-                <div className="flex flex-col items-center gap-4">
-                    <Loader2 className="animate-spin text-lime-400" size={40} />
-                    <p className="text-[10px] font-black uppercase text-zinc-500 tracking-widest">A carregar treino...</p>
-                </div>
-            </div>
-        );
-    }
+    if (!workout) return <Loading />
 
     return (
         <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white transition-colors duration-300">
             <header className="sticky top-0 z-50 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-md border-b border-zinc-100 dark:border-zinc-900 px-6 py-4 flex items-center justify-between">
                 <button
                     onClick={() => router.back()}
-                    className="p-2 rounded-xl bg-zinc-100 dark:bg-zinc-900 text-zinc-500 hover:text-zinc-900 dark:hover:text-white transition-colors"
+                    className="p-2 rounded-xl bg-zinc-100 dark:bg-zinc-900 text-zinc-500 hover:text-zinc-900 dark:hover:text-white transition-colors cursor-pointer"
                 >
                     <ChevronLeft size={24} />
                 </button>
-                <h1 className="font-black text-lg tracking-tight uppercase">{t('editWorkout')}</h1>
+
+                <h1 className="font-black text-lg tracking-tight uppercase">
+                    {t('editWorkout')}
+                </h1>
+
                 <button
                     onClick={handleDelete}
-                    className="p-2 rounded-xl bg-red-500/10 text-red-500 hover:bg-red-50 hover:text-white transition-all"
+                    className="p-2 rounded-xl bg-red-500/10 text-red-500 hover:bg-red-50 hover:text-white transition-all cursor-pointer"
                 >
                     <Trash2 size={20} />
                 </button>
