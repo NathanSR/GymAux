@@ -46,6 +46,20 @@
         "logout": "Log Out",
         "selectLanguage": "Select Language"
     },
+    "ExerciseList": {
+        "title": "Library",
+        "searchPlaceholder": "Search...",
+        "edit": "Edit",
+        "noResults": "No exercises found",
+        "all": "All",
+        "chest": "Chest",
+        "back": "Back",
+        "legs": "Legs",
+        "shoulders": "Shoulders",
+        "arms": "Arms",
+        "core": "Core",
+        "cardio": "Cardio"
+    },
     "Exercises": {
         "chest_bench_press": "Barbell Bench Press",
         "chest_bench_press_desc": "The fundamental exercise for strength and mass of the mid-chest.",
@@ -256,21 +270,5 @@
         "proTip": "You can organize this workout in your weekly calendar on the Agenda screen after saving it.",
         "successTitle": "Workout Created!",
         "successMessage": "Redirecting to home..."
-    },
-    "ExerciseList": {
-        "pageTitle": "Library",
-        "searchPlaceholder": "Search exercise...",
-        "categories": "Categories",
-        "all": "All",
-        "chest": "Chest",
-        "back": "Back",
-        "legs": "Legs",
-        "shoulders": "Shoulders",
-        "arms": "Arms",
-        "core": "Core",
-        "cardio": "Cardio",
-        "noResults": "No exercises found.",
-        "tagsLabel": "Tags",
-        "watchVideo": "Watch execution"
     }
 }

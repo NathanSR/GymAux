@@ -46,6 +46,20 @@
         "logout": "Sair da Conta",
         "selectLanguage": "Selecionar Idioma"
     },
+    "ExerciseList": {
+        "title": "Biblioteca",
+        "searchPlaceholder": "Buscar...",
+        "edit": "Editar",
+        "noResults": "Nenhum exercício encontrado",
+        "all": "Todos",
+        "chest": "Peito",
+        "back": "Costas",
+        "legs": "Pernas",
+        "shoulders": "Ombros",
+        "arms": "Braços",
+        "core": "Core",
+        "cardio": "Cardio"
+    },
     "Exercises": {
         "chest_bench_press": "Supino Reto com Barra",
         "chest_bench_press_desc": "O exercício fundamental para força e massa bruta do peitoral médio.",
@@ -252,22 +266,6 @@
         "weight": "Carga (kg)",
         "exerciseRequired": "Selecione um exercício",
         "nameRequired": "O nome do treino é obrigatório"
-    },
-    "ExerciseList": {
-        "pageTitle": "Biblioteca",
-        "searchPlaceholder": "Buscar exercício...",
-        "categories": "Categorias",
-        "all": "Todos",
-        "chest": "Peito",
-        "back": "Costas",
-        "legs": "Pernas",
-        "shoulders": "Ombros",
-        "arms": "Braços",
-        "core": "Core",
-        "cardio": "Cardio",
-        "noResults": "Nenhum exercício encontrado.",
-        "tagsLabel": "Tags",
-        "watchVideo": "Ver execução"
     },
     "ScheduleForm": {
         "save": "Salvar Cronograma",

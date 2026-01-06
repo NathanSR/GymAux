@@ -46,6 +46,20 @@
         "logout": "Cerrar Sesión",
         "selectLanguage": "Seleccionar Idioma"
     },
+    "ExerciseList": {
+        "title": "Biblioteca",
+        "searchPlaceholder": "Buscar...",
+        "edit": "Editar",
+        "noResults": "No se encontraron ejercicios",
+        "all": "Todos",
+        "chest": "Pecho",
+        "back": "Espalda",
+        "legs": "Piernas",
+        "shoulders": "Hombros",
+        "arms": "Brazos",
+        "core": "Core",
+        "cardio": "Cardio"
+    },
     "Exercises": {
         "chest_bench_press": "Press de Banca con Barra",
         "chest_bench_press_desc": "El ejercicio fundamental para la fuerza y el volumen del pectoral medio.",
@@ -255,21 +269,5 @@
         "proTip": "Podrás organizar este entrenamiento en tu calendario semanal en la pantalla de Agenda después de guardarlo.",
         "successTitle": "¡Entrenamiento Creado!",
         "successMessage": "Redirigiendo a la pantalla principal..."
-    },
-    "ExerciseList": {
-        "pageTitle": "Biblioteca",
-        "searchPlaceholder": "Buscar ejercicio...",
-        "categories": "Categorias",
-        "all": "Todos",
-        "chest": "Pecho",
-        "back": "Espalda",
-        "legs": "Piernas",
-        "shoulders": "Hombros",
-        "arms": "Brazos",
-        "core": "Core",
-        "cardio": "Cardio",
-        "noResults": "No se encontraron ejercicios.",
-        "tagsLabel": "Tags",
-        "watchVideo": "Ver ejecución"
     }
 }
