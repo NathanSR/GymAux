@@ -64,6 +64,7 @@ export interface History {
 
     weight?: number; // peso do usuário no dia do treino
     description?: string;
+    duration?: number; // em minutos
     endDate?: Date;
     usingCreatine?: boolean;
 }
