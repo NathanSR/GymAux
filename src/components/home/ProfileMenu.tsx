@@ -79,7 +79,7 @@ const ProfileMenu: React.FC<ProfileMenuProps> = ({
                     {view === 'main' ? (
                         <>
                             {/* Alternar Tema */}
-                            <button
+                            {/* <button
                                 onClick={toggleTheme}
                                 className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-xl transition-colors text-zinc-700 dark:text-zinc-200"
                             >
@@ -91,7 +91,7 @@ const ProfileMenu: React.FC<ProfileMenuProps> = ({
                                 <span className="flex-1 text-left">
                                     {theme === 'dark' ? t('themeLight') : t('themeDark')}
                                 </span>
-                            </button>
+                            </button> */}
 
                             {/* Abrir Seleção de Idioma */}
                             <button

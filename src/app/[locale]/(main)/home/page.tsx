@@ -24,6 +24,7 @@ import moment from 'moment';
 import { SessionService } from '@/services/sessionService';
 import { MenuTab } from '@/components/MenuTab';
 import ProfileMenu from '@/components/home/ProfileMenu';
+import Loading from '@/app/[locale]/loading';
 
 export default function HomePage() {
     const t = useTranslations('Home');
@@ -74,11 +75,7 @@ export default function HomePage() {
         month: 'long'
     }).format(today);
 
-    if (loading) return (
-        <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
-            <div className="w-8 h-8 border-4 border-lime-400 border-t-transparent rounded-full animate-spin" />
-        </div>
-    );
+    if (loading) return <Loading />
 
     return (
         <div className="min-h-screen bg-white dark:bg-zinc-950 text-zinc-900 dark:text-white p-6 pb-32 transition-colors duration-300 font-sans">
@@ -104,6 +101,7 @@ export default function HomePage() {
                 </div>
             </header>
 
+            {/* Treino do dia */}
             <section className="relative group mb-8">
                 <div className={`absolute -inset-1 rounded-[40px] blur opacity-20 transition duration-1000 ${todayHistory ? 'bg-zinc-500' : 'bg-lime-400'}`}></div>
 
@@ -147,6 +145,7 @@ export default function HomePage() {
                 </div>
             </section>
 
+            {/* Sessão de treinos */}
             <section className="bg-white dark:bg-zinc-900 rounded-[32px] p-6 border border-zinc-200 dark:border-zinc-800 shadow-sm mb-10">
                 <div className="flex items-center justify-between">
                     <h2 className="text-xs font-black uppercase tracking-[0.2em] text-zinc-400">
@@ -206,6 +205,7 @@ export default function HomePage() {
                 </div>
             </section>
 
+            {/* Histórico de treinos */}
             <section className="bg-white dark:bg-zinc-900 rounded-[32px] p-6 border border-zinc-200 dark:border-zinc-800 shadow-sm mb-10">
                 <div className="flex justify-between items-center mb-6">
                     <h3 className="font-black text-lg flex items-center gap-2 uppercase italic tracking-tight">
