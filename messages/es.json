@@ -60,6 +60,41 @@
         "core": "Core",
         "cardio": "Cardio"
     },
+    "ExerciseRegister": {
+        "newExercise": "Nuevo Ejercicio",
+        "createdExercise": "Ejercicio creado con exito!",
+        "errorCreating": "Error al crear el ejercicio. Inténtalo de nuevo.",
+        "loading": "Creando..."
+    },
+    "ExerciseEdit": {
+        "editExercise": "Editar Ejercicio",
+        "updatedExercise": "¡Ejercicio actualizado con éxito!",
+        "confirmDeleteTitle": "¿Eliminar Ejercicio?",
+        "confirmDeleteText": "¡Esta acción no se puede deshacer!",
+        "confirmDeleteButton": "Sí, eliminar",
+        "cancelButton": "Cancelar"
+    },
+    "ExerciseForm": {
+        "nameLabel": "Nombre del Ejercicio",
+        "namePlaceholder": "Ej: Press de Banca",
+        "nameRequired": "El nombre es obligatorio",
+        "categoryLabel": "Categoría",
+        "tagsLabel": "Etiquetas",
+        "tagsPlaceholder": "pecho, fuerza, barra (separadas por coma)",
+        "descriptionLabel": "Descripción",
+        "descriptionPlaceholder": "Cómo realizar el ejercicio...",
+        "mediaLabel": "Link de Video/Imagen",
+        "saveButton": "Guardar Ejercicio",
+        "categories": {
+            "chest": "Pecho",
+            "back": "Espalda",
+            "legs": "Piernas",
+            "shoulders": "Hombros",
+            "arms": "Brazos",
+            "core": "Core",
+            "cardio": "Cardio"
+        }
+    },
     "Exercises": {
         "chest_bench_press": "Press de Banca con Barra",
         "chest_bench_press_desc": "El ejercicio fundamental para la fuerza y el volumen del pectoral medio.",

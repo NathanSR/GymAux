@@ -60,6 +60,41 @@
         "core": "Core",
         "cardio": "Cardio"
     },
+    "ExerciseRegister": {
+        "newExercise": "New Exercise",
+        "createdExercise": "Exercise created successfully!",
+        "errorCreating": "Error creating exercise. Try again.",
+        "loading": "Creating..."
+    },
+    "ExerciseEdit": {
+        "editExercise": "Edit Exercise",
+        "updatedExercise": "Exercise updated successfully!",
+        "confirmDeleteTitle": "Delete Exercise?",
+        "confirmDeleteText": "This action cannot be undone!",
+        "confirmDeleteButton": "Yes, delete it",
+        "cancelButton": "Cancel"
+    },
+    "ExerciseForm": {
+        "nameLabel": "Exercise Name",
+        "namePlaceholder": "Ex: Bench Press",
+        "nameRequired": "Name is required",
+        "categoryLabel": "Category",
+        "tagsLabel": "Tags",
+        "tagsPlaceholder": "chest, strength, barbell (comma separated)",
+        "descriptionLabel": "Description",
+        "descriptionPlaceholder": "How to perform the exercise...",
+        "mediaLabel": "Video/Image Link",
+        "saveButton": "Save Exercise",
+        "categories": {
+            "chest": "Chest",
+            "back": "Back",
+            "legs": "Legs",
+            "shoulders": "Shoulders",
+            "arms": "Arms",
+            "core": "Core",
+            "cardio": "Cardio"
+        }
+    },
     "Exercises": {
         "chest_bench_press": "Barbell Bench Press",
         "chest_bench_press_desc": "The fundamental exercise for strength and mass of the mid-chest.",

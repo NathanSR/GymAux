@@ -60,6 +60,41 @@
         "core": "Core",
         "cardio": "Cardio"
     },
+    "ExerciseRegister": {
+        "newExercise": "Novo Exercício",
+        "createdExercise": "Exercício criado com sucesso!",
+        "errorCreating": "Erro ao criar o exercício. Tente novamente.",
+        "loading": "Criando..."
+    },
+    "ExerciseEdit": {
+        "editExercise": "Editar Exercício",
+        "updatedExercise": "Exercício atualizado com sucesso!",
+        "confirmDeleteTitle": "Excluir Exercício?",
+        "confirmDeleteText": "Esta ação não pode ser desfeita!",
+        "confirmDeleteButton": "Sim, deletar",
+        "cancelButton": "Cancelar"
+    },
+    "ExerciseForm": {
+        "nameLabel": "Nome do Exercício",
+        "namePlaceholder": "Ex: Supino Reto",
+        "nameRequired": "O nome é obrigatório",
+        "categoryLabel": "Categoria",
+        "tagsLabel": "Tags",
+        "tagsPlaceholder": "peito, força, barra (separadas por vírgula)",
+        "descriptionLabel": "Descrição",
+        "descriptionPlaceholder": "Como executar o exercício...",
+        "mediaLabel": "Link do Vídeo/Imagem",
+        "saveButton": "Salvar Exercício",
+        "categories": {
+            "chest": "Peito",
+            "back": "Costas",
+            "legs": "Pernas",
+            "shoulders": "Ombros",
+            "arms": "Braços",
+            "core": "Core",
+            "cardio": "Cardio"
+        }
+    },
     "Exercises": {
         "chest_bench_press": "Supino Reto com Barra",
         "chest_bench_press_desc": "O exercício fundamental para força e massa bruta do peitoral médio.",
@@ -229,13 +264,6 @@
         "cardio_box_jumps_desc": "Exercício pliométrico para potência explosiva e condicionamento aeróbico.",
         "cardio_swimming": "Natação",
         "cardio_swimming_desc": "Resistência total do corpo em ambiente aquático, ideal para recuperação e fôlego."
-    },
-    "Categories": {
-        "chest": "Peito",
-        "back": "Costas",
-        "legs": "Pernas",
-        "shoulders": "Ombros",
-        "arms": "Braços"
     },
     "Tags": {
         "compound": "Composto",

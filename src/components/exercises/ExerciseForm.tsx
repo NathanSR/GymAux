@@ -1,4 +1,5 @@
-import React from 'react';
+"use client";
+
 import { useForm } from 'react-hook-form';
 import {
     Save,
@@ -11,19 +12,7 @@ import {
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
-/**
- * Nota: A importação de 'next-intl' foi comentada para garantir o funcionamento do Preview.
- * Em seu ambiente local, descomente a linha abaixo.
- */
-// import { useTranslations } from 'next-intl';
-
-/**
- * Componente reutilizável para Criar e Editar exercícios.
- * @param {Object} initialData - Dados iniciais (para edição)
- * @param {Function} onSubmit - Função de callback ao enviar
- * @param {boolean} isLoading - Estado de carregamento do botão
- */
-export default function ExerciseForm({ initialData, onSubmit, isLoading }: {
+interface ExerciseFormProps {
     initialData?: {
         name: string;
         category: string;
@@ -33,9 +22,11 @@ export default function ExerciseForm({ initialData, onSubmit, isLoading }: {
     };
     onSubmit: (data: any) => void;
     isLoading?: boolean;
-}) {
+}
 
-    const t = useTranslations('');
+export default function ExerciseForm({ initialData, onSubmit, isLoading }: ExerciseFormProps) {
+    // Usando o namespace específico para o formulário
+    const t = useTranslations('ExerciseForm');
 
     const {
         register,
@@ -84,7 +75,10 @@ export default function ExerciseForm({ initialData, onSubmit, isLoading }: {
                             className="w-full bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 rounded-2xl p-4 text-sm font-bold appearance-none outline-none focus:ring-2 focus:ring-lime-400 shadow-sm"
                         >
                             {categories.map(c => (
-                                <option key={c} value={c}>{t(`categories.${c}`).toUpperCase()}</option>
+                                <option key={c} value={c}>
+                                    {/* Acessa a tradução dentro do objeto categories */}
+                                    {t(`categories.${c}`).toUpperCase()}
+                                </option>
                             ))}
                         </select>
                         <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-400">
