@@ -99,7 +99,6 @@ export const SessionService = {
             workoutName: session.workoutName,
             date: session.createdAt,
             endDate: new Date(),
-            completed: true,
             ...additionalData,
             executions: session.exercisesDone as any
         };

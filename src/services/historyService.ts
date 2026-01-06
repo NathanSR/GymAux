@@ -14,7 +14,6 @@ export const HistoryService = {
         const dataToSave = {
             ...historyData,
             date: historyData.date || new Date(),
-            completed: historyData.completed || false
         };
 
         const id = await db.history.add(dataToSave);
@@ -55,7 +54,6 @@ export const HistoryService = {
         const history = await db.history
             .where('userId')
             .equals(userId)
-            // .and(log => log.completed === false)
             .reverse()
             .sortBy('date');
 
@@ -75,7 +73,6 @@ export const HistoryService = {
         const history = await db.history
             .where('userId')
             .equals(userId)
-            .and(log => log.completed === false)
             .reverse()
             .sortBy('date');
 

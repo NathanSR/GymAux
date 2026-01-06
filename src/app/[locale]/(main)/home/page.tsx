@@ -30,6 +30,7 @@ import moment from 'moment';
 import { SessionService } from '@/services/sessionService';
 import { useTheme } from '@/context/ThemeContext';
 import { useLanguage } from '@/context/LanguageContext';
+import { MenuTab } from '@/components/MenuTab';
 
 
 
@@ -156,35 +157,22 @@ export default function HomePage() {
                     </div>
                 </header>
 
-                {/* Alerta de Treino Perdido */}
-                {/* {missedWorkout && (
-                    <div className="bg-lime-500/10 border border-lime-500/20 p-4 rounded-[24px] mb-8 flex items-center gap-4 animate-in fade-in slide-in-from-top-4">
-                        <div className="bg-lime-500 p-2 rounded-xl text-white">
-                            <AlertCircle size={20} />
-                        </div>
-                        <div className="flex-1 text-sm">
-                            <p className="font-bold text-lime-600 dark:text-lime-500">{t('missedTitle')}</p>
-                            <p className="text-lime-800/70 dark:text-lime-200/50">{t('missedDesc', { name: missedWorkout.name })}</p>
-                        </div>
-                    </div>
-                )} */}
-
                 {/* --- CARD DE TREINO DO DIA (MELHORADO) --- */}
                 <section className="relative group mb-8">
-                    <div className={`absolute -inset-1 rounded-[40px] blur opacity-20 transition duration-1000 ${todayHistory?.completed ? 'bg-zinc-500' : 'bg-lime-400'}`}></div>
+                    <div className={`absolute -inset-1 rounded-[40px] blur opacity-20 transition duration-1000 ${todayHistory ? 'bg-zinc-500' : 'bg-lime-400'}`}></div>
 
-                    <div className={`relative rounded-[32px] p-8 shadow-xl transition-all duration-500 ${todayHistory?.completed
+                    <div className={`relative rounded-[32px] p-8 shadow-xl transition-all duration-500 ${todayHistory
                         ? 'bg-zinc-200 dark:bg-zinc-900 text-zinc-500 dark:text-zinc-400'
                         : 'bg-gradient-to-br from-lime-400 to-lime-600 text-zinc-950'
                         }`}>
                         <div className="flex justify-between items-start mb-6">
-                            <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${todayHistory?.completed ? 'bg-gradient-to-br from-lime-400 to-lime-600 text-zinc-950' : 'bg-black/10'}`}>
-                                {todayHistory?.completed ? 'Concluído Hoje' : 'Treino do Dia'}
+                            <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${todayHistory ? 'bg-gradient-to-br from-lime-400 to-lime-600 text-zinc-950' : 'bg-black/10'}`}>
+                                {todayHistory ? 'Concluído Hoje' : 'Treino do Dia'}
                             </span>
-                            {todayHistory?.completed ? <CheckCircle2 size={22} className='text-lime-400' /> : <Trophy size={22} className="opacity-40" />}
+                            {todayHistory ? <CheckCircle2 size={22} className='text-lime-400' /> : <Trophy size={22} className="opacity-40" />}
                         </div>
 
-                        <h2 className={`text-3xl font-black mb-2 leading-tight uppercase italic ${todayHistory?.completed ? 'opacity-50' : ''}`}>
+                        <h2 className={`text-3xl font-black mb-2 leading-tight uppercase italic ${todayHistory ? 'opacity-50' : ''}`}>
                             {todayWorkout ? todayWorkout.name : 'Descanso Merecido'}
                         </h2>
 
@@ -199,15 +187,15 @@ export default function HomePage() {
 
                         <div className="flex flex-col gap-3">
                             <button
-                                disabled={!todayWorkout || todayHistory?.completed}
-                                className={` w-full py-5 rounded-2xl font-black flex items-center justify-center gap-3 transition-all shadow-lg active:scale-95 ${todayHistory?.completed || !todayWorkout
+                                disabled={!todayWorkout || !!todayHistory}
+                                className={` w-full py-5 rounded-2xl font-black flex items-center justify-center gap-3 transition-all shadow-lg active:scale-95 ${todayHistory || !todayWorkout
                                     ? 'bg-zinc-300 dark:bg-zinc-800 text-zinc-500 cursor-not-allowed'
                                     : 'cursor-pointer bg-zinc-950 text-white hover:scale-[1.02]'
                                     }`}
                                 onClick={() => SessionService.onPlayWorkout(todayWorkout, router, theme)}
                             >
-                                {todayHistory?.completed ? <CheckCircle2 size={20} /> : todayWorkout ? <Play size={20} fill="currentColor" /> : <Bed size={20} fill="currentColor" />}
-                                {!todayWorkout ? "DESCANSO" : todayHistory?.completed ? 'TREINO FINALIZADO' : 'INICIAR SESSÃO'}
+                                {todayHistory ? <CheckCircle2 size={20} /> : todayWorkout ? <Play size={20} fill="currentColor" /> : <Bed size={20} fill="currentColor" />}
+                                {!todayWorkout ? "DESCANSO" : todayHistory ? 'TREINO FINALIZADO' : 'INICIAR SESSÃO'}
                             </button>
 
                         </div>
@@ -285,7 +273,7 @@ export default function HomePage() {
                 </section>
 
                 {/* Atalhos */}
-                <div className="grid grid-cols-2 gap-4 mb-10">
+                {/* <div className="grid grid-cols-2 gap-4 mb-10">
                     <button
                         onClick={() => router.push('/exercises')}
                         className="bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 p-6 rounded-[32px] flex flex-col items-center gap-3 active:scale-95 shadow-sm cursor-pointer"
@@ -314,7 +302,7 @@ export default function HomePage() {
                         <div className="bg-cyan-500/10 p-4 rounded-2xl text-cyan-500"><HistoryIcon size={28} /></div>
                         <span className="text-sm font-black uppercase tracking-tighter">{t('histories')}</span>
                     </button>
-                </div>
+                </div> */}
 
                 {/* --- HISTÓRICO RÁPIDO (RECONSTITUÍDO) --- */}
                 <section className="bg-white dark:bg-zinc-900 rounded-[32px] p-6 border border-zinc-200 dark:border-zinc-800 shadow-sm mb-10">
@@ -348,6 +336,8 @@ export default function HomePage() {
                     </div>
                 </section>
             </div>
+
+            <MenuTab onPlay={() => SessionService.onPlayWorkout(todayWorkout, router, theme)} completed={!todayWorkout || !!todayHistory} />
         </div>
     );
 }

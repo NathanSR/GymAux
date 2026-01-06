@@ -59,14 +59,13 @@ export interface History {
             reps: number;
             weight?: number;
             rpe?: number; // Rate of Perceived Exertion (1-10)
-            completed: boolean;
         }[];
     }[];
 
     weight?: number; // peso do usuário no dia do treino
     description?: string;
     endDate?: Date;
-    completed?: boolean;
+    usingCreatine?: boolean;
 }
 
 
