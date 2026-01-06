@@ -412,5 +412,41 @@
             "S",
             "S"
         ]
+    },
+    "Session": {
+        "loadingError": "Erro ao carregar sessão",
+        "finishWorkoutTitle": "Finalizar Treino?",
+        "finishWorkoutText": "Você ainda possui exercícios pendentes. Deseja encerrar mesmo assim?",
+        "finishConfirm": "Sim, finalizar",
+        "finishCancel": "Continuar treinando",
+        "completedTitle": "Treino Finalizado!",
+        "bodyWeight": "Peso Corporal (kg)",
+        "finalNotes": "Observações Finais",
+        "notesPlaceholder": "Notas sobre o desempenho...",
+        "saveAndFinish": "Salvar e Concluir",
+        "exercise": "Exercício",
+        "currentSet": "Série Atual",
+        "of": "de",
+        "goal": "Objetivo",
+        "reps": "reps",
+        "weight": "Carga (kg)",
+        "performed": "Realizadas",
+        "effort": "Esforço (RPE)",
+        "rpeHigh": "Reserva alta",
+        "rpeTechnical": "Falha técnica",
+        "rpeTotal": "Falha total",
+        "confirmSet": "Confirmar Série",
+        "finishNow": "Finalizar Agora"
+    },
+    "RestTimer": {
+        "seconds": "Segundos",
+        "restTime": "Hora de Descansar",
+        "skipRest": "Pular Descanso"
+    },
+    "WorkoutDrawer": {
+        "title": "Roteiro do Treino",
+        "totalExercises": "Exercícios no total",
+        "sets": "séries",
+        "reps": "reps"
     }
 }

@@ -413,5 +413,41 @@
             "F",
             "S"
         ]
+    },
+    "Session": {
+        "loadingError": "Error loading session",
+        "finishWorkoutTitle": "Finish Workout?",
+        "finishWorkoutText": "You still have pending exercises. Do you want to end anyway?",
+        "finishConfirm": "Yes, finish",
+        "finishCancel": "Keep training",
+        "completedTitle": "Workout Completed!",
+        "bodyWeight": "Body Weight (kg)",
+        "finalNotes": "Final Notes",
+        "notesPlaceholder": "Performance notes...",
+        "saveAndFinish": "Save and Finish",
+        "exercise": "Exercise",
+        "currentSet": "Current Set",
+        "of": "of",
+        "goal": "Goal",
+        "reps": "reps",
+        "weight": "Weight (kg)",
+        "performed": "Performed",
+        "effort": "Effort (RPE)",
+        "rpeHigh": "High reserve",
+        "rpeTechnical": "Technical failure",
+        "rpeTotal": "Total failure",
+        "confirmSet": "Confirm Set",
+        "finishNow": "Finish Now"
+    },
+    "RestTimer": {
+        "seconds": "Seconds",
+        "restTime": "Time to Rest",
+        "skipRest": "Skip Rest"
+    },
+    "WorkoutDrawer": {
+        "title": "Workout Roadmap",
+        "totalExercises": "Exercises in total",
+        "sets": "sets",
+        "reps": "reps"
     }
 }
