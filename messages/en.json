@@ -391,5 +391,27 @@
             "Friday",
             "Saturday"
         ]
+    },
+    "History": {
+        "title": "Workout History",
+        "filterPlaceholder": "Filter workouts...",
+        "details": "Details",
+        "workout": "Workout",
+        "bodyWeight": "Body Weight",
+        "duration": "Duration",
+        "performedExercises": "Performed Exercises",
+        "set": "Set",
+        "feedbackNotes": "Feedback Notes",
+        "creatineYes": "Creatine taken!",
+        "creatineNo": "No Creatine!",
+        "dayLabels": [
+            "S",
+            "M",
+            "T",
+            "W",
+            "T",
+            "F",
+            "S"
+        ]
     }
 }

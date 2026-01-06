@@ -390,5 +390,27 @@
             "Viernes",
             "Sábado"
         ]
+    },
+    "History": {
+        "title": "Historial de Entrenos",
+        "filterPlaceholder": "Filtrar entrenamientos...",
+        "details": "Detalles",
+        "workout": "Entreno",
+        "bodyWeight": "Peso Corporal",
+        "duration": "Duración",
+        "performedExercises": "Ejercicios Realizados",
+        "set": "Serie",
+        "feedbackNotes": "Notas de Feedback",
+        "creatineYes": "¡Creatina al día!",
+        "creatineNo": "¡Sin Creatina!",
+        "dayLabels": [
+            "D",
+            "L",
+            "M",
+            "M",
+            "J",
+            "V",
+            "S"
+        ]
     }
 }
