@@ -58,7 +58,8 @@
         "shoulders": "Shoulders",
         "arms": "Arms",
         "core": "Core",
-        "cardio": "Cardio"
+        "cardio": "Cardio",
+        "filteringByTag": "Filtering by tag"
     },
     "ExerciseRegister": {
         "newExercise": "New Exercise",
