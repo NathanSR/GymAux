@@ -5,7 +5,7 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { useState } from 'react';
 import UserForm from '@/components/users/UserForm';
 import UserCard from '@/components/users/UserCard';
-import { Plus } from 'lucide-react';
+import { ChevronLeft, Plus } from 'lucide-react';
 import { userService } from '@/services/userService';
 
 export default function HomePage() {
@@ -15,13 +15,32 @@ export default function HomePage() {
     // Busca usuários no Dexie
     const users = useLiveQuery(() => userService.getAllUsers(), []);
 
+    const onSubmit = async (data: any) => {
+        await userService.createUser({
+            name: data.name,
+            weight: Number(data.weight),
+            height: Number(data.height),
+        });
+        setIsCreating(false);
+    };
+
     // Se o banco ainda estiver carregando
     if (!users) return null;
 
     // Tela de Criação (se não houver usuários ou se clicou em "Novo")
     if (users.length === 0 || isCreating) {
-        return (
-            <main className="flex min-h-screen flex-col items-center justify-center p-6 bg-white dark:bg-zinc-950">
+        return (<>
+            {/* Header Estilizado */}
+            {users.length > 0 && <header className="sticky top-0 z-30 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-md border-b border-zinc-100 dark:border-zinc-900 px-6 py-4">
+                <div className="flex items-center justify-between mb-4">
+                    <button
+                        onClick={() => setIsCreating(false)}
+                        className="p-2 rounded-xl bg-zinc-100 dark:bg-zinc-900 text-zinc-500 cursor-pointer">
+                        <ChevronLeft size={24} />
+                    </button>
+                </div>
+            </header>}
+            <main className="flex h-full flex-col items-center justify-center p-6 bg-white dark:bg-zinc-950">
                 <div className="w-full max-w-md space-y-6">
                     <div className="text-center">
                         <h1 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-white">
@@ -31,9 +50,10 @@ export default function HomePage() {
                             {t('UserRegister.subtitle')}
                         </p>
                     </div>
-                    <UserForm onCancel={users.length > 0 ? () => setIsCreating(false) : undefined} />
+                    <UserForm onSubmit={onSubmit} />
                 </div>
             </main>
+        </>
         );
     }
 
