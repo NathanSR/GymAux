@@ -10,7 +10,23 @@ export interface User {
     createdAt: Date;
 }
 
-type categoryType = "chest" | "back" | "shoulders" | "arms" | "legs" | "glutes" | "core" | "cardio" | "full_body" | "stretching";
+type categoryType =
+    | "chest"
+    | "back"
+    | "shoulders"
+    | "biceps"
+    | "triceps"
+    | "forearms"
+    | "quadriceps"
+    | "hamstrings"
+    | "glutes"
+    | "calves"
+    | "adductors"
+    | "abductors"
+    | "core"
+    | "cardio"
+    | "full_body"
+    | "stretching";
 
 export interface Exercise {
     id?: number;
