@@ -17,6 +17,7 @@ import { useSession } from '@/hooks/useSession';
 import { useRouter } from '@/i18n/routing';
 import { ScheduleService } from '@/services/scheduleService';
 import { useTranslations } from 'next-intl';
+import moment from 'moment';
 
 export default function SchedulesPage() {
     const router = useRouter();
@@ -104,22 +105,21 @@ export default function SchedulesPage() {
 
                                 <div className="flex gap-2">
                                     <button
-                                        className='w-10 h-10 rounded-full bg-zinc-50 dark:bg-zinc-800 flex items-center justify-center text-zinc-400 hover:text-lime-500 transition-colors cursor-pointer'
+                                        className='w-10 h-10 rounded-full bg-zinc-50 dark:bg-zinc-800 flex items-center justify-center text-lime-500 hover:scale-105 transition-colors cursor-pointer'
                                         onClick={() => router.push(`/schedules/${schedule.id}/edit`)}
                                     >
                                         <Edit size={18} />
-                                    </button>
-                                    <button className="w-10 h-10 rounded-full bg-zinc-50 dark:bg-zinc-800 flex items-center justify-center text-zinc-400 cursor-pointer">
-                                        <MoreVertical size={18} />
                                     </button>
                                 </div>
                             </div>
 
                             {/* Info de Datas */}
-                            <div className="flex flex-wrap gap-4 mb-6">
-                                <div className="flex items-center gap-1.5 text-zinc-400 font-bold text-[10px] uppercase">
-                                    <Clock size={14} className="text-zinc-300" />
-                                    {t('lastWorkout', { day: schedule.lastCompleted ?? '-' })}
+                            <div className="flex flex-wrap gap-2 mb-6">
+                                <Clock size={14} className="text-zinc-300" />
+                                <div className="flex items-center gap-1 text-zinc-400 font-bold text-[10px]">
+                                    <div>{moment(schedule.startDate).format('DD/MM/YYYY')}</div>
+                                    <span>-</span>
+                                    <div>{schedule.endDate ? moment(schedule.endDate).format('DD/MM/YYYY') : "..."}</div>
                                 </div>
                             </div>
 
