@@ -10,13 +10,16 @@ export interface User {
     createdAt: Date;
 }
 
+type categoryType = "chest" | "back" | "shoulders" | "arms" | "legs" | "glutes" | "core" | "cardio" | "full_body" | "stretching";
+
 export interface Exercise {
     id?: number;
     name: string;
-    description: string;
+    description?: string;
+    category: categoryType;
+    tags?: string[];    // ex: ['halteres', 'composto']
+    howTo?: string;
     mediaUrl?: string; // Link para GIF ou vídeo educativo
-    category: "chest" | "back" | "legs" | "shoulders" | "arms" | "core" | "cardio";
-    tags: string[];    // ex: ['halteres', 'composto']
 }
 
 export interface Workout {
@@ -42,7 +45,7 @@ export interface Schedule {
     startDate: Date;
     endDate?: Date;
     active: boolean;
-    lastCompleted: number; // Index do último treino completado em workouts
+    lastCompleted?: number; // Index do último treino completado em workouts
 }
 
 export interface History {

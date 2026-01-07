@@ -22,7 +22,6 @@ export const ScheduleForm = ({ initialData, onSubmit, isLoading }: { initialData
             workouts: [null, null, null, null, null, null, null],
             startDate: new Date().toISOString().split('T')[0],
             active: true,
-            lastCompleted: -1
         }
     });
 

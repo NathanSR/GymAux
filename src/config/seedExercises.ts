@@ -1,89 +1,262 @@
 import { Exercise } from "./types"; // Ajuste o import para onde está sua interface
 
 export const CHEST_EXERCISES: Exercise[] = [
+    // --- CALISTENIA / PESO DO CORPO ---
     {
-        name: "chest_bench_press",
-        description: "chest_bench_press_desc",
+        id: 1,
+        name: "standard_push_up",
+        description: "standard_push_up_desc",
         category: "chest",
-        tags: ["compound", "barbell", "chest", "power"],
-        mediaUrl: "/exercises/bench-press.gif"
+        tags: ["bodyweight", "compound", "home", "basics"],
+        howTo: "standard_push_up_howto"
     },
     {
-        name: "chest_incline_dumbbell_press",
-        description: "chest_incline_dumbbell_press_desc",
+        id: 2,
+        name: "decline_push_up",
+        description: "decline_push_up_desc",
         category: "chest",
-        tags: ["compound", "dumbbells", "upper_chest"],
-        mediaUrl: "/exercises/incline-db.gif"
+        tags: ["bodyweight", "upper_chest", "home"],
+        howTo: "decline_push_up_howto"
     },
     {
-        name: "chest_push_up",
-        description: "chest_push_up_desc",
+        id: 3,
+        name: "incline_push_up",
+        description: "incline_push_up_desc",
         category: "chest",
-        tags: ["calisthenics", "bodyweight", "basic"],
-        mediaUrl: "/exercises/push-up.gif"
+        tags: ["bodyweight", "lower_chest", "home"],
+        howTo: "incline_push_up_howto"
     },
     {
-        name: "chest_cable_fly",
-        description: "chest_cable_fly_desc",
+        id: 4,
+        name: "diamond_push_up",
+        description: "diamond_push_up_desc",
         category: "chest",
-        tags: ["isolation", "cables", "tension"],
-        mediaUrl: "/exercises/cable-fly.gif"
+        tags: ["bodyweight", "triceps", "inner_chest"],
+        howTo: "diamond_push_up_howto"
     },
     {
+        id: 5,
+        name: "wide_push_up",
+        description: "wide_push_up_desc",
+        category: "chest",
+        tags: ["bodyweight", "outer_chest", "home"],
+        howTo: "wide_push_up_howto"
+    },
+    {
+        id: 6,
+        name: "archer_push_up",
+        description: "archer_push_up_desc",
+        category: "chest",
+        tags: ["bodyweight", "unilateral", "advanced"],
+        howTo: "archer_push_up_howto"
+    },
+    {
+        id: 7,
+        name: "explosive_push_up",
+        description: "explosive_push_up_desc",
+        category: "chest",
+        tags: ["bodyweight", "power", "plyometric"],
+        howTo: "explosive_push_up_howto"
+    },
+    {
+        id: 8,
         name: "chest_dips",
         description: "chest_dips_desc",
         category: "chest",
-        tags: ["compound", "bodyweight", "lower_chest"],
-        mediaUrl: "/exercises/dips.gif"
+        tags: ["bodyweight", "compound", "lower_chest", "advanced"],
+        howTo: "chest_dips_howto"
     },
     {
-        name: "chest_decline_bench_press",
-        description: "chest_decline_bench_press_desc",
+        id: 9,
+        name: "spiderman_push_up",
+        description: "spiderman_push_up_desc",
         category: "chest",
-        tags: ["compound", "barbell", "lower_chest"],
-        mediaUrl: "/exercises/decline-press.gif"
+        tags: ["bodyweight", "core", "mobility"],
+        howTo: "spiderman_push_up_howto"
+    },
+
+    // --- SUPINOS COM BARRA ---
+    {
+        id: 10,
+        name: "barbell_bench_press",
+        description: "barbell_bench_press_desc",
+        category: "chest",
+        tags: ["barbell", "compound", "power", "mass"],
+        howTo: "barbell_bench_press_howto"
     },
     {
-        name: "chest_dumbbell_fly",
-        description: "chest_dumbbell_fly_desc",
+        id: 11,
+        name: "incline_barbell_press",
+        description: "incline_barbell_press_desc",
         category: "chest",
-        tags: ["isolation", "dumbbells", "stretch"],
-        mediaUrl: "/exercises/db-fly.gif"
+        tags: ["barbell", "upper_chest", "compound"],
+        howTo: "incline_barbell_press_howto"
     },
     {
-        name: "chest_machine_chest_press",
-        description: "chest_machine_chest_press_desc",
+        id: 12,
+        name: "decline_barbell_press",
+        description: "decline_barbell_press_desc",
         category: "chest",
-        tags: ["compound", "machine", "control"],
-        mediaUrl: "/exercises/machine-press.gif"
+        tags: ["barbell", "lower_chest", "compound"],
+        howTo: "decline_barbell_press_howto"
     },
     {
-        name: "chest_pec_deck",
-        description: "chest_pec_deck_desc",
+        id: 13,
+        name: "close_grip_barbell_press",
+        description: "close_grip_barbell_press_desc",
         category: "chest",
-        tags: ["isolation", "machine", "inner_chest"],
-        mediaUrl: "/exercises/pec-deck.gif"
+        tags: ["barbell", "triceps", "inner_chest"],
+        howTo: "close_grip_barbell_press_howto"
     },
     {
-        name: "chest_dumbbell_pullover",
-        description: "chest_dumbbell_pullover_desc",
+        id: 14,
+        name: "barbell_floor_press",
+        description: "barbell_floor_press_desc",
         category: "chest",
-        tags: ["isolation", "dumbbells", "expansion"],
-        mediaUrl: "/exercises/pullover.gif"
+        tags: ["barbell", "power", "limited_range"],
+        howTo: "barbell_floor_press_howto"
+    },
+
+    // --- SUPINOS COM HALTERES ---
+    {
+        id: 15,
+        name: "dumbbell_bench_press",
+        description: "dumbbell_bench_press_desc",
+        category: "chest",
+        tags: ["dumbbells", "compound", "unilateral_balance"],
+        howTo: "dumbbell_bench_press_howto"
     },
     {
-        name: "chest_incline_barbell_press",
-        description: "chest_incline_barbell_press_desc",
+        id: 16,
+        name: "incline_dumbbell_press",
+        description: "incline_dumbbell_press_desc",
         category: "chest",
-        tags: ["compound", "barbell", "upper_chest"],
-        mediaUrl: "/exercises/incline-barbell.gif"
+        tags: ["dumbbells", "upper_chest", "compound"],
+        howTo: "incline_dumbbell_press_howto"
     },
     {
-        name: "chest_low_to_high_cable_fly",
-        description: "chest_low_to_high_cable_fly_desc",
+        id: 17,
+        name: "decline_dumbbell_press",
+        description: "decline_dumbbell_press_desc",
         category: "chest",
-        tags: ["isolation", "cables", "upper_chest"],
-        mediaUrl: "/exercises/low-cable-fly.gif"
+        tags: ["dumbbells", "lower_chest", "compound"],
+        howTo: "decline_dumbbell_press_howto"
+    },
+    {
+        id: 18,
+        name: "dumbbell_rotation_press",
+        description: "dumbbell_rotation_press_desc",
+        category: "chest",
+        tags: ["dumbbells", "isolation_focus", "mobility"],
+        howTo: "dumbbell_rotation_press_howto"
+    },
+    {
+        id: 19,
+        name: "squeeze_press",
+        description: "squeeze_press_desc",
+        category: "chest",
+        tags: ["dumbbells", "inner_chest", "isolation"],
+        howTo: "squeeze_press_howto"
+    },
+
+    // --- ISOLADORES (CRUCIFIXOS / VOADOR) ---
+    {
+        id: 20,
+        name: "flat_dumbbell_fly",
+        description: "flat_dumbbell_fly_desc",
+        category: "chest",
+        tags: ["dumbbells", "isolation", "stretch"],
+        howTo: "flat_dumbbell_fly_howto"
+    },
+    {
+        id: 21,
+        name: "incline_dumbbell_fly",
+        description: "incline_dumbbell_fly_desc",
+        category: "chest",
+        tags: ["dumbbells", "upper_chest", "isolation"],
+        howTo: "incline_dumbbell_fly_howto"
+    },
+    {
+        id: 22,
+        name: "cable_crossover_high",
+        description: "cable_crossover_high_desc",
+        category: "chest",
+        tags: ["cables", "lower_chest", "isolation"],
+        howTo: "cable_crossover_high_howto"
+    },
+    {
+        id: 23,
+        name: "cable_crossover_mid",
+        description: "cable_crossover_mid_desc",
+        category: "chest",
+        tags: ["cables", "middle_chest", "isolation"],
+        howTo: "cable_crossover_mid_howto"
+    },
+    {
+        id: 24,
+        name: "cable_crossover_low",
+        description: "cable_crossover_low_desc",
+        category: "chest",
+        tags: ["cables", "upper_chest", "isolation"],
+        howTo: "cable_crossover_low_howto"
+    },
+    {
+        id: 25,
+        name: "pec_deck_fly",
+        description: "pec_deck_fly_desc",
+        category: "chest",
+        tags: ["machine", "isolation", "safety"],
+        howTo: "pec_deck_fly_howto"
+    },
+    {
+        id: 26,
+        name: "machine_fly",
+        description: "machine_fly_desc",
+        category: "chest",
+        tags: ["machine", "isolation", "constant_tension"],
+        howTo: "machine_fly_howto"
+    },
+
+    // --- MÁQUINAS E OUTROS ---
+    {
+        id: 27,
+        name: "machine_chest_press",
+        description: "machine_chest_press_desc",
+        category: "chest",
+        tags: ["machine", "compound", "safety", "failure"],
+        howTo: "machine_chest_press_howto"
+    },
+    {
+        id: 28,
+        name: "smith_machine_press",
+        description: "smith_machine_press_desc",
+        category: "chest",
+        tags: ["machine", "smith", "compound", "stability"],
+        howTo: "smith_machine_press_howto"
+    },
+    {
+        id: 29,
+        name: "landmine_press",
+        description: "landmine_press_desc",
+        category: "chest",
+        tags: ["barbell", "upper_chest", "shoulder_health"],
+        howTo: "landmine_press_howto"
+    },
+    {
+        id: 30,
+        name: "dumbbell_pullover",
+        description: "dumbbell_pullover_desc",
+        category: "chest",
+        tags: ["dumbbells", "stretch", "ribcage"],
+        howTo: "dumbbell_pullover_howto"
+    },
+    {
+        id: 31,
+        name: "svendsen_press",
+        description: "svendsen_press_desc",
+        category: "chest",
+        tags: ["plate", "isometric", "inner_chest"],
+        howTo: "svendsen_press_howto"
     }
 ];
 
