@@ -28,7 +28,7 @@ import Loading from '@/app/[locale]/loading';
 
 export default function HomePage() {
     const t = useTranslations('Home');
-    const tExercises = useTranslations('Exercises');
+    const te = useTranslations('Exercises');
     const locale = useLocale(); // Detecta o idioma atual (pt, en, es)
     const router = useRouter();
     const { activeUser, loading } = useSession();
@@ -95,7 +95,9 @@ export default function HomePage() {
                         onClick={() => setShowProfileMenu(!showProfileMenu)}
                         className="w-12 h-12 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 flex items-center justify-center text-zinc-600 dark:text-zinc-400 overflow-hidden active:scale-90 transition-transform shadow-sm"
                     >
-                        <User size={24} />
+                        {activeUser?.avatar
+                            ? <img src={activeUser.avatar} alt="User" className="w-full h-full object-cover" />
+                            : <User size={24} />}
                     </button>
                     <ProfileMenu showProfileMenu={showProfileMenu} setShowProfileMenu={setShowProfileMenu} />
                 </div>
@@ -196,7 +198,7 @@ export default function HomePage() {
                                         {t('pausedAt', { date: new Date(session.createdAt).toLocaleDateString(locale) })}
                                     </span>
                                     <p className="text-[10px] font-bold text-lime-500 uppercase tracking-wider">
-                                        {t('continueFrom', { exercise: tExercises.has(session.exercisesToDo[done]?.exerciseName) ? tExercises(session.exercisesToDo[done]?.exerciseName) : t('next') })}
+                                        {t('continueFrom', { exercise: te.has(session.exercisesToDo[done]?.exerciseName) ? te(session.exercisesToDo[done]?.exerciseName) : t('next') })}
                                     </p>
                                 </div>
                             </div>

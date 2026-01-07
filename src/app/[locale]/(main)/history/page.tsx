@@ -11,6 +11,7 @@ import { useTranslations, useLocale } from "next-intl";
 
 export default function HistoryPage() {
     const t = useTranslations('History');
+    const te = useTranslations('Exercises');
     const locale = useLocale();
     const router = useRouter();
 
@@ -226,7 +227,7 @@ export default function HistoryPage() {
                                                 <div className="w-8 h-8 rounded-xl bg-lime-400 text-zinc-950 flex items-center justify-center">
                                                     <Activity size={16} />
                                                 </div>
-                                                <span className="text-sm font-black uppercase italic tracking-tight">{ex.exerciseName}</span>
+                                                <span className="text-sm font-black uppercase italic tracking-tight">{te.has(ex.exerciseName) ? te(ex.exerciseName) : ex.exerciseName}</span>
                                             </div>
                                             <div className="space-y-2">
                                                 {ex.sets.map((set, si) => (
