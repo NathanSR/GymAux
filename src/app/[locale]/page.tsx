@@ -16,11 +16,7 @@ export default function HomePage() {
     const users = useLiveQuery(() => userService.getAllUsers(), []);
 
     const onSubmit = async (data: any) => {
-        await userService.createUser({
-            name: data.name,
-            weight: Number(data.weight),
-            height: Number(data.height),
-        });
+        await userService.createUser(data);
         setIsCreating(false);
     };
 

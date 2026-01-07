@@ -12,7 +12,6 @@ import {
     Target,
     ChevronLeft,
     Loader2,
-    AlertCircle
 } from "lucide-react";
 import { User } from "@/config/types";
 
