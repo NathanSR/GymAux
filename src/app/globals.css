@@ -24,3 +24,40 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+
+
+
+
+
+/* ---------------------- SCROLL ---------------------- */
+
+/* Estilização para Chrome, Edge e Safari */
+:root {
+  color-scheme: light; /* Força o scrollbar a ser claro por padrão */
+}
+
+/* Quando o elemento html tiver a classe dark */
+html.dark, [data-theme='dark'] {
+  color-scheme: dark; /* Força o scrollbar a ser escuro */
+}
+
+/* Customização visual (Opcional) */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent; /* Deixa o fundo limpo */
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #d1d5db; /* gray-300 */
+  border-radius: 20px;
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background-color: #4b5563; /* gray-600 */
+}
