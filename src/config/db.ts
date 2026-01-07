@@ -25,18 +25,38 @@ export class GymDatabase extends Dexie {
             sessions: '++id, userId, date, workoutId'
         });
 
-        // Esta lógica roda apenas na criação do banco
-        this.on('populate', () => {
-            this.populateExercises();
+        // Evento profissional para sincronizar dados e travar IDs
+        this.on('ready', async () => {
+            await this.syncSystemExercises();
+            await this.reserveUserSpace();
         });
     }
+    /**
+     * Insere ou atualiza exercícios da SEED (1 a 999).
+     * Se você adicionar o id 501 amanhã no arquivo, ele entrará aqui.
+     */
+    private async syncSystemExercises() {
+        // bulkPut insere novos e atualiza existentes sem duplicar
+        await this.exercises.bulkPut(DEFAULT_EXERCISES);
+    }
 
-    async populateExercises() {
-        try {
-            await this.exercises.bulkAdd(DEFAULT_EXERCISES);
-            console.log("Banco de dados populado com exercícios iniciais.");
-        } catch (error) {
-            console.error("Erro ao popular exercícios:", error);
+    /**
+     * Garante que o contador do banco pule para 1000.
+     */
+    private async reserveUserSpace() {
+        const highest = await this.exercises.orderBy('id').last();
+
+        // Se o maior id for menor que 1000, cria o "degrau"
+        if (!highest || highest.id! < 1000) {
+            await this.exercises.add({
+                id: 1000,
+                name: 'SYSTEM_RESERVED',
+                category: 'core',
+                tags: [],
+                description: ''
+            });
+            // Deletamos em seguida. O IndexedDB memoriza o 1000 e usará 1001 no próximo add()
+            await this.exercises.delete(1000);
         }
     }
 }
