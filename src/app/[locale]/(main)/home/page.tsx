@@ -196,7 +196,7 @@ export default function HomePage() {
                                         {t('pausedAt', { date: new Date(session.createdAt).toLocaleDateString(locale) })}
                                     </span>
                                     <p className="text-[10px] font-bold text-lime-500 uppercase tracking-wider">
-                                        {t('continueFrom', { exercise: tExercises(session.exercisesToDo[done]?.exerciseName) || t('next') })}
+                                        {t('continueFrom', { exercise: tExercises.has(session.exercisesToDo[done]?.exerciseName) ? tExercises(session.exercisesToDo[done]?.exerciseName) : t('next') })}
                                     </p>
                                 </div>
                             </div>
