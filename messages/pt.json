@@ -86,15 +86,9 @@
         "descriptionPlaceholder": "Como executar o exercício...",
         "mediaLabel": "Link do Vídeo/Imagem",
         "saveButton": "Salvar Exercício",
-        "categories": {
-            "chest": "Peito",
-            "back": "Costas",
-            "legs": "Pernas",
-            "shoulders": "Ombros",
-            "arms": "Braços",
-            "core": "Abdominal",
-            "cardio": "Cardio"
-        }
+        "howToLabel": "Instruções de Execução",
+        "howToPlaceholder": "1. Posicione os pés...\n2. Mantenha a coluna ereta...",
+        "howToHint": "Pressione Enter para separar os parágrafos."
     },
     "Exercises": {
         "": "",

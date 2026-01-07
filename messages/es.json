@@ -86,15 +86,9 @@
         "descriptionPlaceholder": "Cómo realizar el ejercicio...",
         "mediaLabel": "Link de Video/Imagen",
         "saveButton": "Guardar Ejercicio",
-        "categories": {
-            "chest": "Pecho",
-            "back": "Espalda",
-            "legs": "Piernas",
-            "shoulders": "Hombros",
-            "arms": "Brazos",
-            "core": "Core",
-            "cardio": "Cardio"
-        }
+        "howToLabel": "Instrucciones de Ejecución",
+        "howToPlaceholder": "1. Posicione los pies...\n2. Mantenga la columna recta...",
+        "howToHint": "Presione Enter para separar los párrafos."
     },
     "Exercises": {
         "": "",

@@ -8,7 +8,8 @@ import {
     Tag as TagIcon,
     AlertCircle,
     Type,
-    AlignLeft
+    AlignLeft,
+    ListOrdered // Importado para o campo How To
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
@@ -17,6 +18,7 @@ interface ExerciseFormProps {
         name: string;
         category: string;
         description: string;
+        howTo: string; // Novo campo
         mediaUrl: string;
         tags: string;
     };
@@ -25,8 +27,8 @@ interface ExerciseFormProps {
 }
 
 export default function ExerciseForm({ initialData, onSubmit, isLoading }: ExerciseFormProps) {
-    // Usando o namespace específico para o formulário
     const t = useTranslations('ExerciseForm');
+    const tc = useTranslations('Categories');
 
     const {
         register,
@@ -37,12 +39,13 @@ export default function ExerciseForm({ initialData, onSubmit, isLoading }: Exerc
             name: '',
             category: 'chest',
             description: '',
+            howTo: '', // Inicializado vazio
             mediaUrl: '',
             tags: ''
         }
     });
 
-    const categories = ["chest", "back", "legs", "shoulders", "arms", "core", "cardio"];
+    const categories = ["chest", "back", "shoulders", "biceps", "triceps", "forearms", "quadriceps", "hamstrings", "glutes", "calves", "adductors", "abductors", "core", "cardio", "full_body", "stretching"];
 
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -76,8 +79,7 @@ export default function ExerciseForm({ initialData, onSubmit, isLoading }: Exerc
                         >
                             {categories.map(c => (
                                 <option key={c} value={c}>
-                                    {/* Acessa a tradução dentro do objeto categories */}
-                                    {t(`categories.${c}`).toUpperCase()}
+                                    {tc(c).toUpperCase()}
                                 </option>
                             ))}
                         </select>
@@ -100,17 +102,33 @@ export default function ExerciseForm({ initialData, onSubmit, isLoading }: Exerc
                 </div>
             </div>
 
-            {/* Descrição */}
+            {/* Descrição Curta */}
             <div>
                 <label className="block text-[10px] font-black uppercase text-zinc-400 mb-2 ml-1 flex items-center gap-2">
                     <AlignLeft size={12} /> {t('descriptionLabel')}
                 </label>
                 <textarea
                     {...register("description")}
-                    rows={3}
+                    rows={2}
                     placeholder={t('descriptionPlaceholder')}
                     className="w-full bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 rounded-2xl p-4 text-sm font-bold focus:ring-2 focus:ring-lime-400 outline-none resize-none shadow-sm"
                 />
+            </div>
+
+            {/* Instruções de Execução (How To) - NOVO CAMPO */}
+            <div>
+                <label className="block text-[10px] font-black uppercase text-zinc-400 mb-2 ml-1 flex items-center gap-2">
+                    <ListOrdered size={12} /> {t('howToLabel')}
+                </label>
+                <textarea
+                    {...register("howTo")}
+                    rows={5}
+                    placeholder={t('howToPlaceholder')}
+                    className="w-full bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 rounded-2xl p-4 text-sm font-bold focus:ring-2 focus:ring-lime-400 outline-none resize-y min-h-[120px] shadow-sm"
+                />
+                <p className="text-[9px] text-zinc-500 mt-2 ml-1 italic">
+                    {t('howToHint')} {/* Dica: Pressione Enter para criar novos parágrafos */}
+                </p>
             </div>
 
             {/* Media URL */}

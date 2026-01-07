@@ -86,15 +86,9 @@
         "descriptionPlaceholder": "How to perform the exercise...",
         "mediaLabel": "Video/Image Link",
         "saveButton": "Save Exercise",
-        "categories": {
-            "chest": "Chest",
-            "back": "Back",
-            "legs": "Legs",
-            "shoulders": "Shoulders",
-            "arms": "Arms",
-            "core": "Core",
-            "cardio": "Cardio"
-        }
+        "howToLabel": "Execution Instructions",
+        "howToPlaceholder": "1. Place your feet...\n2. Keep your back straight...",
+        "howToHint": "Press Enter to separate paragraphs."
     },
     "Exercises": {
         "": "",
