@@ -729,6 +729,9 @@
         "standing_adduction_machine": "Adução de Quadril em Pé (Máquina)",
         "standing_adduction_machine_desc": "Variação unilateral que exige estabilidade do core.",
         "standing_adduction_machine_howto": "1. Posicione a perna no suporte da máquina multi-quadril.\n2. Empurre o suporte para dentro, em direção à perna de apoio.\n3. Mantenha o tronco vertical durante todo o movimento.",
+        "barbell_sumo_squat_adductor_focus": "Agachamento Sumo com Barra (Foco Adutores)",
+        "barbell_sumo_squat_adductor_focus_desc": "Uma variação de agachamento com base larga que coloca ênfase máxima na parte interna das coxas.",
+        "barbell_sumo_squat_adductor_focus_howto": "1. Posicione a barra nas costas e afaste os pés além da largura dos ombros, com as pontas viradas para fora.\n2. Agache mantendo os joelhos na direção dos dedos dos pés.\n3. Desça até que as coxas fiquem paralelas ao chão e suba focando na contração dos adutores.",
         "barbell_sumo_deadlift_adductor_focus": "Levantamento Terra Sumo (Foco Adutores)",
         "barbell_sumo_deadlift_adductor_focus_desc": "Variação pesada que recruta fortemente os adutores devido à base larga.",
         "barbell_sumo_deadlift_adductor_focus_howto": "1. Afaste os pés significativamente além da largura dos ombros.\n2. Agache para segurar a barra mantendo os joelhos alinhados com os pés.\n3. Suba empurrando o chão, focando na força interna das pernas.",
@@ -980,6 +983,7 @@
         "tire_flip_howto": "1. Agache profundamente e coloque as mãos sob o pneu.\n2. Exploda para cima usando as pernas e empurre o pneu para que ele tombe.\n3. Mantenha o peito contra o pneu e a coluna neutra."
     },
     "Categories": {
+        "all": "Todos",
         "chest": "Peitoral",
         "back": "Costas",
         "shoulders": "Ombros",

@@ -729,6 +729,9 @@
         "standing_adduction_machine": "Aducción de Cadera de Pie (Máquina)",
         "standing_adduction_machine_desc": "Variación unilateral que requiere estabilidad del core.",
         "standing_adduction_machine_howto": "1. Coloca la pierna en el soporte de la máquina de cadera.\n2. Empuja el soporte hacia adentro, en dirección a la pierna de apoyo.\n3. Mantén el tronco vertical durante todo el movimiento.",
+        "barbell_sumo_squat_adductor_focus": "Sentadilla Sumo con Barra (Enfoque Aductores)",
+        "barbell_sumo_squat_adductor_focus_desc": "Una variación de sentadilla con base ancha que pone el máximo énfasis en la parte interna de los muslos.",
+        "barbell_sumo_squat_adductor_focus_howto": "1. Coloca la barra en tu espalda y separa los pies más allá del ancho de los hombros, con las puntas hacia afuera.\n2. Agáchate manteniendo as rodillas en dirección a los dedos de los pies.\n3. Baja hasta que los muslos estén paralelos al suelo y sube enfocándote en la contracción de los aductores.",
         "barbell_sumo_deadlift_adductor_focus": "Peso Muerto Sumo (Enfoque Aductores)",
         "barbell_sumo_deadlift_adductor_focus_desc": "Variación pesada que recluta fuertemente los aductores por la base ancha.",
         "barbell_sumo_deadlift_adductor_focus_howto": "1. Separa los pies significativamente más que el ancho de hombros.\n2. Agáchate para sujetar la barra manteniendo las rodillas alineadas con los pies.\n3. Sube empujando el suelo, enfocándote en la fuerza interna de las piernas.",
@@ -980,6 +983,7 @@
         "tire_flip_howto": "1. Haz una sentadilla profunda y coloca las manos bajo el neumático.\n2. Explota hacia arriba usando las piernas y empuja el neumático para que vuelque.\n3. Mantén el pecho contra el neumático y la columna neutra."
     },
     "Categories": {
+        "all": "Todos",
         "chest": "Pecho",
         "back": "Espalda",
         "shoulders": "Hombros",

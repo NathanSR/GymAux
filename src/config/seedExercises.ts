@@ -1710,14 +1710,14 @@ export const ADDUCTOR_EXERCISES: Exercise[] = [
         tags: ["barbell", "heavy", "compound"],
         howTo: "barbell_sumo_squat_adductor_focus_howto"
     },
-    // {
-    //     id: 344,
-    //     name: "dumbbell_sumo_squat",
-    //     description: "dumbbell_sumo_squat_desc",
-    //     category: "adductors",
-    //     tags: ["dumbbells", "inner_thigh", "sumo"],
-    //     howTo: "dumbbell_sumo_squat_howto"
-    // },
+    {
+        id: 344,
+        name: "barbell_sumo_deadlift_adductor_focus",
+        description: "barbell_sumo_deadlift_adductor_focus_desc",
+        category: "adductors",
+        tags: ["barbell", "heavy", "compound", "posterior_chain", "power"],
+        howTo: "barbell_sumo_deadlift_adductor_focus_howto"
+    },
     {
         id: 345,
         name: "side_lunge",
@@ -2308,7 +2308,7 @@ export const STRETCHING_EXERCISES: Exercise[] = [
         tags: ["full_body", "mobility", "dynamic"],
         howTo: "worlds_greatest_stretch_howto"
     },
-    
+
     // --- ANTEBRAÇO E MÃOS ---
     {
         id: 466,

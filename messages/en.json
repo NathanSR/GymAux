@@ -729,6 +729,9 @@
         "standing_adduction_machine": "Standing Hip Adduction (Machine)",
         "standing_adduction_machine_desc": "Unilateral variation that requires core stability.",
         "standing_adduction_machine_howto": "1. Position your leg against the pad of the multi-hip machine.\n2. Push the pad inward toward your supporting leg.\n3. Keep your torso upright throughout the entire movement.",
+        "barbell_sumo_squat_adductor_focus": "Barbell Sumo Squat (Adductor Focus)",
+        "barbell_sumo_squat_adductor_focus_desc": "A wide-stance squat variation that places maximum emphasis on the inner thighs.",
+        "barbell_sumo_squat_adductor_focus_howto": "1. Position the barbell on your back and place your feet wider than shoulder-width, toes pointed out.\n2. Squat down while keeping your knees aligned with your toes.\n3. Lower until your thighs are parallel to the floor and rise while focusing on the contraction of the adductors.",
         "barbell_sumo_deadlift_adductor_focus": "Sumo Deadlift (Adductor Focus)",
         "barbell_sumo_deadlift_adductor_focus_desc": "Heavy variation that strongly recruits adductors due to the wide stance.",
         "barbell_sumo_deadlift_adductor_focus_howto": "1. Set your feet significantly wider than shoulder-width.\n2. Squat to grip the bar while keeping knees aligned with your feet.\n3. Drive upward by pushing through the floor, focusing on inner leg strength.",
@@ -980,6 +983,7 @@
         "tire_flip_howto": "1. Squat deep and place your hands under the tire.\n2. Explode upward using your legs and push the tire over.\n3. Keep your chest against the tire and your spine neutral."
     },
     "Categories": {
+        "all": "All",
         "chest": "Chest",
         "back": "Back",
         "shoulders": "Shoulders",

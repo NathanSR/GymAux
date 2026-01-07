@@ -22,8 +22,10 @@ export default function ExerciseLibraryPage() {
 
     const t = useTranslations('ExerciseList');
     const te = useTranslations('Exercises'); // Namespace para dados dos exercícios
+    const tt = useTranslations('Tags'); // Namespace para dados dos tags
+    const tc = useTranslations('Categories'); // Namespace para dados dos categorias
 
-    const categories = ["all", "chest", "back", "legs", "shoulders", "arms", "core", "cardio"];
+    const categories = ["all", "chest", "back", "shoulders", "biceps", "triceps", "forearms", "quadriceps", "hamstrings", "glutes", "calves", "adductors", "abductors", "core", "cardio", "full_body", "stretching"];
 
     const exercises = useLiveQuery(() => ExerciseService.getAllExercises(), []);
 
@@ -31,7 +33,7 @@ export default function ExerciseLibraryPage() {
     const filteredExercises = useMemo(() => {
         return exercises?.filter(ex => {
             // Traduz o nome para buscar corretamente no idioma atual
-            const translatedName = te.has(`${ex.name}.name`) ? te(`${ex.name}.name`) : ex.name;
+            const translatedName = te.has(ex.name) ? te(ex.name) : ex.name;
             const matchesSearch = translatedName.toLowerCase().includes(searchQuery.toLowerCase());
             const matchesCategory = selectedCategory === 'all' || ex.category === selectedCategory;
             return matchesSearch && matchesCategory;
@@ -82,7 +84,7 @@ export default function ExerciseLibraryPage() {
                                 : 'bg-white dark:bg-zinc-900 text-zinc-400 border border-zinc-100 dark:border-zinc-800'
                                 }`}
                         >
-                            {t(cat)}
+                            {tc(cat)}
                         </button>
                     ))}
                 </section>
@@ -113,15 +115,15 @@ export default function ExerciseLibraryPage() {
                                         <div className="flex-1 min-w-0">
                                             <div className="flex justify-between items-start">
                                                 <span className="text-[10px] font-black uppercase text-lime-600 dark:text-lime-400 tracking-widest mb-1 block">
-                                                    {t(exercise.category)}
+                                                    {tc(exercise.category)}
                                                 </span>
-                                                <button
+                                                {exercise.id as number >= 1000 && <button
                                                     className='flex gap-2 text-lime-500 text-sm items-center cursor-pointer active:scale-95 transition-transform'
                                                     onClick={() => router.push(`/exercises/${exercise.id}/edit`)}
                                                 >
                                                     <Edit size={18} className="text-lime-500" />
                                                     <span className="font-bold uppercase text-[10px] tracking-wider">{t('edit')}</span>
-                                                </button>
+                                                </button>}
                                             </div>
                                             <h3 className="font-black text-base truncate mb-1">{name}</h3>
                                             <p className="text-xs text-zinc-500 dark:text-zinc-400 line-clamp-1 leading-relaxed">
@@ -132,9 +134,9 @@ export default function ExerciseLibraryPage() {
 
                                     {/* Tags */}
                                     <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t border-zinc-50 dark:border-zinc-800/50">
-                                        {exercise.tags.map(tag => (
+                                        {exercise.tags?.map(tag => (
                                             <span key={tag} className="bg-zinc-100 dark:bg-zinc-950 px-2.5 py-1 rounded-lg text-[9px] font-bold text-zinc-400 uppercase tracking-tight">
-                                                #{tag}
+                                                #{tt(tag)}
                                             </span>
                                         ))}
                                     </div>
@@ -148,7 +150,7 @@ export default function ExerciseLibraryPage() {
                         </div>
                     )}
                 </div>
-            </main>
-        </div>
+            </main >
+        </div >
     );
 }
