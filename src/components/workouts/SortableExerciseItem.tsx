@@ -72,7 +72,7 @@ export function SortableExerciseItem({
                     <div className="flex items-center gap-3">
                         <Dumbbell size={16} className="text-lime-500 group-hover:scale-110 transition-transform" />
                         <span className="text-sm font-black uppercase tracking-tight">
-                            {field.exerciseName ? te(field.exerciseName) : t('selectExercise')}
+                            {field.exerciseName ? te.has(field.exerciseName) ? te(field.exerciseName) : field.exerciseName : t('selectExercise')}
                         </span>
                     </div>
                     <ChevronDown size={16} className="text-zinc-400" />

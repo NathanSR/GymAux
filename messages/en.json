@@ -59,7 +59,16 @@
         "arms": "Arms",
         "core": "Core",
         "cardio": "Cardio",
-        "filteringByTag": "Filtering by tag"
+        "filteringByTag": "Filtering by tag",
+        "viewDetails": "View Details"
+    },
+    "ExerciseDetails": {
+        "target": "Target",
+        "level": "Level",
+        "description": "About the Exercise",
+        "howToPerform": "How to Perform",
+        "tags": "Related Tags",
+        "addToWorkout": "Add to Workout"
     },
     "ExerciseRegister": {
         "newExercise": "New Exercise",
@@ -1336,5 +1345,25 @@
         "totalExercises": "Exercises in total",
         "sets": "sets",
         "reps": "reps"
+    },
+    "DrawerWorkoutExerciseAdd": {
+        "successTitle": "Success!",
+        "selectWorkout": "Select Workout",
+        "configureSets": "Configure Sets",
+        "backToSelect": "Select another workout",
+        "addedSuccess": "Successfully added!",
+        "addedTo": "is now part of",
+        "goToWorkout": "Go to Workout",
+        "continueExploring": "Continue exploring",
+        "exercisesCount": "Exercises",
+        "noWorkouts": "You don't have any workouts created yet.",
+        "createFirstWorkout": "+ Create First Workout",
+        "destination": "Destination",
+        "sets": "Sets",
+        "reps": "Reps",
+        "restTime": "Rest Time",
+        "seconds": "seconds",
+        "secAbbr": "SEC",
+        "confirmBtn": "Confirm Addition"
     }
 }

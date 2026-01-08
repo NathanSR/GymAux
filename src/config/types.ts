@@ -36,6 +36,7 @@ export interface Exercise {
     tags?: string[];    // ex: ['halteres', 'composto']
     howTo?: string;
     mediaUrl?: string; // Link para GIF ou vídeo educativo
+    level?: "beginner" | "intermediate" | "advanced";
 }
 
 export interface Workout {

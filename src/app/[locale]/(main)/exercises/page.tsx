@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from 'react';
-import { ChevronLeft, Search, Dumbbell, Info, PlayCircle, Plus, Edit } from 'lucide-react';
+import { ChevronLeft, Search, Dumbbell, Info, PlayCircle, Plus, Edit, ChevronRight, Eye } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useRouter } from '@/i18n/routing';
@@ -84,33 +84,26 @@ export default function ExerciseLibraryPage() {
                 <div className="grid grid-cols-1 gap-4">
                     {exercises && exercises.length > 0 ? (
                         exercises.map(exercise => (
-                            <div key={exercise.id} className="group bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 rounded-[32px] p-5 shadow-sm hover:shadow-xl hover:border-lime-500/30 transition-all">
+                            <div
+                                key={exercise.id}
+                                className="group bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 rounded-[32px] p-5 shadow-sm transition-all overflow-hidden"
+                            >
                                 <div className="flex gap-4">
-                                    <div className="w-20 h-20 rounded-2xl bg-zinc-100 dark:bg-zinc-950 flex items-center justify-center shrink-0 overflow-hidden relative">
-                                        <Dumbbell size={24} className="text-zinc-300 dark:text-zinc-800" />
+                                    {/* Thumbnail */}
+                                    <div className="w-16 h-16 rounded-2xl bg-zinc-100 dark:bg-zinc-950 flex items-center justify-center shrink-0 overflow-hidden relative">
+                                        <Dumbbell size={20} className="text-zinc-300 dark:text-zinc-800" />
                                         {exercise.mediaUrl && (
-                                            <div className="absolute inset-0 bg-black/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                                <PlayCircle size={20} className="text-white" />
+                                            <div className="absolute inset-0 bg-lime-500/10 flex items-center justify-center">
+                                                <PlayCircle size={18} className="text-lime-600 dark:text-lime-400" />
                                             </div>
                                         )}
                                     </div>
 
                                     <div className="flex-1 min-w-0">
-                                        <div className="flex justify-between items-start">
-                                            <span className="text-[10px] font-black uppercase text-lime-600 dark:text-lime-400 tracking-widest mb-1 block">
-                                                {tc(exercise.category)}
-                                            </span>
-                                            {Number(exercise.id) >= 1000 && (
-                                                <button
-                                                    onClick={() => router.push(`/exercises/${exercise.id}/edit`)}
-                                                    className="flex gap-1 text-lime-500 items-center cursor-pointer"
-                                                >
-                                                    <Edit size={14} />
-                                                    <span className="font-bold uppercase text-[9px]">{t('edit')}</span>
-                                                </button>
-                                            )}
-                                        </div>
-                                        <h3 className="font-black text-base truncate mb-1">
+                                        <span className="text-[10px] font-black uppercase text-lime-600 dark:text-lime-400 tracking-widest mb-0.5 block">
+                                            {tc(exercise.category)}
+                                        </span>
+                                        <h3 className="font-black text-base truncate">
                                             {te.has(exercise.name) ? te(exercise.name) : exercise.name}
                                         </h3>
                                         <p className="text-xs text-zinc-500 dark:text-zinc-400 line-clamp-1">
@@ -119,13 +112,39 @@ export default function ExerciseLibraryPage() {
                                     </div>
                                 </div>
 
-                                <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t border-zinc-50 dark:border-zinc-800/50">
-                                    {exercise.tags?.map(tag => (
-                                        <span key={tag} className="bg-zinc-100 dark:bg-zinc-950 px-2.5 py-1 rounded-lg text-[9px] font-bold text-zinc-400 uppercase tracking-tight">
-                                            #{tt.has(tag) ? tt(tag) : tag}
-                                        </span>
-                                    ))}
+                                {/* Footer com Botões de Ação Direta */}
+                                <div className="flex gap-2 mt-5">
+                                    {/* Botão Detalhes - Ocupa a maior parte */}
+                                    <button
+                                        onClick={() => router.push(`/exercises/${exercise.id}`)}
+                                        className="flex-1 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-900 dark:text-white py-3 rounded-2xl text-[11px] font-black uppercase tracking-wider flex items-center justify-center gap-2 transition-colors"
+                                    >
+                                        <Eye size={14} />
+                                        {t('viewDetails')}
+                                    </button>
+
+                                    {/* Botão Editar - Aparece apenas se for editável (ID >= 1000) */}
+                                    {Number(exercise.id) >= 1000 && (
+                                        <button
+                                            onClick={() => router.push(`/exercises/${exercise.id}/edit`)}
+                                            className="bg-lime-400 hover:bg-lime-500 text-zinc-950 px-4 py-3 rounded-2xl transition-colors flex items-center justify-center"
+                                            title={t('edit')}
+                                        >
+                                            <Edit size={16} />
+                                        </button>
+                                    )}
                                 </div>
+
+                                {/* Tags (opcional, menores agora) */}
+                                {exercise.tags && exercise.tags.length > 0 && (
+                                    <div className="flex flex-wrap gap-1.5 mt-4">
+                                        {exercise.tags.slice(0, 3).map(tag => (
+                                            <span key={tag} className="text-[9px] font-bold text-zinc-400 uppercase">
+                                                #{tt.has(tag) ? tt(tag) : tag}
+                                            </span>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
                         ))
                     ) : (

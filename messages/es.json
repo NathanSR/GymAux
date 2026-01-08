@@ -59,7 +59,16 @@
         "arms": "Brazos",
         "core": "Core",
         "cardio": "Cardio",
-        "filteringByTag": "Filtrando por Etiqueta"
+        "filteringByTag": "Filtrando por Etiqueta",
+        "viewDetails": "Ver Detalles"
+    },
+    "ExerciseDetails": {
+        "target": "Objetivo",
+        "level": "Nivel",
+        "description": "Sobre el Ejercicio",
+        "howToPerform": "Cómo Ejecutar",
+        "tags": "Etiquetas Relacionadas",
+        "addToWorkout": "Añadir al Entrenamiento"
     },
     "ExerciseRegister": {
         "newExercise": "Nuevo Ejercicio",
@@ -1336,5 +1345,25 @@
         "totalExercises": "Ejercicios en total",
         "sets": "series",
         "reps": "reps"
+    },
+    "DrawerWorkoutExerciseAdd": {
+        "successTitle": "¡Éxito!",
+        "selectWorkout": "Seleccionar Entrenamiento",
+        "configureSets": "Configurar Series",
+        "backToSelect": "Seleccionar otro entrenamiento",
+        "addedSuccess": "¡Agregado con éxito!",
+        "addedTo": "ahora forma parte de",
+        "goToWorkout": "Ir al Entrenamiento",
+        "continueExploring": "Continuar explorando",
+        "exercisesCount": "Ejercicios",
+        "noWorkouts": "Aún no tienes entrenamientos creados.",
+        "createFirstWorkout": "+ Crear Primer Entrenamiento",
+        "destination": "Destino",
+        "sets": "Series",
+        "reps": "Repeticiones",
+        "restTime": "Descanso",
+        "seconds": "segundos",
+        "secAbbr": "SEG",
+        "confirmBtn": "Confirmar Adición"
     }
 }

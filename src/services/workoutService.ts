@@ -66,6 +66,20 @@ export const WorkoutService = {
         });
     },
 
+    async addExerciseToWorkout(workoutId: number, newExercise: Workout['exercises'][0]) {
+        // 1. Busca o treino atual
+        const workout = await db.workouts.get(workoutId);
+        if (!workout) throw new Error("Treino não encontrado.");
+
+        // 2. Cria o novo array mantendo os existentes e adicionando o novo
+        const updatedExercises = [...(workout.exercises || []), newExercise];
+
+        // 3. Atualiza apenas o campo exercises no banco
+        return await db.workouts.update(workoutId, {
+            exercises: updatedExercises
+        });
+    },
+
     /**
      * Deleta um treino específico.
      * Nota: Como exercícios estão aninhados no array do Workout, 
