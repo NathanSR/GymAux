@@ -1333,7 +1333,8 @@
         "rpeTechnical": "Falha técnica",
         "rpeTotal": "Falha total",
         "confirmSet": "Confirmar Série",
-        "finishNow": "Finalizar Agora"
+        "finishNow": "Finalizar Agora",
+        "howTo": "Como fazer"
     },
     "RestTimer": {
         "seconds": "Segundos",
@@ -1375,5 +1376,10 @@
         "seconds": "segundos",
         "secAbbr": "SEG",
         "confirmBtn": "Confirmar Adição"
+    },
+    "ExerciseInstructionModal": {
+        "howToPerform": "Guia Técnico",
+        "noInstructions": "Nenhuma instrução específica fornecida para este exercício.",
+        "gotIt": "Entendi, vamos lá"
     }
 }

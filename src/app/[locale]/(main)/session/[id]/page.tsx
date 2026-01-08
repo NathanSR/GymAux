@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { ChevronLeft, Dumbbell, Check, ArrowRight, Trophy, List } from 'lucide-react';
+import { ChevronLeft, Dumbbell, Check, ArrowRight, Trophy, List, Play, CircleQuestionMark } from 'lucide-react';
 import { useParams } from 'next/navigation';
 import { Session } from '@/config/types';
 import { RestTimer } from '@/components/session/RestTimer';
@@ -13,6 +13,7 @@ import { SessionService } from '@/services/sessionService';
 import { useTheme } from '@/context/ThemeContext';
 import { useTranslations } from 'next-intl';
 import { CompletedSession } from '@/components/session/CompletedSession';
+import { ExerciseInstructionModal } from '@/components/session/ExerciseInstructionModal';
 
 export default function SessionPage() {
     const t = useTranslations('Session');
@@ -23,6 +24,7 @@ export default function SessionPage() {
 
     const [session, setSession] = useState<Session | null>(null);
     const [showPreview, setShowPreview] = useState(false);
+    const [showInstructions, setShowInstructions] = useState(false);
 
     useEffect(() => {
         const fetchSession = async () => {
@@ -144,6 +146,12 @@ export default function SessionPage() {
                 currentExerciseIndex={session.current.exerciseIndex || 0}
             />
 
+            <ExerciseInstructionModal
+                isOpen={showInstructions}
+                onClose={() => setShowInstructions(false)}
+                exerciseId={currentExercise?.exerciseId as number}
+            />
+
             <header className="px-6 pt-12 pb-6 flex items-center justify-between">
                 <button
                     onClick={() => router.back()}
@@ -174,13 +182,39 @@ export default function SessionPage() {
 
             <main className="flex-1 flex flex-col px-6 py-4">
                 <div className="mb-10 animate-in slide-in-from-left duration-500">
-                    <span className="text-[9px] font-black text-lime-400 uppercase tracking-widest bg-lime-400/10 px-2 py-1 rounded-md">
-                        {t('exercise')} {(session.current.exerciseIndex || 0) + 1}/{session.exercisesToDo.length}
-                    </span>
-                    <h2 className="text-4xl font-black uppercase tracking-tighter italic leading-tight mt-3">
-                        {te.has(currentExercise?.exerciseName!) ? te(currentExercise?.exerciseName!) : currentExercise?.exerciseName}
-                    </h2>
+                    <div className="flex items-start justify-between gap-4">
+                        <div className="flex-1">
+                            <span className="text-[9px] font-black text-lime-400 uppercase tracking-widest bg-lime-400/10 px-2 py-1 rounded-md">
+                                {t('exercise')} {(session.current.exerciseIndex || 0) + 1}/{session.exercisesToDo.length}
+                            </span>
+                            <h2 className="text-4xl font-black uppercase tracking-tighter italic leading-tight mt-3">
+                                {te.has(currentExercise?.exerciseName!) ? te(currentExercise?.exerciseName!) : currentExercise?.exerciseName}
+                            </h2>
+                        </div>
 
+                        {/* BOTÃO "COMO FAZER" - Estilo Badge Flutuante */}
+                        <button
+                            onClick={() => setShowInstructions(true)}
+                            className="mt-6 flex flex-col items-center gap-2 group relative"
+                        >
+                            <div className="w-14 h-14 rounded-2xl bg-zinc-900 border border-zinc-800 flex items-center justify-center text-lime-400 group-active:scale-95 transition-all shadow-lg overflow-hidden relative">
+                                <div className="flex flex-col items-center">
+                                    <CircleQuestionMark size={20} />
+                                </div>
+                            </div>
+                            <span className="text-[8px] font-black uppercase text-zinc-500 tracking-[0.1em] group-hover:text-lime-400 transition-colors">
+                                {t('howTo') || 'Tutorial'}
+                            </span>
+
+                            {/* Ping de notificação discreto para novos usuários notarem o recurso */}
+                            <span className="absolute top-0 right-0 flex h-2 w-2">
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-lime-400 opacity-75"></span>
+                                <span className="relative inline-flex rounded-full h-2 w-2 bg-lime-500"></span>
+                            </span>
+                        </button>
+                    </div>
+
+                    {/* Metas e Objetivos */}
                     <div className="flex items-center gap-8 mt-8">
                         <div className="flex flex-col">
                             <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">{t('currentSet')}</span>
