@@ -54,6 +54,13 @@ export default function SessionPage() {
         }
     });
 
+    // Sincroniza dados iniciais quando carregarem
+    useEffect(() => {
+        if (session?.current?.exerciseIndex !== undefined) {
+            reset(session?.exercisesToDo?.[session.current?.exerciseIndex]);
+        }
+    }, [session?.current.exerciseIndex, session?.exercisesToDo, session?.current.setIndex, reset]);
+
     const currentExercise = session?.exercisesToDo?.[session.current?.exerciseIndex || 0];
 
     const synchronizeProgress = async () => {
@@ -136,7 +143,7 @@ export default function SessionPage() {
 
     // TELA DE EXECUÇÃO
     return (
-        <div className="min-h-screen bg-zinc-950 text-white flex flex-col font-sans">
+        <div className="min-h-screen bg-zinc-950 text-white flex flex-col font-sans selection:bg-lime-400 selection:text-zinc-950">
             <WorkoutDrawer
                 showPreview={showPreview}
                 onClose={() => setShowPreview(false)}
@@ -152,81 +159,85 @@ export default function SessionPage() {
                 exerciseId={currentExercise?.exerciseId as number}
             />
 
-            <header className="px-6 pt-12 pb-6 flex items-center justify-between">
+            {/* HEADER COM ANIMAÇÃO DE ENTRADA */}
+            <header className="px-6 pt-12 pb-6 flex items-center justify-between animate-in fade-in slide-in-from-top-4 duration-700">
                 <button
                     onClick={() => router.back()}
-                    className="p-3 rounded-2xl bg-zinc-900 border border-zinc-800 text-zinc-400 active:scale-90 transition-all"
+                    className="p-3 rounded-2xl bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-white hover:border-zinc-700 active:scale-90 transition-all duration-300"
                 >
                     <ChevronLeft size={20} />
                 </button>
-                <div className="text-center">
-                    <h1 className="font-black text-zinc-500 uppercase text-[10px] tracking-[0.3em] truncate max-w-[180px] mb-2">{session.workoutName}</h1>
+
+                <div className="text-center group cursor-default">
+                    <h1 className="font-black text-zinc-500 uppercase text-[10px] tracking-[0.3em] truncate max-w-[180px] mb-2 group-hover:text-zinc-300 transition-colors">
+                        {session.workoutName}
+                    </h1>
                     <div className="flex items-center justify-center gap-1.5">
                         {Array.from({ length: currentExercise?.sets || 0 }).map((_, i) => (
                             <div
                                 key={i}
-                                className={`h-1 w-5 rounded-full transition-all duration-500 ${i < session.current.setIndex ? 'bg-lime-400' :
-                                    i === session.current.setIndex ? 'bg-white shadow-[0_0_10px_rgba(255,255,255,0.5)]' : 'bg-zinc-800'
+                                className={`h-1.5 rounded-full transition-all duration-700 ease-out ${i < session.current.setIndex
+                                    ? 'bg-lime-400 w-6'
+                                    : i === session.current.setIndex
+                                        ? 'bg-white w-6 shadow-[0_0_15px_rgba(255,255,255,0.6)] animate-pulse'
+                                        : 'bg-zinc-800 w-6'
                                     }`}
                             />
                         ))}
                     </div>
                 </div>
+
                 <button
                     onClick={() => setShowPreview(true)}
-                    className="p-3 bg-zinc-900 rounded-2xl border border-zinc-800 text-lime-400 active:scale-90 transition-all"
+                    className="p-3 bg-zinc-900 rounded-2xl border border-zinc-800 text-lime-400 hover:bg-lime-400/10 active:scale-90 transition-all duration-300"
                 >
                     <List size={20} />
                 </button>
             </header>
 
             <main className="flex-1 flex flex-col px-6 py-4">
-                <div className="mb-10 animate-in slide-in-from-left duration-500">
+                {/* TÍTULO E TUTORIAL COM ANIMAÇÃO STAGGERED */}
+                <div className="mb-10 animate-in fade-in slide-in-from-left-6 duration-700 ease-out fill-mode-both">
                     <div className="flex items-start justify-between gap-4">
                         <div className="flex-1">
-                            <span className="text-[9px] font-black text-lime-400 uppercase tracking-widest bg-lime-400/10 px-2 py-1 rounded-md">
+                            <span className="inline-block text-[9px] font-black text-lime-400 uppercase tracking-widest bg-lime-400/10 px-2 py-1 rounded-md mb-3 animate-bounce-subtle">
                                 {t('exercise')} {(session.current.exerciseIndex || 0) + 1}/{session.exercisesToDo.length}
                             </span>
-                            <h2 className="text-4xl font-black uppercase tracking-tighter italic leading-tight mt-3">
+                            <h2 className="text-4xl font-black uppercase tracking-tighter italic leading-tight decoration-lime-400/30 underline-offset-8">
                                 {te.has(currentExercise?.exerciseName!) ? te(currentExercise?.exerciseName!) : currentExercise?.exerciseName}
                             </h2>
                         </div>
 
-                        {/* BOTÃO "COMO FAZER" - Estilo Badge Flutuante */}
                         <button
                             onClick={() => setShowInstructions(true)}
                             className="mt-6 flex flex-col items-center gap-2 group relative"
                         >
-                            <div className="w-14 h-14 rounded-2xl bg-zinc-900 border border-zinc-800 flex items-center justify-center text-lime-400 group-active:scale-95 transition-all shadow-lg overflow-hidden relative">
-                                <div className="flex flex-col items-center">
-                                    <CircleQuestionMark size={20} />
-                                </div>
+                            <div className="w-14 h-14 rounded-2xl bg-zinc-900 border border-zinc-800 flex items-center justify-center text-lime-400 group-hover:border-lime-400 group-hover:shadow-[0_0_20px_rgba(163,230,71,0.2)] group-active:scale-90 transition-all duration-300 overflow-hidden">
+                                <CircleQuestionMark size={22} className="group-hover:rotate-12 transition-transform" />
                             </div>
                             <span className="text-[8px] font-black uppercase text-zinc-500 tracking-[0.1em] group-hover:text-lime-400 transition-colors">
                                 {t('howTo') || 'Tutorial'}
                             </span>
-
-                            {/* Ping de notificação discreto para novos usuários notarem o recurso */}
-                            <span className="absolute top-0 right-0 flex h-2 w-2">
+                            <span className="absolute -top-1 -right-1 flex h-3 w-3">
                                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-lime-400 opacity-75"></span>
-                                <span className="relative inline-flex rounded-full h-2 w-2 bg-lime-500"></span>
+                                <span className="relative inline-flex rounded-full h-3 w-3 bg-lime-500"></span>
                             </span>
                         </button>
                     </div>
 
-                    {/* Metas e Objetivos */}
-                    <div className="flex items-center gap-8 mt-8">
+                    {/* STATUS BAR COM TRANSIÇÃO DE OPACIDADE */}
+                    <div className="flex items-center gap-8 mt-8 p-4 bg-zinc-900/30 rounded-[24px] border border-white/5">
                         <div className="flex flex-col">
                             <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">{t('currentSet')}</span>
-                            <span className="text-3xl font-black mt-1">
+                            <span className="text-3xl font-black mt-1 tabular-nums">
                                 {session.current.setIndex + 1}
                                 <span className="text-zinc-600 text-sm ml-1 font-bold">{t('of')} {currentExercise?.sets}</span>
                             </span>
                         </div>
-                        <div className="h-10 w-[1px] bg-zinc-800" />
+                        <div className="h-10 w-[1px] bg-zinc-800/50" />
                         <div className="flex flex-col">
                             <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">{t('goal')}</span>
-                            <span className="text-3xl font-black mt-1">
+                            <span className="text-3xl font-black mt-1 tabular-nums">
                                 {currentExercise?.reps} <span className="text-xs text-zinc-500 uppercase font-black">{t('reps')}</span>
                             </span>
                         </div>
@@ -234,46 +245,68 @@ export default function SessionPage() {
                 </div>
 
                 {session.current.step === 'resting' ? (
-                    <RestTimer
-                        seconds={currentExercise?.restTime || 0}
-                        onFinish={moveToNextStep}
-                    />
+                    <div className="animate-in zoom-in-95 fade-in duration-500">
+                        <RestTimer
+                            seconds={currentExercise?.restTime || 0}
+                            onFinish={moveToNextStep}
+                        />
+                    </div>
                 ) : (
-                    <form onSubmit={handleSubmit(handleSetCompletion)} className="space-y-6 animate-in fade-in duration-500">
+                    <form
+                        onSubmit={handleSubmit(handleSetCompletion)}
+                        className="space-y-6 animate-in fade-in slide-in-from-bottom-6 duration-700 delay-200 fill-mode-both"
+                    >
                         <div className="grid grid-cols-2 gap-4">
-                            <div className="bg-zinc-900 border border-zinc-800 rounded-[32px] p-6 focus-within:border-lime-400/50 transition-all">
-                                <label className="text-[10px] font-black uppercase text-zinc-500 tracking-widest block mb-3">{t('weight')}</label>
+                            {/* INPUT WEIGHT */}
+                            <div className="group bg-zinc-900 border border-zinc-800 rounded-[32px] p-6 focus-within:border-lime-400 focus-within:ring-4 focus-within:ring-lime-400/10 transition-all duration-300">
+                                <label className="text-[10px] font-black uppercase text-zinc-500 tracking-widest block mb-3 group-focus-within:text-lime-400 transition-colors">
+                                    {t('weight')}
+                                </label>
                                 <div className="flex items-center gap-3">
-                                    <Dumbbell size={20} className="text-lime-400" />
-                                    <input {...register("weight")} type="number" className="bg-transparent border-none p-0 text-3xl font-black outline-none w-full text-white" />
+                                    <Dumbbell size={24} className="text-lime-400 animate-in zoom-in duration-500" />
+                                    <input {...register("weight")} type="number" className="bg-transparent border-none p-0 text-4xl font-black outline-none w-full text-white placeholder:text-zinc-800" />
                                 </div>
                             </div>
-                            <div className="bg-zinc-900 border border-zinc-800 rounded-[32px] p-6 focus-within:border-lime-400/50 transition-all">
-                                <label className="text-[10px] font-black uppercase text-zinc-500 tracking-widest block mb-3">{t('performed')}</label>
+
+                            {/* INPUT REPS */}
+                            <div className="group bg-zinc-900 border border-zinc-800 rounded-[32px] p-6 focus-within:border-lime-400 focus-within:ring-4 focus-within:ring-lime-400/10 transition-all duration-300">
+                                <label className="text-[10px] font-black uppercase text-zinc-500 tracking-widest block mb-3 group-focus-within:text-lime-400 transition-colors">
+                                    {t('performed')}
+                                </label>
                                 <div className="flex items-center gap-3">
-                                    <Check size={20} className="text-lime-400" />
-                                    <input {...register("reps")} type="number" className="bg-transparent border-none p-0 text-3xl font-black outline-none w-full text-white" />
+                                    <Check size={24} className="text-lime-400 animate-in zoom-in duration-500" />
+                                    <input {...register("reps")} type="number" className="bg-transparent border-none p-0 text-4xl font-black outline-none w-full text-white placeholder:text-zinc-800" />
                                 </div>
                             </div>
                         </div>
 
-                        <div className="bg-zinc-900 border border-zinc-800 rounded-[32px] p-8">
-                            <div className="flex justify-between items-center mb-6">
+                        {/* SLIDER RPE PERSONALIZADO */}
+                        <div className="bg-zinc-900 border border-zinc-800 rounded-[32px] p-8 hover:border-zinc-700 transition-colors duration-300">
+                            <div className="flex justify-between items-center mb-8">
                                 <label className="text-[10px] font-black uppercase text-zinc-500 tracking-widest">{t('effort')}</label>
-                                <div className="px-4 py-1 bg-lime-400 rounded-xl text-zinc-950 font-black italic text-xl">
+                                <div className="px-5 py-2 bg-lime-400 rounded-2xl text-zinc-950 font-black italic text-2xl shadow-[0_10px_20px_rgba(163,230,71,0.3)] animate-in zoom-in">
                                     {watch("rpe")}
                                 </div>
                             </div>
-                            <input {...register("rpe")} type="range" min="0" max="10" className="w-full h-2 bg-zinc-800 rounded-full appearance-none accent-lime-400 cursor-pointer" />
-                            <div className="flex justify-between mt-4 px-1 text-[8px] font-black text-zinc-600 uppercase tracking-widest">
-                                <span>{t('rpeHigh')}</span>
-                                <span>{t('rpeTechnical')}</span>
-                                <span>{t('rpeTotal')}</span>
+                            <input
+                                {...register("rpe")}
+                                type="range" min="0" max="10"
+                                className="w-full h-3 bg-zinc-800 rounded-full appearance-none accent-lime-400 cursor-pointer hover:accent-lime-300 transition-all"
+                            />
+                            <div className="flex justify-between mt-6 px-1 text-[8px] font-black text-zinc-600 uppercase tracking-widest">
+                                <span className="hover:text-zinc-400 transition-colors">{t('rpeHigh')}</span>
+                                <span className="hover:text-zinc-400 transition-colors">{t('rpeTechnical')}</span>
+                                <span className="hover:text-zinc-400 transition-colors">{t('rpeTotal')}</span>
                             </div>
                         </div>
 
-                        <button type="submit" className="w-full py-5 bg-lime-400 text-zinc-950 rounded-[32px] font-black uppercase text-xs tracking-[0.3em] flex items-center justify-center gap-4 shadow-2xl shadow-lime-400/10 active:scale-95 transition-all border-b-4 border-lime-600">
-                            {t('confirmSet')} <ArrowRight size={20} />
+                        {/* BOTÃO SUBMIT COM EFEITO GLOW */}
+                        <button
+                            type="submit"
+                            className="group w-full py-6 bg-lime-400 text-zinc-950 rounded-[32px] font-black uppercase text-sm tracking-[0.4em] flex items-center justify-center gap-4 shadow-[0_20px_40px_rgba(163,230,71,0.15)] hover:shadow-[0_20px_40px_rgba(163,230,71,0.3)] hover:-translate-y-1 active:scale-[0.97] active:translate-y-0 transition-all duration-300 border-b-4 border-lime-600"
+                        >
+                            {t('confirmSet')}
+                            <ArrowRight size={22} className="group-hover:translate-x-2 transition-transform duration-300" />
                         </button>
                     </form>
                 )}
@@ -281,7 +314,7 @@ export default function SessionPage() {
                 <button
                     type="button"
                     onClick={handleForceFinishWorkout}
-                    className="mt-6 w-full py-4 text-zinc-600 hover:text-red-500/80 transition-colors font-black uppercase text-[10px] tracking-[0.2em]"
+                    className="mt-8 w-full py-4 text-zinc-500 dark:text-zinc-300  hover:text-red-500 transition-colors font-black uppercase text-[10px] tracking-[0.3em] opacity-50 hover:opacity-100 duration-300"
                 >
                     {t('finishNow')}
                 </button>

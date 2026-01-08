@@ -48,7 +48,7 @@
     },
     "ExerciseList": {
         "title": "Library",
-        "searchPlaceholder": "Search...",
+        "searchPlaceholder": "Search by name or #tag...",
         "edit": "Edit",
         "noResults": "No exercises found",
         "all": "All",
@@ -1317,6 +1317,7 @@
         "finishConfirm": "Yes, finish",
         "finishCancel": "Keep training",
         "completedTitle": "Workout Completed!",
+        "completedSubtitle": "Workout completed successfully!",
         "bodyWeight": "Body Weight (kg)",
         "finalNotes": "Final Notes",
         "notesPlaceholder": "Performance notes...",
@@ -1327,19 +1328,24 @@
         "goal": "Goal",
         "reps": "reps",
         "weight": "Weight (kg)",
-        "performed": "Performed",
+        "performed": "Performed Reps",
         "effort": "Effort (RPE)",
         "rpeHigh": "High reserve",
         "rpeTechnical": "Technical failure",
         "rpeTotal": "Total failure",
         "confirmSet": "Confirm Set",
         "finishNow": "Finish Now",
-        "howTo": "How to"
+        "howTo": "How to",
+        "usingCreatine": "Using Creatine?",
+        "creatineOn": "Yes, I used it!",
+        "creatineOff": "No, I didn't use it!"
     },
     "RestTimer": {
         "seconds": "Seconds",
-        "restTime": "Time to Rest",
-        "skipRest": "Skip Rest"
+        "restTime": "Rest Time",
+        "skipRest": "Skip Rest",
+        "getReady": "Get Ready!",
+        "readyNext": "Ready for next?"
     },
     "WorkoutDrawer": {
         "title": "Workout Roadmap",

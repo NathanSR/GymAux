@@ -142,7 +142,7 @@ export const WorkoutDrawer = ({ showPreview, onClose, session, setSession, syncS
         <div className="fixed inset-0 z-[60] flex items-end animate-in fade-in duration-300">
             <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={handleFullClose} />
 
-            <div className="relative w-full bg-zinc-950 rounded-t-[40px] border-t border-zinc-800 p-6 max-h-[90vh] flex flex-col shadow-2xl">
+            <div className="relative w-full bg-zinc-950 rounded-t-[40px] border-t border-zinc-800 p-6 max-h-[90vh] flex flex-col shadow-2xl animate-in slide-in-from-bottom-full duration-500 ease-[cubic-bezier(0.32,0.72,0,1)]">
                 <div className="w-12 h-1.5 bg-zinc-800 rounded-full mx-auto mb-6 opacity-50" />
 
                 {/* Header do Drawer */}

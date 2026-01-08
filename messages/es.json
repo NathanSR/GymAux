@@ -48,7 +48,7 @@
     },
     "ExerciseList": {
         "title": "Biblioteca",
-        "searchPlaceholder": "Buscar...",
+        "searchPlaceholder": "Buscar por nombre o #etiqueta...",
         "edit": "Editar",
         "noResults": "No se encontraron ejercicios",
         "all": "Todos",
@@ -1317,6 +1317,7 @@
         "finishConfirm": "Sí, finalizar",
         "finishCancel": "Continuar entrenando",
         "completedTitle": "¡Entreno Finalizado!",
+        "completedSubtitle": "Entreno finalizado con éxito!",
         "bodyWeight": "Peso Corporal (kg)",
         "finalNotes": "Observaciones Finales",
         "notesPlaceholder": "Notas sobre el rendimiento...",
@@ -1327,19 +1328,24 @@
         "goal": "Objetivo",
         "reps": "reps",
         "weight": "Carga (kg)",
-        "performed": "Realizadas",
+        "performed": "Reps Realizadas",
         "effort": "Esfuerzo (RPE)",
         "rpeHigh": "Reserva alta",
         "rpeTechnical": "Fallo técnico",
         "rpeTotal": "Fallo total",
         "confirmSet": "Confirmar Serie",
         "finishNow": "Finalizar Ahora",
-        "howTo": "Como hacerlo"
+        "howTo": "Como hacerlo",
+        "usingCreatine": "Usando Creatina?",
+        "creatineOn": "Si, usei!",
+        "creatineOff": "No usei hoy!"
     },
     "RestTimer": {
         "seconds": "Segundos",
-        "restTime": "Hora de Descansar",
-        "skipRest": "Omitir Descanso"
+        "restTime": "Tiempo de Descanso",
+        "skipRest": "Omitir Descanso",
+        "getReady": "¡Prepárate!",
+        "readyNext": "¿Listo para la próxima?"
     },
     "WorkoutDrawer": {
         "title": "Guía del Entrenamiento",

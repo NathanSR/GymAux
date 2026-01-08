@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { ChevronLeft, Search, Dumbbell, Info, PlayCircle, Plus, Edit, ChevronRight, Eye } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useLiveQuery } from 'dexie-react-hooks';
@@ -22,6 +22,16 @@ export default function ExerciseLibraryPage() {
     const te = useTranslations('Exercises');
     const tt = useTranslations('Tags');
     const tc = useTranslations('Categories');
+
+    const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+    const handleSearchChange = (val: string) => {
+        if (timeoutRef.current) clearTimeout(timeoutRef.current);
+        
+        timeoutRef.current = setTimeout(() => {
+            setSearchQuery(val); // Só altera o estado (e re-renderiza) após 500ms
+        }, 500);
+    };
 
     const categories = ["all", "chest", "back", "shoulders", "biceps", "triceps", "forearms", "quadriceps", "hamstrings", "glutes", "calves", "adductors", "abductors", "core", "cardio", "full_body", "stretching"];
 
@@ -52,8 +62,8 @@ export default function ExerciseLibraryPage() {
                         placeholder={t('searchPlaceholder')} // Ex: "Busque nome ou use # para tags"
                         className={`w-full bg-zinc-100 dark:bg-zinc-900 border-none rounded-2xl py-4 pl-12 pr-4 text-sm outline-none focus:ring-2 transition-all ${searchQuery.startsWith('#') ? 'focus:ring-lime-400 ring-2 ring-lime-400/20' : 'focus:ring-lime-400'
                             }`}
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
+                        defaultValue={searchQuery} 
+                        onChange={(e) => handleSearchChange(e.target.value)}
                     />
                     {searchQuery.startsWith('#') && (
                         <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-bold text-lime-600 uppercase tracking-tighter bg-lime-100 dark:bg-lime-900/30 px-2 py-1 rounded-md">

@@ -55,7 +55,7 @@ export function CompletedSession({ session }: CompletedSessionProps) {
                     <h2 className="text-4xl font-black uppercase italic tracking-tighter leading-none">
                         {t('completedTitle')}
                     </h2>
-                    <p className="text-zinc-500 text-sm font-medium">{t('completedSubtitle') || 'Treino finalizado com sucesso!'}</p>
+                    <p className="text-zinc-500 text-sm font-medium">{t('completedSubtitle')}</p>
                 </div>
 
                 <form onSubmit={handleSubmit(onFinishWorkout)} className="space-y-4">
