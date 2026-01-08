@@ -1,8 +1,8 @@
-// @/components/UserForm.tsx
 'use client'
 
 import React, { useState, useRef, useEffect } from "react";
 import { useForm } from "react-hook-form";
+import { useTranslations } from 'next-intl'; // Importação adicionada
 import {
     Camera,
     Save,
@@ -22,7 +22,8 @@ interface UserFormProps {
     submitLabel?: string;
 }
 
-export default function UserForm({ initialData, onSubmit, isLoading, submitLabel = "Guardar Perfil" }: UserFormProps) {
+export default function UserForm({ initialData, onSubmit, isLoading, submitLabel }: UserFormProps) {
+    const t = useTranslations('UserForm'); // Hook de tradução
     const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -38,12 +39,11 @@ export default function UserForm({ initialData, onSubmit, isLoading, submitLabel
             name: "",
             weight: 0,
             height: 0,
-            goal: "Manutenção",
+            goal: "maintenance", // Valor padrão agora em inglês para bater com as chaves do JSON
             avatar: ""
         }
     });
 
-    // Sincroniza dados iniciais quando carregarem (essencial para edição)
     useEffect(() => {
         if (initialData) {
             reset(initialData);
@@ -96,19 +96,19 @@ export default function UserForm({ initialData, onSubmit, isLoading, submitLabel
                         accept="image/*"
                     />
                 </div>
-                <p className="mt-4 text-[10px] font-black uppercase text-zinc-400 tracking-widest">Foto de perfil</p>
+                <p className="mt-4 text-[10px] font-black uppercase text-zinc-400 tracking-widest">{t('profilePicture')}</p>
             </div>
 
             {/* Campos do Formulário */}
             <div className="space-y-5">
                 <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase text-zinc-400 tracking-widest ml-4 italic">Nome Completo</label>
+                    <label className="text-[10px] font-black uppercase text-zinc-400 tracking-widest ml-4 italic">{t('fullName')}</label>
                     <div className="relative">
                         <UserIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400" size={18} />
                         <input
-                            {...register("name", { required: "O nome é obrigatório" })}
+                            {...register("name", { required: t('nameRequired') })}
                             className={`w-full bg-white dark:bg-zinc-900 border ${errors.name ? 'border-red-500' : 'border-zinc-100 dark:border-zinc-800'} rounded-3xl py-4 pl-12 pr-4 text-sm font-bold outline-none focus:ring-2 focus:ring-lime-400 transition-all`}
-                            placeholder="Seu nome"
+                            placeholder={t('fullNamePlaceholder')}
                         />
                     </div>
                     {errors.name && <span className="text-[10px] text-red-500 ml-4 font-bold">{errors.name.message}</span>}
@@ -116,7 +116,7 @@ export default function UserForm({ initialData, onSubmit, isLoading, submitLabel
 
                 <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                        <label className="text-[10px] font-black uppercase text-zinc-400 tracking-widest ml-4 italic">Peso (kg)</label>
+                        <label className="text-[10px] font-black uppercase text-zinc-400 tracking-widest ml-4 italic">{t('weight')}</label>
                         <div className="relative">
                             <Scale className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400" size={18} />
                             <input
@@ -128,7 +128,7 @@ export default function UserForm({ initialData, onSubmit, isLoading, submitLabel
                     </div>
 
                     <div className="space-y-2">
-                        <label className="text-[10px] font-black uppercase text-zinc-400 tracking-widest ml-4 italic">Altura (cm)</label>
+                        <label className="text-[10px] font-black uppercase text-zinc-400 tracking-widest ml-4 italic">{t('height')}</label>
                         <div className="relative">
                             <Ruler className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400" size={18} />
                             <input
@@ -141,17 +141,17 @@ export default function UserForm({ initialData, onSubmit, isLoading, submitLabel
                 </div>
 
                 <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase text-zinc-400 tracking-widest ml-4 italic">Objetivo</label>
+                    <label className="text-[10px] font-black uppercase text-zinc-400 tracking-widest ml-4 italic">{t('goal')}</label>
                     <div className="relative">
                         <Target className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400" size={18} />
                         <select
                             {...register("goal")}
                             className="w-full bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 rounded-3xl py-4 pl-12 pr-4 text-sm font-bold outline-none appearance-none focus:ring-2 focus:ring-lime-400 transition-all cursor-pointer"
                         >
-                            <option value="Perda de Peso">Perda de Peso</option>
-                            <option value="Hipertrofia">Hipertrofia</option>
-                            <option value="Condicionamento">Condicionamento</option>
-                            <option value="Manutenção">Manutenção</option>
+                            <option value="weight_loss">{t('goals.weight_loss')}</option>
+                            <option value="muscle">{t('goals.muscle')}</option>
+                            <option value="condition">{t('goals.condition')}</option>
+                            <option value="maintenance">{t('goals.maintenance')}</option>
                         </select>
                         <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
                             <ChevronLeft size={16} className="rotate-[270deg] text-zinc-400" />
@@ -168,7 +168,14 @@ export default function UserForm({ initialData, onSubmit, isLoading, submitLabel
                         ? 'bg-zinc-200 dark:bg-zinc-800 text-zinc-400'
                         : 'bg-lime-400 text-zinc-950 hover:bg-lime-300'}`}
             >
-                {isLoading ? <Loader2 className="animate-spin" size={20} /> : <><Save size={18} /> {submitLabel}</>}
+                {isLoading ? (
+                    <Loader2 className="animate-spin" size={20} />
+                ) : (
+                    <>
+                        <Save size={18} />
+                        {submitLabel || t('saveProfile')}
+                    </>
+                )}
             </button>
         </form>
     );

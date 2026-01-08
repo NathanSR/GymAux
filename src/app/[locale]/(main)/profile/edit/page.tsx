@@ -9,9 +9,11 @@ import { toast } from 'react-toastify';
 import { useRouter } from "@/i18n/routing";
 import { userService } from "@/services/userService";
 import UserForm from "@/components/users/UserForm";
+import { useTranslations } from "next-intl"; // Importado
 
 export default function EditProfilePage() {
     const router = useRouter();
+    const t = useTranslations('UserEdit'); // Inicializado
     const [isSaving, setIsSaving] = useState(false);
     const { activeUser, loading } = useSession();
 
@@ -21,9 +23,9 @@ export default function EditProfilePage() {
         setIsSaving(true);
         try {
             await userService.updateUser(activeUser.id, data);
-            toast.success('Perfil atualizado com sucesso!');
+            toast.success(t('success')); // Traduzido
         } catch (error) {
-            toast.error('Erro ao atualizar perfil.');
+            toast.error(t('error')); // Traduzido
         } finally {
             setIsSaving(false);
         }
@@ -41,7 +43,9 @@ export default function EditProfilePage() {
                         onClick={() => router.push("/home")}>
                         <ChevronLeft size={24} />
                     </button>
-                    <h1 className="font-black text-lg uppercase tracking-tight italic">Editar Perfil</h1>
+                    <h1 className="font-black text-lg uppercase tracking-tight italic">
+                        {t('title')} {/* Traduzido */}
+                    </h1>
                     <div className="w-10"></div>
                 </div>
             </header>
@@ -51,14 +55,14 @@ export default function EditProfilePage() {
                     initialData={activeUser}
                     onSubmit={handleUpdate}
                     isLoading={isSaving}
-                    submitLabel="Guardar Perfil"
+                    submitLabel={t('submitBtn')}
                 />
 
-                {/* Tip Card - Mantido na página pois pode ser específico para edição */}
+                {/* Tip Card */}
                 <div className="mt-8 p-5 bg-zinc-100/50 dark:bg-zinc-900/30 rounded-[32px] border border-zinc-200/50 dark:border-zinc-800/50 flex gap-4">
                     <AlertCircle className="text-zinc-400 shrink-0" size={20} />
                     <p className="text-[11px] text-zinc-400 leading-relaxed font-medium">
-                        Mantenha seu peso e altura atualizados para que possamos calcular suas métricas de progresso com maior precisão.
+                        {t('tip')} {/* Traduzido */}
                     </p>
                 </div>
             </main>

@@ -16,6 +16,29 @@
         "createButton": "Create Profile",
         "noUsers": "No users found. Create the first one!"
     },
+    "UserEdit": {
+        "title": "Edit Profile",
+        "tip": "Keep your weight and height updated so we can calculate your progress metrics with greater accuracy.",
+        "success": "Profile updated successfully!",
+        "error": "Error updating profile.",
+        "submitBtn": "Save Profile"
+    },
+    "UserForm": {
+        "profilePicture": "Profile Picture",
+        "fullName": "Full Name",
+        "fullNamePlaceholder": "Your name",
+        "nameRequired": "Name is required",
+        "weight": "Weight (kg)",
+        "height": "Height (cm)",
+        "goal": "Goal",
+        "saveProfile": "Save Profile",
+        "goals": {
+            "weight_loss": "Weight Loss",
+            "muscle": "Muscle Gain",
+            "condition": "Conditioning",
+            "maintenance": "Maintenance"
+        }
+    },
     "Home": {
         "greeting": "Hello, {name} 👋",
         "defaultUser": "Athlete",

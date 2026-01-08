@@ -16,6 +16,29 @@
         "createButton": "Crear Perfil",
         "noUsers": "No se encontraron usuarios. ¡Crea el primero!"
     },
+    "UserEdit": {
+        "title": "Editar Perfil",
+        "tip": "Mantenga su peso y altura actualizados para que podamos calcular sus métricas de progreso con mayor precisión.",
+        "success": "¡Perfil actualizado con éxito!",
+        "error": "Error al actualizar el perfil.",
+        "submitBtn": "Guardar Perfil"
+    },
+    "UserForm": {
+        "profilePicture": "Foto de perfil",
+        "fullName": "Nombre Completo",
+        "fullNamePlaceholder": "Tu nombre",
+        "nameRequired": "El nombre es obligatorio",
+        "weight": "Peso (kg)",
+        "height": "Altura (cm)",
+        "goal": "Objetivo",
+        "saveProfile": "Guardar Perfil",
+        "goals": {
+            "weight_loss": "Pérdida de Peso",
+            "muscle": "Hipertrofia",
+            "condition": "Acondicionamiento",
+            "maintenance": "Mantenimiento"
+        }
+    },
     "Home": {
         "greeting": "Hola, {name} 👋",
         "defaultUser": "Atleta",
