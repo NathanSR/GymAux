@@ -24,6 +24,7 @@ export default function ExerciseDetailsPage() {
     const t = useTranslations('ExerciseDetails');
     const tc = useTranslations('Categories');
     const tt = useTranslations('Tags');
+    const te = useTranslations('Exercises');
 
     // // Estados do Modal/Drawer
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -68,7 +69,7 @@ export default function ExerciseDetailsPage() {
                         {tc(exercise.category)}
                     </span>
                     <h1 className="text-3xl font-black uppercase italic tracking-tighter mt-2 text-zinc-900 dark:text-white leading-none">
-                        {t.has(exercise.name) ? t(exercise.name) : exercise.name}
+                        {te.has(exercise.name) ? te(exercise.name) : exercise.name}
                     </h1>
                 </div>
             </div>
@@ -99,7 +100,7 @@ export default function ExerciseDetailsPage() {
                         <h2 className="text-sm font-black uppercase italic tracking-wider">{t("description")}</h2>
                     </div>
                     <p className="text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed font-medium">
-                        {t.has(exercise.description!) ? t(exercise.description!) : exercise.description}
+                        {te.has(exercise.description!) ? te(exercise.description!) : exercise.description}
                     </p>
                 </section>
 
@@ -113,7 +114,7 @@ export default function ExerciseDetailsPage() {
                     </div>
 
                     <div className="space-y-6">
-                        {exercise.howTo?.split('\n').map((paragraph, index) => (
+                        {(te.has(exercise.howTo!) ? te(exercise.howTo!) : (exercise.howTo))?.split('\n').map((paragraph, index) => (
                             <div key={index} className="flex gap-4">
                                 <div className="flex flex-col items-center">
                                     <span className="text-lime-500 font-black italic text-xl opacity-50 leading-none">
