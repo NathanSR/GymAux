@@ -43,10 +43,12 @@ export default function SessionPage() {
         fetchSession();
     }, [id, router, t]);
 
-    const { register, handleSubmit, watch, reset, getValues } = useForm({
+    const currentExercise = session?.exercisesToDo?.[session.current?.exerciseIndex || 0];
+
+    const { register, handleSubmit, watch, reset, getValues, setValue } = useForm({
         defaultValues: {
             weight: 0,
-            reps: 0,
+            reps: currentExercise?.reps || 0,
             rpe: 7,
             userWeight: 0,
             description: '',
@@ -54,14 +56,20 @@ export default function SessionPage() {
         }
     });
 
-    // Sincroniza dados iniciais quando carregarem
-    useEffect(() => {
-        if (session?.current?.exerciseIndex !== undefined) {
-            reset(session?.exercisesToDo?.[session.current?.exerciseIndex]);
-        }
-    }, [session?.current.exerciseIndex, session?.exercisesToDo, session?.current.setIndex, reset]);
 
-    const currentExercise = session?.exercisesToDo?.[session.current?.exerciseIndex || 0];
+
+    // Efeito para sincronizar os inputs com a progressão da sessão
+    useEffect(() => {
+        // Atualiza peso APENAS na troca de exercício
+        setValue("weight", 0);
+    }, [session?.current.exerciseIndex]);
+
+    useEffect(() => {
+        // Atualiza reps em QUALQUER mudança de série
+        setValue("reps", currentExercise?.reps || 0);
+    }, [session?.current.setIndex]);
+
+
 
     const synchronizeProgress = async () => {
         if (!session) return;
@@ -69,7 +77,7 @@ export default function SessionPage() {
     };
 
     const handleSetCompletion = (formData: any) => {
-        if (!session) return;
+        if (!session || !currentExercise) return;
 
         const newSet = {
             weight: Number(formData.weight),
@@ -78,21 +86,36 @@ export default function SessionPage() {
         };
 
         let updatedExecutions = [...session.exercisesDone];
-        const exIdx = updatedExecutions.findIndex((e: any) => e.exerciseId === currentExercise?.exerciseId);
+        const exIdx = updatedExecutions.findIndex((e: any) => e.exerciseId === currentExercise.exerciseId);
 
         if (exIdx !== -1) {
             updatedExecutions[exIdx].sets.push(newSet);
         } else {
             updatedExecutions.push({
-                exerciseId: currentExercise?.exerciseId as number,
-                exerciseName: currentExercise?.exerciseName as string,
+                exerciseId: currentExercise.exerciseId,
+                exerciseName: currentExercise.exerciseName,
                 sets: [newSet]
             });
         }
 
-        reset({ ...getValues() });
-        session.current.step = 'resting';
-        setSession({ ...session, exercisesDone: updatedExecutions } as Session);
+        // --- LÓGICA DE TRANSIÇÃO ---
+        const isLastSet = session.current.setIndex >= currentExercise.sets - 1;
+        const isLastExercise = session.current.exerciseIndex >= session.exercisesToDo.length - 1;
+
+        let nextStep: 'executing' | 'resting' | 'completion' = 'resting';
+
+        if (isLastSet)
+            if (isLastExercise)
+                nextStep = 'completion';
+            else
+                nextStep = 'resting';
+        else
+            nextStep = 'resting';
+
+        session.current.step = nextStep;
+        session.exercisesDone = updatedExecutions;
+        setSession({ ...session } as Session);
+
         synchronizeProgress();
     };
 

@@ -66,6 +66,10 @@ export const ExerciseService = {
     },
 
     async updateExercise(id: number, updateData: Partial<Omit<Exercise, 'id' | 'createdAt'>>) {
+
+        if (id < 1000) {
+            throw new Error("Invalid ID");
+        }
         // Exemplo de regra de negócio: Não permitir atualização para nome vazio
         if (updateData.name !== undefined) {
             const formattedName = updateData.name.trim();

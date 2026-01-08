@@ -31,6 +31,14 @@ export default function ExerciseDetailsPage() {
 
     const exercise = useLiveQuery(() => ExerciseService.getExerciseById(Number(id)), [id]);
 
+    // Processamento do texto: Limpa numerações (ex: "1.", "1 -", "1)") e filtra vazios
+    const instructions = exercise?.howTo
+        ? (te.has(exercise.howTo) ? te(exercise.howTo) : exercise.howTo)
+            .split('\n')
+            .filter(p => p.trim() !== "")
+            .map(p => p.replace(/^\d+[\s.\-)]+/, '').trim()) // Remove "1.", "1-", etc no início
+        : [];
+
     if (!exercise) return <Loading />;
 
     return (
@@ -47,9 +55,11 @@ export default function ExerciseDetailsPage() {
                         }}
                     />
                 ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                        <Dumbbell size={64} className="text-zinc-400 opacity-20" />
-                    </div>
+                    <img
+                        src={'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=1000&auto=format&fit=crop'}
+                        alt={exercise.name}
+                        className="w-full h-full object-cover opacity-80"
+                    />
                 )}
 
                 {/* Overlay Gradiente */}
@@ -114,7 +124,7 @@ export default function ExerciseDetailsPage() {
                     </div>
 
                     <div className="space-y-6">
-                        {(te.has(exercise.howTo!) ? te(exercise.howTo!) : (exercise.howTo))?.split('\n').map((paragraph, index) => (
+                        {instructions.map((paragraph, index) => (
                             <div key={index} className="flex gap-4">
                                 <div className="flex flex-col items-center">
                                     <span className="text-lime-500 font-black italic text-xl opacity-50 leading-none">
