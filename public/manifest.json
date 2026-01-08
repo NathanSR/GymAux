@@ -1,6 +1,6 @@
 {
     "name": "Meu Treino Diário",
-    "short_name": "GymApp",
+    "short_name": "GymAux",
     "description": "Meu app de academia offline",
     "start_url": "/",
     "display": "standalone",
