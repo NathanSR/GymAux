@@ -1344,7 +1344,17 @@
         "title": "Roteiro do Treino",
         "totalExercises": "Exercícios no total",
         "sets": "séries",
-        "reps": "reps"
+        "reps": "reps",
+        "addExercise": "Novo Exercício",
+        "restTime": "Descanso",
+        "confirmAdd": "Adicionar à Sessão",
+        "selectExercise": "Selecionar Exercício",
+        "confirmDeleteTitle": "Remover Exercício?",
+        "confirmDeleteText": "Tem certeza que deseja remover este exercício da sessão atual?",
+        "confirmDeleteButton": "Sim, remover",
+        "cancelButton": "Cancelar",
+        "editExercise": "Editar Exercício",
+        "confirmEdit": "Salvar Alterações"
     },
     "DrawerWorkoutExerciseAdd": {
         "successTitle": "Sucesso!",

@@ -12,6 +12,7 @@ import Swal from 'sweetalert2';
 import { SessionService } from '@/services/sessionService';
 import { useTheme } from '@/context/ThemeContext';
 import { useTranslations } from 'next-intl';
+import { CompletedSession } from '@/components/session/CompletedSession';
 
 export default function SessionPage() {
     const t = useTranslations('Session');
@@ -46,7 +47,8 @@ export default function SessionPage() {
             reps: 0,
             rpe: 7,
             userWeight: 0,
-            description: ''
+            description: '',
+            usingCreatine: false
         }
     });
 
@@ -123,55 +125,11 @@ export default function SessionPage() {
         });
     };
 
-    const onFinishWorkout = async () => {
-        if (!session) return;
-        await SessionService.finishSession(session.id as number, {
-            weight: getValues().userWeight,
-            description: getValues().description
-        });
-        router.push('/home');
-    };
-
     if (!session) return null;
 
     // TELA DE CONCLUSÃO
     if (session.current.step === 'completion') {
-        return (
-            <div className="min-h-screen bg-zinc-950 text-white p-8 flex flex-col items-center justify-center max-w-md mx-auto animate-in fade-in duration-500">
-                <div className="w-full space-y-8 text-center">
-                    <div className="inline-flex p-6 bg-lime-400 rounded-full shadow-2xl shadow-lime-400/20">
-                        <Trophy size={48} className="text-zinc-950" />
-                    </div>
-                    <h2 className="text-4xl font-black uppercase italic tracking-tighter">{t('completedTitle')}</h2>
-
-                    <div className="space-y-4 text-left w-full">
-                        <div className="bg-zinc-900/50 p-6 rounded-[32px] border border-zinc-800">
-                            <label className="text-[10px] font-black uppercase text-zinc-500 mb-2 block tracking-widest">{t('bodyWeight')}</label>
-                            <input
-                                {...register("userWeight")}
-                                type='number'
-                                className="w-full bg-zinc-800 border-none rounded-2xl p-4 font-bold text-white outline-none focus:ring-2 focus:ring-lime-400 transition-all"
-                            />
-                        </div>
-                        <div className="bg-zinc-900/50 p-6 rounded-[32px] border border-zinc-800">
-                            <label className="text-[10px] font-black uppercase text-zinc-500 mb-2 block tracking-widest">{t('finalNotes')}</label>
-                            <textarea
-                                {...register("description")}
-                                placeholder={t('notesPlaceholder')}
-                                className="w-full bg-zinc-800 border-none rounded-2xl p-4 text-sm min-h-[120px] resize-none outline-none focus:ring-2 focus:ring-lime-400 transition-all"
-                            />
-                        </div>
-                    </div>
-
-                    <button
-                        onClick={onFinishWorkout}
-                        className="w-full py-5 bg-lime-400 text-zinc-950 rounded-full font-black uppercase text-xs tracking-[0.2em] shadow-xl shadow-lime-400/10 active:scale-95 transition-all"
-                    >
-                        {t('saveAndFinish')}
-                    </button>
-                </div>
-            </div>
-        );
+        return <CompletedSession session={session} />;
     }
 
     // TELA DE EXECUÇÃO
@@ -180,7 +138,9 @@ export default function SessionPage() {
             <WorkoutDrawer
                 showPreview={showPreview}
                 onClose={() => setShowPreview(false)}
-                exercises={session.exercisesToDo}
+                session={session}
+                setSession={setSession}
+                syncSession={synchronizeProgress}
                 currentExerciseIndex={session.current.exerciseIndex || 0}
             />
 
@@ -218,7 +178,7 @@ export default function SessionPage() {
                         {t('exercise')} {(session.current.exerciseIndex || 0) + 1}/{session.exercisesToDo.length}
                     </span>
                     <h2 className="text-4xl font-black uppercase tracking-tighter italic leading-tight mt-3">
-                        {te(currentExercise?.exerciseName as string)}
+                        {te.has(currentExercise?.exerciseName!) ? te(currentExercise?.exerciseName!) : currentExercise?.exerciseName}
                     </h2>
 
                     <div className="flex items-center gap-8 mt-8">

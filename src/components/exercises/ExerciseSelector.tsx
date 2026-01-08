@@ -18,7 +18,8 @@ export const ExerciseSelector = ({ isOpen, onClose, onSelect }: {
     // Namespace específico para a interface do seletor
     const t = useTranslations('ExerciseSelector');
     // Namespace geral para buscar nomes de exercícios e categorias traduzidos
-    const tBase = useTranslations();
+    const te = useTranslations('Exercises');
+    const tc = useTranslations('Categories');
 
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('all');
@@ -38,12 +39,13 @@ export const ExerciseSelector = ({ isOpen, onClose, onSelect }: {
     const filteredExercises = useMemo(() => {
         return exercises.filter(ex => {
             // Traduz o nome para busca local
-            const translatedName = tBase(`Exercises.${ex.name}`).toLowerCase();
-            const matchesSearch = translatedName.includes(searchTerm.toLowerCase());
+            const translatedName = te.has(ex.name) ? te(ex.name) : ex.name;
+            const name = translatedName.toLowerCase();
+            const matchesSearch = name.includes(searchTerm.toLowerCase());
             const matchesCategory = selectedCategory === 'all' || ex.category === selectedCategory;
             return matchesSearch && matchesCategory;
         });
-    }, [exercises, searchTerm, selectedCategory, tBase]);
+    }, [exercises, searchTerm, selectedCategory, te]);
 
     if (!isOpen) return null;
 
@@ -87,7 +89,7 @@ export const ExerciseSelector = ({ isOpen, onClose, onSelect }: {
                                     : 'bg-zinc-100 dark:bg-zinc-900 text-zinc-500 dark:text-zinc-400'
                                     }`}
                             >
-                                {cat === 'all' ? t('allCategories') : tBase(`Categories.${cat}`)}
+                                {tc(cat)}
                             </button>
                         ))}
                     </div>
@@ -107,10 +109,10 @@ export const ExerciseSelector = ({ isOpen, onClose, onSelect }: {
                                 </div>
                                 <div className="flex-1">
                                     <p className="font-black text-zinc-900 dark:text-white uppercase text-sm leading-tight">
-                                        {tBase(`Exercises.${ex.name}`)}
+                                        {te.has(ex.name) ? te(ex.name) : ex.name}
                                     </p>
                                     <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest">
-                                        {tBase(`Categories.${ex.category}`)}
+                                        {tc(ex.category)}
                                     </p>
                                 </div>
                                 <ArrowRight size={16} className="text-zinc-300 group-hover:text-lime-500 group-hover:translate-x-1 transition-all" />

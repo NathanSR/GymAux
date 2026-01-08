@@ -1344,7 +1344,17 @@
         "title": "Workout Roadmap",
         "totalExercises": "Exercises in total",
         "sets": "sets",
-        "reps": "reps"
+        "reps": "reps",
+        "addExercise": "New Exercise",
+        "restTime": "Rest",
+        "confirmAdd": "Add to Session",
+        "selectExercise": "Select Exercise",
+        "confirmDeleteTitle": "Remove Exercise?",
+        "confirmDeleteText": "Are you sure you want to remove this exercise from the current session?",
+        "confirmDeleteButton": "Yes, remove",
+        "cancelButton": "Cancel",
+        "editExercise": "Edit Exercise",
+        "confirmEdit": "Save Changes"
     },
     "DrawerWorkoutExerciseAdd": {
         "successTitle": "Success!",

@@ -85,11 +85,16 @@ export const SessionService = {
         await db.sessions.update(sessionId, updates);
     },
 
+
+    async updateSessionExercisesToDo(sessionId: number, exercisesToDo: any[]) {
+        await db.sessions.update(sessionId, { exercisesToDo });
+    },
+
     /**
      * 4. FINALIZAR SESSÃO E GERAR HISTÓRICO
      * Transforma a sessão em um registro de histórico e remove a sessão ativa.
      */
-    async finishSession(sessionId: number, additionalData?: { weight?: number, description?: string }) {
+    async finishSession(sessionId: number, additionalData?: { weight?: number, description?: string, usingCreatine?: boolean }) {
         const session = await db.sessions.get(sessionId);
         if (!session) throw new Error("Sessão não encontrada");
 

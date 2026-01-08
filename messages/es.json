@@ -1344,7 +1344,17 @@
         "title": "Guía del Entrenamiento",
         "totalExercises": "Ejercicios en total",
         "sets": "series",
-        "reps": "reps"
+        "reps": "reps",
+        "addExercise": "Nuevo Ejercicio",
+        "restTime": "Descanso",
+        "confirmAdd": "Añadir a la Sesión",
+        "selectExercise": "Seleccionar Ejercicio",
+        "confirmDeleteTitle": "¿Eliminar Ejercicio?",
+        "confirmDeleteText": "¿Estás seguro de que deseas eliminar este ejercicio de la sesión actual?",
+        "confirmDeleteButton": "Sí, eliminar",
+        "cancelButton": "Cancelar",
+        "editExercise": "Editar Ejercicio",
+        "confirmEdit": "Guardar Cambios"
     },
     "DrawerWorkoutExerciseAdd": {
         "successTitle": "¡Éxito!",
