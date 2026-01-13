@@ -71,11 +71,7 @@ export default function HomePage() {
         [activeUser?.id, todayWorkout?.id]) || [];
 
     // Data formatada respeitando o locale dinâmico
-    const formattedDate = new Intl.DateTimeFormat(locale, {
-        weekday: 'long',
-        day: 'numeric',
-        month: 'long'
-    }).format(today);
+    const formattedDate = new Intl.DateTimeFormat(locale, { weekday: 'long', day: 'numeric', month: 'long' }).format(today);
 
     // Botao Play no MenuTab
     const onPlayWorkout = async () => {
