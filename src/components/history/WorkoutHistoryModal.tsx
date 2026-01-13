@@ -21,6 +21,12 @@ export function WorkoutHistoryModal({ selectedWorkouts, onClose }: WorkoutHistor
     const t = useTranslations('History');
     const te = useTranslations('Exercises');
 
+    const formattedDate = new Date(currentWorkout.date).toLocaleDateString(language, {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+    })
+
     return (
         <div className="fixed inset-0 z-50 flex items-end justify-center px-4 pb-4 sm:items-center">
             {/* Backdrop */}
@@ -50,7 +56,7 @@ export function WorkoutHistoryModal({ selectedWorkouts, onClose }: WorkoutHistor
                 <div className="p-8 pb-0 flex justify-between items-start">
                     <div className="flex-1">
                         <span className="inline-block px-2 py-1 bg-lime-400/10 text-lime-500 text-[10px] font-black uppercase tracking-widest rounded mb-2">
-                            {new Date(currentWorkout.date).toLocaleTimeString(language, { hour: '2-digit', minute: '2-digit' })} • {t('details')}
+                            {formattedDate} • {t('details')}
                         </span>
                         <h2 className="text-2xl font-black uppercase italic tracking-tighter text-zinc-900 dark:text-white leading-tight">
                             {currentWorkout.workoutName}
