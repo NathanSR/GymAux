@@ -1,5 +1,7 @@
 // --- Interfaces para o TypeScript ---
 
+import { CATEGORIES } from "./constants";
+
 export interface User {
     id?: number;
     name: string;
@@ -10,29 +12,13 @@ export interface User {
     createdAt: Date;
 }
 
-type categoryType =
-    | "chest"
-    | "back"
-    | "shoulders"
-    | "biceps"
-    | "triceps"
-    | "forearms"
-    | "quadriceps"
-    | "hamstrings"
-    | "glutes"
-    | "calves"
-    | "adductors"
-    | "abductors"
-    | "core"
-    | "cardio"
-    | "full_body"
-    | "stretching";
+export type CategoryType = (typeof CATEGORIES)[number];
 
 export interface Exercise {
     id?: number;
     name: string;
     description?: string;
-    category: categoryType;
+    category: CategoryType;
     tags?: string[];    // ex: ['halteres', 'composto']
     howTo?: string;
     mediaUrl?: string; // Link para GIF ou vídeo educativo

@@ -1,12 +1,13 @@
 "use client";
 
-import { useRef, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { ChevronLeft, Search, Dumbbell, Info, PlayCircle, Plus, Edit, ChevronRight, Eye } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useRouter } from '@/i18n/routing';
 import { ExerciseService } from '@/services/exerciseService';
 import { useDebounce } from '@/hooks/useDebounce';
+import { CATEGORIES } from '@/config/constants';
 
 export default function ExerciseLibraryPage() {
     const router = useRouter();
@@ -27,13 +28,15 @@ export default function ExerciseLibraryPage() {
 
     const handleSearchChange = (val: string) => {
         if (timeoutRef.current) clearTimeout(timeoutRef.current);
-        
+
         timeoutRef.current = setTimeout(() => {
             setSearchQuery(val); // Só altera o estado (e re-renderiza) após 500ms
         }, 500);
     };
 
-    const categories = ["all", "chest", "back", "shoulders", "biceps", "triceps", "forearms", "quadriceps", "hamstrings", "glutes", "calves", "adductors", "abductors", "core", "cardio", "full_body", "stretching"];
+    const categories = useMemo(() => {
+        return ['all', ...CATEGORIES];
+    }, []);
 
     // A busca agora acontece dentro do useLiveQuery, reagindo ao debouncedSearch e selectedCategory
     const exercises = useLiveQuery(
@@ -62,7 +65,7 @@ export default function ExerciseLibraryPage() {
                         placeholder={t('searchPlaceholder')} // Ex: "Busque nome ou use # para tags"
                         className={`w-full bg-zinc-100 dark:bg-zinc-900 border-none rounded-2xl py-4 pl-12 pr-4 text-sm outline-none focus:ring-2 transition-all ${searchQuery.startsWith('#') ? 'focus:ring-lime-400 ring-2 ring-lime-400/20' : 'focus:ring-lime-400'
                             }`}
-                        defaultValue={searchQuery} 
+                        defaultValue={searchQuery}
                         onChange={(e) => handleSearchChange(e.target.value)}
                     />
                     {searchQuery.startsWith('#') && (

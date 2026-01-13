@@ -12,6 +12,8 @@ import {
     ListOrdered // Importado para o campo How To
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { CATEGORIES } from '@/config/constants';
+import { useMemo } from 'react';
 
 interface ExerciseFormProps {
     initialData?: {
@@ -45,7 +47,9 @@ export default function ExerciseForm({ initialData, onSubmit, isLoading }: Exerc
         }
     });
 
-    const categories = ["chest", "back", "shoulders", "biceps", "triceps", "forearms", "quadriceps", "hamstrings", "glutes", "calves", "adductors", "abductors", "core", "cardio", "full_body", "stretching"];
+    const categories = useMemo(() => {
+        return [...CATEGORIES];
+    }, []);
 
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">

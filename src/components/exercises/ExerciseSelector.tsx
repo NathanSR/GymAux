@@ -1,3 +1,4 @@
+import { CATEGORIES } from '@/config/constants';
 import { Exercise } from '@/config/types';
 import { ExerciseService } from '@/services/exerciseService';
 import {
@@ -8,7 +9,7 @@ import {
     Info
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useEffect, useMemo, useState } from 'react';
+import { use, useEffect, useMemo, useState } from 'react';
 
 export const ExerciseSelector = ({ isOpen, onClose, onSelect }: {
     isOpen: boolean,
@@ -32,9 +33,8 @@ export const ExerciseSelector = ({ isOpen, onClose, onSelect }: {
     }, [isOpen]);
 
     const categories = useMemo(() => {
-        const cats = new Set(exercises.map(ex => ex.category));
-        return ['all', ...Array.from(cats)];
-    }, [exercises]);
+        return ['all', ...CATEGORIES];
+    }, []);
 
     const filteredExercises = useMemo(() => {
         return exercises.filter(ex => {
