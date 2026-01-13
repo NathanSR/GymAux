@@ -12,13 +12,18 @@ import {
     Check
 } from "lucide-react";
 import { useRouter, usePathname } from '@/i18n/routing';
-import { useTheme } from '@/context/ThemeContext';
+// import { useTheme } from '@/context/ThemeContext';
 import { useTranslations, useLocale } from 'next-intl';
+import { useLanguage } from '@/context/LanguageContext';
+import { LANGUAGES } from '@/config/constants';
 
 interface ProfileMenuProps {
     showProfileMenu: boolean;
     setShowProfileMenu: (show: boolean) => void;
 }
+
+type Language = typeof LANGUAGES[number];
+
 
 const ProfileMenu: React.FC<ProfileMenuProps> = ({
     showProfileMenu,
@@ -26,16 +31,18 @@ const ProfileMenu: React.FC<ProfileMenuProps> = ({
 }) => {
     const t = useTranslations('ProfileMenu');
     const locale = useLocale();
+    const { setLanguage } = useLanguage();
     const router = useRouter();
     const pathname = usePathname();
-    const { theme, toggleTheme } = useTheme();
+    // const { theme, toggleTheme } = useTheme();
 
     // Estado para controlar se mostra as opções de idioma
     const [view, setView] = useState<'main' | 'language'>('main');
 
-    const handleLanguageChange = (newLocale: string) => {
+    const handleLanguageChange = (newLocale: Language) => {
         // next-intl router.push cuida da substituição do locale na URL
         router.push(pathname, { locale: newLocale });
+        setLanguage(newLocale);
         setShowProfileMenu(false);
         setView('main');
     };
@@ -127,7 +134,7 @@ const ProfileMenu: React.FC<ProfileMenuProps> = ({
                             ].map((lang) => (
                                 <button
                                     key={lang.id}
-                                    onClick={() => handleLanguageChange(lang.id)}
+                                    onClick={() => handleLanguageChange(lang.id as Language)}
                                     className="w-full flex items-center justify-between px-4 py-3 text-sm font-bold hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-xl transition-colors text-zinc-700 dark:text-zinc-200"
                                 >
                                     {lang.label}

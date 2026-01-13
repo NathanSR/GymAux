@@ -1,7 +1,9 @@
 'use client';
+import { LANGUAGES } from '@/config/constants';
+import { useLocale } from 'next-intl';
 import React, { createContext, useContext, useState } from 'react';
 
-type Language = 'pt' | 'en' | 'es';
+type Language = typeof LANGUAGES[number];
 
 interface LanguageContextType {
     language: Language;
@@ -12,7 +14,8 @@ const LanguageContext = createContext<LanguageContextType | undefined>(undefined
 
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
-    const [language, setLanguage] = useState<Language>('pt');
+    const locale = useLocale();
+    const [language, setLanguage] = useState<Language>(locale as Language);
 
     return (
         <LanguageContext.Provider value={{ language, setLanguage }}>

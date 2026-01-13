@@ -16,3 +16,5 @@ export const CATEGORIES = [
     "full_body",
     "stretching",
 ] as const;
+
+export const LANGUAGES = ["en", "pt", "es"] as const;

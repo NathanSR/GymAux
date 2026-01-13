@@ -50,13 +50,13 @@ export default async function RootLayout(props: {
 			<body
 				className={`${geistSans.variable} ${geistMono.variable} antialiased light`}
 			>
-				<LanguageProvider>
-					<ThemeProvider>
-						<NextIntlClientProvider messages={messages}>
+				<NextIntlClientProvider messages={messages}>
+					<LanguageProvider>
+						<ThemeProvider>
 							{children}
-						</NextIntlClientProvider>
-					</ThemeProvider>
-				</LanguageProvider>
+						</ThemeProvider>
+					</LanguageProvider>
+				</NextIntlClientProvider>
 				<ToastContainer pauseOnHover closeOnClick draggable />
 			</body>
 		</html>
