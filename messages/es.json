@@ -1371,8 +1371,6 @@
         "readyNext": "¿Listo para la próxima?"
     },
     "WorkoutDrawer": {
-        "title": "Guía del Entrenamiento",
-        "totalExercises": "Ejercicios en total",
         "sets": "series",
         "reps": "reps",
         "addExercise": "Nuevo Ejercicio",
@@ -1384,7 +1382,16 @@
         "confirmDeleteButton": "Sí, eliminar",
         "cancelButton": "Cancelar",
         "editExercise": "Editar Ejercicio",
-        "confirmEdit": "Guardar Cambios"
+        "confirmEdit": "Guardar Cambios",
+        "tabs": {
+            "todo": "Ruta",
+            "done": "Realizados"
+        },
+        "empty": "Ningúno ejercicio realizado todavía.",
+        "editSet": "Editar Serie",
+        "weight": "Carga",
+        "rpe": "RPE",
+        "set": "Serie"
     },
     "DrawerWorkoutExerciseAdd": {
         "successTitle": "¡Éxito!",

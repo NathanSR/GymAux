@@ -1371,8 +1371,6 @@
         "readyNext": "Ready for next?"
     },
     "WorkoutDrawer": {
-        "title": "Workout Roadmap",
-        "totalExercises": "Exercises in total",
         "sets": "sets",
         "reps": "reps",
         "addExercise": "New Exercise",
@@ -1384,7 +1382,16 @@
         "confirmDeleteButton": "Yes, remove",
         "cancelButton": "Cancel",
         "editExercise": "Edit Exercise",
-        "confirmEdit": "Save Changes"
+        "confirmEdit": "Save Changes",
+        "tabs": {
+            "todo": "Workout",
+            "done": "Completed"
+        },
+        "empty": "No exercises completed yet.",
+        "editSet": "Edit Set",
+        "weight": "Weight",
+        "rpe": "RPE",
+        "set": "Set"
     },
     "DrawerWorkoutExerciseAdd": {
         "successTitle": "Success!",

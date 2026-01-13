@@ -1371,8 +1371,6 @@
         "readyNext": "Pronto para a próxima?"
     },
     "WorkoutDrawer": {
-        "title": "Roteiro do Treino",
-        "totalExercises": "Exercícios no total",
         "sets": "séries",
         "reps": "reps",
         "addExercise": "Novo Exercício",
@@ -1384,7 +1382,16 @@
         "confirmDeleteButton": "Sim, remover",
         "cancelButton": "Cancelar",
         "editExercise": "Editar Exercício",
-        "confirmEdit": "Salvar Alterações"
+        "confirmEdit": "Salvar Alterações",
+        "tabs": {
+            "todo": "Roteiro",
+            "done": "Realizados"
+        },
+        "empty": "Nenhum exercício concluído ainda.",
+        "editSet": "Editar Série",
+        "weight": "Peso",
+        "rpe": "RPE",
+        "set": "Série"
     },
     "DrawerWorkoutExerciseAdd": {
         "successTitle": "Sucesso!",
