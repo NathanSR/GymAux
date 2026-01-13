@@ -17,7 +17,9 @@ export const DraggableExerciseItem = ({ ex, idx, currentExerciseIndex, onRemove,
         transform: CSS.Transform.toString(transform),
         transition,
         zIndex: isDragging ? 100 : "auto",
-        opacity: isDragging ? 0.5 : 1
+        opacity: isDragging ? 0.6 : 1,
+        // Mantemos o touchAction auto no container pai para permitir scroll na lista
+        touchAction: 'auto'
     };
 
     const isCurrent = idx === currentExerciseIndex;
@@ -28,11 +30,20 @@ export const DraggableExerciseItem = ({ ex, idx, currentExerciseIndex, onRemove,
             ref={setNodeRef}
             style={style}
             className={`flex items-center justify-between p-4 rounded-[28px] border transition-all ${isCurrent ? 'bg-lime-400/10 border-lime-400/40' : 'bg-zinc-900/50 border-zinc-800/50'
-                } ${isCompleted ? 'opacity-40' : ''}`}
+                } ${isCompleted ? 'opacity-40' : ''} ${isDragging ? 'shadow-2xl border-lime-400/50 ring-1 ring-lime-400/20' : ''}`}
         >
             <div className="flex items-center gap-3">
                 {!isCompleted && (
-                    <div {...attributes} {...listeners} className="p-2 cursor-grab active:cursor-grabbing text-zinc-600">
+                    /* AJUSTE CHAVE: 
+                       1. touch-action: none impede o browser de rolar quando tocamos no Grip
+                       2. listeners e attributes ficam apenas aqui para um controle preciso
+                    */
+                    <div
+                        {...attributes}
+                        {...listeners}
+                        className="p-2 cursor-grab active:cursor-grabbing text-zinc-600 active:text-lime-400"
+                        style={{ touchAction: 'none' }}
+                    >
                         <GripVertical size={18} />
                     </div>
                 )}
@@ -59,22 +70,19 @@ export const DraggableExerciseItem = ({ ex, idx, currentExerciseIndex, onRemove,
                 </div>
             </div>
 
-            {/* Ações (Apenas se não estiver completo) */}
             {!isCompleted && (
                 <div className="flex items-center gap-1">
-                    {/* Botão Editar */}
                     <button
                         onClick={() => onEdit(ex)}
-                        className="p-3 text-zinc-600 hover:text-lime-400 transition-colors"
+                        className="p-3 text-zinc-600 hover:text-lime-400 active:scale-90 transition-all"
                     >
                         <Pencil size={18} />
                     </button>
 
-                    {/* Botão Deletar (Apenas se não for o atual) */}
                     {!isCurrent && (
                         <button
                             onClick={() => onRemove(ex.exerciseId)}
-                            className="p-3 text-zinc-600 hover:text-red-400 transition-colors"
+                            className="p-3 text-zinc-600 hover:text-red-400 active:scale-90 transition-all"
                         >
                             <Trash2 size={18} />
                         </button>

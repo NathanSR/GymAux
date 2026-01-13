@@ -41,7 +41,7 @@ export const WorkoutDrawer = ({ showPreview, onClose, session, setSession, syncS
 
     // SENSORES AJUSTADOS: Incluindo suporte mobile com delay para não conflitar com scroll
     const sensors = useSensors(
-        useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+        useSensor(PointerSensor, { activationConstraint: { distance: 10 } }),
         useSensor(TouchSensor, { activationConstraint: { delay: 250, tolerance: 5 } }),
         useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
     );
