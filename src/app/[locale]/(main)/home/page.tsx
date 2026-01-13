@@ -25,6 +25,8 @@ import { SessionService } from '@/services/sessionService';
 import { MenuTab } from '@/components/MenuTab';
 import ProfileMenu from '@/components/home/ProfileMenu';
 import Loading from '@/app/[locale]/loading';
+import { Workout } from '@/config/types';
+import { formatDuration, getRelativeTime } from '@/utils/dateUtil';
 
 export default function HomePage() {
     const t = useTranslations('Home');
@@ -74,6 +76,16 @@ export default function HomePage() {
         day: 'numeric',
         month: 'long'
     }).format(today);
+
+    // Botao Play no MenuTab
+    const onPlayWorkout = async () => {
+        if (!todayWorkout) return;
+
+        const session = sessionList.find(s => s.workoutId === todayWorkout.id);
+
+        if (session) return SessionService.onResumeWorkout(session.id as number, router);
+        else SessionService.onPlayWorkout(todayWorkout, router)
+    }
 
     if (loading) return <Loading />
 
@@ -138,7 +150,7 @@ export default function HomePage() {
                                 ? 'bg-zinc-300 dark:bg-zinc-800 text-zinc-500 cursor-not-allowed'
                                 : 'cursor-pointer bg-zinc-950 text-white hover:scale-[1.02]'
                                 }`}
-                            onClick={() => SessionService.onPlayWorkout(todayWorkout, router)}
+                            onClick={() => SessionService.onPlayWorkout(todayWorkout as Workout, router)}
                         >
                             {todayHistory ? <CheckCircle2 size={20} /> : todayWorkout ? <Play size={20} fill="currentColor" /> : <Bed size={20} fill="currentColor" />}
                             {!todayWorkout ? t('restButton') : todayHistory ? t('finishedButton') : t('startButton')}
@@ -186,7 +198,7 @@ export default function HomePage() {
                                     </div>
 
                                     <button
-                                        onClick={() => router.push(`/session/${session.id}`)}
+                                        onClick={() => SessionService.onResumeWorkout(session.id as number, router)}
                                         className="flex items-center justify-center w-10 h-10 bg-zinc-900 dark:bg-lime-400 text-white dark:text-zinc-950 rounded-xl hover:scale-105 transition-transform cursor-pointer shadow-lg"
                                     >
                                         <Play size={18} fill="currentColor" />
@@ -195,7 +207,7 @@ export default function HomePage() {
 
                                 <div className="flex items-center justify-between pt-2 border-t border-zinc-50 dark:border-zinc-800/50">
                                     <span className="text-[10px] text-zinc-400 font-medium">
-                                        {t('pausedAt', { date: new Date(session.createdAt).toLocaleDateString(locale) })}
+                                        {t('pausedAt', { date: session.pausedAt!.toLocaleString(locale) })}
                                     </span>
                                     <p className="text-[10px] font-bold text-lime-500 uppercase tracking-wider">
                                         {t('continueFrom', { exercise: te.has(session.exercisesToDo[done]?.exerciseName) ? te(session.exercisesToDo[done]?.exerciseName) : t('next') })}
@@ -224,26 +236,40 @@ export default function HomePage() {
 
                 <div className="space-y-4">
                     {historyList.map((item) => {
-                        const timeAgo = moment(item.endDate).locale(locale).fromNow();
-                        const duration = moment.duration(moment(item.endDate).diff(moment(item.date)));
-                        const minutes = Math.floor(duration.asMinutes());
+                        const timeAgo = getRelativeTime(item.endDate as Date, locale);
+                        const durationDisplay = formatDuration(item.duration || 0);
+
                         return (
-                            <div key={item.id} className="flex items-center gap-4 p-3 bg-zinc-50 dark:bg-zinc-800/50 rounded-2xl border border-zinc-100 dark:border-zinc-800">
-                                <div className="w-10 h-10 bg-lime-400/20 rounded-xl flex items-center justify-center text-lime-500">
-                                    <CheckCircle2 size={20} />
+                            <div key={item.id} className="flex items-center gap-4 p-4 bg-zinc-50 dark:bg-zinc-900/40 rounded-[24px] border border-zinc-100 dark:border-zinc-800/50 hover:border-lime-400/30 transition-colors">
+                                <div className="w-12 h-12 bg-lime-400/10 rounded-2xl flex items-center justify-center text-lime-500 shadow-inner">
+                                    <CheckCircle2 size={22} />
                                 </div>
                                 <div className="flex-1">
-                                    <p className="text-sm font-black uppercase tracking-tight">{item.workoutName}</p>
-                                    <p className="text-[10px] text-zinc-500 font-bold">{timeAgo} • {minutes} {t('minutesShort')}</p>
+                                    <p className="text-sm font-black uppercase tracking-tight text-zinc-900 dark:text-zinc-100">
+                                        {item.workoutName}
+                                    </p>
+                                    <div className="flex items-center gap-2 mt-0.5">
+                                        <span className="text-[10px] text-zinc-500 font-bold capitalize">
+                                            {timeAgo}
+                                        </span>
+                                        <span className="w-1 h-1 rounded-full bg-zinc-300 dark:bg-zinc-700" />
+                                        <div className="flex items-center gap-1 text-[10px] text-lime-600 dark:text-lime-400 font-black uppercase">
+                                            <Clock size={10} />
+                                            {durationDisplay}
+                                        </div>
+                                    </div>
                                 </div>
+
+                                {/* Opcional: Indicador de volume ou seta */}
+                                <ChevronRight size={16} className="text-zinc-300 dark:text-zinc-700" />
                             </div>
-                        )
+                        );
                     })}
                 </div>
             </section>
 
             <MenuTab
-                onPlay={() => SessionService.onPlayWorkout(todayWorkout, router)}
+                onPlay={onPlayWorkout}
                 completed={!todayWorkout || !!todayHistory}
             />
         </div>

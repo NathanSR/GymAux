@@ -102,7 +102,7 @@ export default function SessionPage() {
         const isLastSet = session.current.setIndex >= currentExercise.sets - 1;
         const isLastExercise = session.current.exerciseIndex >= session.exercisesToDo.length - 1;
 
-        let nextStep: 'executing' | 'resting' | 'completion' = 'resting';
+        let nextStep: Session['current']['step'] = 'resting';
 
         if (isLastSet)
             if (isLastExercise)
@@ -111,6 +111,13 @@ export default function SessionPage() {
                 nextStep = 'resting';
         else
             nextStep = 'resting';
+
+        if (nextStep === 'completion') {
+            if (!session.pausedAt && session.resumedAt) {
+                const finalSegment = new Date().getTime() - session.resumedAt.getTime();
+                session.duration += finalSegment;
+            }
+        }
 
         session.current.step = nextStep;
         session.exercisesDone = updatedExecutions;
@@ -151,8 +158,14 @@ export default function SessionPage() {
             color: theme === 'dark' ? '#ffffff' : '#09090b',
         }).then((result) => {
             if (result.isConfirmed) {
+                if (!session.pausedAt && session.resumedAt) {
+                    const finalSegment = new Date().getTime() - session.resumedAt.getTime();
+                    session.duration += finalSegment;
+                }
+
                 session.current.step = 'completion';
                 setSession({ ...session } as Session);
+                synchronizeProgress();
             }
         });
     };
@@ -185,7 +198,7 @@ export default function SessionPage() {
             {/* HEADER COM ANIMAÇÃO DE ENTRADA */}
             <header className="px-6 pt-12 pb-6 flex items-center justify-between animate-in fade-in slide-in-from-top-4 duration-700">
                 <button
-                    onClick={() => router.back()}
+                    onClick={() => SessionService.onExitSession(session.id as number, router, theme)}
                     className="p-3 rounded-2xl bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-white hover:border-zinc-700 active:scale-90 transition-all duration-300"
                 >
                     <ChevronLeft size={20} />

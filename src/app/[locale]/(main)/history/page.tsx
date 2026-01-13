@@ -8,6 +8,7 @@ import { useLiveQuery } from "dexie-react-hooks";
 import { Activity, ChevronLeft, ChevronRight, Clock, Dumbbell, MessageSquare, Scale, Search, Trophy, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
+import { formatDuration } from "@/utils/dateUtil";
 
 export default function HistoryPage() {
     const t = useTranslations('History');
@@ -212,7 +213,7 @@ export default function HistoryPage() {
                                     <span className="block text-[8px] font-black text-zinc-400 uppercase tracking-widest mb-1">{t('duration')}</span>
                                     <span className="text-sm font-black">
                                         {selectedWorkouts[activeTab].endDate
-                                            ? `${Math.floor((new Date(selectedWorkouts[activeTab].endDate).getTime() - new Date(selectedWorkouts[activeTab].date).getTime()) / 60000)} min`
+                                            ? formatDuration(selectedWorkouts[activeTab].duration as number)
                                             : '-- min'}
                                     </span>
                                 </div>

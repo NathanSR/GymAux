@@ -4,19 +4,18 @@ import Swal from 'sweetalert2';
 
 export const SessionService = {
 
-    async onPlayWorkout(workout: any, router: any, theme?: any) {
+    async onPlayWorkout(workout: Workout, router: any, theme?: any) {
         Swal.fire({
             title: 'Iniciar Treino?',
             text: "Você está pronto para começar?",
             icon: 'question',
             showCancelButton: true,
-            confirmButtonColor: '#22c55e', // lime-600
-            cancelButtonColor: '#ef4444', // red-500
+            confirmButtonColor: '#22c55e',
+            cancelButtonColor: '#ef4444',
             confirmButtonText: 'Sim, vamos!',
             cancelButtonText: 'Agora não',
-            // Adaptação de tema via Tailwind/CSS
-            background: theme === 'dark' ? '#1f2937' : '#ffffff', // gray-800 ou white
-            color: theme === 'dark' ? '#f9fafb' : '#111827',      // gray-50 ou gray-900
+            background: theme === 'dark' ? '#18181b' : '#ffffff',
+            color: theme === 'dark' ? '#f4f4f5' : '#18181b',
         }).then(async (result) => {
             if (result.isConfirmed) {
                 const sessionId = await this.startSession(workout!);
@@ -25,6 +24,54 @@ export const SessionService = {
         });
     },
 
+    async onResumeWorkout(sessionId: number, router: any, theme?: any) {
+        Swal.fire({
+            title: 'Continuar Treino?',
+            text: "Você tem um treino em andamento. Vamos voltar?",
+            icon: 'info',
+            showCancelButton: true,
+            showDenyButton: true, // Adicionado botão para deletar caso queira desistir
+            confirmButtonColor: '#22c55e',
+            denyButtonColor: '#ef4444',
+            confirmButtonText: 'Continuar!',
+            denyButtonText: 'Descartar Treino',
+            cancelButtonText: 'Agora não',
+            background: theme === 'dark' ? '#18181b' : '#ffffff',
+            color: theme === 'dark' ? '#f4f4f5' : '#18181b',
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                await this.resumeSession(sessionId); // Atualiza referencial de tempo
+                router.push(`/session/${sessionId}`);
+            } else if (result.isDenied) {
+                // Caso o usuário queira apagar a sessão velha e começar de novo
+                await this.deleteSession(sessionId);
+                Swal.fire('Deletado!', 'A sessão foi descartada.', 'success');
+            }
+        });
+    },
+
+    async onExitSession(sessionId: number, router: any, theme?: any) {
+        return Swal.fire({
+            title: 'Pausar Treino?',
+            text: "O tempo será pausado e você poderá continuar mais tarde na Home.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#22c55e',
+            cancelButtonColor: '#71717a',
+            confirmButtonText: 'Sim, pausar e sair',
+            cancelButtonText: 'Cancelar',
+            background: theme === 'dark' ? '#18181b' : '#ffffff',
+            color: theme === 'dark' ? '#f4f4f5' : '#18181b',
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                await this.pauseSession(sessionId); // Salva o tempo e marca pause
+                router.back();
+            }
+        });
+    },
+
+
+
     /**
    * 1. INICIAR SESSÃO
    * Cria uma nova sessão baseada em um treino (Workout).
@@ -32,22 +79,50 @@ export const SessionService = {
    * não afetem a sessão em andamento.
    */
     async startSession(workout: Workout): Promise<number> {
-
         const newSession: Session = {
             userId: workout.userId,
             workoutId: workout.id as number,
             workoutName: workout.name,
             createdAt: new Date(),
             exercisesToDo: workout.exercises,
-            exercisesDone: [], // Começa vazio
+            exercisesDone: [],
             current: {
                 exerciseIndex: 0,
                 setIndex: 0,
                 step: 'executing'
-            }
+            },
+            duration: 0, // Inicia com 0ms
+            pausedAt: null, // null significa que está em andamento
+            resumedAt: new Date()
         };
 
         return await db.sessions.add(newSession as any);
+    },
+
+    async resumeSession(sessionId: number) {
+        const session = await db.sessions.get(sessionId);
+        if (!session) return;
+
+        return await db.sessions.update(sessionId, {
+            pausedAt: null,
+            resumedAt: new Date()
+        });
+    },
+
+    async pauseSession(sessionId: number) {
+
+        const session = await db.sessions.get(sessionId);
+
+        if (!session || !session.resumedAt || session.pausedAt) return;
+
+        const now = new Date();
+        const lastReference = session.resumedAt;
+        const additionalDuration = now.getTime() - lastReference.getTime();
+
+        return await db.sessions.update(sessionId, {
+            pausedAt: now,
+            duration: session.duration + additionalDuration
+        });
     },
 
     /**
@@ -86,10 +161,6 @@ export const SessionService = {
     },
 
 
-    async updateSessionExercisesToDo(sessionId: number, exercisesToDo: any[]) {
-        await db.sessions.update(sessionId, { exercisesToDo });
-    },
-
     /**
      * 4. FINALIZAR SESSÃO E GERAR HISTÓRICO
      * Transforma a sessão em um registro de histórico e remove a sessão ativa.
@@ -104,14 +175,13 @@ export const SessionService = {
             workoutName: session.workoutName,
             date: session.createdAt,
             endDate: new Date(),
+            duration: session.duration,
             ...additionalData,
             executions: session.exercisesDone as any
         };
 
-        // 1. Salva no histórico
         const historyId = await db.history.add(historyRecord);
 
-        // 2. Remove a sessão ativa
         await db.sessions.delete(sessionId);
 
         return historyId as number;

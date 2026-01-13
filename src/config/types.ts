@@ -40,6 +40,29 @@ export interface Workout {
     description?: string;
 }
 
+// export interface Workout {
+//     id?: number;
+//     userId: number;
+//     name: string;
+//     description?: string;
+//     createdAt: Date;
+//     exerciseGroups: ExerciseGroup[]; 
+// }
+// export interface ExerciseGroup {
+//     restBetweenExercises: number; // Descanso entre ex. do mesmo grupo (ex: Agachamento + Búlgaro)
+//     restAfterGroup: number;     // Descanso após terminar o bloco todo
+//     exercises: WorkoutExercise[];
+// }
+// export interface WorkoutExercise {
+//     exerciseId: number;
+//     exerciseName: string;
+//     sets: {
+//         reps: number; // "10-12" ou 10
+//         weight?: number;       // Peso planejado (opcional)
+//         restTime: number;      // Descanso após esta série específica
+//     }[];
+// }
+
 export interface Schedule {
     id?: number;
     name: string;
@@ -70,7 +93,7 @@ export interface History {
 
     weight?: number; // peso do usuário no dia do treino
     description?: string;
-    duration?: number; // em minutos
+    duration?: number; // em ms
     endDate?: Date;
     usingCreatine?: boolean;
 }
@@ -102,5 +125,8 @@ export interface Session {
         step: 'executing' | 'resting' | 'completion';
         exerciseIndex: number;
         setIndex: number;
-    }
+    },
+    duration: number; //ms
+    pausedAt: Date | null;
+    resumedAt: Date | null;
 }
