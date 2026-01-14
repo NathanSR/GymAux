@@ -6,7 +6,6 @@ import {
     Trophy,
     History as HistoryIcon,
     ChevronRight,
-    PlayCircle,
     Clock,
     Dumbbell,
     User,
@@ -52,8 +51,15 @@ export default function HomePage() {
         [activeSchedule?.id]
     );
 
-    const estimatedTimeTodayWorkout = Math.round(todayWorkout?.exercises.reduce((acc: number, exercise) => (acc + ((exercise.sets * (exercise.reps * 2.5 + exercise.restTime)) / 60)), 0) || 0);
-
+    const estimatedTimeTodayWorkout = formatDuration(
+        Math.round(
+            (todayWorkout?.exercises.reduce((acc, exercise) => {
+                const exerciseSeconds = ((exercise.sets * exercise.reps * 2.5) + exercise.restTime) * 1000;
+                return acc + exerciseSeconds;
+            }, 0) || 0) // Converte o total de segundos para milissegundos
+        )
+    );
+    
     const todayHistory = useLiveQuery(() =>
         HistoryService
             .getHistoryByRange(activeUser?.id ?? -1, startTodayDate, endTodayDate)
@@ -135,7 +141,7 @@ export default function HomePage() {
                             <Dumbbell size={14} /> {todayWorkout?.exercises?.length || 0} {t('exercises')}
                         </div>
                         <div className="flex items-center gap-1.5">
-                            <Clock size={14} /> {t('estimatedTime', { time: estimatedTimeTodayWorkout })}
+                            <Clock size={14} /> {estimatedTimeTodayWorkout}
                         </div>
                     </div>
 
@@ -203,7 +209,7 @@ export default function HomePage() {
 
                                 <div className="flex items-center justify-between pt-2 border-t border-zinc-50 dark:border-zinc-800/50">
                                     <span className="text-[10px] text-zinc-400 font-medium">
-                                        {t('pausedAt', { date: session.pausedAt!.toLocaleString(locale) })}
+                                        {t('pausedAt', { date: session.pausedAt?.toLocaleString(locale) || '' })}
                                     </span>
                                     <p className="text-[10px] font-bold text-lime-500 uppercase tracking-wider">
                                         {t('continueFrom', { exercise: te.has(session.exercisesToDo[done]?.exerciseName) ? te(session.exercisesToDo[done]?.exerciseName) : t('next') })}

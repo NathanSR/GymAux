@@ -21,8 +21,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-	title: "Gym App",
-	description: "Controle de treino",
+	title: "Gym Aux",
+	description: "Meu Treino Diário",
 	manifest: "/manifest.json", // Adicione esta linha
 	// themeColor: "#3b82f6",      // Cor da barra de status no celular
 };
