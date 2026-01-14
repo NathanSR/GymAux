@@ -5,6 +5,7 @@
     },
     "Index": {
         "title": "Quem está treinando?",
+        "subtitle": "Selecione seu perfil para treinar",
         "addNew": "Adicionar novo perfil"
     },
     "UserRegister": {
@@ -1417,5 +1418,12 @@
         "howToPerform": "Guia Técnico",
         "noInstructions": "Nenhuma instrução específica fornecida para este exercício.",
         "gotIt": "Entendi, vamos lá"
+    },
+    "PWAInstall": {
+        "installButton": "Instalar App",
+        "iosTitle": "Instalar no iPhone",
+        "iosStep1": "Toque em",
+        "iosStep2": "depois em",
+        "iosStep3": "\"Tela de Início\""
     }
 }

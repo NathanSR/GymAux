@@ -5,6 +5,7 @@
     },
     "Index": {
         "title": "Who's training?",
+        "subtitle": "Select your profile to work out",
         "addNew": "Add new profile"
     },
     "UserRegister": {
@@ -1417,5 +1418,12 @@
         "howToPerform": "Technical Guide",
         "noInstructions": "No specific instructions provided for this exercise.",
         "gotIt": "Got it, let's go"
+    },
+    "PWAInstall": {
+        "installButton": "Install App",
+        "iosTitle": "Install on iPhone",
+        "iosStep1": "Tap",
+        "iosStep2": "then",
+        "iosStep3": "\"Add to Home Screen\""
     }
 }

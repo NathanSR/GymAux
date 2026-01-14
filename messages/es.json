@@ -5,6 +5,7 @@
     },
     "Index": {
         "title": "Quién está entrenando?",
+        "subtitle": "Selecciona tu perfil para entrenar",
         "addNew": "Agregar nuevo perfil"
     },
     "UserRegister": {
@@ -1417,5 +1418,12 @@
         "howToPerform": "Guía Técnica",
         "noInstructions": "No hay instrucciones específicas para este ejercicio.",
         "gotIt": "Entendido, vamos"
+    },
+    "PWAInstall": {
+        "installButton": "Instalar App",
+        "iosTitle": "Instalar en iPhone",
+        "iosStep1": "Pulsa",
+        "iosStep2": "luego",
+        "iosStep3": "\"Añadir a pantalla de inicio\""
     }
 }
