@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     Sun,
     Moon,
@@ -9,7 +9,8 @@ import {
     LogOut,
     X,
     ChevronLeft,
-    Check
+    Check,
+    Download // Importado para o ícone de instalação
 } from "lucide-react";
 import { useRouter, usePathname } from '@/i18n/routing';
 // import { useTheme } from '@/context/ThemeContext';
@@ -24,7 +25,6 @@ interface ProfileMenuProps {
 
 type Language = typeof LANGUAGES[number];
 
-
 const ProfileMenu: React.FC<ProfileMenuProps> = ({
     showProfileMenu,
     setShowProfileMenu,
@@ -35,6 +35,36 @@ const ProfileMenu: React.FC<ProfileMenuProps> = ({
     const router = useRouter();
     const pathname = usePathname();
     // const { theme, toggleTheme } = useTheme();
+
+    // --- Lógica de Instalação PWA ---
+    const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+    const [isInstalled, setIsInstalled] = useState(false);
+
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            // Verifica se já está rodando como app
+            if (window.matchMedia('(display-mode: standalone)').matches) {
+                setIsInstalled(true);
+            }
+
+            // Captura o evento de instalação do Chrome/Android
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                setDeferredPrompt(e);
+            });
+        }
+    }, []);
+
+    const handleInstallClick = async () => {
+        if (!deferredPrompt) return;
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
+            setDeferredPrompt(null);
+        }
+        setShowProfileMenu(false);
+    };
+    // -------------------------------
 
     // Estado para controlar se mostra as opções de idioma
     const [view, setView] = useState<'main' | 'language'>('main');
@@ -85,6 +115,17 @@ const ProfileMenu: React.FC<ProfileMenuProps> = ({
                 <div className="space-y-1">
                     {view === 'main' ? (
                         <>
+                            {/* Botão de Instalação (Aparece apenas se houver o prompt e não estiver instalado) */}
+                            {deferredPrompt && !isInstalled && (
+                                <button
+                                    onClick={handleInstallClick}
+                                    className="w-full flex items-center gap-3 px-4 py-3 text-sm font-black bg-lime-400/10 text-lime-600 hover:bg-lime-400/20 rounded-xl transition-colors mb-1 group"
+                                >
+                                    <Download size={18} className="group-hover:bounce" />
+                                    <span className="flex-1 text-left">{t('installApp')}</span>
+                                </button>
+                            )}
+
                             {/* Alternar Tema */}
                             {/* <button
                                 onClick={toggleTheme}

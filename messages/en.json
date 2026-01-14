@@ -68,7 +68,8 @@
         "language": "Language",
         "editProfile": "Edit Profile",
         "logout": "Log Out",
-        "selectLanguage": "Select Language"
+        "selectLanguage": "Select Language",
+        "installApp": "Install App"
     },
     "ExerciseList": {
         "title": "Library",

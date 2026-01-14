@@ -68,7 +68,8 @@
         "language": "Idioma",
         "editProfile": "Editar Perfil",
         "logout": "Cerrar Sesión",
-        "selectLanguage": "Seleccionar Idioma"
+        "selectLanguage": "Seleccionar Idioma",
+        "installApp": "Instalar Aplicación"
     },
     "ExerciseList": {
         "title": "Biblioteca",
