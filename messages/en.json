@@ -1393,7 +1393,10 @@
         "editSet": "Edit Set",
         "weight": "Weight",
         "rpe": "RPE",
-        "set": "Set"
+        "set": "Set",
+        "confirmDeleteSessionTitle": "Delete Session?",
+        "confirmDeleteSessionText": "This action cannot be undone. All progress from this workout will be permanently removed.",
+        "confirmDeleteSessionButton": "Yes, delete it"
     },
     "DrawerWorkoutExerciseAdd": {
         "successTitle": "Success!",

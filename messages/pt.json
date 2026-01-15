@@ -1393,7 +1393,10 @@
         "editSet": "Editar Série",
         "weight": "Peso",
         "rpe": "RPE",
-        "set": "Série"
+        "set": "Série",
+        "confirmDeleteSessionTitle": "Excluir Sessão?",
+        "confirmDeleteSessionText": "Esta ação não pode ser desfeita. Todo o progresso deste treino será removido permanentemente.",
+        "confirmDeleteSessionButton": "Sim, excluir"
     },
     "DrawerWorkoutExerciseAdd": {
         "successTitle": "Sucesso!",
