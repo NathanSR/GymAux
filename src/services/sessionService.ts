@@ -30,11 +30,11 @@ export const SessionService = {
             text: "Você tem um treino em andamento. Vamos voltar?",
             icon: 'info',
             showCancelButton: true,
-            showDenyButton: true, // Adicionado botão para deletar caso queira desistir
+            // showDenyButton: true, // Adicionado botão para deletar caso queira desistir
             confirmButtonColor: '#22c55e',
-            denyButtonColor: '#ef4444',
+            // denyButtonColor: '#ef4444',
             confirmButtonText: 'Continuar!',
-            denyButtonText: 'Descartar Treino',
+            // denyButtonText: 'Descartar Treino',
             cancelButtonText: 'Agora não',
             background: theme === 'dark' ? '#18181b' : '#ffffff',
             color: theme === 'dark' ? '#f4f4f5' : '#18181b',
@@ -42,11 +42,12 @@ export const SessionService = {
             if (result.isConfirmed) {
                 await this.resumeSession(sessionId); // Atualiza referencial de tempo
                 router.push(`/session/${sessionId}`);
-            } else if (result.isDenied) {
-                // Caso o usuário queira apagar a sessão velha e começar de novo
-                await this.deleteSession(sessionId);
-                Swal.fire('Deletado!', 'A sessão foi descartada.', 'success');
-            }
+            } 
+            // else if (result.isDenied) {
+            //     // Caso o usuário queira apagar a sessão velha e começar de novo
+            //     await this.deleteSession(sessionId);
+            //     Swal.fire('Deletado!', 'A sessão foi descartada.', 'success');
+            // }
         });
     },
 

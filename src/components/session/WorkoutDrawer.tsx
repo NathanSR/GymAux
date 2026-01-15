@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, TouchSensor } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import { X, Plus, Save, Dumbbell, ChevronDown, GripVertical, History, CheckCircle2 } from "lucide-react";
+import { X, Plus, Save, Dumbbell, ChevronDown, GripVertical, History, CheckCircle2, Trash2 } from "lucide-react";
 import { useForm } from 'react-hook-form';
 import { DraggableExerciseItem } from './DraggableExerciseItem';
 import { Session } from '@/config/types';
@@ -10,6 +10,8 @@ import Swal from 'sweetalert2';
 import { useTranslations } from 'next-intl';
 import { useTheme } from '@/context/ThemeContext';
 import { ExerciseSelector } from '../exercises/ExerciseSelector';
+import { SessionService } from '@/services/sessionService';
+import { useRouter } from '@/i18n/routing';
 
 interface WorkoutDrawerProps {
     showPreview: boolean;
@@ -24,6 +26,7 @@ export const WorkoutDrawer = ({ showPreview, onClose, session, setSession, syncS
     const t = useTranslations('WorkoutDrawer');
     const te = useTranslations('Exercises');
     const { theme } = useTheme();
+    const router = useRouter();
 
     // Novo estado para controlar as abas
     const [activeTab, setActiveTab] = useState<'todo' | 'done'>('todo');
@@ -140,6 +143,27 @@ export const WorkoutDrawer = ({ showPreview, onClose, session, setSession, syncS
         onClose();
     };
 
+    const onConfirmDeleteSession = () => {
+        Swal.fire({
+            title: t('confirmDeleteSessionTitle'),
+            text: t('confirmDeleteSessionText'),
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ef4444',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: t('confirmDeleteSessionButton'),
+            cancelButtonText: t('cancelButton'),
+            background: theme === 'dark' ? '#18181b' : '#ffffff',
+            color: theme === 'dark' ? '#ffffff' : '#18181b',
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                await SessionService.deleteSession(session.id as number);
+                router.push('/home');
+                onClose();
+            }
+        });
+    }
+
     if (!showPreview) return null;
 
     return (
@@ -167,6 +191,10 @@ export const WorkoutDrawer = ({ showPreview, onClose, session, setSession, syncS
                     </div>
 
                     <div className="flex gap-2">
+                        <button onClick={onConfirmDeleteSession} className="p-3 rounded-xl bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all cursor-pointer"
+                        >
+                            <Trash2 size={20} />
+                        </button>
                         {activeTab === 'todo' && (
                             <button onClick={handleOpenAdd} className="p-3 bg-lime-400 rounded-2xl text-zinc-950 active:scale-95 shadow-lg shadow-lime-400/20">
                                 <Plus size={20} />
