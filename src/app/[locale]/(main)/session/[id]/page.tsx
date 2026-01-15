@@ -70,6 +70,23 @@ export default function SessionPage() {
     }, [session?.current.setIndex]);
 
 
+    // Evita o back button
+    useEffect(() => {
+        window.history.pushState(null, '', window.location.href);
+
+        const handleBackButton = (event: PopStateEvent) => {
+            event.preventDefault();
+            if (session?.id) SessionService.onExitSession(session.id, router, theme);
+            window.history.pushState(null, '', window.location.href);
+        };
+
+        window.addEventListener('popstate', handleBackButton);
+
+        return () => {
+            window.removeEventListener('popstate', handleBackButton);
+        };
+    }, [session?.id, router, theme]);
+
 
     const synchronizeProgress = async () => {
         if (!session) return;

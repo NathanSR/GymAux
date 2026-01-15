@@ -65,7 +65,7 @@ export const SessionService = {
         }).then(async (result) => {
             if (result.isConfirmed) {
                 await this.pauseSession(sessionId); // Salva o tempo e marca pause
-                router.back();
+                router.push('/home');
             }
         });
     },
