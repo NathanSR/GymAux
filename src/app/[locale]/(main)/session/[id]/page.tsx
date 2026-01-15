@@ -221,19 +221,19 @@ export default function SessionPage() {
                     <ChevronLeft size={20} />
                 </button>
 
-                <div className="text-center group cursor-default">
-                    <h1 className="font-black text-zinc-500 uppercase text-[10px] tracking-[0.3em] truncate max-w-[180px] mb-2 group-hover:text-zinc-300 transition-colors">
+                <div className="group cursor-default w-full">
+                    <h1 className="font-black w-full text-center text-zinc-500 uppercase text-sm tracking-[0.3em] truncate mb-2 group-hover:text-zinc-300 transition-colors">
                         {session.workoutName}
                     </h1>
-                    <div className="flex items-center justify-center gap-1.5">
+                    <div className="flex items-center justify-center gap-1.5 w-full">
                         {Array.from({ length: currentExercise?.sets || 0 }).map((_, i) => (
                             <div
                                 key={i}
-                                className={`h-1.5 rounded-full transition-all duration-700 ease-out ${i < session.current.setIndex
-                                    ? 'bg-lime-400 w-6'
+                                className={`h-1.5 max-w-6 w-full rounded-full transition-all duration-700 ease-out ${i < session.current.setIndex
+                                    ? 'bg-lime-400'
                                     : i === session.current.setIndex
-                                        ? 'bg-white w-6 shadow-[0_0_15px_rgba(255,255,255,0.6)] animate-pulse'
-                                        : 'bg-zinc-800 w-6'
+                                        ? 'bg-white shadow-[0_0_15px_rgba(255,255,255,0.6)] animate-pulse'
+                                        : 'bg-zinc-800'
                                     }`}
                             />
                         ))}
