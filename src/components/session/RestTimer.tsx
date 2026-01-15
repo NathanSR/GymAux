@@ -47,7 +47,7 @@ export const RestTimer = ({ seconds, onFinish }: RestTimerProps) => {
     const isEnding = timeLeft <= 3 && timeLeft > 0;
 
     return (
-        <div className="flex flex-col items-center justify-center p-8 animate-in fade-in duration-700">
+        <div className="overflow-x-hidden flex flex-col items-center justify-center p-8 animate-in fade-in duration-700">
             <div className="relative flex items-center justify-center mb-12">
 
                 {/* Efeito de Ondas de Choque (apenas nos últimos 3 segundos) */}
