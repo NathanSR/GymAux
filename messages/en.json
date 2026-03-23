@@ -1,4 +1,32 @@
 {
+    "Auth": {
+        "titleLogin": "Access GymAux",
+        "titleRegister": "Create Account",
+        "descriptionLogin": "Your local data will be migrated automatically.",
+        "descriptionRegister": "Start your journey with the perfect aid.",
+        "emailLabel": "Email",
+        "nameLabel": "Full Name",
+        "passwordLabel": "Password",
+        "confirmPasswordLabel": "Confirm Password",
+        "loginButton": "Sign In",
+        "registerButton": "Create now",
+        "processing": "Processing...",
+        "syncing": "Syncing...",
+        "noAccount": "Don't have an account? Create one",
+        "hasAccount": "Already have an account? Sign In",
+        "emailPlaceholder": "your@email.com",
+        "namePlaceholder": "Your name",
+        "passwordPlaceholder": "••••••••",
+        "confirmPasswordPlaceholder": "••••••••",
+        "confirmEmail": "Confirm your email to continue!",
+        "synced": "Data Synced!",
+        "redirecting": "Taking you to the app...",
+        "errors": {
+            "mismatch": "Passwords do not match",
+            "required": "This field is required",
+            "invalidEmail": "Invalid email"
+        }
+    },
     "Common": {
         "welcome": "Welcome to your workout",
         "selectUser": "Select a profile"
