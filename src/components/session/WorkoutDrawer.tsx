@@ -157,7 +157,7 @@ export const WorkoutDrawer = ({ showPreview, onClose, session, setSession, syncS
             color: theme === 'dark' ? '#ffffff' : '#18181b',
         }).then(async (result) => {
             if (result.isConfirmed) {
-                await SessionService.deleteSession(session.id as number);
+                await SessionService.deleteSession(session.id!);
                 router.push('/home');
                 onClose();
             }

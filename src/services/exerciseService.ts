@@ -1,22 +1,43 @@
-import { db } from '@/config/db';
+import { createClient } from '@/lib/supabase/client';
 import { Exercise } from '@/config/types';
+
+const supabase = createClient();
+
+const mapExerciseFromSupabase = (ex: any): Exercise => ({
+    id: ex.id,
+    name: ex.name,
+    description: ex.description || undefined,
+    category: ex.category as any,
+    tags: ex.tags || [],
+    howTo: ex.how_to || undefined,
+    mediaUrl: ex.media_url || undefined,
+    level: ex.level as any,
+});
 
 export const ExerciseService = {
     // Buscar todos
     async getAllExercises(searchQuery = '', category = 'all', translations?: { te: any, tt: any }) {
-        let exercises = await db.exercises.toArray();
+        let query = supabase.from('exercises').select('*');
 
-        // 1. Filtro por Categoria (sempre aplicado se não for 'all')
+        // 1. Filtro por Categoria
         if (category !== 'all') {
-            exercises = exercises.filter(ex => ex.category === category);
+            query = query.eq('category', category);
         }
 
-        // 2. Filtro de Texto (Nome ou Tag)
+        const { data, error } = await query;
+
+        if (error) {
+            console.error('Error fetching exercises:', error);
+            return [];
+        }
+
+        let exercises = (data || []).map(mapExerciseFromSupabase);
+
+        // 2. Filtro de Texto (Nome ou Tag) - Done in JS for now to support translations and complex tag logic
         if (searchQuery.trim() && translations) {
             const { te, tt } = translations;
             const isTagSearch = searchQuery.startsWith('#');
 
-            // Remove o '#' e espaços para a comparação
             const cleanQuery = isTagSearch
                 ? searchQuery.substring(1).toLowerCase().trim()
                 : searchQuery.toLowerCase().trim();
@@ -24,13 +45,11 @@ export const ExerciseService = {
             if (cleanQuery.length > 0) {
                 exercises = exercises.filter(ex => {
                     if (isTagSearch) {
-                        // FILTRAR APENAS POR TAGS
                         return ex.tags?.some(tag => {
                             const translatedTag = tt.has(tag) ? tt(tag).toLowerCase() : tag.toLowerCase();
                             return translatedTag.includes(cleanQuery);
                         });
                     } else {
-                        // FILTRAR APENAS POR NOME
                         const translatedName = te.has(ex.name) ? te(ex.name).toLowerCase() : ex.name.toLowerCase();
                         return translatedName.includes(cleanQuery);
                     }
@@ -43,47 +62,98 @@ export const ExerciseService = {
 
     // Buscar por ID
     async getExerciseById(id: number) {
-        return await db.exercises.get(id);
+        const { data, error } = await supabase
+            .from('exercises')
+            .select('*')
+            .eq('id', id)
+            .maybeSingle();
+
+        if (error) {
+            console.error('Error fetching exercise by ID:', error);
+            return null;
+        }
+
+        return data ? mapExerciseFromSupabase(data) : null;
     },
 
-    // Criar novo com regras de negócio
-    async createExercise(exerciseData: Omit<Exercise, 'id' | 'createdAt'>) {
-        // Exemplo de regra de negócio: Garantir que o nome esteja capitalizado
+    // Criar novo
+    async createExercise(exerciseData: Omit<Exercise, 'id'>) {
         const formattedName = exerciseData.name.trim();
 
         if (formattedName.length < 2) {
             throw new Error("Name too short");
         }
 
-        return await db.exercises.add({
-            ...exerciseData,
-            name: formattedName,
-            description: exerciseData.description?.trim(),
-            mediaUrl: exerciseData.mediaUrl?.trim() || undefined,
-            category: exerciseData.category,
-            tags: exerciseData.tags,
-        });
+        const { data, error } = await supabase
+            .from('exercises')
+            .insert({
+                name: formattedName,
+                description: exerciseData.description?.trim(),
+                how_to: exerciseData.howTo,
+                media_url: exerciseData.mediaUrl?.trim() || null,
+                category: exerciseData.category,
+                tags: exerciseData.tags,
+                level: exerciseData.level,
+                created_by_type: 'user',
+            })
+            .select()
+            .single();
+
+        if (error) {
+            throw error;
+        }
+
+        return mapExerciseFromSupabase(data);
     },
 
-    async updateExercise(id: number, updateData: Partial<Omit<Exercise, 'id' | 'createdAt'>>) {
-
+    async updateExercise(id: number, updateData: Partial<Omit<Exercise, 'id'>>) {
+        // Business rule: system exercises (id < 1000) cannot be updated by users
         if (id < 1000) {
-            throw new Error("Invalid ID");
+            throw new Error("Cannot update system exercises");
         }
-        // Exemplo de regra de negócio: Não permitir atualização para nome vazio
+
+        const updates: any = {};
         if (updateData.name !== undefined) {
             const formattedName = updateData.name.trim();
-
             if (formattedName.length < 2) {
                 throw new Error("Name too short");
             }
+            updates.name = formattedName;
+        }
+        if (updateData.description !== undefined) updates.description = updateData.description.trim();
+        if (updateData.howTo !== undefined) updates.how_to = updateData.howTo;
+        if (updateData.mediaUrl !== undefined) updates.media_url = updateData.mediaUrl.trim() || null;
+        if (updateData.category !== undefined) updates.category = updateData.category;
+        if (updateData.tags !== undefined) updates.tags = updateData.tags;
+        if (updateData.level !== undefined) updates.level = updateData.level;
+
+        const { data, error } = await supabase
+            .from('exercises')
+            .update(updates)
+            .eq('id', id)
+            .select()
+            .single();
+
+        if (error) {
+            throw error;
         }
 
-        return await db.exercises.update(id, updateData);
+        return mapExerciseFromSupabase(data);
     },
 
     // Deletar exercicio
-    async deleteExerciseById(id: number) {
-        return await db.exercises.delete(id);
+    async deleteExercise(id: number) {
+        if (id < 1000) {
+            throw new Error("Cannot delete system exercises");
+        }
+
+        const { error } = await supabase
+            .from('exercises')
+            .delete()
+            .eq('id', id);
+
+        if (error) {
+            throw error;
+        }
     }
 };

@@ -22,7 +22,13 @@ export default function EditProfilePage() {
 
         setIsSaving(true);
         try {
-            await userService.updateUser(activeUser.id, data);
+            await userService.updateUser(activeUser.id, {
+                name: data.name,
+                avatar: data.avatar,
+                weight: Number(data.weight),
+                height: Number(data.height),
+                goal: data.goal,
+            });
             toast.success(t('success')); // Traduzido
         } catch (error) {
             toast.error(t('error')); // Traduzido

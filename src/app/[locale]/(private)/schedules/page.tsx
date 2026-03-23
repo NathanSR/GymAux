@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
     Plus,
     Search,
@@ -12,12 +12,12 @@ import {
     CheckCircle2,
     XCircle
 } from 'lucide-react';
-import { useLiveQuery } from 'dexie-react-hooks';
 import { useSession } from '@/hooks/useSession';
 import { useRouter } from '@/i18n/routing';
 import { ScheduleService } from '@/services/scheduleService';
 import { useTranslations } from 'next-intl';
 import moment from 'moment';
+import { Schedule } from '@/config/types';
 
 export default function SchedulesPage() {
     const router = useRouter();
@@ -25,16 +25,30 @@ export default function SchedulesPage() {
     const [searchQuery, setSearchQuery] = useState('');
 
     const { activeUser } = useSession();
+    const [schedules, setSchedules] = useState<Schedule[]>([]);
+    const [loading, setLoading] = useState(true);
 
-    // Busca os cronogramas (schedules) do usuário
-    const schedules = useLiveQuery(() =>
-        ScheduleService.getSchedulesByUserId(activeUser?.id ?? -1),
-        [activeUser?.id]) || [];
+    useEffect(() => {
+        const fetchSchedules = async () => {
+            if (!activeUser?.id) return;
+            setLoading(true);
+            try {
+                const list = await ScheduleService.getSchedulesByUserId(activeUser.id);
+                setSchedules(list);
+            } catch (error) {
+                console.error("Error fetching schedules:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchSchedules();
+    }, [activeUser?.id]);
 
     // Filtro de Cronogramas
     const filteredSchedules = useMemo(() => {
         return schedules?.filter(item => {
-            const name = item?.name || t('defaultName', { id: item.id as number });
+            const name = item?.name || t('defaultName', { id: item.id?.substring(0, 8) as string });
             return name.toLowerCase().includes(searchQuery.toLowerCase());
         }) || [];
     }, [searchQuery, schedules, t]);
@@ -99,7 +113,7 @@ export default function SchedulesPage() {
                                     </div>
 
                                     <h3 className="text-xl font-black leading-tight uppercase tracking-tight">
-                                        {schedule.name || t('defaultName', { id: schedule.id as number })}
+                                        {schedule.name || t('defaultName', { id: schedule.id?.substring(0, 8) as string })}
                                     </h3>
                                 </div>
 

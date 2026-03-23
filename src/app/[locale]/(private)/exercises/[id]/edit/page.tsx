@@ -23,6 +23,7 @@ export default function EditExercisePage() {
 
     useEffect(() => {
         const fetchExercise = async () => {
+            if (!id) return;
             const data: any = await ExerciseService.getExerciseById(Number(id));
             if (data) {
                 // Converte array de tags em string para o formulário se necessário
@@ -74,7 +75,7 @@ export default function EditExercisePage() {
         }).then(async (result) => {
             if (result.isConfirmed) {
                 try {
-                    await ExerciseService.deleteExerciseById(Number(id));
+                    await ExerciseService.deleteExercise(Number(id));
                     router.push('/exercises');
                 } catch (error) {
                     console.error("Erro ao deletar:", error);

@@ -1,8 +1,8 @@
-'use client';
+import { useEffect, useState } from "react";
 import { ExerciseService } from "@/services/exerciseService";
-import { useLiveQuery } from "dexie-react-hooks";
 import { X, Play } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { Exercise } from "@/config/types";
 
 interface ExerciseInstructionModalProps {
     isOpen: boolean;
@@ -14,7 +14,16 @@ export const ExerciseInstructionModal = ({ isOpen, onClose, exerciseId }: Exerci
     const t = useTranslations('ExerciseInstructionModal');
     const te = useTranslations('Exercises');
 
-    const exercise = useLiveQuery(() => ExerciseService.getExerciseById(exerciseId), [exerciseId]);
+    const [exercise, setExercise] = useState<Exercise | null>(null);
+
+    useEffect(() => {
+        const fetchExercise = async () => {
+            if (!exerciseId || !isOpen) return;
+            const data = await ExerciseService.getExerciseById(exerciseId);
+            setExercise(data);
+        };
+        fetchExercise();
+    }, [exerciseId, isOpen]);
 
     if (!isOpen || !exerciseId) return null;
 

@@ -1,65 +1,123 @@
-import { db } from '@/config/db';
+import { createClient } from '@/lib/supabase/client';
 import { History } from '@/config/types';
+import { userService } from './userService';
+
+const supabase = createClient();
+
+const mapHistoryFromSupabase = (h: any): History => ({
+    id: h.id,
+    userId: h.user_id,
+    workoutId: h.workout_id,
+    workoutName: h.workout_name,
+    date: new Date(h.date),
+    endDate: h.end_date ? new Date(h.end_date) : undefined,
+    duration: h.duration ?? undefined,
+    weight: h.weight ?? undefined,
+    description: h.description || undefined,
+    usingCreatine: h.using_creatine ?? undefined,
+    executions: (h.executions || []).map((ex: any) => ({
+        exerciseId: ex.exerciseId,
+        exerciseName: ex.exerciseName,
+        sets: (ex.sets || []).map((s: any) => ({
+            reps: s.reps,
+            weight: s.weight,
+            rpe: s.rpe,
+        })),
+    })),
+});
 
 export const HistoryService = {
     /**
      * Salva a conclusão de um treino no histórico.
      */
     async createWorkout(historyData: Omit<History, 'id'>) {
-        // Validação básica de segurança
-        // if (historyData.executions!.length === 0) {
-        //     throw new Error("Não é possível salvar um treino sem exercícios executados.");
-        // }
+        const { data, error } = await supabase
+            .from('history')
+            .insert({
+                user_id: historyData.userId,
+                workout_id: historyData.workoutId,
+                workout_name: historyData.workoutName,
+                date: (historyData.date || new Date()).toISOString(),
+                end_date: historyData.endDate?.toISOString(),
+                duration: historyData.duration,
+                weight: historyData.weight,
+                description: historyData.description,
+                using_creatine: historyData.usingCreatine,
+                executions: historyData.executions as any,
+            })
+            .select()
+            .single();
 
-        const dataToSave = {
-            ...historyData,
-            date: historyData.date || new Date(),
-        };
+        if (error) {
+            throw error;
+        }
 
-        const id = await db.history.add(dataToSave);
-
-        return { ...dataToSave, id } as History;
+        return mapHistoryFromSupabase(data);
     },
 
     /**
      * Busca todo o histórico de um usuário específico, ordenado pela data mais recente.
      */
-    async getUserHistory(userId: number, page: number = 1, limit: number = 12) {
-        const offset = (page - 1) * limit;
+    async getUserHistory(userId: string, page: number = 1, limit: number = 12) {
+        const from = (page - 1) * limit;
+        const to = from + limit - 1;
 
-        return await db.history
-            .where('userId')
-            .equals(userId)
-            .reverse() // Do mais novo para o mais antigo
-            .offset(offset)
-            .limit(limit)
-            .sortBy('date');
+        const { data, error } = await supabase
+            .from('history')
+            .select('*')
+            .eq('user_id', userId)
+            .order('date', { ascending: false })
+            .range(from, to);
+
+        if (error) {
+            console.error('Error fetching user history:', error);
+            return [];
+        }
+
+        return (data || []).map(mapHistoryFromSupabase);
     },
 
     /**
      * Busca o histórico de um treino específico para ver evolução.
      */
-    async getWorkoutEvolution(userId: number, workoutId: number) {
-        return await db.history
-            .where({ userId, workoutId })
-            .reverse()
-            .sortBy('date');
+    async getWorkoutEvolution(userId: string, workoutId: string) {
+        const { data, error } = await supabase
+            .from('history')
+            .select('*')
+            .eq('user_id', userId)
+            .eq('workout_id', workoutId)
+            .order('date', { ascending: false });
+
+        if (error) {
+            console.error('Error fetching workout evolution:', error);
+            return [];
+        }
+
+        return (data || []).map(mapHistoryFromSupabase);
     },
 
     /**
      * Busca a última execução de um exercício específico. 
-     * Útil para sugerir cargas (carga do treino anterior).
      */
-    async getLastExerciseExecution(userId: number, exerciseId: number) {
-        const history = await db.history
-            .where('userId')
-            .equals(userId)
-            .reverse()
-            .sortBy('date');
+    async getLastExerciseExecution(userId: string, exerciseId: number) {
+        // No Supabase, podemos tentar filtrar no JSONB, mas pela simplicidade (e limitação de volume inicial), 
+        // buscamos os últimos e filtramos no JS.
+        const { data, error } = await supabase
+            .from('history')
+            .select('*')
+            .eq('user_id', userId)
+            .order('date', { ascending: false })
+            .limit(20); // Busca nos últimos 20 treinos
 
-        // Filtra manualmente nas execuções para encontrar o exercício (Dexie não indexa profundamente arrays de objetos)
+        if (error) {
+            console.error('Error fetching last exercise execution:', error);
+            return null;
+        }
+
+        const history = (data || []).map(mapHistoryFromSupabase);
+
         for (const log of history) {
-            const exerciseLog = log.executions!.find(e => e.exerciseId === exerciseId);
+            const exerciseLog = log.executions?.find(e => e.exerciseId === exerciseId);
             if (exerciseLog) return exerciseLog;
         }
 
@@ -69,77 +127,129 @@ export const HistoryService = {
     /**
      * Busca o histórico pendente de um exercício.
      */
-    async getPendingHistory(userId: number) {
-        const history = await db.history
-            .where('userId')
-            .equals(userId)
-            .reverse()
-            .sortBy('date');
-
-        return history[0];
+    async getPendingHistory(userId: string) {
+        const history = await this.getUserHistory(userId, 1, 1);
+        return history[0] || null;
     },
 
     /**
-     * Busca o histórico pendente de um exercício.
+     * Busca o último histórico.
      */
-    async getLastHistory(userId: number) {
-        const history = await db.history
-            .where('userId')
-            .equals(userId)
-            .reverse()
-            .sortBy('date');
-
-        if (history.length === 0) return null;
-
-        return history[0] as History;
+    async getLastHistory(userId: string) {
+        const history = await this.getUserHistory(userId, 1, 1);
+        return history[0] || null;
     },
 
     /**
-     * Calcula estatísticas básicas: Total de treinos realizados.
+     * Calcula estatísticas básicas.
      */
-    async getTotalWorkoutsCount(userId: number) {
-        return await db.history.where('userId').equals(userId).count();
+    async getTotalWorkoutsCount(userId: string) {
+        const { count, error } = await supabase
+            .from('history')
+            .select('*', { count: 'exact', head: true })
+            .eq('user_id', userId);
+
+        if (error) {
+            console.error('Error counting workouts:', error);
+            return 0;
+        }
+
+        return count || 0;
     },
 
     /**
-     * Busca o histórico dentro de um intervalo de datas (para gráficos).
+     * Busca o histórico dentro de um intervalo de datas.
      */
-    async getHistoryByRange(userId: number, startDate: Date, endDate: Date) {
-        return await db.history
-            .where('userId')
-            .equals(userId)
-            .filter(log => log.date >= startDate && log.date <= endDate)
-            .toArray();
+    async getHistoryByRange(userId: string, startDate: Date, endDate: Date) {
+        const { data, error } = await supabase
+            .from('history')
+            .select('*')
+            .eq('user_id', userId)
+            .gte('date', startDate.toISOString())
+            .lte('date', endDate.toISOString());
+
+        if (error) {
+            console.error('Error fetching history by range:', error);
+            return [];
+        }
+
+        return (data || []).map(mapHistoryFromSupabase);
     },
 
     /**
      * Permite deletar um registro do histórico.
      */
-    async deleteHistoryEntry(id: number) {
-        return await db.history.delete(id);
+    async deleteHistoryEntry(id: string) {
+        const { error } = await supabase
+            .from('history')
+            .delete()
+            .eq('id', id);
+
+        if (error) {
+            throw error;
+        }
     },
 
     /**
      * Permite adicionar ou editar uma nota/descrição a um treino já realizado.
      */
-    async updateDescription(id: number, description: string) {
-        return await db.history.update(id, { description });
+    async updateDescription(id: string, description: string) {
+        const { data, error } = await supabase
+            .from('history')
+            .update({ description })
+            .eq('id', id)
+            .select()
+            .single();
+
+        if (error) {
+            throw error;
+        }
+
+        return mapHistoryFromSupabase(data);
     },
 
     /**
      * Atualiza um histórico existente.
      */
-    async updateHistory(id: number, historyData: Partial<History>) {
-        const history = await db.history.get(id);
-        if (!history)
-            throw new Error("Histórico não encontrado.");
+    async updateHistory(id: string, historyData: Partial<History>) {
+        const updates: any = {};
+        if (historyData.weight) updates.weight = historyData.weight;
+        if (historyData.description !== undefined) updates.description = historyData.description;
+        if (historyData.usingCreatine !== undefined) updates.using_creatine = historyData.usingCreatine;
+        if (historyData.duration) updates.duration = historyData.duration;
+        if (historyData.endDate) updates.end_date = historyData.endDate.toISOString();
+        if (historyData.executions) updates.executions = historyData.executions as any;
 
-        if (historyData.weight && historyData.weight > 0)
-            await db.users.update(history.userId, { weight: historyData.weight });
+        // Regra: Atualizar peso do usuário se fornecido
+        if (historyData.weight && historyData.weight > 0) {
+            const entry = await this.getHistoryById(id);
+            if (entry) {
+                await userService.updateUser(entry.userId, { weight: historyData.weight });
+            }
+        }
 
-        return await db.history.update(id, {
-            ...historyData,
-            // Mantém a data de criação original, apenas atualiza o que foi enviado
-        });
+        const { data, error } = await supabase
+            .from('history')
+            .update(updates)
+            .eq('id', id)
+            .select()
+            .single();
+
+        if (error) {
+            throw error;
+        }
+
+        return mapHistoryFromSupabase(data);
     },
+
+    async getHistoryById(id: string) {
+        const { data, error } = await supabase
+            .from('history')
+            .select('*')
+            .eq('id', id)
+            .maybeSingle();
+
+        if (error) return null;
+        return data ? mapHistoryFromSupabase(data) : null;
+    }
 };

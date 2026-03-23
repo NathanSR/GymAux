@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import {
     Save,
@@ -8,9 +9,9 @@ import {
     X,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useLiveQuery } from 'dexie-react-hooks';
 import { useSession } from '@/hooks/useSession';
 import { WorkoutService } from '@/services/workoutService';
+import { Workout } from '@/config/types';
 
 export const ScheduleForm = ({ initialData, onSubmit, isLoading }: { initialData?: any; onSubmit: (data: any) => void; isLoading?: boolean; }) => {
     const t = useTranslations('ScheduleForm');
@@ -18,7 +19,6 @@ export const ScheduleForm = ({ initialData, onSubmit, isLoading }: { initialData
     const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm({
         defaultValues: initialData || {
             name: '',
-            userId: 1,
             workouts: [null, null, null, null, null, null, null],
             startDate: new Date().toISOString().split('T')[0],
             active: true,
@@ -31,15 +31,21 @@ export const ScheduleForm = ({ initialData, onSubmit, isLoading }: { initialData
 
     const handleWorkoutChange = (dayIndex: number, workoutId: string | null) => {
         const newWorkouts = [...currentWorkouts];
-        newWorkouts[dayIndex] = workoutId ? parseInt(workoutId) : null;
+        newWorkouts[dayIndex] = workoutId || null;
         setValue('workouts', newWorkouts);
     };
 
     const { activeUser } = useSession();
+    const [workouts, setWorkouts] = useState<Workout[]>([]);
 
-    const workouts = useLiveQuery(() =>
-        WorkoutService.getWorkoutsByUserId(activeUser?.id || -1),
-        [activeUser?.id]) || [];
+    useEffect(() => {
+        const fetchWorkouts = async () => {
+            if (!activeUser?.id) return;
+            const list = await WorkoutService.getWorkoutsByUserId(activeUser.id);
+            setWorkouts(list);
+        };
+        fetchWorkouts();
+    }, [activeUser?.id]);
 
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-8 animate-in fade-in duration-500">

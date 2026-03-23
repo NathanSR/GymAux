@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
     Play,
     Dumbbell,
@@ -11,11 +11,11 @@ import {
 } from "lucide-react";
 import { ExerciseService } from "@/services/exerciseService";
 import { useParams } from "next/navigation";
-import { useLiveQuery } from "dexie-react-hooks";
 import Loading from "@/app/[locale]/loading";
 import { useRouter } from "@/i18n/routing";
 import { useTranslations } from "next-intl";
 import DrawerWorkoutExerciseAdd from "@/components/workouts/DrawerWorkoutExerciseAdd";
+import { Exercise } from "@/config/types";
 
 
 export default function ExerciseDetailsPage() {
@@ -28,8 +28,24 @@ export default function ExerciseDetailsPage() {
 
     // // Estados do Modal/Drawer
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+    const [exercise, setExercise] = useState<Exercise | null>(null);
+    const [loading, setLoading] = useState(true);
 
-    const exercise = useLiveQuery(() => ExerciseService.getExerciseById(Number(id)), [id]);
+    useEffect(() => {
+        const fetchExercise = async () => {
+            if (!id) return;
+            setLoading(true);
+            try {
+                const data = await ExerciseService.getExerciseById(Number(id));
+                setExercise(data);
+            } catch (error) {
+                console.error("Error fetching exercise details:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchExercise();
+    }, [id]);
 
     // Processamento do texto: Limpa numerações (ex: "1.", "1 -", "1)") e filtra vazios
     const instructions = exercise?.howTo
@@ -39,7 +55,7 @@ export default function ExerciseDetailsPage() {
             .map(p => p.replace(/^\d+[\s.\-)]+/, '').trim()) // Remove "1.", "1-", etc no início
         : [];
 
-    if (!exercise) return <Loading />;
+    if (loading || !exercise) return <Loading />;
 
     return (
         <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white pb-10 transition-colors">

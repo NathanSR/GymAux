@@ -32,11 +32,12 @@ export function CompletedSession({ session }: CompletedSessionProps) {
     const isUsingCreatine = watch('usingCreatine');
 
     const onFinishWorkout = async (data: CompletionFormData) => {
+        if (!session.id) return;
         try {
-            await SessionService.finishSession(session.id as number, {
+            await SessionService.finishSession(session.id, {
                 weight: data.userWeight,
                 description: data.description,
-                usingCreatine: data.usingCreatine // Certifique-se que seu service aceita este campo
+                usingCreatine: data.usingCreatine
             });
             router.push('/home');
         } catch (error) {

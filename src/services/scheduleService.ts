@@ -1,34 +1,85 @@
-import { db } from '@/config/db';
+import { createClient } from '@/lib/supabase/client';
 import { Schedule } from '@/config/types';
+
+const supabase = createClient();
+
+const mapScheduleFromSupabase = (s: any): Schedule => ({
+    id: s.id,
+    name: s.name,
+    userId: s.user_id,
+    workouts: s.workouts as (string | null)[],
+    startDate: new Date(s.start_date),
+    endDate: s.end_date ? new Date(s.end_date) : undefined,
+    active: s.active,
+    lastCompleted: s.last_completed ?? undefined,
+});
 
 export const ScheduleService = {
     /**
      * Busca todos os cronogramas do banco.
      */
     async getAllSchedules() {
-        return await db.schedules.toArray();
+        const { data, error } = await supabase
+            .from('schedules')
+            .select('*');
+
+        if (error) {
+            console.error('Error fetching all schedules:', error);
+            return [];
+        }
+
+        return (data || []).map(mapScheduleFromSupabase);
     },
 
     /**
      * Busca cronogramas de um usuário específico.
      */
-    async getSchedulesByUserId(userId: number) {
-        return await db.schedules.where('userId').equals(userId).toArray();
+    async getSchedulesByUserId(userId: string) {
+        const { data, error } = await supabase
+            .from('schedules')
+            .select('*')
+            .eq('user_id', userId);
+
+        if (error) {
+            console.error('Error fetching schedules by user ID:', error);
+            return [];
+        }
+
+        return (data || []).map(mapScheduleFromSupabase);
     },
 
     /**
      * Busca o cronograma que está marcado como ativo para o usuário.
      */
-    async getActiveSchedule(userId: number) {
-        return await db.schedules
-            .where('userId') // No Dexie, booleanos costumam ser mapeados como 1/0 em índices
-            .equals(userId)
-            .and(schedule => schedule.active)
-            .first();
+    async getActiveSchedule(userId: string) {
+        const { data, error } = await supabase
+            .from('schedules')
+            .select('*')
+            .eq('user_id', userId)
+            .eq('active', true)
+            .maybeSingle();
+
+        if (error) {
+            console.error('Error fetching active schedule:', error);
+            return null;
+        }
+
+        return data ? mapScheduleFromSupabase(data) : null;
     },
 
-    async getScheduleById(id: number) {
-        return await db.schedules.get(id);
+    async getScheduleById(id: string) {
+        const { data, error } = await supabase
+            .from('schedules')
+            .select('*')
+            .eq('id', id)
+            .maybeSingle();
+
+        if (error) {
+            console.error('Error fetching schedule by ID:', error);
+            return null;
+        }
+
+        return data ? mapScheduleFromSupabase(data) : null;
     },
 
     /**
@@ -42,82 +93,124 @@ export const ScheduleService = {
             throw new Error("O nome do cronograma é muito curto.");
         }
 
-        // Validação: O array de treinos deve ter exatamente 7 posições
         if (scheduleData.workouts.length !== 7) {
             throw new Error("O cronograma deve conter exatamente 7 dias (domingo a sábado).");
         }
 
-        // const activeSchedule = await this.getActiveSchedule(scheduleData.userId);
-        // if (scheduleData.active && activeSchedule) {
-        //     throw new Error("Já existe um cronograma ativo para este usuário.");
-        // }
+        // Se for ativo, desativa os outros primeiro
+        if (scheduleData.active) {
+            await supabase
+                .from('schedules')
+                .update({ active: false })
+                .eq('user_id', scheduleData.userId);
+        }
 
-        return await db.transaction('rw', db.schedules, async () => {
-            // Se o novo cronograma for marcado como ativo, desativa os outros do usuário
-            if (scheduleData.active) {
-                await db.schedules
-                    .where('userId')
-                    .equals(scheduleData.userId)
-                    .modify({ active: false });
-            }
-
-            return await db.schedules.add({
-                ...scheduleData,
+        const { data, error } = await supabase
+            .from('schedules')
+            .insert({
                 name: formattedName,
-                lastCompleted: scheduleData.lastCompleted ?? -1 // -1 indica que nenhum foi feito ainda
-            });
-        });
+                user_id: scheduleData.userId,
+                workouts: scheduleData.workouts as any,
+                start_date: scheduleData.startDate.toISOString(),
+                end_date: scheduleData.endDate?.toISOString(),
+                active: scheduleData.active,
+                last_completed: scheduleData.lastCompleted ?? -1,
+            })
+            .select()
+            .single();
+
+        if (error) {
+            throw error;
+        }
+
+        return mapScheduleFromSupabase(data);
     },
 
     /**
      * Atualiza o progresso do cronograma (qual foi o último treino concluído).
      */
-    async updateProgress(id: number, workoutIndex: number) {
+    async updateProgress(id: string, workoutIndex: number) {
         if (workoutIndex < 0 || workoutIndex > 6) {
             throw new Error("Índice de dia inválido (deve ser entre 0 e 6).");
         }
 
-        return await db.schedules.update(id, {
-            lastCompleted: workoutIndex
-        });
+        const { data, error } = await supabase
+            .from('schedules')
+            .update({ last_completed: workoutIndex })
+            .eq('id', id)
+            .select()
+            .single();
+
+        if (error) {
+            throw error;
+        }
+
+        return mapScheduleFromSupabase(data);
     },
 
     /**
-         * Atualiza um cronograma existente.
-         */
-    async updateSchedule(id: number, scheduleData: Partial<Schedule>) {
-        const schedule = await db.schedules.get(id);
-        if (!schedule) throw new Error("Cronograma não encontrado.");
+     * Atualiza um cronograma existente.
+     */
+    async updateSchedule(id: string, scheduleData: Partial<Schedule>) {
+        const updates: any = {};
+        if (scheduleData.name) updates.name = scheduleData.name.trim();
+        if (scheduleData.userId) updates.user_id = scheduleData.userId;
+        if (scheduleData.workouts) updates.workouts = scheduleData.workouts;
+        if (scheduleData.startDate) updates.start_date = scheduleData.startDate.toISOString();
+        if (scheduleData.endDate) updates.end_date = scheduleData.endDate.toISOString();
+        if (scheduleData.active !== undefined) updates.active = scheduleData.active;
+        if (scheduleData.lastCompleted !== undefined) updates.last_completed = scheduleData.lastCompleted;
 
-        return await db.schedules.update(id, {
-            ...scheduleData,
-            // Mantém a data de criação original, apenas atualiza o que foi enviado
-        });
+        const { data, error } = await supabase
+            .from('schedules')
+            .update(updates)
+            .eq('id', id)
+            .select()
+            .single();
+
+        if (error) {
+            throw error;
+        }
+
+        return mapScheduleFromSupabase(data);
     },
 
     /**
      * Ativa um cronograma específico e desativa todos os outros do mesmo usuário.
      */
-    async setActiveSchedule(id: number, userId: number) {
-        return await db.transaction('rw', db.schedules, async () => {
-            // Desativa todos
-            await db.schedules
-                .where('userId')
-                .equals(userId)
-                .modify({ active: false });
+    async setActiveSchedule(id: string, userId: string) {
+        // Desativa todos
+        await supabase
+            .from('schedules')
+            .update({ active: false })
+            .eq('user_id', userId);
 
-            // Ativa o selecionado
-            return await db.schedules.update(id, { active: true });
-        });
+        // Ativa o selecionado
+        const { data, error } = await supabase
+            .from('schedules')
+            .update({ active: true })
+            .eq('id', id)
+            .select()
+            .single();
+
+        if (error) {
+            throw error;
+        }
+
+        return mapScheduleFromSupabase(data);
     },
 
     /**
      * Remove um cronograma.
      */
-    async deleteSchedule(id: number) {
-        const exists = await db.schedules.get(id);
-        if (!exists) throw new Error("Cronograma não encontrado.");
+    async deleteSchedule(id: string) {
+        const { error } = await supabase
+            .from('schedules')
+            .delete()
+            .eq('id', id);
 
-        return await db.schedules.delete(id);
+        if (error) {
+            throw error;
+        }
     }
 };

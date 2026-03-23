@@ -6,13 +6,13 @@ import { useRouter } from '@/i18n/routing';
 import { useTranslations } from 'next-intl';
 import WorkoutForm from '@/components/workouts/WorkoutForm';
 import { useParams } from 'next/navigation';
-import { useLiveQuery } from 'dexie-react-hooks';
 import { ExerciseService } from '@/services/exerciseService';
 import { WorkoutService } from '@/services/workoutService';
 import Swal from 'sweetalert2';
 import { useTheme } from '@/context/ThemeContext';
 import { toast } from 'react-toastify';
 import Loading from '@/app/[locale]/loading';
+import { Exercise, Workout } from '@/config/types';
 
 export default function EditWorkoutPage() {
     const { theme } = useTheme();
@@ -22,33 +22,37 @@ export default function EditWorkoutPage() {
     // Namespace solicitado: WorkoutEdit
     const t = useTranslations('WorkoutEdit');
 
-    const [workout, setWorkout] = useState(null);
+    const [workout, setWorkout] = useState<Workout | null>(null);
     const [isSaving, setIsSaving] = useState(false);
-
-    // Procurar exercícios disponíveis para o formulário
-    const availableExercises = useLiveQuery(() => ExerciseService.getAllExercises()) || [];
+    const [availableExercises, setAvailableExercises] = useState<Exercise[]>([]);
 
     useEffect(() => {
-        const fetchWorkout = async () => {
+        const loadData = async () => {
+            if (!id) return;
             try {
-                const data: any = await WorkoutService.getWorkoutById(Number(id));
-                if (data) {
-                    setWorkout(data);
+                const [workoutData, exercisesData] = await Promise.all([
+                    WorkoutService.getWorkoutById(id as string),
+                    ExerciseService.getAllExercises()
+                ]);
+
+                if (workoutData) {
+                    setWorkout(workoutData);
+                    setAvailableExercises(exercisesData);
                 } else {
                     router.push('/workouts');
                 }
             } catch (error) {
-                console.error("Erro ao carregar treino:", error);
+                console.error("Erro ao carregar dados do treino:", error);
                 router.push('/workouts');
             }
         };
-        fetchWorkout();
+        loadData();
     }, [id, router]);
 
     const handleUpdate = async (data: any) => {
         setIsSaving(true);
         try {
-            await WorkoutService.updateWorkout(Number(id), {
+            await WorkoutService.updateWorkout(id as string, {
                 ...data,
                 updatedAt: new Date()
             });
@@ -77,7 +81,7 @@ export default function EditWorkoutPage() {
         }).then(async (result) => {
             if (result.isConfirmed) {
                 try {
-                    await WorkoutService.deleteWorkout(Number(id));
+                    await WorkoutService.deleteWorkout(id as string);
                     router.push('/workouts');
                 } catch (error) {
                     console.error("Erro ao deletar:", error);

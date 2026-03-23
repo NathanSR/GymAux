@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
     Play,
     Trophy,
@@ -12,9 +12,8 @@ import {
     CheckCircle2,
     Bed,
 } from 'lucide-react';
-import { useTranslations, useLocale } from 'next-intl'; // Importado useLocale
+import { useTranslations, useLocale } from 'next-intl';
 import { useSession } from '@/hooks/useSession';
-import { useLiveQuery } from 'dexie-react-hooks';
 import { useRouter } from '@/i18n/routing';
 import { ScheduleService } from '@/services/scheduleService';
 import { WorkoutService } from '@/services/workoutService';
@@ -24,15 +23,15 @@ import { SessionService } from '@/services/sessionService';
 import { MenuTab } from '@/components/MenuTab';
 import ProfileMenu from '@/components/home/ProfileMenu';
 import Loading from '@/app/[locale]/loading';
-import { Workout } from '@/config/types';
+import { Workout, Schedule, History, Session } from '@/config/types';
 import { formatDuration, getRelativeTime } from '@/utils/dateUtil';
 
 export default function HomePage() {
     const t = useTranslations('Home');
     const te = useTranslations('Exercises');
-    const locale = useLocale(); // Detecta o idioma atual (pt, en, es)
+    const locale = useLocale();
     const router = useRouter();
-    const { activeUser, loading } = useSession();
+    const { activeUser, loading: sessionLoading } = useSession();
 
     const today = moment().toDate();
     const dayOfWeek = moment().day();
@@ -40,56 +39,70 @@ export default function HomePage() {
     const endTodayDate = moment().endOf('day').toDate();
 
     const [showProfileMenu, setShowProfileMenu] = useState(false);
+    const [activeSchedule, setActiveSchedule] = useState<Schedule | null>(null);
+    const [todayWorkout, setTodayWorkout] = useState<Workout | null>(null);
+    const [todayHistory, setTodayHistory] = useState<History | null>(null);
+    const [historyList, setHistoryList] = useState<History[]>([]);
+    const [sessionList, setSessionList] = useState<Session[]>([]);
+    const [loading, setLoading] = useState(true);
 
-    const activeSchedule = useLiveQuery(() =>
-        ScheduleService.getActiveSchedule(activeUser?.id ?? -1),
-        [activeUser?.id]
-    );
+    useEffect(() => {
+        const loadHomeData = async () => {
+            if (!activeUser?.id) return;
 
-    const todayWorkout = useLiveQuery(() =>
-        WorkoutService.getWorkoutById(activeSchedule?.workouts?.[dayOfWeek] ?? -1),
-        [activeSchedule?.id]
-    );
+            try {
+                const schedule = await ScheduleService.getActiveSchedule(activeUser.id);
+                setActiveSchedule(schedule);
+
+                if (schedule?.workouts?.[dayOfWeek]) {
+                    const workout = await WorkoutService.getWorkoutById(schedule.workouts[dayOfWeek]!);
+                    setTodayWorkout(workout);
+
+                    if (workout?.id) {
+                        const history = await HistoryService.getHistoryByRange(activeUser.id, startTodayDate, endTodayDate);
+                        setTodayHistory(history.find(h => h.workoutId === workout.id) || null);
+                    }
+                }
+
+                const history = await HistoryService.getUserHistory(activeUser.id, 1, 4);
+                setHistoryList(history);
+
+                const sessions = await SessionService.getSessionsByUserId(activeUser.id);
+                setSessionList(sessions);
+            } catch (error) {
+                console.error("Error loading home data:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        if (activeUser) {
+            loadHomeData();
+        } else if (!sessionLoading) {
+            setLoading(false);
+        }
+    }, [activeUser, sessionLoading]);
 
     const estimatedTimeTodayWorkout = formatDuration(
         Math.round(
-            (todayWorkout?.exercises.reduce((acc, exercise) => {
+            (todayWorkout?.exercises?.reduce((acc, exercise) => {
                 const exerciseSeconds = ((exercise.sets * exercise.reps * 2.5) + exercise.restTime) * 1000;
                 return acc + exerciseSeconds;
-            }, 0) || 0) // Converte o total de segundos para milissegundos
+            }, 0) || 0)
         )
     );
-    
-    const todayHistory = useLiveQuery(() =>
-        HistoryService
-            .getHistoryByRange(activeUser?.id ?? -1, startTodayDate, endTodayDate)
-            .then(h => h.find(h => h.workoutId === todayWorkout?.id)),
-        [activeUser?.id, todayWorkout?.id]) || null;
 
-    const historyList = useLiveQuery(() =>
-        HistoryService
-            .getUserHistory(activeUser?.id ?? -1, 1, 4),
-        [activeUser?.id, todayWorkout?.id]) || [];
-
-    const sessionList = useLiveQuery(() =>
-        SessionService
-            .getSessionsByUserId(activeUser?.id ?? -1),
-        [activeUser?.id, todayWorkout?.id]) || [];
-
-    // Data formatada respeitando o locale dinâmico
-    const formattedDate = new Intl.DateTimeFormat(locale, { weekday: 'long', day: 'numeric', month: 'long' }).format(today);
-
-    // Botao Play no MenuTab
     const onPlayWorkout = async () => {
         if (!todayWorkout) return;
 
         const session = sessionList.find(s => s.workoutId === todayWorkout.id);
 
-        if (session) return SessionService.onResumeWorkout(session.id as number, router);
+        if (session) return SessionService.onResumeWorkout(session.id!, router);
         else SessionService.onPlayWorkout(todayWorkout, router)
     }
 
-    if (loading) return <Loading />
+    // Data formatada respeitando o locale dinâmico
+    const formattedDate = new Intl.DateTimeFormat(locale, { weekday: 'long', day: 'numeric', month: 'long' }).format(today);
 
     return (
         <div className="min-h-screen bg-white dark:bg-zinc-950 text-zinc-900 dark:text-white p-6 pb-32 transition-colors duration-300 font-sans">
@@ -200,7 +213,7 @@ export default function HomePage() {
                                     </div>
 
                                     <button
-                                        onClick={() => SessionService.onResumeWorkout(session.id as number, router)}
+                                        onClick={() => SessionService.onResumeWorkout(session.id!, router)}
                                         className="flex items-center justify-center w-10 h-10 bg-zinc-900 dark:bg-lime-400 text-white dark:text-zinc-950 rounded-xl hover:scale-105 transition-transform cursor-pointer shadow-lg"
                                     >
                                         <Play size={18} fill="currentColor" />

@@ -23,10 +23,17 @@ export default function EditSchedulePage() {
 
     useEffect(() => {
         const fetchSchedule = async () => {
+            if (!id) return;
             try {
-                const data: any = await ScheduleService.getScheduleById(Number(id));
+                const data: any = await ScheduleService.getScheduleById(id as string);
                 if (data) {
-                    setInitialData(data);
+                    // Formata datas para o input type="date"
+                    const formattedData = {
+                        ...data,
+                        startDate: data.startDate.toISOString().split('T')[0],
+                        endDate: data.endDate ? data.endDate.toISOString().split('T')[0] : undefined
+                    };
+                    setInitialData(formattedData as any);
                 } else {
                     router.push('/schedules');
                 }
@@ -41,8 +48,10 @@ export default function EditSchedulePage() {
     const handleUpdate = async (data: any) => {
         setLoading(true);
         try {
-            await ScheduleService.updateSchedule(Number(id), {
+            await ScheduleService.updateSchedule(id as string, {
                 ...data,
+                startDate: new Date(data.startDate),
+                endDate: data.endDate ? new Date(data.endDate) : undefined,
                 updatedAt: new Date()
             });
             toast.success(t('editSuccess'));
@@ -69,7 +78,7 @@ export default function EditSchedulePage() {
         }).then(async (result) => {
             if (result.isConfirmed) {
                 try {
-                    await ScheduleService.deleteSchedule(Number(id));
+                    await ScheduleService.deleteSchedule(id as string);
                     router.push('/schedules');
                 } catch (error) {
                     console.error("Error deleting schedule:", error);

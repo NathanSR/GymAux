@@ -1,13 +1,13 @@
 "use client";
 
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { ChevronLeft, Search, Dumbbell, Info, PlayCircle, Plus, Edit, ChevronRight, Eye } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useLiveQuery } from 'dexie-react-hooks';
 import { useRouter } from '@/i18n/routing';
 import { ExerciseService } from '@/services/exerciseService';
 import { useDebounce } from '@/hooks/useDebounce';
 import { CATEGORIES } from '@/config/constants';
+import { Exercise } from '@/config/types';
 
 export default function ExerciseLibraryPage() {
     const router = useRouter();
@@ -15,6 +15,8 @@ export default function ExerciseLibraryPage() {
     // Estados de interface
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('all');
+    const [exercises, setExercises] = useState<Exercise[]>([]);
+    const [loading, setLoading] = useState(true);
 
     // Debounce de 300ms para a busca
     const debouncedSearch = useDebounce(searchQuery, 300);
@@ -27,22 +29,28 @@ export default function ExerciseLibraryPage() {
     const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
     const handleSearchChange = (val: string) => {
-        if (timeoutRef.current) clearTimeout(timeoutRef.current);
-
-        timeoutRef.current = setTimeout(() => {
-            setSearchQuery(val); // Só altera o estado (e re-renderiza) após 500ms
-        }, 500);
+        setSearchQuery(val);
     };
 
     const categories = useMemo(() => {
         return ['all', ...CATEGORIES];
     }, []);
 
-    // A busca agora acontece dentro do useLiveQuery, reagindo ao debouncedSearch e selectedCategory
-    const exercises = useLiveQuery(
-        () => ExerciseService.getAllExercises(debouncedSearch, selectedCategory, { te, tt }),
-        [debouncedSearch, selectedCategory]
-    );
+    useEffect(() => {
+        const fetchExercises = async () => {
+            setLoading(true);
+            try {
+                const list = await ExerciseService.getAllExercises(debouncedSearch, selectedCategory, { te, tt });
+                setExercises(list);
+            } catch (error) {
+                console.error("Error fetching exercises:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchExercises();
+    }, [debouncedSearch, selectedCategory, te, tt]);
 
     return (
         <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white transition-colors duration-300 font-sans pb-10">
@@ -137,7 +145,7 @@ export default function ExerciseLibraryPage() {
                                     </button>
 
                                     {/* Botão Editar - Aparece apenas se for editável (ID >= 1000) */}
-                                    {Number(exercise.id) >= 1000 && (
+                                    {(isNaN(Number(exercise.id)) || Number(exercise.id) >= 1000) && (
                                         <button
                                             onClick={() => router.push(`/exercises/${exercise.id}/edit`)}
                                             className="bg-lime-400 hover:bg-lime-500 text-zinc-950 px-4 py-3 rounded-2xl transition-colors flex items-center justify-center"

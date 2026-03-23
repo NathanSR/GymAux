@@ -4,7 +4,6 @@ import { History } from "@/config/types";
 import { useSession } from "@/hooks/useSession";
 import { useRouter } from "@/i18n/routing";
 import { HistoryService } from "@/services/historyService";
-import { useLiveQuery } from "dexie-react-hooks";
 import { ChevronLeft, ChevronRight, Dumbbell, Search, } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
@@ -21,18 +20,36 @@ export default function HistoryPage() {
     const [workoutData, setWorkoutData] = useState<Record<string, History[]>>({});
 
     const { activeUser } = useSession();
+    const [historyList, setHistoryList] = useState<History[]>([]);
+    const [loading, setLoading] = useState(true);
 
     // Cálculo de range de data simplificado
     const startMonthDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
     const endMonthDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
 
-    const historyList = useLiveQuery(() =>
-        HistoryService.getHistoryByRange(activeUser?.id ?? -1, startMonthDate, endMonthDate),
-        [activeUser?.id, currentDate] // Recarrega ao mudar o mês
-    );
+    useEffect(() => {
+        const fetchHistory = async () => {
+            if (!activeUser?.id) {
+                setHistoryList([]);
+                setLoading(false);
+                return;
+            }
+            setLoading(true);
+            try {
+                const list = await HistoryService.getHistoryByRange(activeUser.id, startMonthDate, endMonthDate);
+                setHistoryList(list);
+            } catch (error) {
+                console.error("Error fetching history:", error);
+                setHistoryList([]);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchHistory();
+    }, [activeUser?.id, currentDate, startMonthDate, endMonthDate]);
 
     useEffect(() => {
-        if (!historyList) return;
         const data: Record<string, History[]> = {};
 
         const filteredHistory = historyList.filter(hist =>

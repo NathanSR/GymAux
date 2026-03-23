@@ -1,26 +1,31 @@
 "use client"
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ChevronLeft } from 'lucide-react';
 import { useRouter } from '@/i18n/routing';
 import { useTranslations } from 'next-intl';
 import WorkoutForm from '@/components/workouts/WorkoutForm';
-import { useLiveQuery } from 'dexie-react-hooks';
 import { useSession } from '@/hooks/useSession';
 import { WorkoutService } from '@/services/workoutService';
 import { ExerciseService } from '@/services/exerciseService';
 import { toast } from 'react-toastify';
+import { Exercise } from '@/config/types';
 
 export default function NewWorkoutPage() {
     const router = useRouter();
-    // Ajustado para o namespace solicitado
     const t = useTranslations('WorkoutRegister');
     const [isLoading, setIsLoading] = useState(false);
+    const [availableExercises, setAvailableExercises] = useState<Exercise[]>([]);
 
     const { activeUser } = useSession();
 
-    // Buscamos os exercícios disponíveis para popular o select no form
-    const availableExercises = useLiveQuery(() => ExerciseService.getAllExercises()) || [];
+    useEffect(() => {
+        const fetchExercises = async () => {
+            const list = await ExerciseService.getAllExercises();
+            setAvailableExercises(list);
+        };
+        fetchExercises();
+    }, []);
 
     const handleCreate = async (data: any) => {
         if (!activeUser) return;

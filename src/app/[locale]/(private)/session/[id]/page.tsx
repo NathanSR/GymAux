@@ -29,7 +29,8 @@ export default function SessionPage() {
     useEffect(() => {
         const fetchSession = async () => {
             try {
-                const data: any = await SessionService.getSessionById(Number(id));
+                if (!id) return;
+                const data: any = await SessionService.getSessionById(id as string);
                 if (data) {
                     setSession(data);
                 } else {
@@ -62,12 +63,12 @@ export default function SessionPage() {
     useEffect(() => {
         // Atualiza peso APENAS na troca de exercício
         setValue("weight", 0);
-    }, [session?.current.exerciseIndex]);
+    }, [session?.current.exerciseIndex, setValue]);
 
     useEffect(() => {
         // Atualiza reps em QUALQUER mudança de série
         setValue("reps", currentExercise?.reps || 0);
-    }, [session?.current.setIndex]);
+    }, [session?.current.setIndex, setValue, currentExercise?.reps]);
 
 
     // Evita o back button
@@ -89,8 +90,8 @@ export default function SessionPage() {
 
 
     const synchronizeProgress = async () => {
-        if (!session) return;
-        await SessionService.syncSessionProgress(session.id as number, { ...session });
+        if (!session?.id) return;
+        await SessionService.syncSessionProgress(session.id, { ...session });
     };
 
     const handleSetCompletion = (formData: any) => {
@@ -215,7 +216,7 @@ export default function SessionPage() {
             {/* HEADER COM ANIMAÇÃO DE ENTRADA */}
             <header className="px-6 pt-12 pb-6 flex items-center justify-between animate-in fade-in slide-in-from-top-4 duration-700">
                 <button
-                    onClick={() => SessionService.onExitSession(session.id as number, router, theme)}
+                    onClick={() => SessionService.onExitSession(session.id as string, router, theme)}
                     className="p-3 rounded-2xl bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-white hover:border-zinc-700 active:scale-90 transition-all duration-300"
                 >
                     <ChevronLeft size={20} />

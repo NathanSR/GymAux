@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
     Plus,
     Search,
@@ -11,13 +11,13 @@ import {
     Info,
     Dumbbell
 } from 'lucide-react';
-import { useLiveQuery } from 'dexie-react-hooks';
 import { useSession } from '@/hooks/useSession';
 import { useRouter } from '@/i18n/routing';
 import { WorkoutService } from '@/services/workoutService';
 import { SessionService } from '@/services/sessionService';
 import { useTheme } from '@/context/ThemeContext';
 import { useTranslations, useLocale } from 'next-intl';
+import { Workout } from '@/config/types';
 
 export default function WorkoutsPage() {
     const { theme } = useTheme();
@@ -27,10 +27,25 @@ export default function WorkoutsPage() {
     const t = useTranslations('WorkoutList');
 
     const { activeUser } = useSession();
+    const [workouts, setWorkouts] = useState<Workout[]>([]);
+    const [loading, setLoading] = useState(true);
 
-    const workouts = useLiveQuery(() =>
-        WorkoutService.getWorkoutsByUserId(activeUser?.id ?? -1),
-        [activeUser?.id]) || [];
+    useEffect(() => {
+        const fetchWorkouts = async () => {
+            if (!activeUser?.id) return;
+            setLoading(true);
+            try {
+                const list = await WorkoutService.getWorkoutsByUserId(activeUser.id);
+                setWorkouts(list);
+            } catch (error) {
+                console.error("Error fetching workouts:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchWorkouts();
+    }, [activeUser?.id]);
 
     // Filtro de Treinos
     const filteredWorkouts = useMemo(() => {
