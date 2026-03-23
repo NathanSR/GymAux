@@ -1457,5 +1457,143 @@
         "iosStep1": "Toque em",
         "iosStep2": "depois em",
         "iosStep3": "\"Tela de Início\""
+    },
+    "Marketing": {
+        "Navbar": {
+            "features": "Funcionalidades",
+            "pricing": "Preços",
+            "faq": "FAQ",
+            "login": "Entrar",
+            "getStarted": "Começar"
+        },
+        "Hero": {
+            "title": "Assuma o Controle do Seu Treino.",
+            "subtitle": "A ferramenta de alta performance para entusiastas e treinadores. Projetada para precisão biométrica e entrada rápida de dados.",
+            "getStarted": "Começar",
+            "freeDemo": "Demo Grátis"
+        },
+        "WhyGymAux": {
+            "title": "POR QUE O GYMAUX?",
+            "subtitle": "Gestão de treino simplificada para sua jornada fitness.",
+            "features": {
+                "boostSeo": {
+                    "title": "Impulsione SEO & Personalize",
+                    "description": "Algoritmos inteligentes que ajudam sua academia a ser encontrada. Personalize sua experiência para seu público único."
+                },
+                "treadPredictor": {
+                    "title": "Preditor de Manutenção",
+                    "description": "Preveja a manutenção e o uso de seus equipamentos. Foque no treino, não no tempo de inatividade da máquina."
+                },
+                "dataDriven": {
+                    "title": "Estatísticas Baseadas em Dados",
+                    "description": "Acompanhe seu histórico completo, gráficos de desempenho e frequência cardíaca. Dados em tempo real, analisados com precisão."
+                }
+            }
+        },
+        "Bento": {
+            "cloudSync": {
+                "title": "Sincronização na Nuvem",
+                "description": "Rápido e confiável. Seus dados sempre em sincronia em todos os dispositivos."
+            },
+            "pwaReady": {
+                "title": "PWA Ready",
+                "description": "Instale diretamente do seu navegador. Use o app offline com todos os recursos."
+            },
+            "trainerManagement": {
+                "badge": "DIPONÍVEL AGORA",
+                "title": "Gestão de Treinadores",
+                "description": "Gerencie seus clientes com controle granular. Atribua treinos, monitore o progresso em tempo real e sugira estabilidade para exercícios modernos."
+            }
+        },
+        "SessionControl": {
+            "title": "CONTROLE DE SESSÃO",
+            "subtitle": "Otimize para estatísticas de desempenho de próximo nível.",
+            "card": {
+                "title": "Domínio do Levantamento Terra",
+                "weight": "PESO (KG)",
+                "reps": "REPS",
+                "checkIn": "CHECK IN",
+                "checkOut": "CHECK OUT"
+            }
+        },
+        "Pricing": {
+            "title": "ESCOLHA SEU PLANO",
+            "subtitle": "Encontre seu nível de manutenção de desempenho.",
+            "plans": {
+                "free": {
+                    "title": "GRÁTIS",
+                    "price": "R$0 /POR MÊS",
+                    "features": [
+                        "Treino Local",
+                        "Biblioteca de 350+ Exercícios",
+                        "Sincronização na Nuvem"
+                    ]
+                },
+                "pro": {
+                    "title": "PRO",
+                    "price": "R$49,90 /POR MÊS",
+                    "features": [
+                        "Tudo no Grátis",
+                        "Sessões Ilimitadas",
+                        "Suporte Prioritário",
+                        "Programas Personalizados"
+                    ],
+                    "badge": "RECOMENDADO"
+                },
+                "trainer": {
+                    "title": "TREINADOR",
+                    "price": "R$129,90 /POR MÊS",
+                    "features": [
+                        "Tudo no Pro",
+                        "Gestão de Alunos (Até 50)",
+                        "Compartilhamento de Stats Profissional"
+                    ]
+                }
+            },
+            "cta": "COMEÇAR AGORA"
+        },
+        "FAQ": {
+            "title": "FAQ",
+            "q1": {
+                "q": "Como começo a construir?",
+                "a": "Basta clicar no botão 'Começar' e criar seu perfil. Nós guiaremos você pela configuração inicial."
+            },
+            "q2": {
+                "q": "O app suporta modo escuro?",
+                "a": "Sim! O GymAux tem um modo escuro premium projetado para foco durante os treinos."
+            },
+            "q3": {
+                "q": "Posso compartilhar com meu treinador?",
+                "a": "Com certeza. Com um plano de Treinador, seu coach pode ver seu progresso e atualizar suas sessões."
+            }
+        },
+        "CTA": {
+            "title": "PRONTO PARA EVOLUIR?",
+            "subtitle": "Junte-se à transição de como você acompanha seus treinos.",
+            "button": "CRIAR SUA CONTA"
+        },
+        "Stats": {
+            "users": "Usuários Ativos",
+            "gyms": "Academias Parceiras",
+            "uptime": "Tempo Online"
+        },
+        "Footer": {
+            "description": "Gestão de academia de alta performance para o atleta digital. Acompanhe seu progresso, alcance suas metas e chegue ao seu potencial máximo.",
+            "platform": {
+                "title": "PLATAFORMA",
+                "features": "Funcionalidades",
+                "pricing": "Preços",
+                "trainerDashboard": "Dashboard do Treinador",
+                "webApp": "Web App"
+            },
+            "company": {
+                "title": "EMPRESA",
+                "support": "Suporte",
+                "privacy": "Política de Privacidade",
+                "terms": "Termos de Serviço",
+                "about": "Sobre"
+            },
+            "rights": "Todos os direitos reservados."
+        }
     }
 }

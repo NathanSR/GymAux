@@ -1457,5 +1457,130 @@
         "iosStep1": "Tap",
         "iosStep2": "then",
         "iosStep3": "\"Add to Home Screen\""
+    },
+    "Marketing": {
+        "Navbar": {
+            "features": "Features",
+            "pricing": "Pricing",
+            "faq": "FAQ",
+            "login": "Login",
+            "getStarted": "Get Started"
+        },
+        "Hero": {
+            "title": "Take Control of Your Workout.",
+            "subtitle": "The high-performance tool for gym enthusiasts and trainers. Engineered for biometric precision and rapid data entry.",
+            "getStarted": "Get Started",
+            "freeDemo": "Free Demo"
+        },
+        "WhyGymAux": {
+            "title": "WHY GYMAUX?",
+            "subtitle": "Gym management simplified for your fitness journey.",
+            "features": {
+                "boostSeo": {
+                    "title": "Boost SEO & Tailor",
+                    "description": "Smart algorithms that help your gym get found. Tailor your gym experience for your unique audience."
+                },
+                "treadPredictor": {
+                    "title": "Tread Predictor",
+                    "description": "Predict maintenance and usage of your equipment. Focus on training, not machine downtime."
+                },
+                "dataDriven": {
+                    "title": "Data-Driven Stats",
+                    "description": "Track your complete training history, performance charts, and heart rate. Real-time data, precisely analyzed."
+                }
+            }
+        },
+        "Bento": {
+            "cloudSync": {
+                "title": "Cloud Sync",
+                "description": "Fast and reliable. Your data always in sync across all devices."
+            },
+            "pwaReady": {
+                "title": "PWA Ready",
+                "description": "Install directly from your browser. Use the app offline with full features."
+            },
+            "trainerManagement": {
+                "badge": "AVAILABLE NOW",
+                "title": "Trainer Management",
+                "description": "Manage your clients with granular control. Assign workouts, monitor progress in real-time, and suggest stability for modern exercises."
+            }
+        },
+        "SessionControl": {
+            "title": "SESSION CONTROL",
+            "subtitle": "Optimize for next level performance stats.",
+            "card": {
+                "title": "Deadlift Mastery",
+                "weight": "WEIGHT (KG)",
+                "reps": "REPS",
+                "checkIn": "CHECK IN",
+                "checkOut": "CHECK OUT"
+            }
+        },
+        "Pricing": {
+            "title": "CHOOSE YOUR TIER",
+            "subtitle": "Find your performance maintenance level.",
+            "plans": {
+                "free": {
+                    "title": "FREE",
+                    "price": "$0 /PER MONTH",
+                    "features": ["Local Training", "350+ Exercises Library", "Cloud Sync"]
+                },
+                "pro": {
+                    "title": "PRO",
+                    "price": "$9.99 /PER MONTH",
+                    "features": ["Everything in Free", "Unlimited Sessions", "Priority Support", "Custom Programs"],
+                    "badge": "RECOMMENDED"
+                },
+                "trainer": {
+                    "title": "TRAINER",
+                    "price": "$24.99 /PER MONTH",
+                    "features": ["Everything in Pro", "Client Management (Up to 50)", "Professional Stats Sharing"]
+                }
+            },
+            "cta": "GET STARTED"
+        },
+        "FAQ": {
+            "title": "FAQ",
+            "q1": {
+                "q": "How do I start building?",
+                "a": "Just click the 'Get Started' button and create your profile. We'll guide you through the initial setup."
+            },
+            "q2": {
+                "q": "Does the app support dark?",
+                "a": "Yes! GymAux has a premium dark mode designed for focus during workouts."
+            },
+            "q3": {
+                "q": "Can I share with my trainer?",
+                "a": "Absolutely. With a Trainer plan, your coach can see your progress and update your sessions."
+            }
+        },
+        "CTA": {
+            "title": "READY TO EVOLVE?",
+            "subtitle": "Join the transition of how you track your workouts.",
+            "button": "CREATE YOUR ACCOUNT"
+        },
+        "Stats": {
+            "users": "Active Users",
+            "gyms": "Gyms Joined",
+            "uptime": "Up Time"
+        },
+        "Footer": {
+            "description": "High-performance gym management for the digital athlete. Track your progress, achieve your goals, and reach your maximum potential.",
+            "platform": {
+                "title": "PLATFORM",
+                "features": "Features",
+                "pricing": "Pricing",
+                "trainerDashboard": "Trainer Dashboard",
+                "webApp": "Web App"
+            },
+            "company": {
+                "title": "COMPANY",
+                "support": "Support",
+                "privacy": "Privacy Policy",
+                "terms": "Terms of Service",
+                "about": "About"
+            },
+            "rights": "All rights reserved."
+        }
     }
 }

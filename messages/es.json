@@ -1429,5 +1429,130 @@
         "iosStep1": "Pulsa",
         "iosStep2": "luego",
         "iosStep3": "\"Añadir a pantalla de inicio\""
+    },
+    "Marketing": {
+        "Navbar": {
+            "features": "Funcionalidades",
+            "pricing": "Precios",
+            "faq": "FAQ",
+            "login": "Login",
+            "getStarted": "Comenzar"
+        },
+        "Hero": {
+            "title": "Tome el control de su entrenamiento.",
+            "subtitle": "La herramienta de alto rendimiento para entusiastas del gimnasio y entrenadores. Diseñada para precisión biométrica y entrada rápida de datos.",
+            "getStarted": "Comenzar",
+            "freeDemo": "Demo Gratuito"
+        },
+        "WhyGymAux": {
+            "title": "POR QUÉ GYMAUX?",
+            "subtitle": "Gestión de gimnasios simplificada para tu viaje fitness.",
+            "features": {
+                "boostSeo": {
+                    "title": "Impulso SEO y Adaptación",
+                    "description": "Algoritmos inteligentes que ayudan a que tu gimnasio sea encontrado. Adapta tu experiencia de gimnasio para tu audiencia única."
+                },
+                "treadPredictor": {
+                    "title": "Predictor de Cintas",
+                    "description": "Predice el mantenimiento y uso de tus equipos. Enfócate en el entrenamiento, no en el tiempo de inactividad de las máquinas."
+                },
+                "dataDriven": {
+                    "title": "Estadísticas basadas en datos",
+                    "description": "Sigue tu historial completo de entrenamiento, gráficos de rendimiento y frecuencia cardíaca. Datos en tiempo real, analizados con precisión."
+                }
+            }
+        },
+        "Bento": {
+            "cloudSync": {
+                "title": "Sincronización en la nube",
+                "description": "Rápido y fiable. Tus datos siempre sincronizados en todos tus dispositivos."
+            },
+            "pwaReady": {
+                "title": "Listo para PWA",
+                "description": "Instala directamente desde tu navegador. Usa la aplicación sin conexión con todas las funciones."
+            },
+            "trainerManagement": {
+                "badge": "DISPONIBLE AHORA",
+                "title": "Gestión de Entrenadores",
+                "description": "Gestiona a tus clientes con control granular. Asigna entrenamientos, monitorea el progreso en tiempo real y sugiere estabilidad para ejercicios modernos."
+            }
+        },
+        "SessionControl": {
+            "title": "CONTROL DE SESIÓN",
+            "subtitle": "Optimiza para estadísticas de rendimiento de siguiente nivel.",
+            "card": {
+                "title": "Maestría en Peso Muerto",
+                "weight": "PESO (KG)",
+                "reps": "REPS",
+                "checkIn": "INICIAR",
+                "checkOut": "FINALIZAR"
+            }
+        },
+        "Pricing": {
+            "title": "ELIGE TU NIVEL",
+            "subtitle": "Encuentra tu nivel de mantenimiento de rendimiento.",
+            "plans": {
+                "free": {
+                    "title": "GRATIS",
+                    "price": "$0 /POR MES",
+                    "features": ["Entrenamiento Local", "Biblioteca de 350+ Ejercicios", "Sincronización en la nube"]
+                },
+                "pro": {
+                    "title": "PRO",
+                    "price": "$9.99 /POR MES",
+                    "features": ["Todo en Gratis", "Sesiones Ilimitadas", "Soporte Prioritario", "Programas Personalizados"],
+                    "badge": "RECOMENDADO"
+                },
+                "trainer": {
+                    "title": "ENTRENADOR",
+                    "price": "$24.99 /POR MES",
+                    "features": ["Todo en Pro", "Gestión de Clientes (Hasta 50)", "Compartir Estadísticas Profesionales"]
+                }
+            },
+            "cta": "COMENZAR"
+        },
+        "FAQ": {
+            "title": "Preguntas Frecuentes",
+            "q1": {
+                "q": "¿Cómo empiezo a construir?",
+                "a": "Solo haz clic en el botón 'Comenzar' y crea tu perfil. Te guiaremos a través de la configuración inicial."
+            },
+            "q2": {
+                "q": "¿La aplicación soporta modo oscuro?",
+                "a": "¡Sí! GymAux tiene un modo oscuro premium diseñado para la concentración durante los entrenamientos."
+            },
+            "q3": {
+                "q": "¿Puedo compartir con mi entrenador?",
+                "a": "Absolutamente. Con un plan de Entrenador, tu coach puede ver tu progreso y actualizar tus sesiones."
+            }
+        },
+        "CTA": {
+            "title": "¿LISTO PARA EVOLUCIONAR?",
+            "subtitle": "Únete a la transición de cómo sigues tus entrenamientos.",
+            "button": "CREA TU CUENTA"
+        },
+        "Stats": {
+            "users": "Usuarios Activos",
+            "gyms": "Gimnasios Unidos",
+            "uptime": "Tiempo de Actividad"
+        },
+        "Footer": {
+            "description": "Gestión de gimnasios de alto rendimiento para el atleta digital. Sigue tu progreso, alcanza tus metas y llega a tu máximo potencial.",
+            "platform": {
+                "title": "PLATAFORMA",
+                "features": "Funcionalidades",
+                "pricing": "Precios",
+                "trainerDashboard": "Panel de Entrenador",
+                "webApp": "Web App"
+            },
+            "company": {
+                "title": "EMPRESA",
+                "support": "Soporte",
+                "privacy": "Política de Privacidad",
+                "terms": "Términos de Servicio",
+                "about": "Acerca de"
+            },
+            "rights": "Todos los derechos reservados."
+        }
     }
 }
