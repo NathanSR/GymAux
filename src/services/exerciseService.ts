@@ -16,24 +16,30 @@ const mapExerciseFromSupabase = (ex: any): Exercise => ({
 
 export const ExerciseService = {
     // Buscar todos
-    async getAllExercises(searchQuery = '', category = 'all', translations?: { te: any, tt: any }) {
-        let query = supabase.from('exercises').select('*');
+    // Buscar todos com Filtros e Paginação
+    async getAllExercises(
+        searchQuery = '',
+        category = 'all',
+        pagination: { page: number; limit: number },
+        translations?: { te: any, tt: any }
+    ) {
+        let query = supabase.from('exercises').select('*', { count: 'exact' });
 
-        // 1. Filtro por Categoria
+        // 1. Filtro por Categoria (SQL)
         if (category !== 'all') {
             query = query.eq('category', category);
         }
 
-        const { data, error } = await query;
+        const { data, count, error } = await query;
 
         if (error) {
             console.error('Error fetching exercises:', error);
-            return [];
+            return { exercises: [], totalCount: 0 };
         }
 
         let exercises = (data || []).map(mapExerciseFromSupabase);
 
-        // 2. Filtro de Texto (Nome ou Tag) - Done in JS for now to support translations and complex tag logic
+        // 2. Filtro de Texto (Nome ou Tag) - No JS para suportar traduções
         if (searchQuery.trim() && translations) {
             const { te, tt } = translations;
             const isTagSearch = searchQuery.startsWith('#');
@@ -57,7 +63,17 @@ export const ExerciseService = {
             }
         }
 
-        return exercises;
+        const totalCount = exercises.length;
+
+        // 3. Paginação (JS)
+        const from = (pagination.page - 1) * pagination.limit;
+        const to = from + pagination.limit;
+        const paginatedExercises = exercises.slice(from, to);
+
+        return {
+            exercises: paginatedExercises,
+            totalCount: totalCount
+        };
     },
 
     // Buscar por ID

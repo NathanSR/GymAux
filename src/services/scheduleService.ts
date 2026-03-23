@@ -34,18 +34,34 @@ export const ScheduleService = {
     /**
      * Busca cronogramas de um usuário específico.
      */
-    async getSchedulesByUserId(userId: string) {
-        const { data, error } = await supabase
+    /**
+     * Busca cronogramas de um usuário específico com filtros e paginação.
+     */
+    async getSchedulesByUserId(userId: string, searchQuery = '', pagination: { page: number; limit: number }) {
+        let query = supabase
             .from('schedules')
-            .select('*')
-            .eq('user_id', userId);
+            .select('*', { count: 'exact' })
+            .eq('user_id', userId)
+            .order('created_at', { ascending: false });
+
+        if (searchQuery.trim()) {
+            query = query.ilike('name', `%${searchQuery.trim()}%`);
+        }
+
+        const from = (pagination.page - 1) * pagination.limit;
+        const to = from + pagination.limit - 1;
+
+        const { data, count, error } = await query.range(from, to);
 
         if (error) {
             console.error('Error fetching schedules by user ID:', error);
-            return [];
+            return { schedules: [], totalCount: 0 };
         }
 
-        return (data || []).map(mapScheduleFromSupabase);
+        return {
+            schedules: (data || []).map(mapScheduleFromSupabase),
+            totalCount: count || 0
+        };
     },
 
     /**

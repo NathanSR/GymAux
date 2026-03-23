@@ -8,6 +8,7 @@ import { ChevronLeft, ChevronRight, Dumbbell, Search, } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { WorkoutHistoryModal } from "@/components/history/WorkoutHistoryModal";
+import { useDebounce } from "@/hooks/useDebounce";
 
 export default function HistoryPage() {
     const t = useTranslations('History');
@@ -15,6 +16,7 @@ export default function HistoryPage() {
     const router = useRouter();
 
     const [searchQuery, setSearchQuery] = useState('');
+    const debouncedSearch = useDebounce(searchQuery, 300);
     const [currentDate, setCurrentDate] = useState(new Date());
     const [selectedWorkouts, setSelectedWorkouts] = useState<History[] | null>(null);
     const [workoutData, setWorkoutData] = useState<Record<string, History[]>>({});
@@ -53,7 +55,7 @@ export default function HistoryPage() {
         const data: Record<string, History[]> = {};
 
         const filteredHistory = historyList.filter(hist =>
-            hist.workoutName.toLowerCase().includes(searchQuery.toLowerCase())
+            hist.workoutName.toLowerCase().includes(debouncedSearch.toLowerCase())
         );
 
         filteredHistory.forEach(h => {
@@ -64,7 +66,7 @@ export default function HistoryPage() {
         });
 
         setWorkoutData(data);
-    }, [historyList, searchQuery]);
+    }, [historyList, debouncedSearch]);
 
     const dayLabels = t.raw('dayLabels') as string[];
 

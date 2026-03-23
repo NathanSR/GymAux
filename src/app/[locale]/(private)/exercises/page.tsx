@@ -8,6 +8,7 @@ import { ExerciseService } from '@/services/exerciseService';
 import { useDebounce } from '@/hooks/useDebounce';
 import { CATEGORIES } from '@/config/constants';
 import { Exercise } from '@/config/types';
+import { Pagination } from '@/components/ui/Pagination';
 
 export default function ExerciseLibraryPage() {
     const router = useRouter();
@@ -17,6 +18,11 @@ export default function ExerciseLibraryPage() {
     const [selectedCategory, setSelectedCategory] = useState('all');
     const [exercises, setExercises] = useState<Exercise[]>([]);
     const [loading, setLoading] = useState(true);
+
+    // Paginação
+    const [page, setPage] = useState(1);
+    const [limit, setLimit] = useState(20);
+    const [totalCount, setTotalCount] = useState(0);
 
     // Debounce de 300ms para a busca
     const debouncedSearch = useDebounce(searchQuery, 300);
@@ -30,6 +36,12 @@ export default function ExerciseLibraryPage() {
 
     const handleSearchChange = (val: string) => {
         setSearchQuery(val);
+        setPage(1); // Resetar para primeira página ao buscar
+    };
+
+    const handleCategoryChange = (cat: string) => {
+        setSelectedCategory(cat);
+        setPage(1); // Resetar para primeira página ao mudar categoria
     };
 
     const categories = useMemo(() => {
@@ -40,8 +52,14 @@ export default function ExerciseLibraryPage() {
         const fetchExercises = async () => {
             setLoading(true);
             try {
-                const list = await ExerciseService.getAllExercises(debouncedSearch, selectedCategory, { te, tt });
-                setExercises(list);
+                const result = await ExerciseService.getAllExercises(
+                    debouncedSearch,
+                    selectedCategory,
+                    { page, limit },
+                    { te, tt }
+                );
+                setExercises(result.exercises);
+                setTotalCount(result.totalCount);
             } catch (error) {
                 console.error("Error fetching exercises:", error);
             } finally {
@@ -50,7 +68,9 @@ export default function ExerciseLibraryPage() {
         };
 
         fetchExercises();
-    }, [debouncedSearch, selectedCategory, te, tt]);
+    }, [debouncedSearch, selectedCategory, page, limit, te, tt]);
+
+    const totalPages = Math.ceil(totalCount / limit);
 
     return (
         <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white transition-colors duration-300 font-sans pb-10">
@@ -70,10 +90,9 @@ export default function ExerciseLibraryPage() {
                     <Search className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors ${searchQuery.startsWith('#') ? 'text-lime-500' : 'text-zinc-400'}`} size={18} />
                     <input
                         type="text"
-                        placeholder={t('searchPlaceholder')} // Ex: "Busque nome ou use # para tags"
-                        className={`w-full bg-zinc-100 dark:bg-zinc-900 border-none rounded-2xl py-4 pl-12 pr-4 text-sm outline-none focus:ring-2 transition-all ${searchQuery.startsWith('#') ? 'focus:ring-lime-400 ring-2 ring-lime-400/20' : 'focus:ring-lime-400'
-                            }`}
-                        defaultValue={searchQuery}
+                        placeholder={t('searchPlaceholder')}
+                        className={`w-full bg-zinc-100 dark:bg-zinc-900 border-none rounded-2xl py-4 pl-12 pr-4 text-sm outline-none focus:ring-2 transition-all ${searchQuery.startsWith('#') ? 'focus:ring-lime-400 ring-2 ring-lime-400/20' : 'focus:ring-lime-400'}`}
+                        value={searchQuery}
                         onChange={(e) => handleSearchChange(e.target.value)}
                     />
                     {searchQuery.startsWith('#') && (
@@ -90,7 +109,7 @@ export default function ExerciseLibraryPage() {
                     {categories.map(cat => (
                         <button
                             key={cat}
-                            onClick={() => setSelectedCategory(cat)}
+                            onClick={() => handleCategoryChange(cat)}
                             className={`px-5 py-2.5 rounded-full text-xs font-black uppercase tracking-widest whitespace-nowrap transition-all ${selectedCategory === cat
                                 ? 'bg-lime-400 text-zinc-950 shadow-lg shadow-lime-500/20'
                                 : 'bg-white dark:bg-zinc-900 text-zinc-400 border border-zinc-100 dark:border-zinc-800'
@@ -102,9 +121,14 @@ export default function ExerciseLibraryPage() {
                 </section>
 
                 {/* Listagem */}
-                <div className="grid grid-cols-1 gap-4">
-                    {exercises && exercises.length > 0 ? (
+                <div className="grid grid-cols-1 gap-4 mb-10">
+                    {loading ? (
+                        Array.from({ length: 5 }).map((_, i) => (
+                            <div key={i} className="h-32 bg-zinc-100 dark:bg-zinc-900 rounded-[32px] animate-pulse" />
+                        ))
+                    ) : exercises && exercises.length > 0 ? (
                         exercises.map(exercise => (
+                            // ... (keep the same exercise card content as before)
                             <div
                                 key={exercise.id}
                                 className="group bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 rounded-[32px] p-5 shadow-sm transition-all overflow-hidden"
@@ -135,7 +159,6 @@ export default function ExerciseLibraryPage() {
 
                                 {/* Footer com Botões de Ação Direta */}
                                 <div className="flex gap-2 mt-5">
-                                    {/* Botão Detalhes - Ocupa a maior parte */}
                                     <button
                                         onClick={() => router.push(`/exercises/${exercise.id}`)}
                                         className="flex-1 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-900 dark:text-white py-3 rounded-2xl text-[11px] font-black uppercase tracking-wider flex items-center justify-center gap-2 transition-colors"
@@ -144,7 +167,6 @@ export default function ExerciseLibraryPage() {
                                         {t('viewDetails')}
                                     </button>
 
-                                    {/* Botão Editar - Aparece apenas se for editável (ID >= 1000) */}
                                     {(isNaN(Number(exercise.id)) || Number(exercise.id) >= 1000) && (
                                         <button
                                             onClick={() => router.push(`/exercises/${exercise.id}/edit`)}
@@ -155,17 +177,6 @@ export default function ExerciseLibraryPage() {
                                         </button>
                                     )}
                                 </div>
-
-                                {/* Tags (opcional, menores agora) */}
-                                {exercise.tags && exercise.tags.length > 0 && (
-                                    <div className="flex flex-wrap gap-1.5 mt-4">
-                                        {exercise.tags.slice(0, 3).map(tag => (
-                                            <span key={tag} className="text-[9px] font-bold text-zinc-400 uppercase">
-                                                #{tt.has(tag) ? tt(tag) : tag}
-                                            </span>
-                                        ))}
-                                    </div>
-                                )}
                             </div>
                         ))
                     ) : (
@@ -176,6 +187,21 @@ export default function ExerciseLibraryPage() {
                     )}
                 </div>
             </main>
+
+            {/* Paginação */}
+            <div className="fixed bottom-0 left-0 right-0 z-40">
+                <Pagination
+                    currentPage={page}
+                    totalPages={totalPages}
+                    onPageChange={setPage}
+                    limit={limit}
+                    onLimitChange={(l) => {
+                        setLimit(l);
+                        setPage(1);
+                    }}
+                    totalCount={totalCount}
+                />
+            </div>
         </div>
     );
 }

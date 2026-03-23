@@ -18,25 +18,37 @@ import { SessionService } from '@/services/sessionService';
 import { useTheme } from '@/context/ThemeContext';
 import { useTranslations, useLocale } from 'next-intl';
 import { Workout } from '@/config/types';
+import { useDebounce } from '@/hooks/useDebounce';
+import { Pagination } from '@/components/ui/Pagination';
 
 export default function WorkoutsPage() {
     const { theme } = useTheme();
     const router = useRouter();
     const locale = useLocale();
-    const [searchQuery, setSearchQuery] = useState('');
-    const t = useTranslations('WorkoutList');
-
     const { activeUser } = useSession();
+
     const [workouts, setWorkouts] = useState<Workout[]>([]);
     const [loading, setLoading] = useState(true);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [page, setPage] = useState(1);
+    const [limit, setLimit] = useState(20);
+    const [totalCount, setTotalCount] = useState(0);
+
+    const debouncedSearch = useDebounce(searchQuery, 300);
+    const t = useTranslations('WorkoutList');
 
     useEffect(() => {
         const fetchWorkouts = async () => {
             if (!activeUser?.id) return;
             setLoading(true);
             try {
-                const list = await WorkoutService.getWorkoutsByUserId(activeUser.id);
-                setWorkouts(list);
+                const result = await WorkoutService.getWorkoutsByUserId(
+                    activeUser.id,
+                    debouncedSearch,
+                    { page, limit }
+                );
+                setWorkouts(result.workouts);
+                setTotalCount(result.totalCount);
             } catch (error) {
                 console.error("Error fetching workouts:", error);
             } finally {
@@ -45,25 +57,19 @@ export default function WorkoutsPage() {
         };
 
         fetchWorkouts();
-    }, [activeUser?.id]);
+    }, [activeUser?.id, debouncedSearch, page, limit]);
 
-    // Filtro de Treinos
-    const filteredWorkouts = useMemo(() => {
-        return workouts?.filter(ex => {
-            const matchesSearch = ex.name.toLowerCase().includes(searchQuery.toLowerCase());
-            return matchesSearch;
-        }) || [];
-    }, [searchQuery, workouts]);
+    const totalPages = Math.ceil(totalCount / limit);
 
     return (
-        <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white pb-24 transition-colors">
-
-            {/* Header Estilizado */}
+        <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white pb-32 transition-colors">
+            {/* Header */}
             <header className="sticky top-0 z-30 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-md border-b border-zinc-100 dark:border-zinc-900 px-6 py-4">
                 <div className="flex items-center justify-between mb-4">
                     <button
                         onClick={() => router.push('/home')}
-                        className="p-2 rounded-xl bg-zinc-100 dark:bg-zinc-900 text-zinc-500 cursor-pointer">
+                        className="p-2 rounded-xl bg-zinc-100 dark:bg-zinc-900 text-zinc-500 cursor-pointer"
+                    >
                         <ChevronLeft size={24} />
                     </button>
                     <h1 className="font-black text-lg uppercase tracking-tight">{t('title')}</h1>
@@ -79,23 +85,29 @@ export default function WorkoutsPage() {
                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400" size={18} />
                     <input
                         type="text"
-                        placeholder={t('searchPlaceholder')}
-                        className="w-full bg-zinc-100 dark:bg-zinc-900 border-none rounded-2xl py-4 pl-12 pr-4 text-sm outline-none focus:ring-2 focus:ring-lime-400 transition-all"
+                        placeholder={t('searchPlaceholder') || "Buscar treinos..."}
+                        className="w-full bg-zinc-100 dark:bg-zinc-900 border-none rounded-2xl py-4 pl-12 pr-4 text-sm outline-none focus:ring-2 focus:ring-lime-400 transition-all font-bold"
                         value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
+                        onChange={(e) => {
+                            setSearchQuery(e.target.value);
+                            setPage(1);
+                        }}
                     />
                 </div>
             </header>
 
             {/* Grid de Treinos */}
             <main className="px-6 space-y-4 pt-4">
-                {filteredWorkouts.length > 0 ? (
-                    filteredWorkouts.map((workout) => (
+                {loading ? (
+                    Array.from({ length: 4 }).map((_, i) => (
+                        <div key={i} className="h-40 bg-zinc-100 dark:bg-zinc-900 rounded-[32px] animate-pulse" />
+                    ))
+                ) : workouts.length > 0 ? (
+                    workouts.map((workout) => (
                         <div
                             key={workout.id}
                             className="group bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 rounded-[32px] p-6 shadow-sm hover:shadow-md transition-all active:scale-[0.99]"
                         >
-                            {/* Topo: Título e Info */}
                             <div className="flex justify-between items-start mb-6">
                                 <div className="space-y-1 flex-1">
                                     <div className="flex items-center gap-2 mb-1">
@@ -105,7 +117,7 @@ export default function WorkoutsPage() {
                                         <span className="text-[10px] font-bold text-zinc-300 dark:text-zinc-600">•</span>
                                         <div className="flex items-center gap-1 text-zinc-400 font-bold text-[10px] uppercase">
                                             <Calendar size={10} />
-                                            {new Intl.DateTimeFormat(locale).format(workout.createdAt)}
+                                            {new Intl.DateTimeFormat(locale).format(new Date(workout.createdAt))}
                                         </div>
                                     </div>
 
@@ -114,15 +126,12 @@ export default function WorkoutsPage() {
                                     </h3>
                                 </div>
 
-                                {/* Ícone Decorativo/Funcional */}
                                 <div className="w-12 h-12 rounded-2xl bg-zinc-50 dark:bg-zinc-800/50 flex items-center justify-center text-zinc-400">
                                     <Dumbbell size={20} />
                                 </div>
                             </div>
 
-                            {/* Footer: Ações Horizontais (Melhor para o polegar no Mobile) */}
                             <div className="flex gap-3">
-                                {/* Botão Principal: Play/Treinar */}
                                 <button
                                     onClick={() => SessionService.onPlayWorkout(workout, router, theme)}
                                     className="flex-[2] flex items-center justify-center gap-3 bg-lime-400 hover:bg-lime-500 text-zinc-950 py-4 rounded-2xl font-black text-xs uppercase tracking-[0.1em] transition-all active:scale-95 shadow-lg shadow-lime-500/20"
@@ -131,7 +140,6 @@ export default function WorkoutsPage() {
                                     {t('train')}
                                 </button>
 
-                                {/* Botão Secundário: Editar */}
                                 <button
                                     onClick={() => router.push(`/workouts/${workout.id}/edit`)}
                                     className="flex-1 flex items-center justify-center gap-2 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-500 dark:text-zinc-300 py-4 rounded-2xl font-bold text-xs uppercase transition-all active:scale-95 border border-zinc-200/50 dark:border-zinc-700/50"
@@ -148,6 +156,21 @@ export default function WorkoutsPage() {
                     </div>
                 )}
             </main>
+
+            {/* Paginação */}
+            <div className="fixed bottom-0 left-0 right-0 z-40">
+                <Pagination
+                    currentPage={page}
+                    totalPages={totalPages}
+                    onPageChange={setPage}
+                    limit={limit}
+                    onLimitChange={(l) => {
+                        setLimit(l);
+                        setPage(1);
+                    }}
+                    totalCount={totalCount}
+                />
+            </div>
         </div>
     );
 }
