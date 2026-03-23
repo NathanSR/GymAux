@@ -23,13 +23,13 @@ export default function PricingSection() {
                 <motion.h2 {...fadeInUp} className="text-4xl md:text-5xl font-black italic uppercase tracking-tighter text-zinc-100">{t('Pricing.subtitle')}</motion.h2>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full">
+            <div className="flex flex-wrap items-center justify-center gap-8 w-full">
                 {/* Free Plan */}
                 <motion.div
                     {...fadeInUp}
                     whileHover={{ scale: 1.05, y: -10 }}
                     transition={{ duration: 0.3 }}
-                    className="bg-white/5 border border-white/10 rounded-[2.5rem] p-8 md:p-10 flex flex-col justify-between group hover:border-white/20 transition-all duration-300"
+                    className="min-w-[350px] bg-white/5 border border-white/10 rounded-[2.5rem] p-8 md:p-10 flex flex-col justify-between group hover:border-white/20 transition-all duration-300"
                 >
                     <div>
                         <h3 className="text-xl font-black italic uppercase text-zinc-400 mb-6">{t('Pricing.plans.free.title')}</h3>
@@ -60,7 +60,7 @@ export default function PricingSection() {
                     viewport={{ once: false, amount: 0.3 }}
                     transition={{ duration: 0.8, ease: "easeOut" }}
                     whileHover={{ scale: 1.15, y: -10 }}
-                    className="bg-zinc-100 border-2 border-brand rounded-[2.5rem] p-8 md:p-10 flex flex-col justify-between relative shadow-[0_0_50px_rgba(204,255,0,0.2)] active:scale-105 transition-all z-10"
+                    className="min-w-[350px] bg-zinc-100 border-2 border-brand rounded-[2.5rem] p-8 md:p-10 flex flex-col justify-between relative shadow-[0_0_50px_rgba(204,255,0,0.2)] active:scale-105 transition-all z-10"
                 >
                     <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1.5 bg-brand text-black font-black text-[10px] italic uppercase tracking-[0.2em] rounded-full">
                         {t('Pricing.plans.pro.badge')}
@@ -92,7 +92,7 @@ export default function PricingSection() {
                     {...fadeInUp}
                     whileHover={{ scale: 1.05, y: -10 }}
                     transition={{ duration: 0.3 }}
-                    className="bg-white/5 border border-white/10 rounded-[2.5rem] p-8 md:p-10 flex flex-col justify-between group hover:border-white/20 transition-all duration-300"
+                    className="min-w-[350px] bg-white/5 border border-white/10 rounded-[2.5rem] p-8 md:p-10 flex flex-col justify-between group hover:border-white/20 transition-all duration-300"
                 >
                     <div>
                         <h3 className="text-xl font-black italic uppercase text-zinc-400 mb-6">{t('Pricing.plans.trainer.title')}</h3>
