@@ -43,7 +43,7 @@ export default function CTASection() {
                 </div>
 
                 <div className="relative z-10 space-y-4">
-                    <motion.h2 
+                    <motion.h2
                         initial={{ opacity: 0, y: 30 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: false }}
@@ -52,7 +52,7 @@ export default function CTASection() {
                     >
                         {t('CTA.title')}
                     </motion.h2>
-                    <motion.p 
+                    <motion.p
                         initial={{ opacity: 0, y: 30 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: false }}
@@ -70,7 +70,7 @@ export default function CTASection() {
                     transition={{ delay: 0.4, duration: 0.5 }}
                 >
                     <Link
-                        href="/auth/register"
+                        href="/register"
                         className="relative z-10 px-16 py-6 bg-black text-brand font-black italic uppercase tracking-widest text-base rounded-[2rem] hover:scale-105 active:scale-95 transition-all shadow-2xl flex items-center gap-4 group/btn inline-flex"
                     >
                         {t('CTA.button')}

@@ -53,19 +53,19 @@ export default function HeroSection() {
                 className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto text-zinc-100"
             >
                 <Link
-                    href="/auth/register"
+                    href="/register"
                     className="bg-brand text-black px-10 py-5 rounded-2xl font-black text-sm tracking-wide shadow-[0_0_30px_-10px_#ccff00] hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2 group"
                 >
                     {t('Hero.getStarted').toUpperCase()}
                     <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </Link>
-                <Link
+                {/* <Link
                     href="#"
                     className="px-10 py-5 rounded-2xl border border-white/10 font-bold text-sm tracking-wide hover:bg-white/5 transition-all flex items-center justify-center gap-2"
                 >
                     <Play className="w-4 h-4 fill-current" />
                     {t('Hero.freeDemo').toUpperCase()}
-                </Link>
+                </Link> */}
             </motion.div>
 
             {/* Dashboard Preview / Floating elements */}

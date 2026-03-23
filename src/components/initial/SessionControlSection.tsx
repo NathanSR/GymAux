@@ -11,7 +11,7 @@ export default function SessionControlSection() {
 
     return (
         <section className="max-w-7xl mx-auto py-32 px-6 overflow-hidden">
-            <motion.div 
+            <motion.div
                 initial={{ opacity: 0, scale: 0.9, y: 100 }}
                 whileInView={{ opacity: 1, scale: 1, y: 0 }}
                 viewport={{ once: false, amount: 0.3 }}
@@ -21,7 +21,7 @@ export default function SessionControlSection() {
                 <div className="absolute top-0 right-0 w-96 h-96 bg-white/20 blur-[100px] rounded-full group-hover:translate-x-10 group-hover:-translate-y-10 transition-transform duration-1000" />
 
                 <div className="flex-1 flex flex-col items-start gap-8 relative z-10 text-black">
-                    <motion.span 
+                    <motion.span
                         initial={{ opacity: 0, x: -50 }}
                         whileInView={{ opacity: 1, x: 0 }}
                         viewport={{ once: false }}
@@ -30,7 +30,7 @@ export default function SessionControlSection() {
                     >
                         {t('SessionControl.title')}
                     </motion.span>
-                    <motion.h2 
+                    <motion.h2
                         initial={{ opacity: 0, x: -50 }}
                         whileInView={{ opacity: 1, x: 0 }}
                         viewport={{ once: false }}
@@ -39,7 +39,7 @@ export default function SessionControlSection() {
                     >
                         {t('SessionControl.subtitle')}
                     </motion.h2>
-                    <motion.p 
+                    <motion.p
                         initial={{ opacity: 0, x: -50 }}
                         whileInView={{ opacity: 1, x: 0 }}
                         viewport={{ once: false }}
@@ -55,7 +55,7 @@ export default function SessionControlSection() {
                         transition={{ duration: 0.5, delay: 0.5 }}
                     >
                         <Link
-                            href="/auth/register"
+                            href="/register"
                             className="px-8 py-4 bg-black text-brand rounded-2xl font-black italic uppercase tracking-widest text-xs hover:scale-105 active:scale-95 transition-all shadow-xl inline-block"
                         >
                             {t('Hero.getStarted').toUpperCase()}

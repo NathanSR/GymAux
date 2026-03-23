@@ -48,7 +48,7 @@ export default function PricingSection() {
                             ))}
                         </ul>
                     </div>
-                    <Link href="/auth/register" className="w-full py-5 border border-white/10 rounded-2xl mt-10 font-black italic uppercase text-xs tracking-widest hover:bg-white/5 transition-all text-center text-zinc-100">
+                    <Link href="/register" className="w-full py-5 border border-white/10 rounded-2xl mt-10 font-black italic uppercase text-xs tracking-widest hover:bg-white/5 transition-all text-center text-zinc-100">
                         {t('Pricing.cta')}
                     </Link>
                 </motion.div>
@@ -82,7 +82,7 @@ export default function PricingSection() {
                             ))}
                         </ul>
                     </div>
-                    <Link href="/auth/register" className="w-full py-5 bg-black text-brand rounded-2xl mt-10 font-black italic uppercase text-xs tracking-widest shadow-lg hover:scale-[1.02] transition-transform text-center">
+                    <Link href="/register" className="w-full py-5 bg-black text-brand rounded-2xl mt-10 font-black italic uppercase text-xs tracking-widest shadow-lg hover:scale-[1.02] transition-transform text-center">
                         {t('Pricing.cta')}
                     </Link>
                 </motion.div>
@@ -111,7 +111,7 @@ export default function PricingSection() {
                             ))}
                         </ul>
                     </div>
-                    <Link href="/auth/register" className="w-full py-5 border border-white/10 rounded-2xl mt-10 font-black italic uppercase text-xs tracking-widest hover:bg-white/5 transition-all text-center text-zinc-100">
+                    <Link href="/register" className="w-full py-5 border border-white/10 rounded-2xl mt-10 font-black italic uppercase text-xs tracking-widest hover:bg-white/5 transition-all text-center text-zinc-100">
                         {t('Pricing.cta')}
                     </Link>
                 </motion.div>

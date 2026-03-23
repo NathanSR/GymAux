@@ -18,7 +18,7 @@ export default function Navbar() {
 
     return (
         <header className="fixed top-0 left-0 right-0 z-50 px-6 py-4 flex justify-center">
-            <motion.nav 
+            <motion.nav
                 initial={{ y: -100, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ duration: 0.8, ease: "easeOut" }}
@@ -86,14 +86,14 @@ export default function Navbar() {
                         ))}
                         <div className="flex flex-col gap-4 pt-2">
                             <Link
-                                href="/auth/login"
+                                href="/login"
                                 className="w-full py-4 text-center font-bold text-zinc-400 border border-white/10 rounded-xl"
                                 onClick={() => setIsMenuOpen(false)}
                             >
                                 {t('Navbar.login')}
                             </Link>
                             <Link
-                                href="/auth/register"
+                                href="/register"
                                 className="w-full py-4 text-center font-bold bg-brand text-black rounded-xl shadow-lg"
                                 onClick={() => setIsMenuOpen(false)}
                             >
