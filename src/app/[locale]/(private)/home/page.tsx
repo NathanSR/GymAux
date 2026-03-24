@@ -19,6 +19,7 @@ import { ScheduleService } from '@/services/scheduleService';
 import { WorkoutService } from '@/services/workoutService';
 import { HistoryService } from '@/services/historyService';
 import { SessionService } from '@/services/sessionService';
+import { useSessionActions } from '@/hooks/useSessionActions';
 import { MenuTab } from '@/components/MenuTab';
 import ProfileMenu from '@/components/home/ProfileMenu';
 import { Workout, Schedule, History, Session } from '@/config/types';
@@ -30,6 +31,7 @@ export default function HomePage() {
     const locale = useLocale();
     const router = useRouter();
     const { activeUser, loading: sessionLoading } = useSession();
+    const { startWorkout, resumeWorkout } = useSessionActions();
 
     const today = new Date();
     const dayOfWeek = today.getDay();
@@ -95,8 +97,8 @@ export default function HomePage() {
 
         const session = sessionList.find(s => s.workoutId === todayWorkout.id);
 
-        if (session) return SessionService.onResumeWorkout(session.id!, router);
-        else SessionService.onPlayWorkout(todayWorkout, router)
+        if (session) return resumeWorkout(session.id!);
+        else startWorkout(todayWorkout)
     }
 
     // Data formatada respeitando o locale dinâmico
@@ -163,7 +165,7 @@ export default function HomePage() {
                                 ? 'bg-zinc-300 dark:bg-zinc-800 text-zinc-500 cursor-not-allowed'
                                 : 'cursor-pointer bg-zinc-950 text-white hover:scale-[1.02]'
                                 }`}
-                            onClick={() => SessionService.onPlayWorkout(todayWorkout as Workout, router)}
+                            onClick={() => startWorkout(todayWorkout as Workout)}
                         >
                             {todayHistory ? <CheckCircle2 size={20} /> : todayWorkout ? <Play size={20} fill="currentColor" /> : <Bed size={20} fill="currentColor" />}
                             {!todayWorkout ? t('restButton') : todayHistory ? t('finishedButton') : t('startButton')}
@@ -211,7 +213,7 @@ export default function HomePage() {
                                     </div>
 
                                     <button
-                                        onClick={() => SessionService.onResumeWorkout(session.id!, router)}
+                                        onClick={() => resumeWorkout(session.id!)}
                                         className="flex items-center justify-center w-10 h-10 bg-zinc-900 dark:bg-lime-400 text-white dark:text-zinc-950 rounded-xl hover:scale-105 transition-transform cursor-pointer shadow-lg"
                                     >
                                         <Play size={18} fill="currentColor" />

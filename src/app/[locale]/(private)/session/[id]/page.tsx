@@ -8,10 +8,10 @@ import { RestTimer } from '@/components/session/RestTimer';
 import { useRouter } from '@/i18n/routing';
 import { useForm } from 'react-hook-form';
 import { WorkoutDrawer } from '@/components/session/WorkoutDrawer';
-import Swal from 'sweetalert2';
 import { SessionService } from '@/services/sessionService';
 import { useTheme } from '@/context/ThemeContext';
 import { useTranslations } from 'next-intl';
+import { useSessionActions } from '@/hooks/useSessionActions';
 import { CompletedSession } from '@/components/session/CompletedSession';
 import { ExerciseInstructionModal } from '@/components/session/ExerciseInstructionModal';
 
@@ -21,6 +21,7 @@ export default function SessionPage() {
     const { isDark } = useTheme();
     const { id } = useParams();
     const router = useRouter();
+    const { exitSession, forceFinishWorkout } = useSessionActions();
 
     const [session, setSession] = useState<Session | null>(null);
     const [showPreview, setShowPreview] = useState(false);
@@ -77,7 +78,7 @@ export default function SessionPage() {
 
         const handleBackButton = (event: PopStateEvent) => {
             event.preventDefault();
-            if (session?.id) SessionService.onExitSession(session.id, router, isDark ? 'dark' : 'light');
+            if (session?.id) exitSession(session.id);
             window.history.pushState(null, '', window.location.href);
         };
 
@@ -162,30 +163,7 @@ export default function SessionPage() {
 
     const handleForceFinishWorkout = () => {
         if (!session) return;
-
-        Swal.fire({
-            title: t('finishWorkoutTitle'),
-            text: t('finishWorkoutText'),
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#a3e635', // lime-400
-            cancelButtonColor: '#3f3f46',  // zinc-700
-            confirmButtonText: t('finishConfirm'),
-            cancelButtonText: t('finishCancel'),
-            background: isDark ? '#09090b' : '#ffffff',
-            color: isDark ? '#ffffff' : '#09090b',
-        }).then((result) => {
-            if (result.isConfirmed) {
-                if (!session.pausedAt && session.resumedAt) {
-                    const finalSegment = new Date().getTime() - session.resumedAt.getTime();
-                    session.duration += finalSegment;
-                }
-
-                session.current.step = 'completion';
-                setSession({ ...session } as Session);
-                synchronizeProgress();
-            }
-        });
+        forceFinishWorkout(session, (s) => setSession(s as Session), synchronizeProgress);
     };
 
     if (!session) return null;
@@ -216,7 +194,7 @@ export default function SessionPage() {
             {/* HEADER COM ANIMAÇÃO DE ENTRADA */}
             <header className="px-6 pt-12 pb-6 flex items-center justify-between animate-in fade-in slide-in-from-top-4 duration-700">
                 <button
-                    onClick={() => SessionService.onExitSession(session.id as string, router, isDark ? 'dark' : 'light')}
+                    onClick={() => exitSession(session.id as string)}
                     className="p-3 rounded-2xl bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-white hover:border-zinc-700 active:scale-90 transition-all duration-300"
                 >
                     <ChevronLeft size={20} />

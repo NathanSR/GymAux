@@ -14,8 +14,8 @@ import {
 import { useSession } from '@/hooks/useSession';
 import { useRouter } from '@/i18n/routing';
 import { WorkoutService } from '@/services/workoutService';
-import { SessionService } from '@/services/sessionService';
 import { useTheme } from '@/context/ThemeContext';
+import { useSessionActions } from '@/hooks/useSessionActions';
 import { useTranslations, useLocale } from 'next-intl';
 import { Workout } from '@/config/types';
 import { useDebounce } from '@/hooks/useDebounce';
@@ -24,6 +24,7 @@ import { Pagination } from '@/components/ui/Pagination';
 export default function WorkoutsPage() {
     const { isDark } = useTheme();
     const router = useRouter();
+    const { startWorkout } = useSessionActions();
     const locale = useLocale();
     const { activeUser } = useSession();
 
@@ -133,7 +134,7 @@ export default function WorkoutsPage() {
 
                             <div className="flex gap-3">
                                 <button
-                                    onClick={() => SessionService.onPlayWorkout(workout, router, isDark ? 'dark' : 'light')}
+                                onClick={() => startWorkout(workout)}
                                     className="flex-[2] flex items-center justify-center gap-3 bg-lime-400 hover:bg-lime-500 text-zinc-950 py-4 rounded-2xl font-black text-xs uppercase tracking-[0.1em] transition-all active:scale-95 shadow-lg shadow-lime-500/20"
                                 >
                                     <Play size={16} fill="currentColor" />

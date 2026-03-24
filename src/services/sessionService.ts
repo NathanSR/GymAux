@@ -1,6 +1,5 @@
 import { createClient } from '@/lib/supabase/client';
 import { Session, History, Workout } from '@/config/types';
-import Swal from 'sweetalert2';
 
 const mapSessionFromSupabase = (s: any): Session => ({
     id: s.id,
@@ -21,65 +20,6 @@ const mapSessionFromSupabase = (s: any): Session => ({
 });
 
 export const SessionService = {
-
-    async onPlayWorkout(workout: Workout, router: any, theme?: any) {
-        Swal.fire({
-            title: 'Iniciar Treino?',
-            text: "Você está pronto para começar?",
-            icon: 'question',
-            showCancelButton: true,
-            confirmButtonColor: '#22c55e',
-            cancelButtonColor: '#ef4444',
-            confirmButtonText: 'Sim, vamos!',
-            cancelButtonText: 'Agora não',
-            background: theme === 'dark' ? '#18181b' : '#ffffff',
-            color: theme === 'dark' ? '#f4f4f5' : '#18181b',
-        }).then(async (result) => {
-            if (result.isConfirmed) {
-                const session = await this.startSession(workout!);
-                router.push(`/session/${session.id}`);
-            }
-        });
-    },
-
-    async onResumeWorkout(sessionId: string, router: any, theme?: any) {
-        Swal.fire({
-            title: 'Continuar Treino?',
-            text: "Você tem um treino em andamento. Vamos voltar?",
-            icon: 'info',
-            showCancelButton: true,
-            confirmButtonColor: '#22c55e',
-            confirmButtonText: 'Continuar!',
-            cancelButtonText: 'Agora não',
-            background: theme === 'dark' ? '#18181b' : '#ffffff',
-            color: theme === 'dark' ? '#f4f4f5' : '#18181b',
-        }).then(async (result) => {
-            if (result.isConfirmed) {
-                await this.resumeSession(sessionId);
-                router.push(`/session/${sessionId}`);
-            }
-        });
-    },
-
-    async onExitSession(sessionId: string, router: any, theme?: any) {
-        return Swal.fire({
-            title: 'Pausar Treino?',
-            text: "O tempo será pausado e você poderá continuar mais tarde na Home.",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#22c55e',
-            cancelButtonColor: '#71717a',
-            confirmButtonText: 'Sim, pausar e sair',
-            cancelButtonText: 'Cancelar',
-            background: theme === 'dark' ? '#18181b' : '#ffffff',
-            color: theme === 'dark' ? '#f4f4f5' : '#18181b',
-        }).then(async (result) => {
-            if (result.isConfirmed) {
-                await this.pauseSession(sessionId);
-                router.push('/home');
-            }
-        });
-    },
 
     /**
     * 1. INICIAR SESSÃO
