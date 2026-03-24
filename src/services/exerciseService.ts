@@ -1,8 +1,6 @@
 import { createClient } from '@/lib/supabase/client';
 import { Exercise } from '@/config/types';
 
-const supabase = createClient();
-
 const mapExerciseFromSupabase = (ex: any): Exercise => ({
     id: ex.id,
     name: ex.name,
@@ -23,6 +21,7 @@ export const ExerciseService = {
         pagination: { page: number; limit: number },
         translations?: { te: any, tt: any }
     ) {
+        const supabase = createClient();
         let query = supabase.from('exercises').select('*', { count: 'exact' });
 
         // 1. Filtro por Categoria (SQL)
@@ -78,6 +77,7 @@ export const ExerciseService = {
 
     // Buscar por ID
     async getExerciseById(id: number) {
+        const supabase = createClient();
         const { data, error } = await supabase
             .from('exercises')
             .select('*')
@@ -94,6 +94,7 @@ export const ExerciseService = {
 
     // Criar novo
     async createExercise(exerciseData: Omit<Exercise, 'id'>) {
+        const supabase = createClient();
         const formattedName = exerciseData.name.trim();
 
         if (formattedName.length < 2) {
@@ -123,6 +124,7 @@ export const ExerciseService = {
     },
 
     async updateExercise(id: number, updateData: Partial<Omit<Exercise, 'id'>>) {
+        const supabase = createClient();
         // Business rule: system exercises (id < 1000) cannot be updated by users
         if (id < 1000) {
             throw new Error("Cannot update system exercises");
@@ -159,6 +161,7 @@ export const ExerciseService = {
 
     // Deletar exercicio
     async deleteExercise(id: number) {
+        const supabase = createClient();
         if (id < 1000) {
             throw new Error("Cannot delete system exercises");
         }

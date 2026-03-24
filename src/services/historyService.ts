@@ -2,8 +2,6 @@ import { createClient } from '@/lib/supabase/client';
 import { History } from '@/config/types';
 import { userService } from './userService';
 
-const supabase = createClient();
-
 const mapHistoryFromSupabase = (h: any): History => ({
     id: h.id,
     userId: h.user_id,
@@ -31,6 +29,7 @@ export const HistoryService = {
      * Salva a conclusão de um treino no histórico.
      */
     async createWorkout(historyData: Omit<History, 'id'>) {
+        const supabase = createClient();
         const { data, error } = await supabase
             .from('history')
             .insert({
@@ -59,6 +58,7 @@ export const HistoryService = {
      * Busca todo o histórico de um usuário específico, ordenado pela data mais recente.
      */
     async getUserHistory(userId: string, page: number = 1, limit: number = 12) {
+        const supabase = createClient();
         const from = (page - 1) * limit;
         const to = from + limit - 1;
 
@@ -81,6 +81,7 @@ export const HistoryService = {
      * Busca o histórico de um treino específico para ver evolução.
      */
     async getWorkoutEvolution(userId: string, workoutId: string) {
+        const supabase = createClient();
         const { data, error } = await supabase
             .from('history')
             .select('*')
@@ -100,6 +101,7 @@ export const HistoryService = {
      * Busca a última execução de um exercício específico. 
      */
     async getLastExerciseExecution(userId: string, exerciseId: number) {
+        const supabase = createClient();
         // No Supabase, podemos tentar filtrar no JSONB, mas pela simplicidade (e limitação de volume inicial), 
         // buscamos os últimos e filtramos no JS.
         const { data, error } = await supabase
@@ -144,6 +146,7 @@ export const HistoryService = {
      * Calcula estatísticas básicas.
      */
     async getTotalWorkoutsCount(userId: string) {
+        const supabase = createClient();
         const { count, error } = await supabase
             .from('history')
             .select('*', { count: 'exact', head: true })
@@ -161,6 +164,7 @@ export const HistoryService = {
      * Busca o histórico dentro de um intervalo de datas.
      */
     async getHistoryByRange(userId: string, startDate: Date, endDate: Date) {
+        const supabase = createClient();
         const { data, error } = await supabase
             .from('history')
             .select('*')
@@ -180,6 +184,7 @@ export const HistoryService = {
      * Permite deletar um registro do histórico.
      */
     async deleteHistoryEntry(id: string) {
+        const supabase = createClient();
         const { error } = await supabase
             .from('history')
             .delete()
@@ -194,6 +199,7 @@ export const HistoryService = {
      * Permite adicionar ou editar uma nota/descrição a um treino já realizado.
      */
     async updateDescription(id: string, description: string) {
+        const supabase = createClient();
         const { data, error } = await supabase
             .from('history')
             .update({ description })
@@ -212,6 +218,7 @@ export const HistoryService = {
      * Atualiza um histórico existente.
      */
     async updateHistory(id: string, historyData: Partial<History>) {
+        const supabase = createClient();
         const updates: any = {};
         if (historyData.weight) updates.weight = historyData.weight;
         if (historyData.description !== undefined) updates.description = historyData.description;
@@ -243,6 +250,7 @@ export const HistoryService = {
     },
 
     async getHistoryById(id: string) {
+        const supabase = createClient();
         const { data, error } = await supabase
             .from('history')
             .select('*')

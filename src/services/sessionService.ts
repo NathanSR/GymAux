@@ -2,8 +2,6 @@ import { createClient } from '@/lib/supabase/client';
 import { Session, History, Workout } from '@/config/types';
 import Swal from 'sweetalert2';
 
-const supabase = createClient();
-
 const mapSessionFromSupabase = (s: any): Session => ({
     id: s.id,
     userId: s.user_id,
@@ -87,6 +85,7 @@ export const SessionService = {
     * 1. INICIAR SESSÃO
     */
     async startSession(workout: Workout): Promise<Session> {
+        const supabase = createClient();
         const { data, error } = await supabase
             .from('sessions')
             .insert({
@@ -115,6 +114,7 @@ export const SessionService = {
     },
 
     async resumeSession(sessionId: string) {
+        const supabase = createClient();
         const { error } = await supabase
             .from('sessions')
             .update({
@@ -127,6 +127,7 @@ export const SessionService = {
     },
 
     async pauseSession(sessionId: string) {
+        const supabase = createClient();
         const session = await this.getSessionById(sessionId);
         if (!session || !session.resumedAt || session.pausedAt) return;
 
@@ -146,6 +147,7 @@ export const SessionService = {
     },
 
     async getSessionsByUserId(userId: string) {
+        const supabase = createClient();
         const { data, error } = await supabase
             .from('sessions')
             .select('*')
@@ -161,6 +163,7 @@ export const SessionService = {
     },
 
     async getSessionById(sessionId: string) {
+        const supabase = createClient();
         const { data, error } = await supabase
             .from('sessions')
             .select('*')
@@ -175,6 +178,7 @@ export const SessionService = {
    * 3. SINCRONIZAR PROGRESSO
    */
     async syncSessionProgress(sessionId: string, updates: Partial<Session>): Promise<void> {
+        const supabase = createClient();
         const dbUpdates: any = {};
         if (updates.exercisesDone) dbUpdates.exercises_done = updates.exercisesDone;
         if (updates.exercisesToDo) dbUpdates.exercises_to_do = updates.exercisesToDo;
@@ -195,6 +199,7 @@ export const SessionService = {
      * 4. FINALIZAR SESSÃO E GERAR HISTÓRICO
      */
     async finishSession(sessionId: string, additionalData?: { weight?: number, description?: string, usingCreatine?: boolean }) {
+        const supabase = createClient();
         const session = await this.getSessionById(sessionId);
         if (!session) throw new Error("Sessão não encontrada");
 
@@ -223,6 +228,7 @@ export const SessionService = {
     },
 
     async deleteSession(sessionId: string) {
+        const supabase = createClient();
         const { error } = await supabase
             .from('sessions')
             .delete()

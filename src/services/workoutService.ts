@@ -1,8 +1,6 @@
 import { createClient } from '@/lib/supabase/client';
 import { Workout } from '@/config/types';
 
-const supabase = createClient();
-
 const mapWorkoutFromSupabase = (workout: any): Workout => ({
     id: workout.id,
     userId: workout.user_id,
@@ -23,6 +21,7 @@ export const WorkoutService = {
      * Busca todos os treinos cadastrados no banco.
      */
     async getAllWorkouts() {
+        const supabase = createClient();
         const { data, error } = await supabase
             .from('workouts')
             .select('*');
@@ -36,12 +35,10 @@ export const WorkoutService = {
     },
 
     /**
-     * Busca os treinos de um usuário específico.
-     */
-    /**
      * Busca os treinos de um usuário específico com filtros e paginação.
      */
     async getWorkoutsByUserId(userId: string, searchQuery = '', pagination?: { page: number; limit: number }) {
+        const supabase = createClient();
         let query = supabase
             .from('workouts')
             .select('*', { count: 'exact' })
@@ -80,6 +77,7 @@ export const WorkoutService = {
      * Busca um treino pelo seu ID único.
      */
     async getWorkoutById(id: string) {
+        const supabase = createClient();
         const { data, error } = await supabase
             .from('workouts')
             .select('*')
@@ -98,6 +96,7 @@ export const WorkoutService = {
      * Cria um novo treino com validações e formatações.
      */
     async createWorkout(workoutData: Omit<Workout, 'id' | 'createdAt'>) {
+        const supabase = createClient();
         const formattedName = workoutData.name.trim();
 
         if (formattedName.length < 2) {
@@ -138,6 +137,7 @@ export const WorkoutService = {
      * Atualiza um treino existente.
      */
     async updateWorkout(id: string, workoutData: Partial<Workout>) {
+        const supabase = createClient();
         const updates: any = {};
         if (workoutData.name) updates.name = workoutData.name.trim();
         if (workoutData.description !== undefined) updates.description = workoutData.description;
@@ -181,6 +181,7 @@ export const WorkoutService = {
      * Deleta um treino específico.
      */
     async deleteWorkout(id: string) {
+        const supabase = createClient();
         const { error } = await supabase
             .from('workouts')
             .delete()
