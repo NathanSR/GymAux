@@ -14,11 +14,11 @@ export function useSession() {
     useEffect(() => {
         const loadUser = async () => {
             try {
-                const { data: { session } } = await supabase.auth.getSession();
+                const { data: { user } } = await supabase.auth.getUser();
 
-                if (session?.user) {
-                    const user = await userService.getUserById(session.user.id);
-                    setActiveUser(user);
+                if (user) {
+                    const activeUser = await userService.getUserById(user?.id as string);
+                    setActiveUser(activeUser);
                 } else {
                     setActiveUser(null);
                 }
@@ -32,19 +32,19 @@ export function useSession() {
 
         loadUser();
 
-        // const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-        //     if (session?.user) {
-        //         const user = await userService.getUserById(session.user.id);
-        //         setActiveUser(user);
-        //     } else {
-        //         setActiveUser(null);
-        //     }
-        //     setLoading(false);
-        // });
+        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+            if (session?.user) {
+                const user = await userService.getUserById(session.user.id);
+                setActiveUser(user);
+            } else {
+                setActiveUser(null);
+            }
+            setLoading(false);
+        });
 
-        // return () => {
-        //     subscription.unsubscribe();
-        // };
+        return () => {
+            subscription.unsubscribe();
+        };
     }, []);
 
     return { activeUser, loading };
