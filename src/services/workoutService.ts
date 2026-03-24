@@ -20,8 +20,8 @@ export const WorkoutService = {
     /**
      * Busca todos os treinos cadastrados no banco.
      */
-    async getAllWorkouts() {
-        const supabase = createClient();
+    async getAllWorkouts(supabaseInput?: any) {
+        const supabase = supabaseInput || createClient();
         const { data, error } = await supabase
             .from('workouts')
             .select('*');
@@ -37,8 +37,8 @@ export const WorkoutService = {
     /**
      * Busca os treinos de um usuário específico com filtros e paginação.
      */
-    async getWorkoutsByUserId(userId: string, searchQuery = '', pagination?: { page: number; limit: number }) {
-        const supabase = createClient();
+    async getWorkoutsByUserId(userId: string, searchQuery = '', pagination?: { page: number; limit: number }, supabaseInput?: any) {
+        const supabase = supabaseInput || createClient();
         let query = supabase
             .from('workouts')
             .select('*', { count: 'exact' })
@@ -76,8 +76,8 @@ export const WorkoutService = {
     /**
      * Busca um treino pelo seu ID único.
      */
-    async getWorkoutById(id: string) {
-        const supabase = createClient();
+    async getWorkoutById(id: string, supabaseInput?: any) {
+        const supabase = supabaseInput || createClient();
         const { data, error } = await supabase
             .from('workouts')
             .select('*')
@@ -95,8 +95,8 @@ export const WorkoutService = {
     /**
      * Cria um novo treino com validações e formatações.
      */
-    async createWorkout(workoutData: Omit<Workout, 'id' | 'createdAt'>) {
-        const supabase = createClient();
+    async createWorkout(workoutData: Omit<Workout, 'id' | 'createdAt'>, supabaseInput?: any) {
+        const supabase = supabaseInput || createClient();
         const formattedName = workoutData.name.trim();
 
         if (formattedName.length < 2) {
@@ -136,8 +136,8 @@ export const WorkoutService = {
     /**
      * Atualiza um treino existente.
      */
-    async updateWorkout(id: string, workoutData: Partial<Workout>) {
-        const supabase = createClient();
+    async updateWorkout(id: string, workoutData: Partial<Workout>, supabaseInput?: any) {
+        const supabase = supabaseInput || createClient();
         const updates: any = {};
         if (workoutData.name) updates.name = workoutData.name.trim();
         if (workoutData.description !== undefined) updates.description = workoutData.description;
@@ -166,22 +166,22 @@ export const WorkoutService = {
         return mapWorkoutFromSupabase(data);
     },
 
-    async addExerciseToWorkout(workoutId: string, newExercise: Workout['exercises'][0]) {
-        const workout = await this.getWorkoutById(workoutId);
+    async addExerciseToWorkout(workoutId: string, newExercise: Workout['exercises'][0], supabaseInput?: any) {
+        const workout = await this.getWorkoutById(workoutId, supabaseInput);
         if (!workout) throw new Error("Treino não encontrado.");
 
         const updatedExercises = [...(workout.exercises || []), newExercise];
 
         return await this.updateWorkout(workoutId, {
             exercises: updatedExercises
-        });
+        }, supabaseInput);
     },
 
     /**
      * Deleta um treino específico.
      */
-    async deleteWorkout(id: string) {
-        const supabase = createClient();
+    async deleteWorkout(id: string, supabaseInput?: any) {
+        const supabase = supabaseInput || createClient();
         const { error } = await supabase
             .from('workouts')
             .delete()

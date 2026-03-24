@@ -24,8 +24,8 @@ export const SessionService = {
     /**
     * 1. INICIAR SESSÃO
     */
-    async startSession(workout: Workout): Promise<Session> {
-        const supabase = createClient();
+    async startSession(workout: Workout, supabaseInput?: any): Promise<Session> {
+        const supabase = supabaseInput || createClient();
         const { data, error } = await supabase
             .from('sessions')
             .insert({
@@ -53,8 +53,8 @@ export const SessionService = {
         return mapSessionFromSupabase(data);
     },
 
-    async resumeSession(sessionId: string) {
-        const supabase = createClient();
+    async resumeSession(sessionId: string, supabaseInput?: any) {
+        const supabase = supabaseInput || createClient();
         const { error } = await supabase
             .from('sessions')
             .update({
@@ -66,9 +66,9 @@ export const SessionService = {
         if (error) throw error;
     },
 
-    async pauseSession(sessionId: string) {
-        const supabase = createClient();
-        const session = await this.getSessionById(sessionId);
+    async pauseSession(sessionId: string, supabaseInput?: any) {
+        const supabase = supabaseInput || createClient();
+        const session = await this.getSessionById(sessionId, supabaseInput);
         if (!session || !session.resumedAt || session.pausedAt) return;
 
         const now = new Date();
@@ -86,8 +86,8 @@ export const SessionService = {
         if (error) throw error;
     },
 
-    async getSessionsByUserId(userId: string) {
-        const supabase = createClient();
+    async getSessionsByUserId(userId: string, supabaseInput?: any) {
+        const supabase = supabaseInput || createClient();
         const { data, error } = await supabase
             .from('sessions')
             .select('*')
@@ -102,8 +102,8 @@ export const SessionService = {
         return (data || []).map(mapSessionFromSupabase);
     },
 
-    async getSessionById(sessionId: string) {
-        const supabase = createClient();
+    async getSessionById(sessionId: string, supabaseInput?: any) {
+        const supabase = supabaseInput || createClient();
         const { data, error } = await supabase
             .from('sessions')
             .select('*')
@@ -117,8 +117,8 @@ export const SessionService = {
     /**
    * 3. SINCRONIZAR PROGRESSO
    */
-    async syncSessionProgress(sessionId: string, updates: Partial<Session>): Promise<void> {
-        const supabase = createClient();
+    async syncSessionProgress(sessionId: string, updates: Partial<Session>, supabaseInput?: any): Promise<void> {
+        const supabase = supabaseInput || createClient();
         const dbUpdates: any = {};
         if (updates.exercisesDone) dbUpdates.exercises_done = updates.exercisesDone;
         if (updates.exercisesToDo) dbUpdates.exercises_to_do = updates.exercisesToDo;
@@ -138,9 +138,9 @@ export const SessionService = {
     /**
      * 4. FINALIZAR SESSÃO E GERAR HISTÓRICO
      */
-    async finishSession(sessionId: string, additionalData?: { weight?: number, description?: string, usingCreatine?: boolean }) {
-        const supabase = createClient();
-        const session = await this.getSessionById(sessionId);
+    async finishSession(sessionId: string, additionalData?: { weight?: number, description?: string, usingCreatine?: boolean }, supabaseInput?: any) {
+        const supabase = supabaseInput || createClient();
+        const session = await this.getSessionById(sessionId, supabaseInput);
         if (!session) throw new Error("Sessão não encontrada");
 
         const { data: historyData, error: historyError } = await supabase
@@ -162,13 +162,13 @@ export const SessionService = {
 
         if (historyError) throw historyError;
 
-        await this.deleteSession(sessionId);
+        await this.deleteSession(sessionId, supabaseInput);
 
         return historyData.id as string;
     },
 
-    async deleteSession(sessionId: string) {
-        const supabase = createClient();
+    async deleteSession(sessionId: string, supabaseInput?: any) {
+        const supabase = supabaseInput || createClient();
         const { error } = await supabase
             .from('sessions')
             .delete()

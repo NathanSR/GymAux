@@ -1,120 +1,28 @@
-"use client"
-
-import { useState, useEffect } from 'react';
-import { ChevronLeft, Trash2, Loader2 } from 'lucide-react';
-import { useRouter } from '@/i18n/routing';
-import { useTranslations } from 'next-intl';
-import ExerciseForm from '@/components/exercises/ExerciseForm';
-import { useParams } from 'next/navigation';
+import EditExerciseClient from '@/components/exercises/EditExerciseClient';
 import { ExerciseService } from '@/services/exerciseService';
-import Swal from 'sweetalert2';
-import { useTheme } from '@/context/ThemeContext';
-import { toast } from 'react-toastify';
-import Loading from '@/app/[locale]/loading';
+import { createClient } from '@/lib/supabase/server';
+import { redirect } from 'next/navigation';
 
-export default function EditExercisePage() {
-    const { isDark } = useTheme();
-    const router = useRouter();
-    const { id } = useParams();
-    const t = useTranslations('ExerciseEdit');
+interface EditExercisePageProps {
+    params: Promise<{ id: string }>;
+}
 
-    const [exercise, setExercise] = useState<any>(null);
-    const [isLoading, setIsLoading] = useState(false);
+export default async function EditExercisePage({ params }: EditExercisePageProps) {
+    const { id } = await params;
+    const supabase = await createClient();
 
-    useEffect(() => {
-        const fetchExercise = async () => {
-            if (!id) return;
-            const data: any = await ExerciseService.getExerciseById(Number(id));
-            if (data) {
-                // Converte array de tags em string para o formulário se necessário
-                const exerciseWithTagString = {
-                    ...data,
-                    tags: Array.isArray(data.tags) ? data.tags.join(', ') : data.tags
-                };
-                setExercise(exerciseWithTagString);
-            } else {
-                router.push('/exercises');
-            }
-        };
-        fetchExercise();
-    }, [id, router]);
+    const data: any = await ExerciseService.getExerciseById(Number(id), supabase);
+    if (!data) {
+        redirect('/exercises');
+    }
 
-    const handleUpdate = async (data: any) => {
-        setIsLoading(true);
-        try {
-            const formattedData = {
-                ...data,
-                tags: typeof data.tags === 'string'
-                    ? data.tags.split(',').map((t: string) => t.trim()).filter(Boolean)
-                    : data.tags
-            };
-
-            await ExerciseService.updateExercise(Number(id), formattedData);
-            toast.success(t('updatedExercise'));
-            router.push('/exercises');
-        } catch (error) {
-            console.error("Erro ao atualizar:", error);
-            toast.error("Error updating exercise");
-        } finally {
-            setIsLoading(false);
-        }
+    // Preparar dados para o cliente
+    const exerciseWithTagString = {
+        ...data,
+        tags: Array.isArray(data.tags) ? data.tags.join(', ') : data.tags
     };
-
-    const handleDelete = async () => {
-        Swal.fire({
-            title: t('confirmDeleteTitle'),
-            text: t('confirmDeleteText'),
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#ef4444',
-            cancelButtonColor: '#6b7280',
-            confirmButtonText: t('confirmDeleteButton'),
-            cancelButtonText: t('cancelButton'),
-            background: isDark ? '#18181b' : '#ffffff', // zinc-900 ou branco
-            color: isDark ? '#ffffff' : '#18181b',
-        }).then(async (result) => {
-            if (result.isConfirmed) {
-                try {
-                    await ExerciseService.deleteExercise(Number(id));
-                    router.push('/exercises');
-                } catch (error) {
-                    console.error("Erro ao deletar:", error);
-                }
-            }
-        });
-    };
-
-    if (!exercise) return <Loading />
 
     return (
-        <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white transition-colors duration-300">
-            <header className="sticky top-0 z-50 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-md border-b border-zinc-100 dark:border-zinc-900 px-6 py-4 flex items-center justify-between">
-                <button
-                    onClick={() => router.back()}
-                    className="p-2 rounded-xl bg-zinc-100 dark:bg-zinc-900 text-zinc-500 hover:text-zinc-900 dark:hover:text-white transition-colors"
-                >
-                    <ChevronLeft size={24} />
-                </button>
-
-                <h1 className="font-black text-lg tracking-tight uppercase">
-                    {t('editExercise')}
-                </h1>
-
-                <button
-                    onClick={handleDelete}
-                    className="p-2 rounded-xl bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all cursor-pointer"
-                >
-                    <Trash2 size={20} />
-                </button>
-            </header>
-
-            <main className="p-6 max-w-2xl mx-auto animate-in fade-in duration-500">
-                <ExerciseForm
-                    initialData={exercise}
-                    onSubmit={handleUpdate}
-                    isLoading={isLoading}
-                />
-            </main>
-        </div>
+        <EditExerciseClient initialExercise={exerciseWithTagString} exerciseId={Number(id)} />
     );
 }

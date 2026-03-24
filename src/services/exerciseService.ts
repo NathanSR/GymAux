@@ -13,15 +13,25 @@ const mapExerciseFromSupabase = (ex: any): Exercise => ({
 });
 
 export const ExerciseService = {
-    // Buscar todos
     // Buscar todos com Filtros e Paginação
     async getAllExercises(
-        searchQuery = '',
-        category = 'all',
-        pagination: { page: number; limit: number },
-        translations?: { te: any, tt: any }
+        params: {
+            searchQuery?: string,
+            category?: string,
+            pagination?: { page: number; limit: number },
+            translations?: { te: any, tt: any },
+            supabase?: any
+        }
     ) {
-        const supabase = createClient();
+        const {
+            searchQuery = '',
+            category = 'all',
+            pagination = { page: 1, limit: 20 },
+            translations,
+            supabase: supabaseInput
+        } = params;
+
+        const supabase = supabaseInput || createClient();
         let query = supabase.from('exercises').select('*', { count: 'exact' });
 
         // 1. Filtro por Categoria (SQL)
@@ -29,7 +39,7 @@ export const ExerciseService = {
             query = query.eq('category', category);
         }
 
-        const { data, count, error } = await query;
+        const { data, error } = await query;
 
         if (error) {
             console.error('Error fetching exercises:', error);
@@ -48,9 +58,9 @@ export const ExerciseService = {
                 : searchQuery.toLowerCase().trim();
 
             if (cleanQuery.length > 0) {
-                exercises = exercises.filter(ex => {
+                exercises = exercises.filter((ex: any) => {
                     if (isTagSearch) {
-                        return ex.tags?.some(tag => {
+                        return ex.tags?.some((tag: string) => {
                             const translatedTag = tt.has(tag) ? tt(tag).toLowerCase() : tag.toLowerCase();
                             return translatedTag.includes(cleanQuery);
                         });
@@ -76,8 +86,8 @@ export const ExerciseService = {
     },
 
     // Buscar por ID
-    async getExerciseById(id: number) {
-        const supabase = createClient();
+    async getExerciseById(id: number, supabaseInput?: any) {
+        const supabase = supabaseInput || createClient();
         const { data, error } = await supabase
             .from('exercises')
             .select('*')
@@ -93,8 +103,8 @@ export const ExerciseService = {
     },
 
     // Criar novo
-    async createExercise(exerciseData: Omit<Exercise, 'id'>) {
-        const supabase = createClient();
+    async createExercise(exerciseData: Omit<Exercise, 'id'>, supabaseInput?: any) {
+        const supabase = supabaseInput || createClient();
         const formattedName = exerciseData.name.trim();
 
         if (formattedName.length < 2) {
@@ -123,8 +133,8 @@ export const ExerciseService = {
         return mapExerciseFromSupabase(data);
     },
 
-    async updateExercise(id: number, updateData: Partial<Omit<Exercise, 'id'>>) {
-        const supabase = createClient();
+    async updateExercise(id: number, updateData: Partial<Omit<Exercise, 'id'>>, supabaseInput?: any) {
+        const supabase = supabaseInput || createClient();
         // Business rule: system exercises (id < 1000) cannot be updated by users
         if (id < 1000) {
             throw new Error("Cannot update system exercises");
@@ -160,8 +170,8 @@ export const ExerciseService = {
     },
 
     // Deletar exercicio
-    async deleteExercise(id: number) {
-        const supabase = createClient();
+    async deleteExercise(id: number, supabaseInput?: any) {
+        const supabase = supabaseInput || createClient();
         if (id < 1000) {
             throw new Error("Cannot delete system exercises");
         }

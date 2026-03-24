@@ -16,8 +16,8 @@ export const ScheduleService = {
     /**
      * Busca todos os cronogramas do banco.
      */
-    async getAllSchedules() {
-        const supabase = createClient();
+    async getAllSchedules(supabaseInput?: any) {
+        const supabase = supabaseInput || createClient();
         const { data, error } = await supabase
             .from('schedules')
             .select('*');
@@ -33,8 +33,8 @@ export const ScheduleService = {
     /**
      * Busca cronogramas de um usuário específico de forma paginada e com busca.
      */
-    async getSchedulesByUserId(userId: string, searchQuery = '', pagination: { page: number; limit: number }) {
-        const supabase = createClient();
+    async getSchedulesByUserId(userId: string, searchQuery = '', pagination: { page: number; limit: number }, supabaseInput?: any) {
+        const supabase = supabaseInput || createClient();
         let query = supabase
             .from('schedules')
             .select('*', { count: 'exact' })
@@ -64,8 +64,8 @@ export const ScheduleService = {
     /**
      * Busca o cronograma que está marcado como ativo para o usuário.
      */
-    async getActiveSchedule(userId: string) {
-        const supabase = createClient();
+    async getActiveSchedule(userId: string, supabaseInput?: any) {
+        const supabase = supabaseInput || createClient();
         const { data, error } = await supabase
             .from('schedules')
             .select('*')
@@ -81,8 +81,8 @@ export const ScheduleService = {
         return data ? mapScheduleFromSupabase(data) : null;
     },
 
-    async getScheduleById(id: string) {
-        const supabase = createClient();
+    async getScheduleById(id: string, supabaseInput?: any) {
+        const supabase = supabaseInput || createClient();
         const { data, error } = await supabase
             .from('schedules')
             .select('*')
@@ -101,8 +101,8 @@ export const ScheduleService = {
      * Cria um novo cronograma.
      * Inclui regra para garantir que apenas um cronograma esteja ativo por vez.
      */
-    async createSchedule(scheduleData: Omit<Schedule, 'id'>) {
-        const supabase = createClient();
+    async createSchedule(scheduleData: Omit<Schedule, 'id'>, supabaseInput?: any) {
+        const supabase = supabaseInput || createClient();
         const formattedName = scheduleData.name.trim();
 
         if (formattedName.length < 2) {
@@ -145,8 +145,8 @@ export const ScheduleService = {
     /**
      * Atualiza o progresso do cronograma (qual foi o último treino concluído).
      */
-    async updateProgress(id: string, workoutIndex: number) {
-        const supabase = createClient();
+    async updateProgress(id: string, workoutIndex: number, supabaseInput?: any) {
+        const supabase = supabaseInput || createClient();
         if (workoutIndex < 0 || workoutIndex > 6) {
             throw new Error("Índice de dia inválido (deve ser entre 0 e 6).");
         }
@@ -168,8 +168,8 @@ export const ScheduleService = {
     /**
      * Atualiza um cronograma existente.
      */
-    async updateSchedule(id: string, scheduleData: Partial<Schedule>) {
-        const supabase = createClient();
+    async updateSchedule(id: string, scheduleData: Partial<Schedule>, supabaseInput?: any) {
+        const supabase = supabaseInput || createClient();
         const updates: any = {};
         if (scheduleData.name) updates.name = scheduleData.name.trim();
         if (scheduleData.userId) updates.user_id = scheduleData.userId;
@@ -196,8 +196,8 @@ export const ScheduleService = {
     /**
      * Ativa um cronograma específico e desativa todos os outros do mesmo usuário.
      */
-    async setActiveSchedule(id: string, userId: string) {
-        const supabase = createClient();
+    async setActiveSchedule(id: string, userId: string, supabaseInput?: any) {
+        const supabase = supabaseInput || createClient();
         // Desativa todos
         await supabase
             .from('schedules')
@@ -222,8 +222,8 @@ export const ScheduleService = {
     /**
      * Remove um cronograma.
      */
-    async deleteSchedule(id: string) {
-        const supabase = createClient();
+    async deleteSchedule(id: string, supabaseInput?: any) {
+        const supabase = supabaseInput || createClient();
         const { error } = await supabase
             .from('schedules')
             .delete()

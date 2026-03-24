@@ -1,127 +1,31 @@
-"use client"
-
-import { useState, useEffect } from 'react';
-import { ChevronLeft, Trash2, Loader2 } from 'lucide-react';
-import { useRouter } from '@/i18n/routing';
-import { useTranslations } from 'next-intl';
-import WorkoutForm from '@/components/workouts/WorkoutForm';
-import { useParams } from 'next/navigation';
-import { ExerciseService } from '@/services/exerciseService';
+import EditWorkoutClient from '@/components/workouts/EditWorkoutClient';
 import { WorkoutService } from '@/services/workoutService';
-import Swal from 'sweetalert2';
-import { useTheme } from '@/context/ThemeContext';
-import { toast } from 'react-toastify';
-import Loading from '@/app/[locale]/loading';
-import { Exercise, Workout } from '@/config/types';
+import { ExerciseService } from '@/services/exerciseService';
+import { createClient } from '@/lib/supabase/server';
+import { redirect } from 'next/navigation';
 
-export default function EditWorkoutPage() {
-    const { isDark } = useTheme();
-    const router = useRouter();
-    const { id } = useParams();
+interface EditWorkoutPageProps {
+    params: Promise<{ id: string }>;
+}
 
-    // Namespace solicitado: WorkoutEdit
-    const t = useTranslations('WorkoutEdit');
+export default async function EditWorkoutPage({ params }: EditWorkoutPageProps) {
+    const { id } = await params;
+    const supabase = await createClient();
 
-    const [workout, setWorkout] = useState<Workout | null>(null);
-    const [isSaving, setIsSaving] = useState(false);
-    const [availableExercises, setAvailableExercises] = useState<Exercise[]>([]);
+    const [workout, availableExercises] = await Promise.all([
+        WorkoutService.getWorkoutById(id, supabase),
+        ExerciseService.getAllExercises(supabase)
+    ]);
 
-    useEffect(() => {
-        const loadData = async () => {
-            if (!id) return;
-            try {
-                const [workoutData, exercisesData] = await Promise.all([
-                    WorkoutService.getWorkoutById(id as string),
-                    ExerciseService.getAllExercises()
-                ]);
-
-                if (workoutData) {
-                    setWorkout(workoutData);
-                    setAvailableExercises(exercisesData);
-                } else {
-                    router.push('/workouts');
-                }
-            } catch (error) {
-                console.error("Erro ao carregar dados do treino:", error);
-                router.push('/workouts');
-            }
-        };
-        loadData();
-    }, [id, router]);
-
-    const handleUpdate = async (data: any) => {
-        setIsSaving(true);
-        try {
-            await WorkoutService.updateWorkout(id as string, {
-                ...data,
-                updatedAt: new Date()
-            });
-            toast.success(t('updatedWorkout'));
-            router.push('/workouts');
-        } catch (error) {
-            console.error("Erro ao atualizar treino:", error);
-            toast.error("Error updating workout");
-        } finally {
-            setIsSaving(false);
-        }
-    };
-
-    const handleDelete = async () => {
-        Swal.fire({
-            title: t('confirmDeleteTitle'),
-            text: t('confirmDeleteText'),
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#ef4444',
-            cancelButtonColor: '#6b7280',
-            confirmButtonText: t('confirmDeleteButton'),
-            cancelButtonText: t('cancelButton'),
-            background: isDark ? '#18181b' : '#ffffff',
-            color: isDark ? '#ffffff' : '#18181b',
-        }).then(async (result) => {
-            if (result.isConfirmed) {
-                try {
-                    await WorkoutService.deleteWorkout(id as string);
-                    router.push('/workouts');
-                } catch (error) {
-                    console.error("Erro ao deletar:", error);
-                }
-            }
-        });
-    };
-
-    if (!workout) return <Loading />
+    if (!workout) {
+        redirect('/workouts');
+    }
 
     return (
-        <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white transition-colors duration-300">
-            <header className="sticky top-0 z-50 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-md border-b border-zinc-100 dark:border-zinc-900 px-6 py-4 flex items-center justify-between">
-                <button
-                    onClick={() => router.back()}
-                    className="p-2 rounded-xl bg-zinc-100 dark:bg-zinc-900 text-zinc-500 hover:text-zinc-900 dark:hover:text-white transition-colors cursor-pointer"
-                >
-                    <ChevronLeft size={24} />
-                </button>
-
-                <h1 className="font-black text-lg tracking-tight uppercase">
-                    {t('editWorkout')}
-                </h1>
-
-                <button
-                    onClick={handleDelete}
-                    className="p-2 rounded-xl bg-red-500/10 text-red-500 hover:bg-red-50 hover:text-white transition-all cursor-pointer"
-                >
-                    <Trash2 size={20} />
-                </button>
-            </header>
-
-            <main className="p-6 max-w-3xl mx-auto animate-in fade-in duration-500">
-                <WorkoutForm
-                    initialData={workout}
-                    availableExercises={availableExercises}
-                    onSubmit={handleUpdate}
-                    isLoading={isSaving}
-                />
-            </main>
-        </div>
+        <EditWorkoutClient 
+            initialWorkout={workout} 
+            availableExercises={availableExercises} 
+            workoutId={id} 
+        />
     );
 }
