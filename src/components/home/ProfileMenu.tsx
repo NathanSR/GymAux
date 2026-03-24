@@ -18,6 +18,8 @@ import { useTranslations, useLocale } from 'next-intl';
 import { useLanguage } from '@/context/LanguageContext';
 import { LANGUAGES } from '@/config/constants';
 
+import { createClient } from '@/lib/supabase/client';
+
 interface ProfileMenuProps {
     showProfileMenu: boolean;
     setShowProfileMenu: (show: boolean) => void;
@@ -34,7 +36,7 @@ const ProfileMenu: React.FC<ProfileMenuProps> = ({
     const { setLanguage } = useLanguage();
     const router = useRouter();
     const pathname = usePathname();
-    // const { theme, toggleTheme } = useTheme();
+    const supabase = createClient();
 
     // --- Lógica de Instalação PWA ---
     const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
@@ -82,10 +84,12 @@ const ProfileMenu: React.FC<ProfileMenuProps> = ({
         setShowProfileMenu(false);
     }
 
-    const handleLogOut = () => {
+    const handleLogOut = async () => {
+        await supabase.auth.signOut();
         setShowProfileMenu(false);
         router.push('/');
     };
+
 
     if (!showProfileMenu) return null;
 

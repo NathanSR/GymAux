@@ -73,23 +73,17 @@ export const userService = {
 
     // Atualizar com regras de negócio
     async updateUser(id: string, updateData: Partial<Omit<User, 'id' | 'createdAt'>>) {
-        const updates: any = {}; // Initialize an empty object for updates
         if (updateData.name !== undefined) {
             const formattedName = updateData.name.trim();
-
             if (formattedName.length < 2) {
                 throw new Error("Name too short");
             }
+            updateData.name = formattedName;
+        }
 
         const { data, error } = await supabase
             .from('profiles')
-            .update({
-                name: updateData.name,
-                avatar: updateData.avatar,
-                weight: updateData.weight,
-                height: updateData.height,
-                goal: updateData.goal,
-            })
+            .update(updateData)
             .eq('id', id)
             .select()
             .single();
@@ -98,7 +92,7 @@ export const userService = {
             throw error;
         }
 
-        return mapProfileToUser(data);
+        return data ? mapProfileToUser(data) : null;
     },
 
     // Deletar usuário e seus treinos
