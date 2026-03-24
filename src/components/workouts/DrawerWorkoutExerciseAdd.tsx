@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
 import {
     X,
@@ -15,7 +15,6 @@ import {
 } from "lucide-react";
 import { Exercise, Workout } from "@/config/types";
 import { useSession } from "@/hooks/useSession";
-import { useLiveQuery } from "dexie-react-hooks";
 import { WorkoutService } from "@/services/workoutService";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/routing";
@@ -56,10 +55,23 @@ export default function DrawerWorkoutExerciseAdd({
 
     const currentValues = watch();
 
-    const userWorkouts = useLiveQuery(() =>
-        WorkoutService.getWorkoutsByUserId(activeUser?.id ?? -1),
-        [activeUser?.id]
-    ) || [];
+    const [userWorkouts, setUserWorkouts] = useState<Workout[]>([]);
+
+    useEffect(() => {
+        const fetchWorkouts = async () => {
+            if (activeUser?.id) {
+                const results = await WorkoutService.getWorkoutsByUserId(activeUser.id);
+                // Como não passamos paginação, o retorno é Workout[]
+                if (Array.isArray(results)) {
+                    setUserWorkouts(results);
+                }
+            }
+        };
+
+        if (isOpen) {
+            fetchWorkouts();
+        }
+    }, [activeUser?.id, isOpen]);
 
     const handleSelectWorkout = (workout: Workout) => {
         setSelectedWorkout(workout);
@@ -74,12 +86,17 @@ export default function DrawerWorkoutExerciseAdd({
     const onFormSubmit = async (data: FormData) => {
         if (!selectedWorkout?.id) return;
 
-        WorkoutService.addExerciseToWorkout(selectedWorkout.id, {
-            ...data,
-            exerciseId: exercise.id as number,
-            exerciseName: exercise.name
-        });
-        setSuccess(true);
+        try {
+            await WorkoutService.addExerciseToWorkout(selectedWorkout.id, {
+                ...data,
+                exerciseId: exercise.id as number,
+                exerciseName: exercise.name
+            });
+            setSuccess(true);
+        } catch (error) {
+            console.error("Erro ao adicionar exercício:", error);
+            // Poderia adicionar um toast de erro aqui se houvesse um sistema de notificações
+        }
     };
 
     const resetAndClose = () => {

@@ -41,7 +41,7 @@ export const WorkoutService = {
     /**
      * Busca os treinos de um usuário específico com filtros e paginação.
      */
-    async getWorkoutsByUserId(userId: string, searchQuery = '', pagination: { page: number; limit: number }) {
+    async getWorkoutsByUserId(userId: string, searchQuery = '', pagination?: { page: number; limit: number }) {
         let query = supabase
             .from('workouts')
             .select('*', { count: 'exact' })
@@ -52,20 +52,28 @@ export const WorkoutService = {
             query = query.ilike('name', `%${searchQuery.trim()}%`);
         }
 
-        const from = (pagination.page - 1) * pagination.limit;
-        const to = from + pagination.limit - 1;
+        if (pagination) {
+            const from = (pagination.page - 1) * pagination.limit;
+            const to = from + pagination.limit - 1;
+            query = query.range(from, to);
+        }
 
-        const { data, count, error } = await query.range(from, to);
+        const { data, count, error } = await query;
 
         if (error) {
             console.error('Error fetching workouts by user ID:', error);
-            return { workouts: [], totalCount: 0 };
+            if (pagination) return { workouts: [], totalCount: 0 };
+            return [];
         }
 
-        return {
-            workouts: (data || []).map(mapWorkoutFromSupabase),
-            totalCount: count || 0
-        };
+        if (pagination) {
+            return {
+                workouts: (data || []).map(mapWorkoutFromSupabase),
+                totalCount: count || 0
+            };
+        }
+
+        return (data || []).map(mapWorkoutFromSupabase);
     },
 
     /**
