@@ -25,7 +25,8 @@ interface WorkoutDrawerProps {
 export const WorkoutDrawer = ({ showPreview, onClose, session, setSession, syncSession, currentExerciseIndex }: WorkoutDrawerProps) => {
     const t = useTranslations('WorkoutDrawer');
     const te = useTranslations('Exercises');
-    const { theme } = useTheme();
+    const { isDark } = useTheme();
+
     const router = useRouter();
 
     // Novo estado para controlar as abas
@@ -118,8 +119,8 @@ export const WorkoutDrawer = ({ showPreview, onClose, session, setSession, syncS
             cancelButtonColor: '#6b7280',
             confirmButtonText: t('confirmDeleteButton'),
             cancelButtonText: t('cancelButton'),
-            background: theme === 'dark' ? '#18181b' : '#ffffff',
-            color: theme === 'dark' ? '#ffffff' : '#18181b',
+            background: isDark ? '#18181b' : '#ffffff',
+            color: isDark ? '#ffffff' : '#18181b',
         }).then((result) => {
             if (result.isConfirmed) {
                 session.exercisesToDo = session.exercisesToDo.filter((ex: any) => ex.exerciseId !== id);
@@ -153,8 +154,8 @@ export const WorkoutDrawer = ({ showPreview, onClose, session, setSession, syncS
             cancelButtonColor: '#6b7280',
             confirmButtonText: t('confirmDeleteSessionButton'),
             cancelButtonText: t('cancelButton'),
-            background: theme === 'dark' ? '#18181b' : '#ffffff',
-            color: theme === 'dark' ? '#ffffff' : '#18181b',
+            background: isDark ? '#18181b' : '#ffffff',
+            color: isDark ? '#ffffff' : '#18181b',
         }).then(async (result) => {
             if (result.isConfirmed) {
                 await SessionService.deleteSession(session.id!);

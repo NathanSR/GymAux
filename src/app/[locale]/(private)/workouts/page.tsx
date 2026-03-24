@@ -22,7 +22,7 @@ import { useDebounce } from '@/hooks/useDebounce';
 import { Pagination } from '@/components/ui/Pagination';
 
 export default function WorkoutsPage() {
-    const { theme } = useTheme();
+    const { isDark } = useTheme();
     const router = useRouter();
     const locale = useLocale();
     const { activeUser } = useSession();
@@ -133,7 +133,7 @@ export default function WorkoutsPage() {
 
                             <div className="flex gap-3">
                                 <button
-                                    onClick={() => SessionService.onPlayWorkout(workout, router, theme)}
+                                    onClick={() => SessionService.onPlayWorkout(workout, router, isDark ? 'dark' : 'light')}
                                     className="flex-[2] flex items-center justify-center gap-3 bg-lime-400 hover:bg-lime-500 text-zinc-950 py-4 rounded-2xl font-black text-xs uppercase tracking-[0.1em] transition-all active:scale-95 shadow-lg shadow-lime-500/20"
                                 >
                                     <Play size={16} fill="currentColor" />

@@ -13,7 +13,7 @@ import { toast } from 'react-toastify';
 import Loading from '@/app/[locale]/loading';
 
 export default function EditExercisePage() {
-    const { theme } = useTheme();
+    const { isDark } = useTheme();
     const router = useRouter();
     const { id } = useParams();
     const t = useTranslations('ExerciseEdit');
@@ -70,8 +70,8 @@ export default function EditExercisePage() {
             cancelButtonColor: '#6b7280',
             confirmButtonText: t('confirmDeleteButton'),
             cancelButtonText: t('cancelButton'),
-            background: theme === 'dark' ? '#18181b' : '#ffffff', // zinc-900 ou branco
-            color: theme === 'dark' ? '#ffffff' : '#18181b',
+            background: isDark ? '#18181b' : '#ffffff', // zinc-900 ou branco
+            color: isDark ? '#ffffff' : '#18181b',
         }).then(async (result) => {
             if (result.isConfirmed) {
                 try {

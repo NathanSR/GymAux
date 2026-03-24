@@ -13,7 +13,7 @@ import { toast } from "react-toastify";
 import Swal from "sweetalert2";
 
 export default function EditSchedulePage() {
-    const { theme } = useTheme();
+    const { isDark } = useTheme();
     const router = useRouter();
     const t = useTranslations('ScheduleEdit');
     const { id } = useParams();
@@ -73,8 +73,8 @@ export default function EditSchedulePage() {
             cancelButtonColor: '#6b7280',
             confirmButtonText: t('confirmDeleteButton'),
             cancelButtonText: t('cancelButton'),
-            background: theme === 'dark' ? '#18181b' : '#ffffff', // zinc-900 ou branco
-            color: theme === 'dark' ? '#ffffff' : '#111827',
+            background: isDark ? '#18181b' : '#ffffff', // zinc-900 ou branco
+            color: isDark ? '#ffffff' : '#111827',
         }).then(async (result) => {
             if (result.isConfirmed) {
                 try {

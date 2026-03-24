@@ -18,7 +18,7 @@ import { ExerciseInstructionModal } from '@/components/session/ExerciseInstructi
 export default function SessionPage() {
     const t = useTranslations('Session');
     const te = useTranslations('Exercises');
-    const { theme } = useTheme();
+    const { isDark } = useTheme();
     const { id } = useParams();
     const router = useRouter();
 
@@ -77,7 +77,7 @@ export default function SessionPage() {
 
         const handleBackButton = (event: PopStateEvent) => {
             event.preventDefault();
-            if (session?.id) SessionService.onExitSession(session.id, router, theme);
+            if (session?.id) SessionService.onExitSession(session.id, router, isDark ? 'dark' : 'light');
             window.history.pushState(null, '', window.location.href);
         };
 
@@ -86,7 +86,7 @@ export default function SessionPage() {
         return () => {
             window.removeEventListener('popstate', handleBackButton);
         };
-    }, [session?.id, router, theme]);
+    }, [session?.id, router, isDark]);
 
 
     const synchronizeProgress = async () => {
@@ -172,8 +172,8 @@ export default function SessionPage() {
             cancelButtonColor: '#3f3f46',  // zinc-700
             confirmButtonText: t('finishConfirm'),
             cancelButtonText: t('finishCancel'),
-            background: theme === 'dark' ? '#09090b' : '#ffffff',
-            color: theme === 'dark' ? '#ffffff' : '#09090b',
+            background: isDark ? '#09090b' : '#ffffff',
+            color: isDark ? '#ffffff' : '#09090b',
         }).then((result) => {
             if (result.isConfirmed) {
                 if (!session.pausedAt && session.resumedAt) {
@@ -216,7 +216,7 @@ export default function SessionPage() {
             {/* HEADER COM ANIMAÇÃO DE ENTRADA */}
             <header className="px-6 pt-12 pb-6 flex items-center justify-between animate-in fade-in slide-in-from-top-4 duration-700">
                 <button
-                    onClick={() => SessionService.onExitSession(session.id as string, router, theme)}
+                    onClick={() => SessionService.onExitSession(session.id as string, router, isDark ? 'dark' : 'light')}
                     className="p-3 rounded-2xl bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-white hover:border-zinc-700 active:scale-90 transition-all duration-300"
                 >
                     <ChevronLeft size={20} />

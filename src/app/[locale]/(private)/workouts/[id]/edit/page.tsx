@@ -15,7 +15,7 @@ import Loading from '@/app/[locale]/loading';
 import { Exercise, Workout } from '@/config/types';
 
 export default function EditWorkoutPage() {
-    const { theme } = useTheme();
+    const { isDark } = useTheme();
     const router = useRouter();
     const { id } = useParams();
 
@@ -76,8 +76,8 @@ export default function EditWorkoutPage() {
             cancelButtonColor: '#6b7280',
             confirmButtonText: t('confirmDeleteButton'),
             cancelButtonText: t('cancelButton'),
-            background: theme === 'dark' ? '#18181b' : '#ffffff',
-            color: theme === 'dark' ? '#ffffff' : '#18181b',
+            background: isDark ? '#18181b' : '#ffffff',
+            color: isDark ? '#ffffff' : '#18181b',
         }).then(async (result) => {
             if (result.isConfirmed) {
                 try {
