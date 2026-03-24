@@ -18,11 +18,9 @@ import { useRouter } from '@/i18n/routing';
 import { ScheduleService } from '@/services/scheduleService';
 import { WorkoutService } from '@/services/workoutService';
 import { HistoryService } from '@/services/historyService';
-import moment from 'moment';
 import { SessionService } from '@/services/sessionService';
 import { MenuTab } from '@/components/MenuTab';
 import ProfileMenu from '@/components/home/ProfileMenu';
-import Loading from '@/app/[locale]/loading';
 import { Workout, Schedule, History, Session } from '@/config/types';
 import { formatDuration, getRelativeTime } from '@/utils/dateUtil';
 
@@ -33,10 +31,10 @@ export default function HomePage() {
     const router = useRouter();
     const { activeUser, loading: sessionLoading } = useSession();
 
-    const today = moment().toDate();
-    const dayOfWeek = moment().day();
-    const startTodayDate = moment().startOf('day').toDate();
-    const endTodayDate = moment().endOf('day').toDate();
+    const today = new Date();
+    const dayOfWeek = today.getDay();
+    const startTodayDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    const endTodayDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
 
     const [showProfileMenu, setShowProfileMenu] = useState(false);
     const [activeSchedule, setActiveSchedule] = useState<Schedule | null>(null);

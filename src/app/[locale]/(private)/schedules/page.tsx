@@ -15,16 +15,17 @@ import {
 import { useSession } from '@/hooks/useSession';
 import { useRouter } from '@/i18n/routing';
 import { ScheduleService } from '@/services/scheduleService';
-import { useTranslations } from 'next-intl';
-import moment from 'moment';
+import { useLocale, useTranslations } from 'next-intl';
 import { Schedule } from '@/config/types';
 import { useDebounce } from '@/hooks/useDebounce';
 import { Pagination } from '@/components/ui/Pagination';
+import { formatDate } from '@/utils/dateUtil';
 
 export default function SchedulesPage() {
     const router = useRouter();
     const t = useTranslations('ScheduleList');
     const { activeUser } = useSession();
+    const locale = useLocale()
 
     const [schedules, setSchedules] = useState<Schedule[]>([]);
     const [loading, setLoading] = useState(true);
@@ -139,9 +140,9 @@ export default function SchedulesPage() {
                                 <div className="flex flex-wrap gap-2 mb-6">
                                     <Clock size={14} className="text-zinc-300" />
                                     <div className="flex items-center gap-1 text-zinc-400 font-bold text-[10px]">
-                                        <div>{moment(schedule.startDate).format('DD/MM/YYYY')}</div>
+                                        <div>{formatDate(schedule.startDate, locale)}</div>
                                         <span>-</span>
-                                        <div>{schedule.endDate ? moment(schedule.endDate).format('DD/MM/YYYY') : "..."}</div>
+                                        <div>{schedule.endDate ? formatDate(schedule.endDate, locale) : "..."}</div>
                                     </div>
                                 </div>
 
