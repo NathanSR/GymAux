@@ -32,7 +32,7 @@ export default function EditScheduleClient({ initialData, scheduleId }: EditSche
                 updatedAt: new Date()
             });
             toast.success(t('editSuccess'));
-            router.back();
+            router.push('/schedules');
         } catch (error) {
             console.error("Error updating schedule:", error);
         } finally {

@@ -37,7 +37,7 @@ export default function CreateScheduleClient({ userId }: CreateScheduleClientPro
                 theme: "colored",
             });
 
-            router.back();
+            router.push('/schedules');
         } catch (error) {
             console.error("Erro ao criar cronograma de treino:", error);
             toast.error(t('createError'));
