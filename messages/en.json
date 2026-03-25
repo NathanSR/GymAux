@@ -1248,7 +1248,8 @@
         "title": "Add Exercise",
         "searchPlaceholder": "Search exercise...",
         "allCategories": "All",
-        "noResults": "No exercises found"
+        "noResults": "No exercises found",
+        "loading": "Loading..."
     },
     "ScheduleList": {
         "title": "Schedules",
@@ -1499,18 +1500,31 @@
                 "free": {
                     "title": "FREE",
                     "price": "$0 /PER MONTH",
-                    "features": ["Local Training", "350+ Exercises Library", "Cloud Sync"]
+                    "features": [
+                        "Local Training",
+                        "350+ Exercises Library",
+                        "Cloud Sync"
+                    ]
                 },
                 "pro": {
                     "title": "PRO",
                     "price": "$9.99 /PER MONTH",
-                    "features": ["Everything in Free", "Unlimited Sessions", "Priority Support", "Custom Programs"],
+                    "features": [
+                        "Everything in Free",
+                        "Unlimited Sessions",
+                        "Priority Support",
+                        "Custom Programs"
+                    ],
                     "badge": "RECOMMENDED"
                 },
                 "trainer": {
                     "title": "TRAINER",
                     "price": "$24.99 /PER MONTH",
-                    "features": ["Everything in Pro", "Client Management (Up to 50)", "Professional Stats Sharing"]
+                    "features": [
+                        "Everything in Pro",
+                        "Client Management (Up to 50)",
+                        "Professional Stats Sharing"
+                    ]
                 }
             },
             "cta": "GET STARTED"

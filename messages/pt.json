@@ -1248,7 +1248,8 @@
         "title": "Adicionar Exercício",
         "searchPlaceholder": "Buscar exercício...",
         "allCategories": "Todos",
-        "noResults": "Nenhum exercício encontrado"
+        "noResults": "Nenhum exercício encontrado",
+        "loading": "Carregando..."
     },
     "ScheduleList": {
         "title": "Cronogramas",

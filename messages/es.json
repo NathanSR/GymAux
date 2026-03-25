@@ -1220,7 +1220,8 @@
         "title": "Añadir Ejercicio",
         "searchPlaceholder": "Buscar ejercicio...",
         "allCategories": "Todos",
-        "noResults": "No se encontraron ejercicios"
+        "noResults": "No se encontraron ejercicios",
+        "loading": "Cargando..."
     },
     "ScheduleList": {
         "title": "Cronogramas",
@@ -1471,18 +1472,31 @@
                 "free": {
                     "title": "GRATIS",
                     "price": "$0 /POR MES",
-                    "features": ["Entrenamiento Local", "Biblioteca de 350+ Ejercicios", "Sincronización en la nube"]
+                    "features": [
+                        "Entrenamiento Local",
+                        "Biblioteca de 350+ Ejercicios",
+                        "Sincronización en la nube"
+                    ]
                 },
                 "pro": {
                     "title": "PRO",
                     "price": "$9.99 /POR MES",
-                    "features": ["Todo en Gratis", "Sesiones Ilimitadas", "Soporte Prioritario", "Programas Personalizados"],
+                    "features": [
+                        "Todo en Gratis",
+                        "Sesiones Ilimitadas",
+                        "Soporte Prioritario",
+                        "Programas Personalizados"
+                    ],
                     "badge": "RECOMENDADO"
                 },
                 "trainer": {
                     "title": "ENTRENADOR",
                     "price": "$24.99 /POR MES",
-                    "features": ["Todo en Pro", "Gestión de Clientes (Hasta 50)", "Compartir Estadísticas Profesionales"]
+                    "features": [
+                        "Todo en Pro",
+                        "Gestión de Clientes (Hasta 50)",
+                        "Compartir Estadísticas Profesionales"
+                    ]
                 }
             },
             "cta": "COMENZAR"
