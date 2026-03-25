@@ -3,15 +3,21 @@
 import { useState } from 'react';
 import {
     Play,
-    Trophy,
-    History as HistoryIcon,
-    ChevronRight,
-    Clock,
-    Dumbbell,
-    User,
+    Plus,
+    Flame,
     CheckCircle2,
+    Calendar,
+    ChevronRight,
+    ArrowRight,
+    Search,
+    Dumbbell,
+    Clock,
+    History as HistoryIcon,
+    Trash2,
+    Trophy,
+    User,
     Bed,
-} from 'lucide-react';
+} from "lucide-react";
 import { useTranslations, useLocale } from 'next-intl';
 import { useRouter } from '@/i18n/routing';
 import { useSessionActions } from '@/hooks/useSessionActions';
@@ -41,7 +47,7 @@ export default function HomeClient({
     const te = useTranslations('Exercises');
     const locale = useLocale();
     const router = useRouter();
-    const { startWorkout, resumeWorkout } = useSessionActions();
+    const { resumeWorkout, startWorkout, cancelSession } = useSessionActions();
 
     const today = new Date();
     
@@ -143,109 +149,153 @@ export default function HomeClient({
                 </div>
             </section>
 
-            {/* Sessão de treinos */}
-            <section className="bg-white dark:bg-zinc-900 rounded-[32px] p-6 border border-zinc-200 dark:border-zinc-800 shadow-sm mb-10">
-                <div className="flex items-center justify-between">
-                    <h2 className="text-xs font-black uppercase tracking-[0.2em] text-zinc-400">
-                        {t('openSessions')}
-                    </h2>
-                    <span className="px-2 py-0.5 bg-lime-100 dark:bg-lime-500/10 text-lime-600 dark:text-lime-400 text-[10px] font-black rounded-full">
-                        {t('pendingCount', { count: sessionList.length })}
-                    </span>
-                </div>
+            {/* Sessão de treinos em aberto */}
+            {sessionList.length > 0 && (
+                <section className="relative overflow-hidden bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl rounded-[40px] p-8 border border-zinc-200/50 dark:border-zinc-800/50 shadow-2xl shadow-lime-500/5 mb-12 group/section">
+                    <div className="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 bg-lime-500/10 rounded-full blur-[100px] pointer-events-none" />
+                    
+                    <div className="flex items-center justify-between mb-8 relative">
+                        <div className="flex flex-col gap-1">
+                            <h2 className="text-[10px] font-black uppercase tracking-[0.3em] text-lime-600 dark:text-lime-400">
+                                {t('openSessions')}
+                            </h2>
+                            <p className="text-2xl font-black italic tracking-tighter uppercase text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
+                                {t('pendingCount', { count: sessionList.length })}
+                                <span className="w-1.5 h-1.5 rounded-full bg-lime-500 animate-pulse" />
+                            </p>
+                        </div>
+                    </div>
 
-                <div className="grid gap-3">
-                    {sessionList.map((session) => {
-                        const total = session.exercisesToDo.length;
-                        const done = session.exercisesDone.length;
-                        const progressPercent = Math.round((done / total) * 100);
+                    <div className="grid gap-4 relative">
+                        {sessionList.map((session) => {
+                            const total = session.exercisesToDo.length;
+                            const done = session.exercisesDone.length;
+                            const progressPercent = Math.round((done / total) * 100);
 
-                        return (
-                            <div key={session.id} className="group relative flex flex-col gap-4 p-4 bg-white dark:bg-zinc-900 rounded-[24px] shadow-sm transition-all active:scale-[0.98]">
-                                <div className="flex items-center gap-4">
-                                    <div className="relative w-12 h-12 flex items-center justify-center bg-lime-100 dark:bg-lime-500/10 rounded-2xl text-lime-500">
-                                        <HistoryIcon size={22} className="animate-pulse" />
-                                    </div>
+                            return (
+                                <div 
+                                    key={session.id} 
+                                    className="group relative flex flex-col gap-5 p-6 bg-zinc-50/50 dark:bg-zinc-800/30 rounded-[32px] border border-zinc-100 dark:border-zinc-800/50 transition-all duration-500 hover:border-lime-500/30 hover:shadow-xl hover:shadow-lime-500/5"
+                                >
+                                    <div className="flex items-center gap-5">
+                                        <div className="relative w-14 h-14 flex items-center justify-center bg-white dark:bg-zinc-900 rounded-2xl text-lime-500 shadow-sm border border-zinc-100 dark:border-zinc-800">
+                                            <div className="absolute inset-0 bg-lime-500/5 rounded-2xl blur-sm group-hover:blur-md transition-all" />
+                                            <HistoryIcon size={24} className="relative z-10 transition-transform group-hover:scale-110" />
+                                        </div>
 
-                                    <div className="flex-1 min-w-0">
-                                        <p className="text-sm font-black uppercase tracking-tight truncate text-zinc-800 dark:text-zinc-100">
-                                            {session.workoutName}
-                                        </p>
-                                        <div className="flex items-center gap-2 mt-0.5">
-                                            <div className="flex-1 h-1.5 bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden">
-                                                <div className="h-full bg-lime-400 rounded-full" style={{ width: `${progressPercent}%` }} />
+                                        <div className="flex-1 min-w-0">
+                                            <p className="text-base font-black uppercase italic tracking-tighter truncate text-zinc-900 dark:text-zinc-100">
+                                                {session.workoutName}
+                                            </p>
+                                            <div className="flex items-center gap-3 mt-2">
+                                                <div className="flex-1 h-2 bg-zinc-200 dark:bg-zinc-800/50 rounded-full overflow-hidden">
+                                                    <div className="h-full bg-gradient-to-r from-lime-400 to-lime-500 rounded-full transition-all duration-1000 ease-out" style={{ width: `${progressPercent}%` }} />
+                                                </div>
+                                                <span className="text-[11px] font-black text-zinc-500 dark:text-zinc-400 tabular-nums">
+                                                    {t('exsCount', { done, total })}
+                                                </span>
                                             </div>
-                                            <span className="text-[10px] font-bold text-zinc-400 whitespace-nowrap">
-                                                {t('exsCount', { done, total })}
-                                            </span>
+                                        </div>
+
+                                        <div className="flex items-center gap-2">
+                                            <button
+                                                onClick={() => cancelSession(session.id!)}
+                                                className="flex items-center justify-center w-12 h-12 bg-zinc-100 dark:bg-zinc-800 hover:bg-red-50 dark:hover:bg-red-500/10 text-zinc-400 hover:text-red-500 rounded-2xl transition-all border border-zinc-200/50 dark:border-zinc-700/50 cursor-pointer"
+                                                title={t('cancelCancel')}
+                                            >
+                                                <Trash2 size={20} />
+                                            </button>
+                                            <button
+                                                onClick={() => resumeWorkout(session.id!)}
+                                                className="flex items-center justify-center w-12 h-12 bg-lime-400 text-zinc-950 hover:bg-lime-300 rounded-2xl hover:scale-105 transition-all shadow-lg shadow-lime-500/20 cursor-pointer font-black"
+                                            >
+                                                <Play size={20} fill="currentColor" />
+                                            </button>
                                         </div>
                                     </div>
 
-                                    <button
-                                        onClick={() => resumeWorkout(session.id!)}
-                                        className="flex items-center justify-center w-10 h-10 bg-zinc-900 dark:bg-lime-400 text-white dark:text-zinc-950 rounded-xl hover:scale-105 transition-transform cursor-pointer shadow-lg"
-                                    >
-                                        <Play size={18} fill="currentColor" />
-                                    </button>
+                                    <div className="flex items-center justify-between pt-4 border-t border-zinc-100 dark:border-zinc-800/50">
+                                        <div className="flex flex-col gap-1">
+                                            <span className="text-[9px] font-black uppercase tracking-widest text-zinc-400">
+                                                {t('pausedAt', { date: '' }).split(':')[0]}
+                                            </span>
+                                            <span className="text-[11px] text-zinc-500 dark:text-zinc-300 font-bold">
+                                                {session.pausedAt?.toLocaleString(locale) || ''}
+                                            </span>
+                                        </div>
+                                        <div className="flex flex-col items-end gap-1">
+                                            <span className="text-[9px] font-black uppercase tracking-widest text-zinc-400">
+                                                {t('next')}
+                                            </span>
+                                            <p className="text-[11px] font-black text-lime-500 uppercase italic tracking-tight">
+                                                {te.has(session.exercisesToDo[done]?.exerciseName) ? te(session.exercisesToDo[done]?.exerciseName) : t('next')}
+                                            </p>
+                                        </div>
+                                    </div>
                                 </div>
-
-                                <div className="flex items-center justify-between pt-2 border-t border-zinc-50 dark:border-zinc-800/50">
-                                    <span className="text-[10px] text-zinc-400 font-medium">
-                                        {t('pausedAt', { date: session.pausedAt?.toLocaleString(locale) || '' })}
-                                    </span>
-                                    <p className="text-[10px] font-bold text-lime-500 uppercase tracking-wider">
-                                        {t('continueFrom', { exercise: te.has(session.exercisesToDo[done]?.exerciseName) ? te(session.exercisesToDo[done]?.exerciseName) : t('next') })}
-                                    </p>
-                                </div>
-                            </div>
-                        );
-                    })}
-                </div>
-            </section>
+                            );
+                        })}
+                    </div>
+                </section>
+            )}
 
             {/* Histórico de treinos */}
-            <section className="bg-white dark:bg-zinc-900 rounded-[32px] p-6 border border-zinc-200 dark:border-zinc-800 shadow-sm mb-10">
-                <div className="flex justify-between items-center mb-6">
-                    <h3 className="font-black text-lg flex items-center gap-2 uppercase italic tracking-tight">
-                        <HistoryIcon size={20} className="text-lime-500" />
-                        {t('history')}
-                    </h3>
+            <section className="relative bg-zinc-50/50 dark:bg-zinc-900/30 rounded-[40px] p-8 border border-zinc-200/50 dark:border-zinc-800/50 shadow-inner group/history">
+                <div className="flex justify-between items-end mb-8">
+                    <div className="flex flex-col gap-1">
+                        <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-400">
+                            {t('history')}
+                        </h3>
+                        <p className="text-2xl font-black italic tracking-tighter uppercase text-zinc-900 dark:text-zinc-100">
+                            ATIVIDADE RECENTE
+                        </p>
+                    </div>
                     <button
                         onClick={() => router.push("/history")}
-                        className="text-[10px] text-lime-600 dark:text-lime-400 font-black uppercase tracking-widest flex items-center gap-1"
+                        className="h-10 px-4 bg-white dark:bg-zinc-800 text-[10px] text-zinc-900 dark:text-zinc-100 font-black uppercase tracking-widest flex items-center gap-2 rounded-2xl border border-zinc-200 dark:border-zinc-700 hover:border-lime-500/50 transition-all shadow-sm"
                     >
-                        {t('viewAll')} <ChevronRight size={14} />
+                        {t('viewAll')} <ChevronRight size={14} className="text-lime-500" />
                     </button>
                 </div>
 
-                <div className="space-y-4">
+                <div className="grid gap-3">
                     {historyList.map((item) => {
-                        const timeAgo = getRelativeTime(item.endDate as Date, locale);
+                        const timeAgo = item.endDate ? getRelativeTime(item.endDate as Date, locale) : "";
                         const durationDisplay = formatDuration(item.duration || 0);
 
                         return (
-                            <div key={item.id} className="flex items-center gap-4 p-4 bg-zinc-50 dark:bg-zinc-900/40 rounded-[24px] border border-zinc-100 dark:border-zinc-800/50 hover:border-lime-400/30 transition-colors">
-                                <div className="w-12 h-12 bg-lime-400/10 rounded-2xl flex items-center justify-center text-lime-500 shadow-inner">
-                                    <CheckCircle2 size={22} />
+                            <div 
+                                key={item.id} 
+                                className="group relative flex items-center gap-4 p-5 bg-white dark:bg-zinc-900 rounded-[28px] border border-zinc-100 dark:border-zinc-800/80 hover:border-lime-500/20 hover:shadow-lg transition-all duration-300"
+                            >
+                                <div className="w-14 h-14 bg-zinc-50 dark:bg-zinc-800/50 rounded-2xl flex items-center justify-center text-lime-500 transition-colors group-hover:bg-lime-500/5">
+                                    <CheckCircle2 size={24} className="transition-transform group-hover:scale-110" />
                                 </div>
-                                <div className="flex-1">
-                                    <p className="text-sm font-black uppercase tracking-tight text-zinc-900 dark:text-zinc-100">
-                                        {item.workoutName}
-                                    </p>
-                                    <div className="flex items-center gap-2 mt-0.5">
-                                        <span className="text-[10px] text-zinc-500 font-bold capitalize">
+                                <div className="flex-1 min-w-0">
+                                    <div className="flex items-center justify-between mb-1">
+                                        <p className="text-sm font-black uppercase italic tracking-tight text-zinc-900 dark:text-zinc-100 truncate">
+                                            {item.workoutName}
+                                        </p>
+                                        <span className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider">
                                             {timeAgo}
                                         </span>
-                                        <span className="w-1 h-1 rounded-full bg-zinc-300 dark:bg-zinc-700" />
-                                        <div className="flex items-center gap-1 text-[10px] text-lime-600 dark:text-lime-400 font-black uppercase">
-                                            <Clock size={10} />
+                                    </div>
+                                    <div className="flex items-center gap-3">
+                                        <div className="flex items-center gap-1.5 px-2 py-1 bg-lime-500/5 rounded-lg text-[10px] text-lime-600 dark:text-lime-400 font-black uppercase">
+                                            <Clock size={12} />
                                             {durationDisplay}
+                                        </div>
+                                        <span className="w-1 h-1 rounded-full bg-zinc-200 dark:bg-zinc-800" />
+                                        <div className="flex items-center gap-1.5 text-[10px] text-zinc-400 font-bold uppercase">
+                                            <Calendar size={12} />
+                                            {item.endDate && item.endDate.toLocaleDateString(locale, { day: '2-digit', month: 'short' })}
                                         </div>
                                     </div>
                                 </div>
 
-                                {/* Opcional: Indicador de volume ou seta */}
-                                <ChevronRight size={16} className="text-zinc-300 dark:text-zinc-700" />
+                                <div className="w-10 h-10 flex items-center justify-center text-zinc-300 dark:text-zinc-700 transition-all group-hover:text-lime-500 group-hover:translate-x-1">
+                                    <ChevronRight size={20} />
+                                </div>
                             </div>
                         );
                     })}

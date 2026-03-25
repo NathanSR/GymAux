@@ -77,10 +77,28 @@ export const useSessionActions = () => {
         }
     };
 
+    const cancelSession = async (sessionId: string) => {
+        const result = await confirm({
+            title: th('cancelWorkoutTitle'),
+            text: th('cancelWorkoutText'),
+            icon: 'warning',
+            confirmText: th('cancelConfirm'),
+            cancelText: th('cancelCancel'),
+            danger: true,
+        });
+
+        if (result.isConfirmed) {
+            await SessionService.deleteSession(sessionId);
+            return true;
+        }
+        return false;
+    };
+
     return {
         startWorkout,
         resumeWorkout,
         exitSession,
         forceFinishWorkout,
+        cancelSession,
     };
 };

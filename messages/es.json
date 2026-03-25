@@ -67,7 +67,11 @@
         "resumeWorkoutTitle": "¿Continuar Entrenamiento?",
         "resumeWorkoutText": "Tienes un entrenamiento en curso. ¿Volvemos?",
         "resumeConfirm": "¡Continuar!",
-        "resumeCancel": "Ahora no"
+        "resumeCancel": "Ahora no",
+        "cancelWorkoutTitle": "¿Cancelar Entrenamiento?",
+        "cancelWorkoutText": "Todo el progreso de esta sesión se perderá permanentemente.",
+        "cancelConfirm": "Sí, cancelar",
+        "cancelCancel": "No, mantener"
     },
     "ProfileMenu": {
         "title": "Configuraciones",

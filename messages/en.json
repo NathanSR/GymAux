@@ -95,7 +95,11 @@
         "resumeWorkoutTitle": "Resume Workout?",
         "resumeWorkoutText": "You have a workout in progress. Let's go back?",
         "resumeConfirm": "Resume!",
-        "resumeCancel": "Not now"
+        "resumeCancel": "Not now",
+        "cancelWorkoutTitle": "Cancel Workout?",
+        "cancelWorkoutText": "All progress of this session will be permanently lost.",
+        "cancelConfirm": "Yes, cancel",
+        "cancelCancel": "No, keep"
     },
     "ProfileMenu": {
         "title": "Settings",
