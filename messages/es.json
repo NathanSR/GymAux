@@ -59,7 +59,15 @@
         "next": "Siguiente",
         "history": "Historial",
         "viewAll": "Ver todo",
-        "minutesShort": "min"
+        "minutesShort": "min",
+        "startWorkoutTitle": "¿Iniciar Entrenamiento?",
+        "startWorkoutText": "¿Estás listo para comenzar?",
+        "startConfirm": "¡Sí, vamos!",
+        "startCancel": "Ahora no",
+        "resumeWorkoutTitle": "¿Continuar Entrenamiento?",
+        "resumeWorkoutText": "Tienes un entrenamiento en curso. ¿Volvemos?",
+        "resumeConfirm": "¡Continuar!",
+        "resumeCancel": "Ahora no"
     },
     "ProfileMenu": {
         "title": "Configuraciones",
@@ -1314,8 +1322,12 @@
         "finishNow": "Finalizar Ahora",
         "howTo": "Como hacerlo",
         "usingCreatine": "Usando Creatina?",
-        "creatineOn": "Si, usei!",
-        "creatineOff": "No usei hoy!"
+        "creatineOn": "¡Sí, la usé!",
+        "creatineOff": "¡No la usé hoy!",
+        "exitTitle": "¿Pausar Entrenamiento?",
+        "exitText": "El tiempo se pausará y podrás continuar más tarde en el Inicio.",
+        "exitConfirm": "Sí, pausar y salir",
+        "exitCancel": "Cancelar"
     },
     "RestTimer": {
         "seconds": "Segundos",

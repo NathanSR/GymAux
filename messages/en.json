@@ -87,7 +87,15 @@
         "next": "Next",
         "history": "History",
         "viewAll": "View all",
-        "minutesShort": "min"
+        "minutesShort": "min",
+        "startWorkoutTitle": "Start Workout?",
+        "startWorkoutText": "Are you ready to start?",
+        "startConfirm": "Yes, let's go!",
+        "startCancel": "Not now",
+        "resumeWorkoutTitle": "Resume Workout?",
+        "resumeWorkoutText": "You have a workout in progress. Let's go back?",
+        "resumeConfirm": "Resume!",
+        "resumeCancel": "Not now"
     },
     "ProfileMenu": {
         "title": "Settings",
@@ -1343,7 +1351,11 @@
         "howTo": "How to",
         "usingCreatine": "Using Creatine?",
         "creatineOn": "Yes, I used it!",
-        "creatineOff": "No, I didn't use it!"
+        "creatineOff": "No, I didn't use it!",
+        "exitTitle": "Pause Workout?",
+        "exitText": "The timer will be paused and you can continue later from the Home screen.",
+        "exitConfirm": "Yes, pause and exit",
+        "exitCancel": "Cancel"
     },
     "RestTimer": {
         "seconds": "Seconds",

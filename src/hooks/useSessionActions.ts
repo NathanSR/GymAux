@@ -12,11 +12,11 @@ export const useSessionActions = () => {
 
     const startWorkout = async (workout: Workout) => {
         const result = await confirm({
-            title: th('startWorkoutTitle') || 'Iniciar Treino?',
-            text: th('startWorkoutText') || 'Você está pronto para começar?',
+            title: th('startWorkoutTitle'),
+            text: th('startWorkoutText'),
             icon: 'question',
-            confirmText: th('startConfirm') || 'Sim, vamos!',
-            cancelText: th('startCancel') || 'Agora não',
+            confirmText: th('startConfirm'),
+            cancelText: th('startCancel'),
         });
 
         if (result.isConfirmed) {
@@ -27,11 +27,11 @@ export const useSessionActions = () => {
 
     const resumeWorkout = async (sessionId: string) => {
         const result = await confirm({
-            title: th('resumeWorkoutTitle') || 'Continuar Treino?',
-            text: th('resumeWorkoutText') || 'Você tem um treino em andamento. Vamos voltar?',
+            title: th('resumeWorkoutTitle'),
+            text: th('resumeWorkoutText'),
             icon: 'info',
-            confirmText: th('resumeConfirm') || 'Continuar!',
-            cancelText: th('resumeCancel') || 'Agora não',
+            confirmText: th('resumeConfirm'),
+            cancelText: th('resumeCancel'),
         });
 
         if (result.isConfirmed) {
@@ -42,11 +42,11 @@ export const useSessionActions = () => {
 
     const exitSession = async (sessionId: string) => {
         const result = await confirm({
-            title: t('exitTitle') || 'Pausar Treino?',
-            text: t('exitText') || 'O tempo será pausado e você poderá continuar mais tarde na Home.',
+            title: t('exitTitle'),
+            text: t('exitText'),
             icon: 'warning',
-            confirmText: t('exitConfirm') || 'Sim, pausar e sair',
-            cancelText: t('exitCancel') || 'Cancelar',
+            confirmText: t('exitConfirm'),
+            cancelText: t('exitCancel'),
         });
 
         if (result.isConfirmed) {
