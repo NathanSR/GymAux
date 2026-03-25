@@ -1571,7 +1571,10 @@
                 "terms": "Términos de Servicio",
                 "about": "Acerca de"
             },
-            "rights": "Todos los derechos reservados."
+            "rights": "Todos los derechos reservados.",
+            "themeLight": "Modo Claro",
+            "themeDark": "Modo Oscuro",
+            "language": "Idioma"
         }
     },
     "Pagination": {

@@ -10,7 +10,7 @@ export default function HeroSection() {
     const t = useTranslations('Marketing');
 
     return (
-        <section className="max-w-7xl mx-auto flex flex-col items-center text-center gap-8 mb-32 pt-32 px-6">
+        <section id="hero" className="max-w-7xl mx-auto flex flex-col items-center text-center gap-8 mb-32 pt-32 px-6">
             <motion.div
                 initial={{ opacity: 0, scale: 0.5, y: -50 }}
                 whileInView={{ opacity: 1, scale: 1, y: 0 }}

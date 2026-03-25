@@ -1571,7 +1571,10 @@
                 "terms": "Terms of Service",
                 "about": "About"
             },
-            "rights": "All rights reserved."
+            "rights": "All rights reserved.",
+            "themeLight": "Light Mode",
+            "themeDark": "Dark Mode",
+            "language": "Language"
         }
     },
     "Pagination": {

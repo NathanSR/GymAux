@@ -24,12 +24,12 @@ export default function Navbar() {
                 transition={{ duration: 0.8, ease: "easeOut" }}
                 className="max-w-7xl w-full flex items-center justify-between px-6 h-14 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl"
             >
-                <div className="flex items-center gap-2">
+                <Link href="#hero" className="flex items-center gap-2">
                     <div className="w-8 h-8 rounded-lg bg-brand flex items-center justify-center">
                         <Dumbbell className="w-5 h-5 text-black" strokeWidth={2.5} />
                     </div>
                     <span className="text-xl font-bold tracking-tighter uppercase italic text-zinc-100">GymAux</span>
-                </div>
+                </Link>
 
                 {/* Desktop Menu */}
                 <div className="hidden md:flex items-center gap-8">
