@@ -16,6 +16,7 @@ export type CategoryType = (typeof CATEGORIES)[number];
 
 export interface Exercise {
     id?: number; // Exercises em Supabase usam bigint identity (1, 2, 3...)
+    userId?: string;
     name: string;
     description?: string;
     category: CategoryType;

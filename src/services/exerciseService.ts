@@ -3,6 +3,7 @@ import { Exercise } from '@/config/types';
 
 const mapExerciseFromSupabase = (ex: any): Exercise => ({
     id: ex.id,
+    userId: ex.created_by,
     name: ex.name,
     description: ex.description || undefined,
     category: ex.category as any,
@@ -111,6 +112,13 @@ export const ExerciseService = {
             throw new Error("Name too short");
         }
 
+        // Se o userId não for passado, tenta pegar do usuário autenticado atual
+        let userId = exerciseData.userId;
+        if (!userId) {
+            const { data: { user } } = await supabase.auth.getUser();
+            userId = user?.id;
+        }
+
         const { data, error } = await supabase
             .from('exercises')
             .insert({
@@ -121,6 +129,7 @@ export const ExerciseService = {
                 category: exerciseData.category,
                 tags: exerciseData.tags,
                 level: exerciseData.level,
+                created_by: userId,
                 created_by_type: 'user',
             })
             .select()

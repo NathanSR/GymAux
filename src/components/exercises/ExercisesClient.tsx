@@ -76,7 +76,7 @@ export default function ExercisesClient({ initialExercises, initialTotalCount }:
         };
 
         fetchExercises();
-    }, [debouncedSearch, selectedCategory, page, limit, te, tt, initialExercises]);
+    }, [debouncedSearch, selectedCategory, page, limit, initialExercises]);
 
     const totalPages = Math.ceil(totalCount / limit);
 

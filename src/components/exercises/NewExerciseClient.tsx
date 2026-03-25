@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { ChevronLeft } from 'lucide-react';
 import { useRouter } from '@/i18n/routing';
 import { useTranslations } from 'next-intl';
+import { useSession } from '@/hooks/useSession';
 import ExerciseForm from '@/components/exercises/ExerciseForm';
 import { ExerciseService } from '@/services/exerciseService';
 import { toast } from 'react-toastify';
@@ -11,6 +12,7 @@ import { toast } from 'react-toastify';
 export default function NewExerciseClient() {
     const router = useRouter();
     const t = useTranslations('ExerciseRegister');
+    const { activeUser } = useSession();
     const [isLoading, setIsLoading] = useState(false);
 
     const handleCreate = async (data: any) => {
@@ -18,6 +20,7 @@ export default function NewExerciseClient() {
         try {
             const formattedData = {
                 ...data,
+                userId: activeUser?.id,
                 tags: data.tags
                     ? data.tags.split(',').map((tag: string) => tag.trim()).filter(Boolean)
                     : []
