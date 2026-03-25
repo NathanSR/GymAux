@@ -16,7 +16,7 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --color-brand: #ccff00;
+  --color-brand: #a3e635;
   --color-brand-foreground: #000000;
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
