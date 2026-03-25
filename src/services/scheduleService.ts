@@ -127,8 +127,8 @@ export const ScheduleService = {
                 name: formattedName,
                 user_id: scheduleData.userId,
                 workouts: scheduleData.workouts as any,
-                start_date: scheduleData.startDate.toISOString(),
-                end_date: scheduleData.endDate?.toISOString(),
+                start_date: typeof scheduleData.startDate === 'string' ? scheduleData.startDate : scheduleData.startDate.toISOString(),
+                end_date: scheduleData.endDate ? (typeof scheduleData.endDate === 'string' ? scheduleData.endDate : scheduleData.endDate.toISOString()) : undefined,
                 active: scheduleData.active,
                 last_completed: scheduleData.lastCompleted ?? -1,
             })
@@ -174,8 +174,8 @@ export const ScheduleService = {
         if (scheduleData.name) updates.name = scheduleData.name.trim();
         if (scheduleData.userId) updates.user_id = scheduleData.userId;
         if (scheduleData.workouts) updates.workouts = scheduleData.workouts;
-        if (scheduleData.startDate) updates.start_date = scheduleData.startDate.toISOString();
-        if (scheduleData.endDate) updates.end_date = scheduleData.endDate.toISOString();
+        if (scheduleData.startDate) updates.start_date = typeof scheduleData.startDate === 'string' ? scheduleData.startDate : (scheduleData.startDate as Date).toISOString();
+        if (scheduleData.endDate) updates.end_date = typeof scheduleData.endDate === 'string' ? scheduleData.endDate : (scheduleData.endDate as Date).toISOString();
         if (scheduleData.active !== undefined) updates.active = scheduleData.active;
         if (scheduleData.lastCompleted !== undefined) updates.last_completed = scheduleData.lastCompleted;
 

@@ -23,7 +23,8 @@ export default function CreateScheduleClient({ userId }: CreateScheduleClientPro
             await ScheduleService.createSchedule({
                 ...data,
                 userId: userId,
-                createdAt: new Date(),
+                startDate: new Date(data.startDate),
+                endDate: data.endDate ? new Date(data.endDate) : undefined,
             });
 
             toast.success(t('createSuccess'), {
