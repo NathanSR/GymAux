@@ -64,10 +64,10 @@ export default function RegisterPage() {
           try {
             await migrateLocalData()
             setMigrated(true)
-            setTimeout(() => router.push('/'), 1500)
+            setTimeout(() => router.push('/home'), 1500)
           } catch (err) {
             console.error("Erro na migração:", err)
-            router.push('/')
+            router.push('/home')
           }
         } else {
           alert(t('confirmEmail'))
@@ -78,7 +78,7 @@ export default function RegisterPage() {
       setAuthError("Ocorreu um erro inesperado.")
     } finally {
       if (!migrating && !migrated) {
-         setLoading(false)
+        setLoading(false)
       }
     }
   }
@@ -86,12 +86,12 @@ export default function RegisterPage() {
   if (migrated) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-zinc-950 text-white p-6">
-        <motion.div 
+        <motion.div
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           className="flex flex-col items-center gap-4 text-center"
         >
-          <motion.div 
+          <motion.div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ type: "spring", stiffness: 200, damping: 10 }}
@@ -108,14 +108,14 @@ export default function RegisterPage() {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-white dark:bg-zinc-950 p-6 sm:p-8 overflow-hidden">
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
         className="w-full max-w-md space-y-8"
       >
         <div className="text-center relative">
-          <motion.div 
+          <motion.div
             whileHover={{ rotate: 6, scale: 1.05 }}
             className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-lime-500 text-black mb-8 rotate-3 shadow-xl shadow-lime-500/20 cursor-default"
           >
@@ -131,7 +131,7 @@ export default function RegisterPage() {
 
         <AnimatePresence>
           {authError && (
-            <motion.div 
+            <motion.div
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: "auto", opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
@@ -204,7 +204,7 @@ export default function RegisterPage() {
             {errors.password && <span className="text-[10px] text-red-500 font-bold ml-1 uppercase">{t('errors.required')}</span>}
           </div>
 
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             transition={{ duration: 0.3 }}
@@ -254,7 +254,7 @@ export default function RegisterPage() {
 
         <div className="text-center pt-2">
           <Link href="/login" className="inline-block relative">
-            <motion.span 
+            <motion.span
               whileHover={{ color: '#84cc16' }}
               className="text-zinc-500 dark:text-zinc-400 text-[10px] font-black uppercase tracking-[0.2em] transition-colors py-2 px-4 rounded-xl hover:bg-lime-500/5 block"
             >

@@ -9,6 +9,7 @@ import { useDebounce } from '@/hooks/useDebounce';
 import { CATEGORIES } from '@/config/constants';
 import { Exercise } from '@/config/types';
 import { Pagination } from '@/components/ui/Pagination';
+import { useSession } from '@/hooks/useSession';
 
 interface ExercisesClientProps {
     initialExercises: Exercise[];
@@ -17,6 +18,7 @@ interface ExercisesClientProps {
 
 export default function ExercisesClient({ initialExercises, initialTotalCount }: ExercisesClientProps) {
     const router = useRouter();
+    const { activeUser } = useSession();
 
     // Estados de interface
     const [searchQuery, setSearchQuery] = useState('');
@@ -173,7 +175,7 @@ export default function ExercisesClient({ initialExercises, initialTotalCount }:
                                         {t('viewDetails')}
                                     </button>
 
-                                    {(isNaN(Number(exercise.id)) || Number(exercise.id) >= 1000) && (
+                                    {(exercise.created_by === activeUser?.id) && (
                                         <button
                                             onClick={() => router.push(`/exercises/${exercise.id}/edit`)}
                                             className="bg-lime-400 hover:bg-lime-500 text-zinc-950 px-4 py-3 rounded-2xl transition-colors flex items-center justify-center"

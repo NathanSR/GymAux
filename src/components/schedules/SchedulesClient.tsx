@@ -193,7 +193,7 @@ export default function SchedulesClient({ initialSchedules, initialTotalCount, u
                             <ClipboardList size={32} />
                         </div>
                         <p className="text-zinc-500 font-bold text-sm uppercase tracking-widest">
-                            {t('noResults')}
+                            {t('noSchedules')}
                         </p>
                     </div>
                 )}
