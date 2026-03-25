@@ -1,5 +1,6 @@
 {
     "Auth": {
+        "backToHome": "Back to Home",
         "titleLogin": "Access GymAux",
         "titleRegister": "Create Account",
         "descriptionLogin": "Your local data will be migrated automatically.",

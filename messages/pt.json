@@ -1,5 +1,6 @@
 {
     "Auth": {
+        "backToHome": "Voltar para o Início",
         "titleLogin": "Acessar GymAux",
         "titleRegister": "Criar Conta",
         "descriptionLogin": "Seus dados locais serão migrados automaticamente.",

@@ -1,4 +1,33 @@
 {
+    "Auth": {
+        "backToHome": "Volver al Inicio",
+        "titleLogin": "Acceder a GymAux",
+        "titleRegister": "Crear Cuenta",
+        "descriptionLogin": "Tus datos locales se migrarán automáticamente.",
+        "descriptionRegister": "Comienza tu viaje con la ayuda perfecta.",
+        "emailLabel": "Email",
+        "nameLabel": "Nombre completo",
+        "passwordLabel": "Contraseña",
+        "confirmPasswordLabel": "Confirmar contraseña",
+        "loginButton": "Iniciar sesión",
+        "registerButton": "Crear ahora",
+        "processing": "Procesando...",
+        "syncing": "Sincronizando...",
+        "noAccount": "¿No tienes una cuenta? Crea una",
+        "hasAccount": "¿Ya tienes una cuenta? Iniciar sesión",
+        "emailPlaceholder": "tu@email.com",
+        "namePlaceholder": "Tu nombre",
+        "passwordPlaceholder": "••••••••",
+        "confirmPasswordPlaceholder": "••••••••",
+        "confirmEmail": "¡Confirma tu email para continuar!",
+        "synced": "¡Datos sincronizados!",
+        "redirecting": "Llevándote a la aplicación...",
+        "errors": {
+            "mismatch": "Las contraseñas no coinciden",
+            "required": "Este campo es obligatorio",
+            "invalidEmail": "Email inválido"
+        }
+    },
     "Common": {
         "welcome": "Bienvenido a tu entrenamiento",
         "selectUser": "Selecciona un perfil"
