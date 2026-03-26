@@ -3,7 +3,7 @@
 import { CATEGORIES } from "./constants";
 
 export interface User {
-    id?: number;
+    id?: string;
     name: string;
     avatar?: string; // Base64 ou URL
     weight: number;  // em kg
@@ -15,7 +15,9 @@ export interface User {
 export type CategoryType = (typeof CATEGORIES)[number];
 
 export interface Exercise {
-    id?: number;
+    id?: number; // Exercises em Supabase usam bigint identity (1, 2, 3...)
+    created_by?: string;
+    created_by_type: "user" | "system" | "trainer";
     name: string;
     description?: string;
     category: CategoryType;
@@ -26,8 +28,8 @@ export interface Exercise {
 }
 
 export interface Workout {
-    id?: number;
-    userId: number;
+    id?: string;
+    userId: string;
     name: string;
     createdAt: Date;
     exercises: {
@@ -64,10 +66,10 @@ export interface Workout {
 // }
 
 export interface Schedule {
-    id?: number;
+    id?: string;
     name: string;
-    userId: number;
-    workouts: (number | null)[]; // Cada índice representa um dia da semana (0=Domingo, 1=Segunda, ..., 6=Sábado)
+    userId: string;
+    workouts: (string | null)[]; // Cada índice representa um dia da semana (0=Domingo, 1=Segunda, ..., 6=Sábado)
     startDate: Date;
     endDate?: Date;
     active: boolean;
@@ -75,9 +77,9 @@ export interface Schedule {
 }
 
 export interface History {
-    id?: number;
-    userId: number;
-    workoutId: number;
+    id?: string;
+    userId: string;
+    workoutId: string;
     workoutName: string; // Snapshot do nome para caso o Workout original mude
     date: Date;
 
@@ -100,9 +102,9 @@ export interface History {
 
 
 export interface Session {
-    id?: number;
-    userId: number;
-    workoutId: number;
+    id?: string;
+    userId: string;
+    workoutId: string;
     workoutName: string; // Snapshot do nome para caso o Workout original mude
     createdAt: Date;
     exercisesToDo: {

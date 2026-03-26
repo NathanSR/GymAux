@@ -7,7 +7,6 @@ import { getMessages } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { routing } from '@/i18n/routing';
 import { ThemeProvider } from "@/context/ThemeContext";
-import { LanguageProvider } from "@/context/LanguageContext";
 import { ToastContainer } from 'react-toastify';
 
 const geistSans = Geist({
@@ -46,16 +45,14 @@ export default async function RootLayout(props: {
 	const messages = await getMessages();
 
 	return (
-		<html lang="en">
+		<html lang="en" suppressHydrationWarning>
 			<body
-				className={`${geistSans.variable} ${geistMono.variable} antialiased light`}
+				className={`${geistSans.variable} ${geistMono.variable} antialiased`}
 			>
 				<NextIntlClientProvider messages={messages}>
-					<LanguageProvider>
-						<ThemeProvider>
-							{children}
-						</ThemeProvider>
-					</LanguageProvider>
+					<ThemeProvider>
+						{children}
+					</ThemeProvider>
 				</NextIntlClientProvider>
 				<ToastContainer pauseOnHover closeOnClick draggable />
 			</body>

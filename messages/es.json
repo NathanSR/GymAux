@@ -1,4 +1,33 @@
 {
+    "Auth": {
+        "backToHome": "Volver al Inicio",
+        "titleLogin": "Acceder a GymAux",
+        "titleRegister": "Crear Cuenta",
+        "descriptionLogin": "Tus datos locales se migrarán automáticamente.",
+        "descriptionRegister": "Comienza tu viaje con la ayuda perfecta.",
+        "emailLabel": "Email",
+        "nameLabel": "Nombre completo",
+        "passwordLabel": "Contraseña",
+        "confirmPasswordLabel": "Confirmar contraseña",
+        "loginButton": "Iniciar sesión",
+        "registerButton": "Crear ahora",
+        "processing": "Procesando...",
+        "syncing": "Sincronizando...",
+        "noAccount": "¿No tienes una cuenta? Crea una",
+        "hasAccount": "¿Ya tienes una cuenta? Iniciar sesión",
+        "emailPlaceholder": "tu@email.com",
+        "namePlaceholder": "Tu nombre",
+        "passwordPlaceholder": "••••••••",
+        "confirmPasswordPlaceholder": "••••••••",
+        "confirmEmail": "¡Confirma tu email para continuar!",
+        "synced": "¡Datos sincronizados!",
+        "redirecting": "Llevándote a la aplicación...",
+        "errors": {
+            "mismatch": "Las contraseñas no coinciden",
+            "required": "Este campo es obligatorio",
+            "invalidEmail": "Email inválido"
+        }
+    },
     "Common": {
         "welcome": "Bienvenido a tu entrenamiento",
         "selectUser": "Selecciona un perfil"
@@ -59,7 +88,19 @@
         "next": "Siguiente",
         "history": "Historial",
         "viewAll": "Ver todo",
-        "minutesShort": "min"
+        "minutesShort": "min",
+        "startWorkoutTitle": "¿Iniciar Entrenamiento?",
+        "startWorkoutText": "¿Estás listo para comenzar?",
+        "startConfirm": "¡Sí, vamos!",
+        "startCancel": "Ahora no",
+        "resumeWorkoutTitle": "¿Continuar Entrenamiento?",
+        "resumeWorkoutText": "Tienes un entrenamiento en curso. ¿Volvemos?",
+        "resumeConfirm": "¡Continuar!",
+        "resumeCancel": "Ahora no",
+        "cancelWorkoutTitle": "¿Cancelar Entrenamiento?",
+        "cancelWorkoutText": "Todo el progreso de esta sesión se perderá permanentemente.",
+        "cancelConfirm": "Sí, cancelar",
+        "cancelCancel": "No, mantener"
     },
     "ProfileMenu": {
         "title": "Configuraciones",
@@ -125,9 +166,6 @@
         "howToHint": "Presione Enter para separar los párrafos."
     },
     "Exercises": {
-        "": "",
-        "": "PEITO",
-        "": "",
         "standard_push_up": "Flexiones de Pecho Estándar",
         "standard_push_up_desc": "Ejercicio fundamental para la fuerza y estabilidad del pectoral medio.",
         "standard_push_up_howto": "1. Manos alineadas con los hombros.\n2. Cuerpo recto como una tabla.\n3. Baja hasta que el pecho casi toque el suelo y empuja.",
@@ -221,9 +259,6 @@
         "svendsen_press": "Press Svendsen",
         "svendsen_press_desc": "Ejercicio isométrico que quema el centro del pecho.",
         "svendsen_press_howto": "1. Aprieta un disco entre las palmas.\n2. Estira los brazos adelante manteniendo la presión.\n3. Regresa al pecho sin soltar el disco.",
-        "": "",
-        "": "COSTAS",
-        "": "",
         "pull_up": "Dominadas (Pronadas)",
         "pull_up_desc": "Ejercicio fundamental para el ancho de la espalda y fuerza funcional.",
         "pull_up_howto": "1. Sujeta la barra con las palmas hacia afuera.\n2. Tira de tu cuerpo hacia arriba hasta pasar la barbilla.\n3. Baja controladamente hasta estirar los brazos.",
@@ -305,9 +340,6 @@
         "cable_shrug": "Encogimiento en Polea",
         "cable_shrug_desc": "Tensión constante desde el inicio del movimiento.",
         "cable_shrug_howto": "1. Usa barra recta en polea baja.\n2. Encoge los hombros contra la resistencia del cable.\n3. Evita girar los hombros, solo movimiento vertical.",
-        "": "",
-        "": "OMBROS",
-        "": "",
         "overhead_barbell_press": "Press Militar con Barra (OHP)",
         "overhead_barbell_press_desc": "El mejor ejercicio para fuerza bruta y masa en los hombros.",
         "overhead_barbell_press_howto": "1. Barra a la altura del pecho, manos más allá de hombros.\n2. Empuja la barra sobre la cabeza hasta estirar los brazos.\n3. Controla el descenso hasta la parte alta del pecho.",
@@ -377,9 +409,6 @@
         "dumbbell_external_rotation": "Rotación Externa con Mancuerna",
         "dumbbell_external_rotation_desc": "Salud articular básica para cualquier atleta.",
         "dumbbell_external_rotation_howto": "1. Tumbado de lado o sentado.\n2. Gira la mancuerna lejos del cuerpo (codo 90°).\n3. Usa poco peso para enfocar el manguito.",
-        "": "",
-        "": "BICEPS",
-        "": "",
         "barbell_curl_straight_bar": "Curl con Barra Recta",
         "barbell_curl_straight_bar_desc": "El constructor de masa clásico para el bíceps.",
         "barbell_curl_straight_bar_howto": "1. Sujeta la barra con palmas hacia arriba al ancho de hombros.\n2. Mantén los codos pegados a los costados.\n3. Flexiona los brazos llevando la barra al pecho y baja despacio.",
@@ -437,9 +466,6 @@
         "chin_up_biceps_focus": "Dominada Supina (Enfoque Bíceps)",
         "chin_up_biceps_focus_desc": "Ejercicio compuesto con gran activación del brazo.",
         "chin_up_biceps_focus_howto": "1. Cuélgate de la barra con las palmas hacia ti.\n2. Sube el cuerpo enfocándote en la fuerza de los brazos.\n3. Baja de forma lenta y controlada hasta estirar los brazos.",
-        "": "",
-        "": "TRICEPS",
-        "": "",
         "cable_triceps_pushdown_straight_bar": "Tríceps Polea con Barra Recta",
         "cable_triceps_pushdown_straight_bar_desc": "Ejercicio básico para fuerza y definición lateral del tríceps.",
         "cable_triceps_pushdown_straight_bar_howto": "1. Sujeta la barra con las palmas hacia abajo.\n2. Mantén los codos pegados al cuerpo.\n3. Empuja la barra hasta estirar los brazos y sube sin mover los codos.",
@@ -497,9 +523,6 @@
         "machine_triceps_dip": "Fondos en Máquina",
         "machine_triceps_dip_desc": "Simula paralelas con mayor estabilidad.",
         "machine_triceps_dip_howto": "1. Siéntate y sujeta las manijas laterales.\n2. Empuja hacia abajo manteniendo el pecho erguido.\n3. Controla la subida para mantener la tensión muscular.",
-        "": "",
-        "": "ANTEBRAÇO",
-        "": "",
         "barbell_wrist_curl": "Curl de Muñeca com Barra",
         "barbell_wrist_curl_desc": "Enfocado en los flexores para ganar volumen interno.",
         "barbell_wrist_curl_howto": "1. Apoya los antebrazos en un banco, palmas hacia arriba.\n2. Deja que la barra ruede hasta los dedos y cierra la mano.\n3. Flexiona solo las muñecas para subir la barra.",
@@ -545,9 +568,6 @@
         "dumbbell_pronation_supination": "Pronación y Supinación con Mancuerna",
         "dumbbell_pronation_supination_desc": "Trabaja la rotación y la salud del codo.",
         "dumbbell_pronation_supination_howto": "1. Sujeta una mancuerna por un extremo.\n2. Gira la muñeca hacia adentro y afuera lentamente.\n3. Mantén el codo doblado a 90 grados y fijo.",
-        "": "",
-        "": "QUADRICEPS",
-        "": "",
         "barbell_back_squat": "Sentadilla Trasera con Barra",
         "barbell_back_squat_desc": "El rey de los ejercicios de pierna, enfocado en el volumen total.",
         "barbell_back_squat_howto": "1. Apoya la barra en los trapecios y separa los pies.\n2. Baja la cadera como si fueras a sentarte en una silla.\n3. Mantén el pecho arriba y sube empujando con los talones.",
@@ -596,9 +616,6 @@
         "dumbbell_reverse_lunge": "Zancada Reversa con Mancuernas",
         "dumbbell_reverse_lunge_desc": "Más amable con las rodillas que la zancada frontal.",
         "dumbbell_reverse_lunge_howto": "1. Desde posición de pie, da un paso atrás en lugar de adelante.\n2. Baja la rodilla trasera hasta que casi toque el suelo.\n3. Regresa al inicio empujando con la pierna delantera.",
-        "": "",
-        "": "ISQUIOTIBIAIS",
-        "": "",
         "barbell_stiff_leg_deadlift": "Peso Muerto Stiff con Barra",
         "barbell_stiff_leg_deadlift_desc": "Foco máximo en el estiramiento y volumen de los isquiotibiales.",
         "barbell_stiff_leg_deadlift_howto": "1. Mantén rodillas casi rectas y la barra pegada a las piernas.\n2. Baja el tronco empujando la cadera atrás hasta sentir el estiramiento.\n3. Sube apretando los isquios sin arquear la espalda.",
@@ -644,9 +661,6 @@
         "kettlebell_swing": "Kettlebell Swing",
         "kettlebell_swing_desc": "Movimiento explosivo para toda la cadena posterior.",
         "kettlebell_swing_howto": "1. Sujeta la pesa y lleva la cadera hacia atrás.\n2. Impulsa el peso adelante con la fuerza de la cadera.\n3. El movimiento es de cadera, no una sentadilla.",
-        "": "",
-        "": "GLUTEOS",
-        "": "",
         "barbell_hip_thrust": "Empuje de Cadera con Barra",
         "barbell_hip_thrust_desc": "El mejor ejercicio para hipertrofia y fuerza máxima de glúteos.",
         "barbell_hip_thrust_howto": "1. Apoya la espalda en un banco y la barra sobre la cadera.\n2. Sube la cadera hasta que el cuerpo quede alineado horizontalmente.\n3. Aprieta bien los glúteos arriba y baja con control.",
@@ -701,9 +715,6 @@
         "hyperextension_45_degree_glute_focus": "Hiperextensión 45° (Foco Glúteo)",
         "hyperextension_45_degree_glute_focus_desc": "Usa la extensión de cadera para trabajar glúteos.",
         "hyperextension_45_degree_glute_focus_howto": "1. Ajusta el soporte debajo de la línea de la cadera.\n2. Redondea un poco la parte alta de la espalda y pies afuera.\n3. Sube usando solo la fuerza de los glúteos.",
-        "": "",
-        "": "PANTURRILHAS",
-        "": "",
         "standing_barbell_calf_raise": "Elevación de Talones de Pie con Barra",
         "standing_barbell_calf_raise_desc": "Ejercicio de fuerza bruta para el volumen total de la pantorrilla.",
         "standing_barbell_calf_raise_howto": "1. Con la barra en los trapecios, coloca la punta de los pies en un escalón.\n2. Baja los talones lo máximo posible para estirar.\n3. Sube explosivamente hasta quedar de puntillas y aprieta.",
@@ -746,9 +757,6 @@
         "farmer_walk_on_toes": "Paseo del Granjero de Puntillas",
         "farmer_walk_on_toes_desc": "Trabaja la resistencia muscular y la estabilidad del tobillo.",
         "farmer_walk_on_toes_howto": "1. Sujeta un par de mancuernas pesadas a los costados.\n2. Ponte de puntillas y camina manteniendo los talones altos.\n3. No dejes que el talón toque el suelo durante el trayecto.",
-        "": "",
-        "": "ADUTORES",
-        "": "",
         "seated_adduction_machine": "Máquina de Aducción Sentado",
         "seated_adduction_machine_desc": "El ejercicio de aislamiento más eficaz para la parte interna de los muslos.",
         "seated_adduction_machine_howto": "1. Siéntate en la máquina con las piernas abiertas y las rodillas en los soportes.\n2. Cierra las piernas de forma controlada hasta que los soportes se toquen.\n3. Regresa a la posición inicial sintiendo el estiramiento de los aductores.",
@@ -779,9 +787,6 @@
         "ball_squeeze_bridge": "Puente con Apriete de Pelota",
         "ball_squeeze_bridge_desc": "Combina el puente de glúteos con la activación isométrica de aductores.",
         "ball_squeeze_bridge_howto": "1. Tumbado boca arriba, coloca una pelota de pilates entre las rodillas.\n2. Eleva la cadera mientras aprietas la pelota con fuerza constante.\n3. Mantén el apretón durante toda la subida y bajada.",
-        "": "",
-        "": "ABDUTORES",
-        "": "",
         "seated_abduction_machine": "Máquina de Abducción Sentado",
         "seated_abduction_machine_desc": "Aislamiento clásico para el glúteo medio y el contorno lateral de la cadera.",
         "seated_abduction_machine_howto": "1. Siéntate en la máquina con la espalda bien apoyada.\n2. Empuja los soportes hacia afuera usando el lateral de las rodillas/muslos.\n3. Controla el regreso sin dejar que las placas de peso golpeen.",
@@ -812,9 +817,6 @@
         "side_plank_with_leg_lift": "Plancha Lateral con Elevación de Pierna",
         "side_plank_with_leg_lift_desc": "Ejercicio avanzado que combina fuerza del core y de abductores.",
         "side_plank_with_leg_lift_howto": "1. En posición de plancha lateral, sostén el cuerpo.\n2. Eleva la pierna de arriba manteniéndola estirada.\n3. Mantén la cadera alta y no dejes que el cuerpo rote.",
-        "": "",
-        "": "CORE",
-        "": "",
         "plank": "Plancha Abdominal",
         "plank_desc": "Ejercicio fundamental de isometría para resistencia y estabilidad del core.",
         "plank_howto": "1. Apoya los antebrazos y las puntas de los pies en el suelo.\n2. Mantén el cuerpo alineado, sin dejar que la cadera suba o baje.\n3. Contrae el abdomen y los glúteos durante todo el tiempo.",
@@ -875,9 +877,6 @@
         "toes_to_bar": "Pies a la Barra (Toes to Bar)",
         "toes_to_bar_desc": "Ejercicio avanzado de core y gimnasia.",
         "toes_to_bar_howto": "1. Colgado de la barra fija, eleva las piernas estiradas.\n2. Toca la barra con los pies entre as manos.\n3. Controla el descenso para evitar el balanceo excesivo.",
-        "": "",
-        "": "CARDIO",
-        "": "",
         "treadmill_running": "Carrera en Cinta",
         "treadmill_running_desc": "Excelente para quemar calorías y mejorar la resistencia cardiovascular.",
         "treadmill_running_howto": "1. Comienza con un trote ligero para calentar.\n2. Mantén el tronco erguido y los brazos relajados a 90 grados.\n3. Aumenta la velocidad según tu nivel de condición física.",
@@ -926,9 +925,6 @@
         "battle_ropes": "Cuerdas de Batalla",
         "battle_ropes_desc": "Entrenamiento metabólico intenso que desafía brazos y core.",
         "battle_ropes_howto": "1. Sujeta los extremos de la cuerda con rodillas flexionadas.\n2. Crea ondas alternas o simultáneas con movimientos rápidos de brazos.\n3. Mantén el core firme para no balancear el cuerpo en exceso.",
-        "": "",
-        "": "ALONGAMENTO",
-        "": "",
         "neck_lateral_stretch": "Estiramiento Lateral de Cuello",
         "neck_lateral_stretch_desc": "Alivia la tensión en los trapecios y músculos cervicales laterales.",
         "neck_lateral_stretch_howto": "1. Inclina la cabeza suavemente hacia un lado, llevando la oreja al hombro.\n2. Usa la mano para aplicar una presión mínima si lo deseas.\n3. Mantén los hombros relajados y hacia abajo.",
@@ -980,9 +976,6 @@
         "wrist_extensor_stretch": "Estiramiento de Extensores de Muñeca",
         "wrist_extensor_stretch_desc": "Previene lesiones por esfuerzo repetitivo en los antebrazos.",
         "wrist_extensor_stretch_howto": "1. Estira un brazo adelante con la palma hacia abajo.\n2. Usa la otra mano para tirar de los dedos hacia el suelo.\n3. Mantén el codo estirado durante el movimiento.",
-        "": "",
-        "": "CORPO INTEIRO",
-        "": "",
         "barbell_clean_and_press": "Clean and Press con Barra",
         "barbell_clean_and_press_desc": "Un movimiento de fuerza clásico que lleva el peso desde el suelo hasta por encima de la cabeza.",
         "barbell_clean_and_press_howto": "1. Tira de la barra desde el suelo con un movimiento explosivo hasta los hombros (Clean).\n2. Estabiliza el cuerpo y empuja la barra sobre la cabeza (Press).\n3. Mantén el core firme para proteger la zona lumbar durante todo el trayecto.",
@@ -1256,7 +1249,8 @@
         "title": "Añadir Ejercicio",
         "searchPlaceholder": "Buscar ejercicio...",
         "allCategories": "Todos",
-        "noResults": "No se encontraron ejercicios"
+        "noResults": "No se encontraron ejercicios",
+        "loading": "Cargando..."
     },
     "ScheduleList": {
         "title": "Cronogramas",
@@ -1362,8 +1356,20 @@
         "finishNow": "Finalizar Ahora",
         "howTo": "Como hacerlo",
         "usingCreatine": "Usando Creatina?",
-        "creatineOn": "Si, usei!",
-        "creatineOff": "No usei hoy!"
+        "creatineOn": "¡Sí, la usé!",
+        "creatineOff": "¡No la usé hoy!",
+        "skipSet": "Omitir Serie",
+        "skipExercise": "Omitir Ejercicio",
+        "skipSetTitle": "¿Omitir Serie?",
+        "skipSetText": "Dejarás esta serie en blanco y pasarás al siguiente paso.",
+        "skipSetConfirm": "¡Sí, omitir!",
+        "skipExerciseTitle": "¿Omitir Ejercicio?",
+        "skipExerciseText": "El resto de este ejercicio será ignorado.",
+        "skipExerciseConfirm": "Sí, Omitir Ejercicio",
+        "exitTitle": "¿Pausar Entrenamiento?",
+        "exitText": "El tiempo se pausará y podrás continuar más tarde en el Inicio.",
+        "exitConfirm": "Sí, pausar y salir",
+        "exitCancel": "Cancelar"
     },
     "RestTimer": {
         "seconds": "Segundos",
@@ -1429,5 +1435,153 @@
         "iosStep1": "Pulsa",
         "iosStep2": "luego",
         "iosStep3": "\"Añadir a pantalla de inicio\""
+    },
+    "Marketing": {
+        "Navbar": {
+            "features": "Funcionalidades",
+            "pricing": "Precios",
+            "faq": "FAQ",
+            "login": "Login",
+            "getStarted": "Comenzar"
+        },
+        "Hero": {
+            "title": "Tome el control de su entrenamiento.",
+            "subtitle": "La herramienta de alto rendimiento para entusiastas del gimnasio y entrenadores. Diseñada para precisión biométrica y entrada rápida de datos.",
+            "getStarted": "Comenzar",
+            "freeDemo": "Demo Gratuito"
+        },
+        "WhyGymAux": {
+            "title": "POR QUÉ GYMAUX?",
+            "subtitle": "Gestión de gimnasios simplificada para tu viaje fitness.",
+            "features": {
+                "boostSeo": {
+                    "title": "Impulso SEO y Adaptación",
+                    "description": "Algoritmos inteligentes que ayudan a que tu gimnasio sea encontrado. Adapta tu experiencia de gimnasio para tu audiencia única."
+                },
+                "treadPredictor": {
+                    "title": "Predictor de Cintas",
+                    "description": "Predice el mantenimiento y uso de tus equipos. Enfócate en el entrenamiento, no en el tiempo de inactividad de las máquinas."
+                },
+                "dataDriven": {
+                    "title": "Estadísticas basadas en datos",
+                    "description": "Sigue tu historial completo de entrenamiento, gráficos de rendimiento y frecuencia cardíaca. Datos en tiempo real, analizados con precisión."
+                }
+            }
+        },
+        "Bento": {
+            "cloudSync": {
+                "title": "Sincronización en la nube",
+                "description": "Rápido y fiable. Tus datos siempre sincronizados en todos tus dispositivos."
+            },
+            "pwaReady": {
+                "title": "Listo para PWA",
+                "description": "Instala directamente desde tu navegador. Usa la aplicación sin conexión con todas las funciones."
+            },
+            "trainerManagement": {
+                "badge": "DISPONIBLE AHORA",
+                "title": "Gestión de Entrenadores",
+                "description": "Gestiona a tus clientes con control granular. Asigna entrenamientos, monitorea el progreso en tiempo real y sugiere estabilidad para ejercicios modernos."
+            }
+        },
+        "SessionControl": {
+            "title": "CONTROL DE SESIÓN",
+            "subtitle": "Optimiza para estadísticas de rendimiento de siguiente nivel.",
+            "card": {
+                "title": "Maestría en Peso Muerto",
+                "weight": "PESO (KG)",
+                "reps": "REPS",
+                "checkIn": "INICIAR",
+                "checkOut": "FINALIZAR"
+            }
+        },
+        "Pricing": {
+            "title": "ELIGE TU NIVEL",
+            "subtitle": "Encuentra tu nivel de mantenimiento de rendimiento.",
+            "plans": {
+                "free": {
+                    "title": "GRATIS",
+                    "price": "$0 /POR MES",
+                    "features": [
+                        "Entrenamiento Local",
+                        "Biblioteca de 350+ Ejercicios",
+                        "Sincronización en la nube"
+                    ]
+                },
+                "pro": {
+                    "title": "PRO",
+                    "price": "$9.99 /POR MES",
+                    "features": [
+                        "Todo en Gratis",
+                        "Sesiones Ilimitadas",
+                        "Soporte Prioritario",
+                        "Programas Personalizados"
+                    ],
+                    "badge": "RECOMENDADO"
+                },
+                "trainer": {
+                    "title": "ENTRENADOR",
+                    "price": "$24.99 /POR MES",
+                    "features": [
+                        "Todo en Pro",
+                        "Gestión de Clientes (Hasta 50)",
+                        "Compartir Estadísticas Profesionales"
+                    ]
+                }
+            },
+            "cta": "COMENZAR"
+        },
+        "FAQ": {
+            "title": "Preguntas Frecuentes",
+            "q1": {
+                "q": "¿Cómo empiezo a construir?",
+                "a": "Solo haz clic en el botón 'Comenzar' y crea tu perfil. Te guiaremos a través de la configuración inicial."
+            },
+            "q2": {
+                "q": "¿La aplicación soporta modo oscuro?",
+                "a": "¡Sí! GymAux tiene un modo oscuro premium diseñado para la concentración durante los entrenamientos."
+            },
+            "q3": {
+                "q": "¿Puedo compartir con mi entrenador?",
+                "a": "Absolutamente. Con un plan de Entrenador, tu coach puede ver tu progreso y actualizar tus sesiones."
+            }
+        },
+        "CTA": {
+            "title": "¿LISTO PARA EVOLUCIONAR?",
+            "subtitle": "Únete a la transición de cómo sigues tus entrenamientos.",
+            "button": "CREA TU CUENTA"
+        },
+        "Stats": {
+            "users": "Usuarios Activos",
+            "gyms": "Gimnasios Unidos",
+            "uptime": "Tiempo de Actividad"
+        },
+        "Footer": {
+            "description": "Gestión de gimnasios de alto rendimiento para el atleta digital. Sigue tu progreso, alcanza tus metas y llega a tu máximo potencial.",
+            "platform": {
+                "title": "PLATAFORMA",
+                "features": "Funcionalidades",
+                "pricing": "Precios",
+                "trainerDashboard": "Panel de Entrenador",
+                "webApp": "Web App"
+            },
+            "company": {
+                "title": "EMPRESA",
+                "support": "Soporte",
+                "privacy": "Política de Privacidad",
+                "terms": "Términos de Servicio",
+                "about": "Acerca de"
+            },
+            "rights": "Todos los derechos reservados.",
+            "themeLight": "Modo Claro",
+            "themeDark": "Modo Oscuro",
+            "language": "Idioma"
+        }
+    },
+    "Pagination": {
+        "next": "Siguiente",
+        "prev": "Anterior",
+        "pageIndicator": "Página {current} de {total}",
+        "itemsPerPage": "Elementos por página",
+        "resultsCount": "{count} resultados encontrados"
     }
 }

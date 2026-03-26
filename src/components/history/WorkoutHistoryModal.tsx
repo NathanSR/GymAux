@@ -5,7 +5,7 @@ import { Activity, Clock, MessageSquare, Scale, Trophy, X } from "lucide-react";
 import { useState } from "react";
 import { formatDuration } from "@/utils/dateUtil";
 import { useTranslations } from "next-intl";
-import { useLanguage } from "@/context/LanguageContext";
+import { useLocale } from "next-intl";
 
 interface WorkoutHistoryModalProps {
     selectedWorkouts: History[];
@@ -13,7 +13,7 @@ interface WorkoutHistoryModalProps {
 }
 
 export function WorkoutHistoryModal({ selectedWorkouts, onClose }: WorkoutHistoryModalProps) {
-    const { language } = useLanguage();
+    const language = useLocale();
 
     const [activeTab, setActiveTab] = useState(0);
     const currentWorkout = selectedWorkouts[activeTab];

@@ -1,22 +1,29 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
 }
 
+.dark {
+  --background: #0a0a0a;
+  --foreground: #ededed;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-brand: #a3e635;
+  --color-brand-foreground: #000000;
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
 }
 
 body {
@@ -34,12 +41,15 @@ body {
 
 /* Estilização para Chrome, Edge e Safari */
 :root {
-  color-scheme: light; /* Força o scrollbar a ser claro por padrão */
+  color-scheme: light;
+  /* Força o scrollbar a ser claro por padrão */
 }
 
 /* Quando o elemento html tiver a classe dark */
-html.dark, [data-theme='dark'] {
-  color-scheme: dark; /* Força o scrollbar a ser escuro */
+html.dark,
+[data-theme='dark'] {
+  color-scheme: dark;
+  /* Força o scrollbar a ser escuro */
 }
 
 /* Customização visual (Opcional) */
@@ -48,16 +58,19 @@ html.dark, [data-theme='dark'] {
 }
 
 ::-webkit-scrollbar-track {
-  background: transparent; /* Deixa o fundo limpo */
+  background: transparent;
+  /* Deixa o fundo limpo */
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: #d1d5db; /* gray-300 */
+  background-color: #d1d5db;
+  /* gray-300 */
   border-radius: 20px;
   border: 3px solid transparent;
   background-clip: content-box;
 }
 
 .dark ::-webkit-scrollbar-thumb {
-  background-color: #4b5563; /* gray-600 */
+  background-color: #4b5563;
+  /* gray-600 */
 }

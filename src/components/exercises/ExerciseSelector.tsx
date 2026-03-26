@@ -6,10 +6,13 @@ import {
     Dumbbell,
     X,
     ArrowRight,
-    Info
+    Info,
+    Loader2
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { use, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { useDebounce } from '@/hooks/useDebounce';
+import { Pagination } from '@/components/ui/Pagination';
 
 export const ExerciseSelector = ({ isOpen, onClose, onSelect }: {
     isOpen: boolean,
@@ -25,27 +28,45 @@ export const ExerciseSelector = ({ isOpen, onClose, onSelect }: {
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('all');
     const [exercises, setExercises] = useState<Exercise[]>([]);
+    const [totalCount, setTotalCount] = useState(0);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [limit, setLimit] = useState(10);
+    const [isLoading, setIsLoading] = useState(false);
+
+    const debouncedSearchTerm = useDebounce(searchTerm, 500);
 
     useEffect(() => {
         if (isOpen) {
-            ExerciseService.getAllExercises().then(setExercises);
+            const fetchExercises = async () => {
+                setIsLoading(true);
+                try {
+                    const res = await ExerciseService.getAllExercises({
+                        searchQuery: debouncedSearchTerm,
+                        category: selectedCategory,
+                        pagination: { page: currentPage, limit },
+                        translations: { te, tt: te }
+                    });
+                    setExercises(res.exercises);
+                    setTotalCount(res.totalCount);
+                } catch (error) {
+                    console.error('Error fetching exercises:', error);
+                } finally {
+                    setIsLoading(false);
+                }
+            };
+            fetchExercises();
         }
-    }, [isOpen]);
+    }, [isOpen, debouncedSearchTerm, selectedCategory, currentPage, limit, te]);
+
+    // Reset para primeira página ao filtrar
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [debouncedSearchTerm, selectedCategory, limit]);
 
     const categories = useMemo(() => {
         return ['all', ...CATEGORIES];
     }, []);
 
-    const filteredExercises = useMemo(() => {
-        return exercises.filter(ex => {
-            // Traduz o nome para busca local
-            const translatedName = te.has(ex.name) ? te(ex.name) : ex.name;
-            const name = translatedName.toLowerCase();
-            const matchesSearch = name.includes(searchTerm.toLowerCase());
-            const matchesCategory = selectedCategory === 'all' || ex.category === selectedCategory;
-            return matchesSearch && matchesCategory;
-        });
-    }, [exercises, searchTerm, selectedCategory, te]);
 
     if (!isOpen) return null;
 
@@ -96,9 +117,14 @@ export const ExerciseSelector = ({ isOpen, onClose, onSelect }: {
                 </div>
 
                 {/* Lista */}
-                <div className="flex-1 overflow-y-auto p-4 space-y-2">
-                    {filteredExercises.length > 0 ? (
-                        filteredExercises.map(ex => (
+                <div className="flex-1 overflow-y-auto p-4 space-y-2 relative">
+                    {isLoading ? (
+                        <div className="flex flex-col items-center justify-center py-20 text-zinc-400">
+                            <Loader2 size={32} className="animate-spin mb-2 opacity-20" />
+                            <p className="text-xs font-bold uppercase tracking-widest">{t('loading') || 'Carregando...'}</p>
+                        </div>
+                    ) : exercises.length > 0 ? (
+                        exercises.map(ex => (
                             <button
                                 key={ex.id}
                                 onClick={() => onSelect(ex)}
@@ -125,6 +151,18 @@ export const ExerciseSelector = ({ isOpen, onClose, onSelect }: {
                         </div>
                     )}
                 </div>
+
+                {/* Paginação */}
+                {totalCount > 0 && (
+                    <Pagination
+                        currentPage={currentPage}
+                        totalPages={Math.ceil(totalCount / limit)}
+                        onPageChange={setCurrentPage}
+                        limit={limit}
+                        onLimitChange={setLimit}
+                        totalCount={totalCount}
+                    />
+                )}
             </div>
         </div>
     );

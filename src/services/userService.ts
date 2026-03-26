@@ -1,53 +1,112 @@
-import { db } from '@/config/db';
+import { createClient } from '@/lib/supabase/client';
 import { User } from '@/config/types';
+
+const mapProfileToUser = (profile: any): User => ({
+    id: profile.id,
+    name: profile.name,
+    avatar: profile.avatar || undefined,
+    weight: profile.weight || 0,
+    height: profile.height || 0,
+    goal: profile.goal || undefined,
+    createdAt: profile.created_at ? new Date(profile.created_at) : new Date(),
+});
 
 export const userService = {
     // Buscar todos
-    async getAllUsers() {
-        return await db.users.toArray();
+    async getAllUsers(supabaseInput?: any) {
+        const supabase = supabaseInput || createClient();
+        const { data, error } = await supabase
+            .from('profiles')
+            .select('*');
+
+        if (error) {
+            console.error('Error fetching users:', error);
+            return [];
+        }
+
+        return (data || []).map(mapProfileToUser);
     },
 
     // Buscar por ID
-    async getUserById(id: number) {
-        return await db.users.get(id);
+    async getUserById(id: string, supabaseInput?: any) {
+        const supabase = supabaseInput || createClient();
+        const { data, error } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', id)
+            .maybeSingle();
+
+        if (error) {
+            console.error('Error fetching user by ID:', error);
+            return null;
+        }
+
+        return data ? mapProfileToUser(data) : null;
     },
 
-    // Criar novo com regras de negócio
-    async createUser(userData: Omit<User, 'id' | 'createdAt'>) {
-        // Exemplo de regra de negócio: Garantir que o nome esteja capitalizado
+    // Criar novo profile
+    async createUser(userData: Omit<User, 'id' | 'createdAt'>, supabaseInput?: any) {
+        const supabase = supabaseInput || createClient();
         const formattedName = userData.name.trim();
 
         if (formattedName.length < 2) {
             throw new Error("Name too short");
         }
 
-        return await db.users.add({
-            ...userData,
-            name: formattedName,
-            createdAt: new Date()
-        });
+        const { data, error } = await supabase
+            .from('profiles')
+            .insert({
+                name: formattedName,
+                avatar: userData.avatar,
+                weight: userData.weight,
+                height: userData.height,
+                goal: userData.goal,
+            })
+            .select()
+            .single();
+
+        if (error) {
+            throw error;
+        }
+
+        return mapProfileToUser(data);
     },
 
     // Atualizar com regras de negócio
-    async updateUser(id: number, updateData: Partial<Omit<User, 'id' | 'createdAt'>>) {
-        // Exemplo de regra de negócio: Garantir que o nome esteja capitalizado
+    async updateUser(id: string, updateData: Partial<Omit<User, 'id' | 'createdAt'>>, supabaseInput?: any) {
+        const supabase = supabaseInput || createClient();
         if (updateData.name !== undefined) {
             const formattedName = updateData.name.trim();
-
             if (formattedName.length < 2) {
                 throw new Error("Name too short");
             }
+            updateData.name = formattedName;
         }
 
-        return await db.users.update(id, updateData);
+        const { data, error } = await supabase
+            .from('profiles')
+            .update(updateData)
+            .eq('id', id)
+            .select()
+            .single();
+
+        if (error) {
+            throw error;
+        }
+
+        return data ? mapProfileToUser(data) : null;
     },
 
-    // Deletar usuário e seus treinos (cascata manual)
-    async deleteUser(id: number) {
-        return await db.transaction('rw', [db.users, db.workouts, db.history], async () => {
-            await db.history.where('userId').equals(id).delete();
-            await db.workouts.where('userId').equals(id).delete();
-            await db.users.delete(id);
-        });
+    // Deletar usuário e seus treinos
+    async deleteUser(id: string, supabaseInput?: any) {
+        const supabase = supabaseInput || createClient();
+        const { error: historyError } = await supabase.from('history').delete().eq('user_id', id);
+        const { error: workoutError } = await supabase.from('workouts').delete().eq('user_id', id);
+        const { error: profileError } = await supabase.from('profiles').delete().eq('id', id);
+
+        if (historyError || workoutError || profileError) {
+            console.error('Error deleting user data:', { historyError, workoutError, profileError });
+            throw new Error("Erro ao deletar usuário");
+        }
     }
 };

@@ -13,10 +13,11 @@ import {
     Download // Importado para o ícone de instalação
 } from "lucide-react";
 import { useRouter, usePathname } from '@/i18n/routing';
-// import { useTheme } from '@/context/ThemeContext';
+import { useTheme } from '@/context/ThemeContext';
 import { useTranslations, useLocale } from 'next-intl';
-import { useLanguage } from '@/context/LanguageContext';
 import { LANGUAGES } from '@/config/constants';
+
+import { createClient } from '@/lib/supabase/client';
 
 interface ProfileMenuProps {
     showProfileMenu: boolean;
@@ -31,10 +32,10 @@ const ProfileMenu: React.FC<ProfileMenuProps> = ({
 }) => {
     const t = useTranslations('ProfileMenu');
     const locale = useLocale();
-    const { setLanguage } = useLanguage();
     const router = useRouter();
     const pathname = usePathname();
-    // const { theme, toggleTheme } = useTheme();
+    const supabase = createClient();
+    const { toggleTheme, theme, resolvedTheme } = useTheme();
 
     // --- Lógica de Instalação PWA ---
     const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
@@ -72,7 +73,6 @@ const ProfileMenu: React.FC<ProfileMenuProps> = ({
     const handleLanguageChange = (newLocale: Language) => {
         // next-intl router.push cuida da substituição do locale na URL
         router.push(pathname, { locale: newLocale });
-        setLanguage(newLocale);
         setShowProfileMenu(false);
         setView('main');
     };
@@ -82,10 +82,12 @@ const ProfileMenu: React.FC<ProfileMenuProps> = ({
         setShowProfileMenu(false);
     }
 
-    const handleLogOut = () => {
+    const handleLogOut = async () => {
+        await supabase.auth.signOut();
         setShowProfileMenu(false);
         router.push('/');
     };
+
 
     if (!showProfileMenu) return null;
 
@@ -127,19 +129,19 @@ const ProfileMenu: React.FC<ProfileMenuProps> = ({
                             )}
 
                             {/* Alternar Tema */}
-                            {/* <button
+                            <button
                                 onClick={toggleTheme}
                                 className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-xl transition-colors text-zinc-700 dark:text-zinc-200"
                             >
-                                {theme === 'dark' ? (
+                                {resolvedTheme === 'dark' ? (
                                     <Sun size={18} className="text-amber-500" />
                                 ) : (
                                     <Moon size={18} className="text-indigo-500" />
                                 )}
                                 <span className="flex-1 text-left">
-                                    {theme === 'dark' ? t('themeLight') : t('themeDark')}
+                                    {resolvedTheme === 'dark' ? t('themeLight') : t('themeDark')}
                                 </span>
-                            </button> */}
+                            </button>
 
                             {/* Abrir Seleção de Idioma */}
                             <button

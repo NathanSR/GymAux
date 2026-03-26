@@ -1,34 +1,35 @@
 'use client';
-import React, { createContext, useContext, useState } from 'react';
 
-type Theme = 'dark' | 'light' | 'default'
-
-interface ThemeContextType {
-    theme: Theme;
-    setTheme: (lang: Theme) => void;
-    toggleTheme: () => void
-}
-
-const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
+import * as React from "react";
+import { ThemeProvider as NextThemesProvider, useTheme as useNextTheme } from "next-themes";
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-    const [theme, setTheme] = useState<Theme>('default');
-
-    const toggleTheme = () => {
-        setTheme(theme === 'light' ? 'dark' : 'light');
-    }
-
     return (
-        <ThemeContext.Provider value={{ theme, setTheme, toggleTheme }}>
-            <div className={theme === 'dark' ? 'dark' : ''}>
-                {children}
-            </div>
-        </ThemeContext.Provider>
+        <NextThemesProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+        >
+            {children}
+        </NextThemesProvider>
     );
 }
 
 export const useTheme = () => {
-    const context = useContext(ThemeContext);
-    if (!context) throw new Error("useTheme deve ser usado dentro de ThemeProvider");
-    return context;
+    const { theme, setTheme, resolvedTheme } = useNextTheme();
+
+    const toggleTheme = () => {
+        setTheme(resolvedTheme === 'dark' ? 'light' : 'dark');
+    }
+
+    const isDark = resolvedTheme === 'dark';
+
+    return { 
+        theme: (theme as 'dark' | 'light' | 'system') || 'system', 
+        setTheme, 
+        toggleTheme, 
+        resolvedTheme: (resolvedTheme as 'dark' | 'light') || 'light',
+        isDark
+    };
 };

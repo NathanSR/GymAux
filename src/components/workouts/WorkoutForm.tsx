@@ -27,10 +27,10 @@ import { SortableExerciseItem } from './SortableExerciseItem';
 interface WorkoutFormProps {
     initialData?: {
         name: string;
-        description: string;
+        description?: string;
         exercises: any[];
     };
-    availableExercises: any[];
+    availableExercises: Exercise[];
     onSubmit: (data: any) => void;
     isLoading?: boolean;
 }
