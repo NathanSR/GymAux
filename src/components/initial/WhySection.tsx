@@ -5,14 +5,14 @@ import { useTranslations } from 'next-intl';
 import { motion } from 'framer-motion';
 import { Sparkles, Zap, TrendingUp, Cloud, Download } from 'lucide-react';
 
-const fadeInUp = {
+const fadeInUp: any = {
     initial: { opacity: 0, y: 50 },
     whileInView: { opacity: 1, y: 0 },
     viewport: { once: false, amount: 0.3 },
     transition: { duration: 0.6, ease: "easeOut" }
 };
 
-const stagger = {
+const stagger: any = {
     initial: { opacity: 0 },
     whileInView: { opacity: 1 },
     viewport: { once: false, amount: 0.2 },
@@ -103,7 +103,7 @@ export default function WhySection() {
                     {...fadeInUp}
                     className="md:col-span-4 grid grid-rows-2 gap-6"
                 >
-                    <motion.div 
+                    <motion.div
                         whileHover={{ scale: 1.02 }}
                         className="p-8 bg-white/5 border border-white/10 rounded-3xl group hover:border-brand/30 transition-all flex flex-col justify-between items-start"
                     >
@@ -115,7 +115,7 @@ export default function WhySection() {
                             <p className="text-zinc-400 text-sm mt-1">{t('Bento.cloudSync.description')}</p>
                         </div>
                     </motion.div>
-                    <motion.div 
+                    <motion.div
                         whileHover={{ scale: 1.02 }}
                         className="p-8 bg-white/5 border border-white/10 rounded-3xl group hover:border-brand/30 transition-all flex flex-col justify-between items-start"
                     >

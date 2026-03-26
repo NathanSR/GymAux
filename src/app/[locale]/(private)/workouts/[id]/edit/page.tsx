@@ -14,7 +14,7 @@ export default async function EditWorkoutPage({ params }: EditWorkoutPageProps) 
 
     const [workout, availableExercises] = await Promise.all([
         WorkoutService.getWorkoutById(id, supabase),
-        ExerciseService.getAllExercises(supabase)
+        ExerciseService.getAllExercises({ supabase })
     ]);
 
     if (!workout) {
@@ -22,10 +22,10 @@ export default async function EditWorkoutPage({ params }: EditWorkoutPageProps) 
     }
 
     return (
-        <EditWorkoutClient 
-            initialWorkout={workout} 
-            availableExercises={availableExercises} 
-            workoutId={id} 
+        <EditWorkoutClient
+            initialWorkout={workout}
+            availableExercises={availableExercises.exercises}
+            workoutId={id}
         />
     );
 }

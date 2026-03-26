@@ -53,7 +53,8 @@ export class GymDatabase extends Dexie {
                 name: 'SYSTEM_RESERVED',
                 category: 'core',
                 tags: [],
-                description: ''
+                description: '',
+                created_by_type: "system"
             });
             // Deletamos em seguida. O IndexedDB memoriza o 1000 e usará 1001 no próximo add()
             await this.exercises.delete(1000);

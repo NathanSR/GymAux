@@ -43,7 +43,7 @@ export async function migrateLocalData() {
 
   // 3. Migrate Workouts (and collect ID mapping)
   const localWorkouts = await dexie.workouts.toArray();
-  const workoutIdMap = new Map<number, string>();
+  const workoutIdMap = new Map<string, string>();
 
   if (localWorkouts.length > 0) {
     for (const w of localWorkouts) {

@@ -3,7 +3,8 @@ import { Exercise } from '@/config/types';
 
 const mapExerciseFromSupabase = (ex: any): Exercise => ({
     id: ex.id,
-    userId: ex.created_by,
+    created_by: ex.created_by,
+    created_by_type: "user",
     name: ex.name,
     description: ex.description || undefined,
     category: ex.category as any,
@@ -113,10 +114,11 @@ export const ExerciseService = {
         }
 
         // Se o userId não for passado, tenta pegar do usuário autenticado atual
-        let userId = exerciseData.userId;
+        const { data: { user } } = await supabase.auth.getUser();
+        const userId = user?.id;
+
         if (!userId) {
-            const { data: { user } } = await supabase.auth.getUser();
-            userId = user?.id;
+            throw new Error("User not found");
         }
 
         const { data, error } = await supabase

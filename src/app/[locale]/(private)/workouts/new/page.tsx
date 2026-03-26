@@ -5,15 +5,15 @@ import { redirect } from 'next/navigation';
 
 export default async function NewWorkoutPage() {
     const supabase = await createClient();
-    
+
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
         redirect('/');
     }
 
-    const availableExercises = await ExerciseService.getAllExercises(supabase);
+    const availableExercises = await ExerciseService.getAllExercises({ supabase });
 
     return (
-        <NewWorkoutClient availableExercises={availableExercises} userId={user.id} />
+        <NewWorkoutClient availableExercises={availableExercises.exercises} userId={user.id} />
     );
 }

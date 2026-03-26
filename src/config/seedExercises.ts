@@ -1,6 +1,6 @@
-import { Exercise } from "./types"; // Ajuste o import para onde está sua interface
+// import { Exercise } from "./types"; // Ajuste o import para onde está sua interface
 
-export const CHEST_EXERCISES: Exercise[] = [
+export const CHEST_EXERCISES: any[] = [
     // --- CALISTENIA / PESO DO CORPO ---
     {
         id: 1,
@@ -260,7 +260,7 @@ export const CHEST_EXERCISES: Exercise[] = [
     }
 ];
 
-export const BACK_EXERCISES: Exercise[] = [
+export const BACK_EXERCISES: any[] = [
     // --- PESO DO CORPO / CALISTENIA ---
     {
         id: 50,
@@ -490,7 +490,7 @@ export const BACK_EXERCISES: Exercise[] = [
     }
 ];
 
-export const SHOULDERS_EXERCISES: Exercise[] = [
+export const SHOULDERS_EXERCISES: any[] = [
     // --- DESENVOLVIMENTOS (FOCO EM MASSA E FORÇA) ---
     {
         id: 90,
@@ -690,7 +690,7 @@ export const SHOULDERS_EXERCISES: Exercise[] = [
     }
 ];
 
-export const BICEPS_EXERCISES: Exercise[] = [
+export const BICEPS_EXERCISES: any[] = [
     {
         id: 130,
         name: "barbell_curl_straight_bar",
@@ -845,7 +845,7 @@ export const BICEPS_EXERCISES: Exercise[] = [
     }
 ];
 
-export const TRICEPS_EXERCISES: Exercise[] = [
+export const TRICEPS_EXERCISES: any[] = [
     {
         id: 160,
         name: "cable_triceps_pushdown_straight_bar",
@@ -1000,7 +1000,7 @@ export const TRICEPS_EXERCISES: Exercise[] = [
     }
 ];
 
-export const FOREARM_EXERCISES: Exercise[] = [
+export const FOREARM_EXERCISES: any[] = [
     // --- BARRAS E HALTERES ---
     {
         id: 190,
@@ -1130,7 +1130,7 @@ export const FOREARM_EXERCISES: Exercise[] = [
     }
 ];
 
-export const QUADRICEPS_EXERCISES: Exercise[] = [
+export const QUADRICEPS_EXERCISES: any[] = [
     // --- AGACHAMENTOS (FORÇA BASE) ---
     {
         id: 220,
@@ -1268,7 +1268,7 @@ export const QUADRICEPS_EXERCISES: Exercise[] = [
     }
 ];
 
-export const HAMSTRING_EXERCISES: Exercise[] = [
+export const HAMSTRING_EXERCISES: any[] = [
     // --- EXTENSÃO DE QUADRIL (FORÇA E ALONGAMENTO) ---
     {
         id: 250,
@@ -1398,7 +1398,7 @@ export const HAMSTRING_EXERCISES: Exercise[] = [
     }
 ];
 
-export const GLUTE_EXERCISES: Exercise[] = [
+export const GLUTE_EXERCISES: any[] = [
     // --- CONSTRUTORES DE MASSA (EXTENSÃO DE QUADRIL) ---
     {
         id: 280,
@@ -1552,7 +1552,7 @@ export const GLUTE_EXERCISES: Exercise[] = [
     }
 ];
 
-export const CALF_EXERCISES: Exercise[] = [
+export const CALF_EXERCISES: any[] = [
     // --- EM PÉ (FOCO NO GASTROCNÊMIO) ---
     {
         id: 310,
@@ -1674,7 +1674,7 @@ export const CALF_EXERCISES: Exercise[] = [
     }
 ];
 
-export const ADDUCTOR_EXERCISES: Exercise[] = [
+export const ADDUCTOR_EXERCISES: any[] = [
     // --- MÁQUINAS E POLIAS ---
     {
         id: 340,
@@ -1762,7 +1762,7 @@ export const ADDUCTOR_EXERCISES: Exercise[] = [
     }
 ];
 
-export const ABDUCTOR_EXERCISES: Exercise[] = [
+export const ABDUCTOR_EXERCISES: any[] = [
     // --- MÁQUINAS E POLIAS ---
     {
         id: 360,
@@ -1860,7 +1860,7 @@ export const ABDUCTOR_EXERCISES: Exercise[] = [
     }
 ];
 
-export const CORE_EXERCISES: Exercise[] = [
+export const CORE_EXERCISES: any[] = [
     // --- ESTABILIZAÇÃO ESTÁTICA (ISOMETRIA) ---
     {
         id: 390,
@@ -2034,7 +2034,7 @@ export const CORE_EXERCISES: Exercise[] = [
     }
 ];
 
-export const CARDIO_EXERCISES: Exercise[] = [
+export const CARDIO_EXERCISES: any[] = [
     // --- MÁQUINAS DE ACADEMIA ---
     {
         id: 420,
@@ -2170,7 +2170,7 @@ export const CARDIO_EXERCISES: Exercise[] = [
     }
 ];
 
-export const STRETCHING_EXERCISES: Exercise[] = [
+export const STRETCHING_EXERCISES: any[] = [
     // --- PESCOÇO E CERVICAL ---
     {
         id: 450,
@@ -2320,7 +2320,7 @@ export const STRETCHING_EXERCISES: Exercise[] = [
     }
 ];
 
-export const FULL_BODY_EXERCISES: Exercise[] = [
+export const FULL_BODY_EXERCISES: any[] = [
     // --- LEVANTAMENTOS OLÍMPICOS E DERIVADOS ---
     {
         id: 480,
@@ -2417,7 +2417,7 @@ export const FULL_BODY_EXERCISES: Exercise[] = [
 ];
 
 
-export const DEFAULT_EXERCISES: Exercise[] = [
+export const DEFAULT_EXERCISES: any[] = [
     ...CHEST_EXERCISES,
     ...BACK_EXERCISES,
     ...SHOULDERS_EXERCISES,
