@@ -34,18 +34,18 @@ interface SessionClientProps {
     initialSession: Session;
 }
 
-const RPE_EMOJIS: Record<number, { emoji: string; label: string }> = {
-    0: { emoji: "☁️", label: "Muito Leve" },
-    1: { emoji: "☁️", label: "Muito Leve" },
-    2: { emoji: "☁️", label: "Muito Leve" },
-    3: { emoji: "🙂", label: "Leve" },
-    4: { emoji: "🙂", label: "Leve" },
-    5: { emoji: "😐", label: "Moderado" },
-    6: { emoji: "😐", label: "Moderado" },
-    7: { emoji: "💪", label: "Difícil" },
-    8: { emoji: "🔥", label: "Muito Difícil" },
-    9: { emoji: "💀", label: "Falha Técnica" },
-    10: { emoji: "🚀", label: "Falha Total" },
+const RPE_EMOJIS: Record<number, { emoji: string; labelKey: string }> = {
+    0: { emoji: "☁️", labelKey: "rpeVeryLight" },
+    1: { emoji: "☁️", labelKey: "rpeVeryLight" },
+    2: { emoji: "☁️", labelKey: "rpeVeryLight" },
+    3: { emoji: "🙂", labelKey: "rpeLight" },
+    4: { emoji: "🙂", labelKey: "rpeLight" },
+    5: { emoji: "😐", labelKey: "rpeModerate" },
+    6: { emoji: "😐", labelKey: "rpeModerate" },
+    7: { emoji: "💪", labelKey: "rpeHard" },
+    8: { emoji: "🔥", labelKey: "rpeVeryHard" },
+    9: { emoji: "💀", labelKey: "rpeTechnical" },
+    10: { emoji: "🚀", labelKey: "rpeTotal" },
 };
 
 const RPE_OPTIONS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
@@ -135,10 +135,10 @@ export default function SessionClient({ initialSession }: SessionClientProps) {
         }
 
         const executedGroup = updatedExecutions[currentGroupIndex];
-        
+
         // Ensure ExecutedExercise exists
         let exIdx = executedGroup.exercises.findIndex(e => e.exerciseId === currentExercise.exerciseId);
-        if(exIdx === -1) {
+        if (exIdx === -1) {
             executedGroup.exercises.push({
                 exerciseId: currentExercise.exerciseId,
                 exerciseName: currentExercise.exerciseName,
@@ -154,7 +154,7 @@ export default function SessionClient({ initialSession }: SessionClientProps) {
         // --- Calculate Next Step ---
         const totalExercisesInGroup = currentGroup.exercises.length;
         const totalSetsInExercise = currentExercise.sets.length;
-        
+
         let nextGroupIndex = currentGroupIndex;
         let nextExerciseIndex = currentExerciseIndex;
         let nextSetIndex = currentSetIndex;
@@ -297,9 +297,9 @@ export default function SessionClient({ initialSession }: SessionClientProps) {
                 showPreview={showPreview}
                 onClose={() => setShowPreview(false)}
                 session={session}
-                setSession={setSession as any}
+                setSession={setSession}
                 syncSession={() => synchronizeProgress(session)}
-                currentExerciseIndex={currentExerciseIndex}
+                currentExerciseIndex={currentGroupIndex}
             />
 
             <ExerciseInstructionModal
@@ -321,18 +321,18 @@ export default function SessionClient({ initialSession }: SessionClientProps) {
                         {session.workoutName}
                     </h1>
                     <div className="flex items-center justify-center gap-1 w-full max-w-[150px] mx-auto opacity-80">
-                         {Array.from({ length: session.exercisesToDo.length }).map((_, i) => (
-                             <div
-                                 key={i}
-                                 className={`h-1 flex-1 rounded-full transition-all duration-500 ${i < currentGroupIndex
-                                     ? 'bg-lime-400'
-                                     : i === currentGroupIndex
-                                         ? 'bg-white shadow-[0_0_10px_rgba(255,255,255,0.5)] animate-pulse'
-                                         : 'bg-zinc-800'
-                                     }`}
-                             />
-                         ))}
-                     </div>
+                        {Array.from({ length: session.exercisesToDo.length }).map((_, i) => (
+                            <div
+                                key={i}
+                                className={`h-1 flex-1 rounded-full transition-all duration-500 ${i < currentGroupIndex
+                                    ? 'bg-lime-400'
+                                    : i === currentGroupIndex
+                                        ? 'bg-white shadow-[0_0_10px_rgba(255,255,255,0.5)] animate-pulse'
+                                        : 'bg-zinc-800'
+                                    }`}
+                            />
+                        ))}
+                    </div>
                 </div>
 
                 <button
@@ -354,7 +354,7 @@ export default function SessionClient({ initialSession }: SessionClientProps) {
                                     className="inline-flex items-center gap-1.5 text-[9px] font-black text-indigo-400 uppercase tracking-widest bg-indigo-400/10 px-2.5 py-1 rounded-full mb-2 mr-2"
                                 >
                                     <RefreshCw size={9} className="text-indigo-400" />
-                                    {currentGroup?.groupType.replace('_', ' ')}
+                                    {t('groupTypes.' + currentGroup?.groupType)}
                                 </motion.span>
                             )}
                             <motion.span
@@ -363,7 +363,7 @@ export default function SessionClient({ initialSession }: SessionClientProps) {
                                 className="inline-flex items-center gap-1.5 text-[9px] font-black text-lime-400 uppercase tracking-widest bg-lime-400/10 px-2.5 py-1 rounded-full mb-2"
                             >
                                 <Zap size={9} className="text-lime-400 fill-lime-400" />
-                                Group {currentGroupIndex + 1}/{session.exercisesToDo.length}
+                                {t('group')} {currentGroupIndex + 1}/{session.exercisesToDo.length}
                             </motion.span>
                             <h2 className="text-3xl font-black uppercase tracking-tighter italic leading-[0.9] truncate pr-2 mt-1">
                                 {te.has(currentExercise?.exerciseName!) ? te(currentExercise?.exerciseName!) : currentExercise?.exerciseName}
@@ -401,7 +401,7 @@ export default function SessionClient({ initialSession }: SessionClientProps) {
                     </div>
                     {currentPlannedSet?.technique && currentPlannedSet.technique !== 'normal' && (
                         <div className="mt-2 text-center p-2 bg-rose-500/10 border border-rose-500/20 rounded-xl text-xs font-black text-rose-400 uppercase tracking-widest">
-                            🔥 {currentPlannedSet.technique.replace('_', ' ')}
+                            🔥 {t('techniques.' + currentPlannedSet.technique)}
                         </div>
                     )}
                 </section>
@@ -497,7 +497,7 @@ export default function SessionClient({ initialSession }: SessionClientProps) {
                                     <div className="flex justify-between items-center mb-3">
                                         <label className="text-[9px] font-black uppercase text-zinc-500 tracking-widest">{t('effort')}</label>
                                         <div className="flex items-center gap-2">
-                                            <span className="text-[9px] text-lime-400 font-bold uppercase tracking-tight">{RPE_EMOJIS[Number(rpeValue)]?.label}</span>
+                                            <span className="text-[9px] text-lime-400 font-bold uppercase tracking-tight">{t(RPE_EMOJIS[Number(rpeValue)]?.labelKey)}</span>
                                             <span className="w-6 h-6 bg-lime-400 rounded-lg text-zinc-950 flex items-center justify-center font-black text-xs italic">
                                                 {rpeValue}
                                             </span>
@@ -549,7 +549,7 @@ export default function SessionClient({ initialSession }: SessionClientProps) {
                                         className="flex items-center justify-center gap-1.5 py-4 px-3 bg-rose-950/20 border border-rose-900/30 rounded-2xl text-rose-500 text-[9px] font-black uppercase tracking-widest hover:bg-rose-900/30 active:scale-[0.98] transition-all"
                                     >
                                         <FastForward size={14} />
-                                        Complete {isGroupAlternating ? 'Group' : 'Exercise'}
+                                        {isGroupAlternating ? t('skipGroup') : t('skipExercise')}
                                     </button>
                                 </div>
 

@@ -69,9 +69,13 @@ export default function HomeClient({
 
     const estimatedTimeTodayWorkout = formatDuration(
         Math.round(
-            (todayWorkout?.exercises?.reduce((acc, exercise) => {
-                const exerciseSeconds = ((exercise.sets * exercise.reps * 2.5) + exercise.restTime) * 1000;
-                return acc + exerciseSeconds;
+            (todayWorkout?.exercises?.reduce((acc, group) => {
+                return acc + group.exercises.reduce((gAcc, exercise) => {
+                    const exSeconds = exercise.sets.reduce((sAcc, set) => {
+                        return sAcc + ((set.reps * 2.5) + set.restTime) * 1000;
+                    }, 0);
+                    return gAcc + exSeconds;
+                }, 0);
             }, 0) || 0)
         )
     );
@@ -133,7 +137,7 @@ export default function HomeClient({
 
                     <div className="flex items-center gap-6 mb-8 text-[10px] font-black uppercase tracking-wider opacity-70">
                         <div className="flex items-center gap-1.5">
-                            <Dumbbell size={14} /> {todayWorkout?.exercises?.length || 0} {t('exercises')}
+                            <Dumbbell size={14} /> {todayWorkout?.exercises?.reduce((acc, g) => acc + g.exercises.length, 0) || 0} {t('exercises')}
                         </div>
                         <div className="flex items-center gap-1.5">
                             <Clock size={14} /> {estimatedTimeTodayWorkout}
@@ -177,8 +181,8 @@ export default function HomeClient({
                     <div className="grid gap-3 sm:gap-4 relative">
                         {sessionList.map((session) => {
                             const total = session.exercisesToDo.length;
-                            const done = session.exercisesDone.length;
-                            const progressPercent = Math.round((done / total) * 100);
+                            const done = session.exercisesDone.filter(g => g.exercises.length > 0).length;
+                            const progressPercent = total > 0 ? Math.round((done / total) * 100) : 0;
 
                             return (
                                 <div
@@ -226,7 +230,7 @@ export default function HomeClient({
                                                 className="flex-[2] sm:flex-none flex items-center justify-center h-12 sm:w-12 sm:h-12 bg-lime-400 text-zinc-950 hover:bg-lime-300 rounded-xl sm:rounded-2xl transition-all shadow-lg shadow-lime-500/10 active:scale-95 font-black"
                                             >
                                                 <Play size={18} fill="currentColor" className="sm:w-5 sm:h-5" />
-                                                <span className="sm:hidden ml-2 uppercase italic tracking-tighter text-sm">Retomar</span>
+                                                <span className="sm:hidden ml-2 uppercase italic tracking-tighter text-sm">{t('resume')}</span>
                                             </button>
                                         </div>
                                     </div>
@@ -246,7 +250,12 @@ export default function HomeClient({
                                                 {t('next')}
                                             </span>
                                             <p className="text-[10px] sm:text-[11px] font-black text-lime-500 uppercase italic tracking-tight truncate max-w-[120px] sm:max-w-none">
-                                                {te.has(session.exercisesToDo[done]?.exerciseName) ? te(session.exercisesToDo[done]?.exerciseName) : t('next')}
+                                                {(() => {
+                                                    const nextGroup = session.exercisesToDo[session.current?.groupIndex || 0];
+                                                    const nextExercise = nextGroup?.exercises?.[session.current?.exerciseIndex || 0];
+                                                    const name = nextExercise?.exerciseName;
+                                                    return name && te.has(name) ? te(name) : name || t('next');
+                                                })()}
                                             </p>
                                         </div>
                                     </div>

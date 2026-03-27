@@ -91,8 +91,8 @@ export function CompletedSession({ session }: CompletedSessionProps) {
                                 <Zap size={18} fill={isUsingCreatine ? "currentColor" : "none"} />
                             </div>
                             <div>
-                                <p className="text-xs font-black uppercase tracking-tight">{t('usingCreatine') || 'Creatina'}</p>
-                                <p className="text-[10px] text-zinc-500 font-bold">{isUsingCreatine ? t('creatineOn') || 'Suplementado' : t('creatineOff') || 'Não usei hoje'}</p>
+                                <p className="text-xs font-black uppercase tracking-tight">{t('usingCreatine')}</p>
+                                <p className="text-[10px] text-zinc-500 font-bold">{isUsingCreatine ? t('creatineOn') : t('creatineOff')}</p>
                             </div>
                         </div>
                         <div className={`w-10 h-6 rounded-full relative transition-colors ${isUsingCreatine ? 'bg-lime-400' : 'bg-zinc-700'}`}>
