@@ -1,5 +1,42 @@
 import { createClient } from '@/lib/supabase/client';
-import { Session, History, Workout } from '@/config/types';
+import { Session, Workout, ExerciseGroup, ExecutedGroup } from '@/config/types';
+
+const mapGroupFromSupabase = (g: any): ExerciseGroup => ({
+    groupType: g.groupType || 'straight',
+    rounds: g.rounds ?? 1,
+    restBetweenRounds: g.restBetweenRounds ?? 0,
+    restAfterGroup: g.restAfterGroup ?? 60,
+    exercises: (g.exercises || []).map((ex: any) => ({
+        exerciseId: ex.exerciseId,
+        exerciseName: ex.exerciseName,
+        sets: (ex.sets || []).map((s: any) => ({
+            reps: s.reps ?? 10,
+            weight: s.weight,
+            restTime: s.restTime ?? 60,
+            technique: s.technique || 'normal',
+            notes: s.notes,
+        })),
+        restAfterExercise: ex.restAfterExercise ?? 0,
+        notes: ex.notes,
+    })),
+    notes: g.notes,
+});
+
+const mapExecutedGroupFromSupabase = (g: any): ExecutedGroup => ({
+    groupType: g.groupType || 'straight',
+    exercises: (g.exercises || []).map((ex: any) => ({
+        exerciseId: ex.exerciseId,
+        exerciseName: ex.exerciseName,
+        sets: (ex.sets || []).map((s: any) => ({
+            reps: s.reps,
+            weight: s.weight,
+            rpe: s.rpe,
+            skipped: s.skipped,
+            technique: s.technique,
+            notes: s.notes,
+        })),
+    })),
+});
 
 const mapSessionFromSupabase = (s: any): Session => ({
     id: s.id,
@@ -7,12 +44,14 @@ const mapSessionFromSupabase = (s: any): Session => ({
     workoutId: s.workout_id,
     workoutName: s.workout_name,
     createdAt: new Date(s.created_at),
-    exercisesToDo: s.exercises_to_do || [],
-    exercisesDone: s.exercises_done || [],
+    exercisesToDo: (s.exercises_to_do || []).map(mapGroupFromSupabase),
+    exercisesDone: (s.exercises_done || []).map(mapExecutedGroupFromSupabase),
     current: s.current_step || {
+        step: 'executing',
+        groupIndex: 0,
         exerciseIndex: 0,
         setIndex: 0,
-        step: 'executing'
+        roundIndex: 0,
     },
     duration: s.duration || 0,
     pausedAt: s.paused_at ? new Date(s.paused_at) : null,
@@ -21,9 +60,6 @@ const mapSessionFromSupabase = (s: any): Session => ({
 
 export const SessionService = {
 
-    /**
-    * 1. INICIAR SESSÃO
-    */
     async startSession(workout: Workout, supabaseInput?: any): Promise<Session> {
         const supabase = supabaseInput || createClient();
         const { data, error } = await supabase
@@ -35,9 +71,11 @@ export const SessionService = {
                 exercises_to_do: workout.exercises as any,
                 exercises_done: [] as any,
                 current_step: {
+                    step: 'executing',
+                    groupIndex: 0,
                     exerciseIndex: 0,
                     setIndex: 0,
-                    step: 'executing'
+                    roundIndex: 0,
                 } as any,
                 duration: 0,
                 paused_at: null,
@@ -122,9 +160,6 @@ export const SessionService = {
         return data ? mapSessionFromSupabase(data) : null;
     },
 
-    /**
-   * 3. SINCRONIZAR PROGRESSO
-   */
     async syncSessionProgress(sessionId: string, updates: Partial<Session>, supabaseInput?: any): Promise<void> {
         const supabase = supabaseInput || createClient();
         const { data: { user } } = await supabase.auth.getUser();
@@ -147,9 +182,6 @@ export const SessionService = {
         if (error) throw error;
     },
 
-    /**
-     * 4. FINALIZAR SESSÃO E GERAR HISTÓRICO
-     */
     async finishSession(sessionId: string, additionalData?: { weight?: number, description?: string, usingCreatine?: boolean }, supabaseInput?: any) {
         const supabase = supabaseInput || createClient();
         const { data: { user } } = await supabase.auth.getUser();
