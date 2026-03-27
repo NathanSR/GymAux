@@ -54,8 +54,15 @@ export default function HomeClient({
     const [showProfileMenu, setShowProfileMenu] = useState(false);
     // Observe que não estamos usando estados para o resto, pois no RSC elas vêm via props
     // Mas se precisarmos de atualizar em tempo real ou após ações, podemos usar state inicializado por props
-    const [sessionList] = useState<Session[]>(initialSessionList);
+    const [sessionList, setSessionList] = useState<Session[]>(initialSessionList);
     const [historyList] = useState<History[]>(initialHistoryList);
+
+    const handleCancelSession = async (sessionId: string) => {
+        const cancelled = await cancelSession(sessionId);
+        if (cancelled) {
+            setSessionList(prev => prev.filter(s => s.id !== sessionId));
+        }
+    };
 
     const todayWorkout = initialTodayWorkout;
     const todayHistory = initialTodayHistory;
@@ -208,7 +215,7 @@ export default function HomeClient({
                                         {/* Botões de Ação: Maior área de clique no Mobile */}
                                         <div className="flex items-center gap-2 sm:ml-auto">
                                             <button
-                                                onClick={() => cancelSession(session.id!)}
+                                                onClick={() => handleCancelSession(session.id!)}
                                                 className="flex-1 sm:flex-none flex items-center justify-center h-12 sm:w-12 sm:h-12 bg-zinc-100 dark:bg-zinc-800 hover:bg-red-50 dark:hover:bg-red-500/10 text-zinc-400 hover:text-red-500 rounded-xl sm:rounded-2xl transition-all border border-zinc-200/50 dark:border-zinc-700/50 active:scale-95"
                                             >
                                                 <Trash2 size={18} className="sm:w-5 sm:h-5" />
