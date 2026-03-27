@@ -1,11 +1,12 @@
 'use client';
 
-import { Trophy, Scale, MessageSquare, Zap } from 'lucide-react';
+import { Trophy, Scale, MessageSquare, Zap, Save } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { Session } from '@/config/types';
 import { SessionService } from '@/services/sessionService';
 import { useRouter } from '@/i18n/routing';
 import { useTranslations } from 'next-intl';
+import { useState } from 'react';
 
 interface CompletedSessionProps {
     session: Session;
@@ -21,6 +22,8 @@ export function CompletedSession({ session }: CompletedSessionProps) {
     const t = useTranslations('Session');
     const router = useRouter();
 
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
     const { register, handleSubmit, watch, setValue } = useForm<CompletionFormData>({
         defaultValues: {
             userWeight: 0,
@@ -34,6 +37,7 @@ export function CompletedSession({ session }: CompletedSessionProps) {
     const onFinishWorkout = async (data: CompletionFormData) => {
         if (!session.id) return;
         try {
+            setIsSubmitting(true);
             await SessionService.finishSession(session.id, {
                 weight: data.userWeight,
                 description: data.description,
@@ -42,6 +46,7 @@ export function CompletedSession({ session }: CompletedSessionProps) {
             router.push('/home');
         } catch (error) {
             console.error("Error finishing workout:", error);
+            setIsSubmitting(false);
         }
     };
 
@@ -76,11 +81,10 @@ export function CompletedSession({ session }: CompletedSessionProps) {
                     </div>
 
                     {/* Switch de Creatina */}
-                    <div 
+                    <div
                         onClick={() => setValue('usingCreatine', !isUsingCreatine)}
-                        className={`flex items-center justify-between p-5 rounded-[32px] border transition-all cursor-pointer ${
-                            isUsingCreatine ? 'bg-lime-400/10 border-lime-400/50' : 'bg-zinc-900/50 border-zinc-800'
-                        }`}
+                        className={`flex items-center justify-between p-5 rounded-[32px] border transition-all cursor-pointer ${isUsingCreatine ? 'bg-lime-400/10 border-lime-400/50' : 'bg-zinc-900/50 border-zinc-800'
+                            }`}
                     >
                         <div className="flex items-center gap-3">
                             <div className={`p-2 rounded-xl ${isUsingCreatine ? 'bg-lime-400 text-zinc-950' : 'bg-zinc-800 text-zinc-500'}`}>
@@ -111,9 +115,17 @@ export function CompletedSession({ session }: CompletedSessionProps) {
 
                     <button
                         type="submit"
-                        className="w-full py-5 bg-lime-400 text-zinc-950 rounded-[32px] font-black uppercase text-xs tracking-[0.2em] shadow-xl shadow-lime-400/10 active:scale-95 transition-all mt-4"
+                        disabled={isSubmitting}
+                        className="w-full bg-lime-400 hover:bg-lime-500 text-zinc-950 py-5 rounded-[28px] font-black flex items-center justify-center gap-3 shadow-xl shadow-lime-500/20 active:scale-95 transition-all disabled:opacity-50"
                     >
-                        {t('saveAndFinish')}
+                        {isSubmitting ? (
+                            <div className="w-6 h-6 border-4 border-zinc-950 border-t-transparent rounded-full animate-spin" />
+                        ) : (
+                            <>
+                                <Save size={22} />
+                                {t('saveAndFinish').toUpperCase()}
+                            </>
+                        )}
                     </button>
                 </form>
             </div>

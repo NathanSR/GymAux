@@ -287,7 +287,7 @@ export default function HomeClient({
                         return (
                             <div
                                 key={item.id}
-                                onClick={() => router.push(`/history/${item.id}`)}
+                                // onClick={() => router.push(`/history/${item.id}`)}
                                 className="group relative flex items-center gap-3 sm:gap-4 p-4 sm:p-5 bg-white dark:bg-zinc-900 rounded-[24px] sm:rounded-[28px] border border-zinc-100 dark:border-zinc-800/80 hover:border-lime-500/30 hover:shadow-md transition-all duration-300 cursor-pointer active:scale-[0.98]"
                             >
                                 {/* Check de conclusão: menor no mobile */}
