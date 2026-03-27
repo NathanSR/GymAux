@@ -1244,7 +1244,35 @@
         "selectExercise": "Select Exercise",
         "sets": "Sets",
         "reps": "Reps",
-        "rest": "Rest (s)"
+        "rest": "Rest (s)",
+        "groupTypes": {
+            "straight": "Straight Set",
+            "bi_set": "Bi-Set",
+            "tri_set": "Tri-Set",
+            "giant_set": "Giant Set",
+            "circuit": "Circuit"
+        },
+        "restAfterGroup": "Rest After Group (s)",
+        "rounds": "Rounds",
+        "set": "Set",
+        "tech": "Tech",
+        "techniques": {
+            "normal": "Normal",
+            "drop_set": "Drop Set",
+            "rest_pause": "Rest Pause",
+            "to_failure": "Failure"
+        },
+        "addSet": "Add Set",
+        "programming": "Programming",
+        "groupsCount": "{count, plural, =0 {No Groups} =1 {# Group} other {# Groups}}",
+        "addBlock": "Add Block / Exercise",
+        "descriptionPlaceholder": "Optional notes...",
+        "techShorthand": {
+            "normal": "N",
+            "drop_set": "DS",
+            "rest_pause": "RP",
+            "to_failure": "F"
+        }
     },
     "ExerciseSelector": {
         "title": "Add Exercise",

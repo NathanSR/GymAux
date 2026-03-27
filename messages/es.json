@@ -1244,7 +1244,35 @@
         "selectExercise": "Seleccionar Ejercicio",
         "sets": "Series",
         "reps": "Reps",
-        "rest": "Descanso (s)"
+        "rest": "Descanso (s)",
+        "groupTypes": {
+            "straight": "Serie Convencional",
+            "bi_set": "Bi-Serie",
+            "tri_set": "Tri-Serie",
+            "giant_set": "Serie Gigante",
+            "circuit": "Circuito"
+        },
+        "restAfterGroup": "Descanso tras Grupo (s)",
+        "rounds": "Rondas",
+        "set": "Serie",
+        "tech": "Téc",
+        "techniques": {
+            "normal": "Normal",
+            "drop_set": "Drop Set",
+            "rest_pause": "Rest Pause",
+            "to_failure": "Al Fallo"
+        },
+        "addSet": "Añadir Serie",
+        "programming": "Programación",
+        "groupsCount": "{count, plural, =0 {Sin Grupos} =1 {# Grupo} other {# Grupos}}",
+        "addBlock": "Añadir Bloque / Ejercicio",
+        "descriptionPlaceholder": "Notas opcionales...",
+        "techShorthand": {
+            "normal": "N",
+            "drop_set": "DS",
+            "rest_pause": "RP",
+            "to_failure": "F"
+        }
     },
     "ExerciseSelector": {
         "title": "Añadir Ejercicio",
