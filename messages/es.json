@@ -100,7 +100,8 @@
         "cancelWorkoutTitle": "¿Cancelar Entrenamiento?",
         "cancelWorkoutText": "Todo el progreso de esta sesión se perderá permanentemente.",
         "cancelConfirm": "Sí, cancelar",
-        "cancelCancel": "No, mantener"
+        "cancelCancel": "No, mantener",
+        "cancel": "Cancelar"
     },
     "ProfileMenu": {
         "title": "Configuraciones",

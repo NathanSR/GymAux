@@ -8,6 +8,7 @@ import { notFound } from 'next/navigation';
 import { routing } from '@/i18n/routing';
 import { ThemeProvider } from "@/context/ThemeContext";
 import { ToastContainer } from 'react-toastify';
+import NextTopLoader from 'nextjs-toploader';
 
 const geistSans = Geist({
 	variable: "--font-geist-sans",
@@ -49,6 +50,7 @@ export default async function RootLayout(props: {
 			<body
 				className={`${geistSans.variable} ${geistMono.variable} antialiased`}
 			>
+				<NextTopLoader color="#a3e635" />
 				<NextIntlClientProvider messages={messages}>
 					<ThemeProvider>
 						{children}

@@ -34,6 +34,23 @@ body {
 
 
 
+/* Diminuição padrão na escala do app em telas menores */
+@layer base {
+  html {
+    /* Diminui o tamanho base em telas menores que 640px (sm) */
+    font-size: 90%;
+  }
+
+  @media (min-width: 640px) {
+    html {
+      font-size: 100%;
+      /* Volta ao padrão em tablets e desktops */
+    }
+  }
+}
+
+
+
 
 
 

@@ -100,7 +100,8 @@
         "cancelWorkoutTitle": "Cancel Workout?",
         "cancelWorkoutText": "All progress of this session will be permanently lost.",
         "cancelConfirm": "Yes, cancel",
-        "cancelCancel": "No, keep"
+        "cancelCancel": "No, keep",
+        "cancel": "Cancel"
     },
     "ProfileMenu": {
         "title": "Settings",
