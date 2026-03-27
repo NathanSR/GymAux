@@ -147,6 +147,9 @@ export const ScheduleService = {
      */
     async updateProgress(id: string, workoutIndex: number, supabaseInput?: any) {
         const supabase = supabaseInput || createClient();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error("User not authenticated");
+
         if (workoutIndex < 0 || workoutIndex > 6) {
             throw new Error("Índice de dia inválido (deve ser entre 0 e 6).");
         }
@@ -155,6 +158,7 @@ export const ScheduleService = {
             .from('schedules')
             .update({ last_completed: workoutIndex })
             .eq('id', id)
+            .eq('user_id', user.id)
             .select()
             .single();
 
@@ -170,6 +174,9 @@ export const ScheduleService = {
      */
     async updateSchedule(id: string, scheduleData: Partial<Schedule>, supabaseInput?: any) {
         const supabase = supabaseInput || createClient();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error("User not authenticated");
+
         const updates: any = {};
         if (scheduleData.name) updates.name = scheduleData.name.trim();
         if (scheduleData.userId) updates.user_id = scheduleData.userId;
@@ -183,6 +190,7 @@ export const ScheduleService = {
             .from('schedules')
             .update(updates)
             .eq('id', id)
+            .eq('user_id', user.id)
             .select()
             .single();
 
@@ -198,6 +206,9 @@ export const ScheduleService = {
      */
     async setActiveSchedule(id: string, userId: string, supabaseInput?: any) {
         const supabase = supabaseInput || createClient();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user || user.id !== userId) throw new Error("User not authenticated or unauthorized");
+
         // Desativa todos
         await supabase
             .from('schedules')
@@ -209,6 +220,7 @@ export const ScheduleService = {
             .from('schedules')
             .update({ active: true })
             .eq('id', id)
+            .eq('user_id', userId)
             .select()
             .single();
 
@@ -224,10 +236,14 @@ export const ScheduleService = {
      */
     async deleteSchedule(id: string, supabaseInput?: any) {
         const supabase = supabaseInput || createClient();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error("User not authenticated");
+
         const { error } = await supabase
             .from('schedules')
             .delete()
-            .eq('id', id);
+            .eq('id', id)
+            .eq('user_id', user.id);
 
         if (error) {
             throw error;

@@ -146,6 +146,9 @@ export const ExerciseService = {
 
     async updateExercise(id: number, updateData: Partial<Omit<Exercise, 'id'>>, supabaseInput?: any) {
         const supabase = supabaseInput || createClient();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error("User not authenticated");
+
         // Business rule: system exercises (id < 1000) cannot be updated by users
         if (id < 1000) {
             throw new Error("Cannot update system exercises");
@@ -170,6 +173,7 @@ export const ExerciseService = {
             .from('exercises')
             .update(updates)
             .eq('id', id)
+            .eq('created_by', user.id)
             .select()
             .single();
 
@@ -183,6 +187,9 @@ export const ExerciseService = {
     // Deletar exercicio
     async deleteExercise(id: number, supabaseInput?: any) {
         const supabase = supabaseInput || createClient();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error("User not authenticated");
+
         if (id < 1000) {
             throw new Error("Cannot delete system exercises");
         }
@@ -190,7 +197,8 @@ export const ExerciseService = {
         const { error } = await supabase
             .from('exercises')
             .delete()
-            .eq('id', id);
+            .eq('id', id)
+            .eq('created_by', user.id);
 
         if (error) {
             throw error;

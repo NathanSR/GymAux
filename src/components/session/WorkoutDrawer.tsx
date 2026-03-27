@@ -174,35 +174,53 @@ export const WorkoutDrawer = ({ showPreview, onClose, session, setSession, syncS
             <div className="relative w-full bg-zinc-950 rounded-t-[40px] border-t border-zinc-800 p-6 max-h-[92vh] flex flex-col shadow-2xl animate-in slide-in-from-bottom-full duration-500 ease-[cubic-bezier(0.32,0.72,0,1)]">
                 <div className="w-12 h-1.5 bg-zinc-800 rounded-full mx-auto mb-6 opacity-50" />
 
-                {/* Header com Abas e Botões */}
-                <div className="flex items-center justify-between mb-6">
-                    <div className="flex bg-zinc-900 p-1 rounded-2xl border border-zinc-800">
+                {/* Header com Abas e Botões - Ajustado para Responsividade */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+
+                    {/* Abas: No mobile ocupam a largura total disponível ou crescem conforme necessário */}
+                    <div className="flex bg-zinc-900 p-1 rounded-2xl border border-zinc-800 w-full sm:w-auto overflow-x-auto no-scrollbar">
                         <button
                             onClick={() => setActiveTab('todo')}
-                            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all ${activeTab === 'todo' ? 'bg-lime-400 text-zinc-950' : 'text-zinc-500'}`}
+                            className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all whitespace-nowrap ${activeTab === 'todo' ? 'bg-lime-400 text-zinc-950' : 'text-zinc-500'}`}
                         >
-                            <Dumbbell size={14} /> {t('tabs.todo') || 'Roteiro'}
+                            <Dumbbell size={14} />
+                            <span className="block">{t('tabs.todo') || 'Roteiro'}</span>
                         </button>
                         <button
                             onClick={() => setActiveTab('done')}
-                            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all ${activeTab === 'done' ? 'bg-lime-400 text-zinc-950' : 'text-zinc-500'}`}
+                            className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all whitespace-nowrap ${activeTab === 'done' ? 'bg-lime-400 text-zinc-950' : 'text-zinc-500'}`}
                         >
-                            <History size={14} /> {t('tabs.done') || 'Realizados'}
+                            <History size={14} />
+                            <span className="block">{t('tabs.done') || 'Realizados'}</span>
                         </button>
                     </div>
 
-                    <div className="flex gap-2">
-                        <button onClick={onConfirmDeleteSession} className="p-3 rounded-xl bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all cursor-pointer"
+                    {/* Botões de Ação: Alinhados à direita no Desktop, centralizados/espalhados no Mobile se necessário */}
+                    <div className="flex items-center justify-end gap-2 ml-auto sm:ml-0">
+                        <button
+                            onClick={onConfirmDeleteSession}
+                            className="p-3 rounded-xl bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all cursor-pointer active:scale-95"
+                            title="Deletar"
                         >
-                            <Trash2 size={20} />
+                            <Trash2 size={18} />
                         </button>
+
                         {activeTab === 'todo' && (
-                            <button onClick={handleOpenAdd} className="p-3 bg-lime-400 rounded-2xl text-zinc-950 active:scale-95 shadow-lg shadow-lime-400/20">
-                                <Plus size={20} />
+                            <button
+                                onClick={handleOpenAdd}
+                                className="p-3 bg-lime-400 rounded-xl text-zinc-950 active:scale-95 shadow-lg shadow-lime-400/20"
+                                title="Adicionar"
+                            >
+                                <Plus size={18} />
                             </button>
                         )}
-                        <button onClick={handleFullClose} className="p-3 bg-zinc-900 border border-zinc-800 rounded-2xl text-zinc-400">
-                            <X size={20} />
+
+                        <button
+                            onClick={handleFullClose}
+                            className="p-3 bg-zinc-900 border border-zinc-800 rounded-xl text-zinc-400 active:scale-95"
+                            title="Fechar"
+                        >
+                            <X size={18} />
                         </button>
                     </div>
                 </div>

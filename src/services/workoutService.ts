@@ -138,6 +138,9 @@ export const WorkoutService = {
      */
     async updateWorkout(id: string, workoutData: Partial<Workout>, supabaseInput?: any) {
         const supabase = supabaseInput || createClient();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error("User not authenticated");
+
         const updates: any = {};
         if (workoutData.name) updates.name = workoutData.name.trim();
         if (workoutData.description !== undefined) updates.description = workoutData.description;
@@ -156,6 +159,7 @@ export const WorkoutService = {
             .from('workouts')
             .update(updates)
             .eq('id', id)
+            .eq('user_id', user.id)
             .select()
             .single();
 
@@ -182,10 +186,14 @@ export const WorkoutService = {
      */
     async deleteWorkout(id: string, supabaseInput?: any) {
         const supabase = supabaseInput || createClient();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error("User not authenticated");
+
         const { error } = await supabase
             .from('workouts')
             .delete()
-            .eq('id', id);
+            .eq('id', id)
+            .eq('user_id', user.id);
 
         if (error) {
             throw error;

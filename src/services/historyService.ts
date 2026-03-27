@@ -185,10 +185,14 @@ export const HistoryService = {
      */
     async deleteHistoryEntry(id: string, supabaseInput?: any) {
         const supabase = supabaseInput || createClient();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error("User not authenticated");
+
         const { error } = await supabase
             .from('history')
             .delete()
-            .eq('id', id);
+            .eq('id', id)
+            .eq('user_id', user.id);
 
         if (error) {
             throw error;
@@ -200,10 +204,14 @@ export const HistoryService = {
      */
     async updateDescription(id: string, description: string, supabaseInput?: any) {
         const supabase = supabaseInput || createClient();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error("User not authenticated");
+
         const { data, error } = await supabase
             .from('history')
             .update({ description })
             .eq('id', id)
+            .eq('user_id', user.id)
             .select()
             .single();
 
@@ -219,6 +227,9 @@ export const HistoryService = {
      */
     async updateHistory(id: string, historyData: Partial<History>, supabaseInput?: any) {
         const supabase = supabaseInput || createClient();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error("User not authenticated");
+
         const updates: any = {};
         if (historyData.weight) updates.weight = historyData.weight;
         if (historyData.description !== undefined) updates.description = historyData.description;
@@ -230,7 +241,7 @@ export const HistoryService = {
         // Regra: Atualizar peso do usuário se fornecido
         if (historyData.weight && historyData.weight > 0) {
             const entry = await this.getHistoryById(id, supabaseInput);
-            if (entry) {
+            if (entry && entry.userId === user.id) {
                 await userService.updateUser(entry.userId, { weight: historyData.weight }, supabaseInput);
             }
         }
@@ -239,6 +250,7 @@ export const HistoryService = {
             .from('history')
             .update(updates)
             .eq('id', id)
+            .eq('user_id', user.id)
             .select()
             .single();
 

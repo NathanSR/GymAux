@@ -1,12 +1,12 @@
 "use client";
 
 import { useEffect, useState, useMemo } from 'react';
-import { 
-    ChevronLeft, 
-    Dumbbell, 
-    Check, 
-    ArrowRight, 
-    List, 
+import {
+    ChevronLeft,
+    Dumbbell,
+    Check,
+    ArrowRight,
+    List,
     CircleHelp,
     Plus,
     Minus,
@@ -207,6 +207,11 @@ export default function SessionClient({ initialSession }: SessionClientProps) {
         setValue("weight", Math.max(0, currentWeight + amount));
     };
 
+    const adjustReps = (amount: number) => {
+        const currentReps = Number(watch("reps") || 0);
+        setValue("reps", Math.max(0, currentReps + amount));
+    };
+
     if (session.current.step === 'completion') {
         return <CompletedSession session={session} />;
     }
@@ -267,7 +272,7 @@ export default function SessionClient({ initialSession }: SessionClientProps) {
                 <section className="mb-4 mt-1">
                     <div className="flex items-start justify-between gap-3">
                         <div className="flex-1 min-w-0">
-                            <motion.span 
+                            <motion.span
                                 initial={{ opacity: 0, scale: 0.8 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 className="inline-flex items-center gap-1.5 text-[9px] font-black text-lime-400 uppercase tracking-widest bg-lime-400/10 px-2.5 py-1 rounded-full mb-2"
@@ -294,7 +299,7 @@ export default function SessionClient({ initialSession }: SessionClientProps) {
                     </div>
 
                     <div className="grid grid-cols-2 gap-2 mt-4">
-                        <div className="flex flex-col p-4 bg-zinc-900/50 rounded-2xl border border-white/5 relative overflow-hidden group">
+                        <div className="flex flex-col p-4 bg-zinc-900/10 rounded-2xl border border-white/5 relative overflow-hidden group">
                             <div className="absolute top-0 right-0 p-2 opacity-10 group-hover:opacity-20 transition-opacity">
                                 <Trophy size={30} className="text-lime-400" />
                             </div>
@@ -304,13 +309,13 @@ export default function SessionClient({ initialSession }: SessionClientProps) {
                                 <span className="text-zinc-600 text-xs font-bold">/ {currentExercise?.sets}</span>
                             </span>
                         </div>
-                        <div className="flex flex-col p-4 bg-zinc-900/50 rounded-2xl border border-white/5 relative overflow-hidden group">
+                        <div className="flex flex-col p-4 bg-zinc-900/10 rounded-2xl border border-white/5 relative overflow-hidden group">
                             <div className="absolute top-0 right-0 p-2 opacity-10 group-hover:opacity-20 transition-opacity">
                                 <Flame size={30} className="text-orange-500" />
                             </div>
                             <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest mb-0.5">{t('goal')}</span>
                             <span className="text-3xl font-black tabular-nums flex items-baseline gap-1.5">
-                                {currentExercise?.reps} 
+                                {currentExercise?.reps}
                                 <span className="text-[9px] text-zinc-500 uppercase font-black tracking-tighter">{t('reps')}</span>
                             </span>
                         </div>
@@ -319,7 +324,7 @@ export default function SessionClient({ initialSession }: SessionClientProps) {
 
                 <AnimatePresence mode="wait">
                     {session.current.step === 'resting' ? (
-                        <motion.div 
+                        <motion.div
                             key="resting"
                             initial={{ opacity: 0, y: 15 }}
                             animate={{ opacity: 1, y: 0 }}
@@ -344,43 +349,61 @@ export default function SessionClient({ initialSession }: SessionClientProps) {
                                 className="space-y-3"
                             >
                                 <div className="grid grid-cols-2 gap-3">
-                                    <div className="group bg-zinc-900 border border-zinc-800 rounded-2xl px-4 py-3 focus-within:border-lime-400/50 focus-within:ring-4 focus-within:ring-lime-400/5 transition-all">
-                                        <label className="text-[8px] font-black uppercase text-zinc-500 tracking-[0.2em] block mb-1.5 group-focus-within:text-lime-400 transition-colors">
-                                            {t('weight')}
-                                        </label>
-                                        <div className="flex items-center justify-between gap-2">
-                                            <div className="flex items-center gap-2 flex-1 min-w-0">
-                                                <Dumbbell size={18} className="text-lime-400 flex-shrink-0" />
-                                                <input 
-                                                    {...register("weight")} 
-                                                    type="number" 
-                                                    inputMode="decimal"
-                                                    className="bg-transparent border-none p-0 text-3xl font-black outline-none w-full text-white placeholder:text-zinc-800"
-                                                />
+                                    <div className="group flex bg-zinc-900 border border-zinc-800 rounded-2xl px-4 py-3 focus-within:border-lime-400/50 focus-within:ring-4 focus-within:ring-lime-400/5 transition-all">
+                                        <div className='flex flex-col'>
+                                            <label className="text-[8px] font-black uppercase text-zinc-500 tracking-[0.2em] block mb-1.5 group-focus-within:text-lime-400 transition-colors">
+                                                {t('weight')}
+                                            </label>
+                                            <div className="flex items-center justify-between gap-2">
+                                                <div className="flex items-center gap-2 flex-1 min-w-0">
+                                                    <Dumbbell size={18} className="text-lime-400 flex-shrink-0" />
+                                                    <input
+                                                        {...register("weight")}
+                                                        type="number"
+                                                        inputMode="decimal"
+                                                        className="bg-transparent border-none p-0 text-3xl font-black outline-none w-full text-white placeholder:text-zinc-800"
+                                                    />
+                                                </div>
+
                                             </div>
-                                            <div className="flex flex-col gap-1">
-                                                <button type="button" onClick={() => adjustWeight(5)} className="w-6 h-6 rounded-md bg-zinc-800 flex items-center justify-center hover:bg-zinc-700 active:scale-90 transition-all text-zinc-400 hover:text-white">
-                                                    <Plus size={12} />
-                                                </button>
-                                                <button type="button" onClick={() => adjustWeight(-5)} className="w-6 h-6 rounded-md bg-zinc-800 flex items-center justify-center hover:bg-zinc-700 active:scale-90 transition-all text-zinc-400 hover:text-white">
-                                                    <Minus size={12} />
-                                                </button>
-                                            </div>
+                                        </div>
+
+                                        <div className="flex flex-col gap-1">
+                                            <button type="button" onClick={() => adjustWeight(5)} className="w-8 h-8 rounded-md bg-zinc-800 flex items-center justify-center hover:bg-zinc-700 active:scale-90 transition-all text-zinc-400 hover:text-white">
+                                                <Plus size={14} />
+                                            </button>
+                                            <button type="button" onClick={() => adjustWeight(-5)} className="w-8 h-8 rounded-md bg-zinc-800 flex items-center justify-center hover:bg-zinc-700 active:scale-90 transition-all text-zinc-400 hover:text-white">
+                                                <Minus size={14} />
+                                            </button>
                                         </div>
                                     </div>
 
-                                    <div className="group bg-zinc-900 border border-zinc-800 rounded-2xl px-4 py-3 focus-within:border-lime-400/50 focus-within:ring-4 focus-within:ring-lime-400/5 transition-all">
-                                        <label className="text-[8px] font-black uppercase text-zinc-500 tracking-[0.2em] block mb-1.5 group-focus-within:text-lime-400 transition-colors">
-                                            {t('performed')}
-                                        </label>
-                                        <div className="flex items-center gap-2">
-                                            <Check size={18} className="text-lime-400" />
-                                            <input 
-                                                {...register("reps")} 
-                                                type="number" 
-                                                inputMode="numeric"
-                                                className="bg-transparent border-none p-0 text-3xl font-black outline-none w-full text-white placeholder:text-zinc-800"
-                                            />
+                                    <div className="group flex bg-zinc-900 border border-zinc-800 rounded-2xl px-4 py-3 focus-within:border-lime-400/50 focus-within:ring-4 focus-within:ring-lime-400/5 transition-all">
+                                        <div className='flex flex-col'>
+                                            <label className="text-[8px] font-black uppercase text-zinc-500 tracking-[0.2em] block mb-1.5 group-focus-within:text-lime-400 transition-colors">
+                                                {t('performed')}
+                                            </label>
+                                            <div className="flex items-center justify-between gap-2">
+                                                <div className="flex items-center gap-2 flex-1 min-w-0">
+                                                    <Check size={18} className="text-lime-400 flex-shrink-0" />
+                                                    <input
+                                                        {...register("reps")}
+                                                        type="number"
+                                                        inputMode="numeric"
+                                                        className="bg-transparent border-none p-0 text-3xl font-black outline-none w-full text-white placeholder:text-zinc-800"
+                                                    />
+                                                </div>
+
+                                            </div>
+                                        </div>
+
+                                        <div className="flex flex-col gap-1">
+                                            <button type="button" onClick={() => adjustReps(1)} className="w-8 h-8 rounded-md bg-zinc-800 flex items-center justify-center hover:bg-zinc-700 active:scale-90 transition-all text-zinc-400 hover:text-white">
+                                                <Plus size={14} />
+                                            </button>
+                                            <button type="button" onClick={() => adjustReps(-1)} className="w-8 h-8 rounded-md bg-zinc-800 flex items-center justify-center hover:bg-zinc-700 active:scale-90 transition-all text-zinc-400 hover:text-white">
+                                                <Minus size={14} />
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
@@ -396,7 +419,7 @@ export default function SessionClient({ initialSession }: SessionClientProps) {
                                             </span>
                                         </div>
                                     </div>
-                                    
+
                                     <LayoutGroup>
                                         <div className="flex flex-wrap justify-center gap-1.5 p-1 bg-black/20 rounded-xl">
                                             {RPE_OPTIONS.map((val) => (
@@ -405,14 +428,13 @@ export default function SessionClient({ initialSession }: SessionClientProps) {
                                                     type="button"
                                                     onClick={() => setValue("rpe", val)}
                                                     whileTap={{ scale: 0.9 }}
-                                                    className={`relative w-8 h-8 rounded-lg flex items-center justify-center text-lg transition-colors overflow-hidden ${
-                                                        Number(rpeValue) === val 
-                                                        ? 'bg-transparent text-zinc-950' 
+                                                    className={`relative w-10 h-10 rounded-lg flex items-center justify-center text-3xl transition-colors overflow-hidden ${Number(rpeValue) === val
+                                                        ? 'bg-transparent text-zinc-950'
                                                         : 'bg-zinc-800/50 text-zinc-500'
-                                                    }`}
+                                                        }`}
                                                 >
                                                     {Number(rpeValue) === val && (
-                                                        <motion.div 
+                                                        <motion.div
                                                             layoutId="activeRpe"
                                                             className="absolute inset-0 bg-lime-400"
                                                             transition={{ type: "spring", stiffness: 400, damping: 30 }}
@@ -421,7 +443,7 @@ export default function SessionClient({ initialSession }: SessionClientProps) {
                                                     <span className={`z-10 transition-transform ${Number(rpeValue) === val ? 'scale-110' : ''}`}>
                                                         {RPE_EMOJIS[val]?.emoji}
                                                     </span>
-                                                    <span className={`absolute bottom-0 right-0 px-0.5 text-[6px] font-black z-10 ${Number(rpeValue) === val ? 'text-zinc-950/40' : 'text-zinc-600'}`}>{val}</span>
+                                                    <span className={`absolute bottom-0 right-0 px-0.5 text-sm font-black z-10 ${Number(rpeValue) === val ? 'text-lime-950/40' : 'text-lime-400'}`}>{val}</span>
                                                 </motion.button>
                                             ))}
                                         </div>

@@ -55,21 +55,28 @@ export const SessionService = {
 
     async resumeSession(sessionId: string, supabaseInput?: any) {
         const supabase = supabaseInput || createClient();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error("User not authenticated");
+
         const { error } = await supabase
             .from('sessions')
             .update({
                 paused_at: null,
                 resumed_at: new Date().toISOString()
             })
-            .eq('id', sessionId);
+            .eq('id', sessionId)
+            .eq('user_id', user.id);
 
         if (error) throw error;
     },
 
     async pauseSession(sessionId: string, supabaseInput?: any) {
         const supabase = supabaseInput || createClient();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error("User not authenticated");
+
         const session = await this.getSessionById(sessionId, supabaseInput);
-        if (!session || !session.resumedAt || session.pausedAt) return;
+        if (!session || !session.resumedAt || session.pausedAt || session.userId !== user.id) return;
 
         const now = new Date();
         const lastReference = session.resumedAt;
@@ -81,7 +88,8 @@ export const SessionService = {
                 paused_at: now.toISOString(),
                 duration: session.duration + additionalDuration
             })
-            .eq('id', sessionId);
+            .eq('id', sessionId)
+            .eq('user_id', user.id);
 
         if (error) throw error;
     },
@@ -119,6 +127,9 @@ export const SessionService = {
    */
     async syncSessionProgress(sessionId: string, updates: Partial<Session>, supabaseInput?: any): Promise<void> {
         const supabase = supabaseInput || createClient();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error("User not authenticated");
+
         const dbUpdates: any = {};
         if (updates.exercisesDone) dbUpdates.exercises_done = updates.exercisesDone;
         if (updates.exercisesToDo) dbUpdates.exercises_to_do = updates.exercisesToDo;
@@ -130,7 +141,8 @@ export const SessionService = {
         const { error } = await supabase
             .from('sessions')
             .update(dbUpdates)
-            .eq('id', sessionId);
+            .eq('id', sessionId)
+            .eq('user_id', user.id);
 
         if (error) throw error;
     },
@@ -140,8 +152,12 @@ export const SessionService = {
      */
     async finishSession(sessionId: string, additionalData?: { weight?: number, description?: string, usingCreatine?: boolean }, supabaseInput?: any) {
         const supabase = supabaseInput || createClient();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error("User not authenticated");
+
         const session = await this.getSessionById(sessionId, supabaseInput);
         if (!session) throw new Error("Sessão não encontrada");
+        if (session.userId !== user.id) throw new Error("Sessão não pertence ao usuário ativo");
 
         const { data: historyData, error: historyError } = await supabase
             .from('history')
@@ -169,10 +185,14 @@ export const SessionService = {
 
     async deleteSession(sessionId: string, supabaseInput?: any) {
         const supabase = supabaseInput || createClient();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error("User not authenticated");
+
         const { error } = await supabase
             .from('sessions')
             .delete()
-            .eq('id', sessionId);
+            .eq('id', sessionId)
+            .eq('user_id', user.id);
 
         if (error) throw error;
     }
