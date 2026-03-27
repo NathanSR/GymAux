@@ -36,8 +36,8 @@ export default function EditWorkoutClient({ initialWorkout, availableExercises, 
         } catch (error) {
             console.error("Erro ao atualizar treino:", error);
             toast.error("Error updating workout");
-        } finally {
             setIsSaving(false);
+        } finally {
         }
     };
 

@@ -41,8 +41,8 @@ export default function CreateScheduleClient({ userId }: CreateScheduleClientPro
         } catch (error) {
             console.error("Erro ao criar cronograma de treino:", error);
             toast.error(t('createError'));
-        } finally {
             setIsLoading(false);
+        } finally {
         }
     };
 

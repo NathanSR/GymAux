@@ -39,8 +39,8 @@ export default function EditExerciseClient({ initialExercise, exerciseId }: Edit
         } catch (error) {
             console.error("Erro ao atualizar:", error);
             toast.error("Error updating exercise");
-        } finally {
             setIsLoading(false);
+        } finally {
         }
     };
 

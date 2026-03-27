@@ -32,8 +32,8 @@ export default function NewExerciseClient() {
         } catch (error) {
             console.error("Erro ao criar exercício:", error);
             toast.error(t('errorCreating'));
-        } finally {
             setIsLoading(false);
+        } finally {
         }
     };
 

@@ -33,8 +33,8 @@ export default function NewWorkoutClient({ availableExercises, userId }: NewWork
         } catch (error) {
             console.error("Erro ao criar treino:", error);
             toast.error(t('errorCreating'));
-        } finally {
             setIsLoading(false);
+        } finally {
         }
     };
 

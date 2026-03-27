@@ -35,8 +35,8 @@ export default function EditScheduleClient({ initialData, scheduleId }: EditSche
             router.push('/schedules');
         } catch (error) {
             console.error("Error updating schedule:", error);
-        } finally {
             setLoading(false);
+        } finally {
         }
     };
 
