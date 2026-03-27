@@ -2,14 +2,22 @@ import HistoryClient from '@/components/history/HistoryClient';
 import { createClient } from '@/lib/supabase/server';
 import { HistoryService } from '@/services/historyService';
 
-export default async function HistoryPage() {
+type Props = {
+    searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+};
+
+export default async function HistoryPage(props: Props) {
+    const searchParams = await props.searchParams;
+    const dateQuery = typeof searchParams?.date === 'string' ? searchParams.date : undefined;
+    const idQuery = typeof searchParams?.id === 'string' ? searchParams.id : undefined;
+
     const supabase = await createClient();
     
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return null;
 
     // Busca inicial no servidor (mês atual)
-    const now = new Date();
+    const now = dateQuery ? new Date(dateQuery) : new Date();
     const startMonthDate = new Date(now.getFullYear(), now.getMonth(), 1);
     const endMonthDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
 
@@ -19,6 +27,8 @@ export default async function HistoryPage() {
         <HistoryClient 
             userId={user.id}
             initialHistoryList={initialHistoryList}
+            initialDate={dateQuery}
+            initialId={idQuery}
         />
     );
 }

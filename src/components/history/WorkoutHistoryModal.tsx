@@ -10,12 +10,14 @@ import { useLocale } from "next-intl";
 interface WorkoutHistoryModalProps {
     selectedWorkouts: History[];
     onClose: () => void;
+    initialActiveId?: string;
 }
 
-export function WorkoutHistoryModal({ selectedWorkouts, onClose }: WorkoutHistoryModalProps) {
+export function WorkoutHistoryModal({ selectedWorkouts, onClose, initialActiveId }: WorkoutHistoryModalProps) {
     const language = useLocale();
 
-    const [activeTab, setActiveTab] = useState(0);
+    const initialIndex = initialActiveId ? selectedWorkouts.findIndex(w => w.id === initialActiveId) : 0;
+    const [activeTab, setActiveTab] = useState(initialIndex >= 0 ? initialIndex : 0);
     const currentWorkout = selectedWorkouts[activeTab];
 
     const t = useTranslations('History');

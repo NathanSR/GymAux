@@ -12,21 +12,36 @@ import { useDebounce } from "@/hooks/useDebounce";
 interface HistoryClientProps {
     userId: string;
     initialHistoryList: History[];
+    initialDate?: string;
+    initialId?: string;
 }
 
-export default function HistoryClient({ userId, initialHistoryList }: HistoryClientProps) {
+export default function HistoryClient({ userId, initialHistoryList, initialDate, initialId }: HistoryClientProps) {
     const t = useTranslations('History');
     const locale = useLocale();
     const router = useRouter();
 
     const [searchQuery, setSearchQuery] = useState('');
     const debouncedSearch = useDebounce(searchQuery, 300);
-    const [currentDate, setCurrentDate] = useState(new Date());
+    const [currentDate, setCurrentDate] = useState(initialDate ? new Date(initialDate) : new Date());
     const [selectedWorkouts, setSelectedWorkouts] = useState<History[] | null>(null);
     const [workoutData, setWorkoutData] = useState<Record<string, History[]>>({});
 
     const [historyList, setHistoryList] = useState<History[]>(initialHistoryList);
     const [loading, setLoading] = useState(false);
+    const [hasOpenedInitial, setHasOpenedInitial] = useState(false);
+
+    useEffect(() => {
+        if (!hasOpenedInitial && initialDate && initialId && Object.keys(workoutData).length > 0) {
+            const d = new Date(initialDate);
+            const dateKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+            if (workoutData[dateKey] && workoutData[dateKey].some(w => w.id === initialId)) {
+                setSelectedWorkouts(workoutData[dateKey]);
+                // Modal will be opened; state will prevent it from repeatedly doing it
+            }
+            setHasOpenedInitial(true); // Always set true to avoid doing it twice even if missing
+        }
+    }, [hasOpenedInitial, initialDate, initialId, workoutData]);
 
     // Range de data baseado no currentDate do estado client
     const startMonthDate = useMemo(() => new Date(currentDate.getFullYear(), currentDate.getMonth(), 1), [currentDate]);
@@ -195,7 +210,14 @@ export default function HistoryClient({ userId, initialHistoryList }: HistoryCli
             {selectedWorkouts && (
                 <WorkoutHistoryModal
                     selectedWorkouts={selectedWorkouts}
-                    onClose={() => setSelectedWorkouts(null)}
+                    onClose={() => {
+                        setSelectedWorkouts(null);
+                        // Clean querystrings after closing modal
+                        if (initialId) {
+                            router.replace('/history');
+                        }
+                    }}
+                    initialActiveId={!hasOpenedInitial ? initialId : undefined}
                 />
             )}
         </div>
