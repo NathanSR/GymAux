@@ -1,13 +1,18 @@
 // --- Interfaces para o TypeScript ---
+// --- Modelagem Profissional de Treinos com ExerciseGroups ---
 
 import { CATEGORIES } from "./constants";
+
+// ========================
+// BASE ENTITIES
+// ========================
 
 export interface User {
     id?: string;
     name: string;
-    avatar?: string; // Base64 ou URL
-    weight: number;  // em kg
-    height: number;  // em cm
+    avatar?: string;
+    weight: number;
+    height: number;
     goal?: string;
     createdAt: Date;
 }
@@ -15,120 +20,168 @@ export interface User {
 export type CategoryType = (typeof CATEGORIES)[number];
 
 export interface Exercise {
-    id?: number; // Exercises em Supabase usam bigint identity (1, 2, 3...)
+    id?: number;
     created_by?: string;
     created_by_type: "user" | "system" | "trainer";
     name: string;
     description?: string;
     category: CategoryType;
-    tags?: string[];    // ex: ['halteres', 'composto']
+    tags?: string[];
     howTo?: string;
-    mediaUrl?: string; // Link para GIF ou vídeo educativo
+    mediaUrl?: string;
     level?: "beginner" | "intermediate" | "advanced";
 }
+
+// ========================
+// WORKOUT PLANNING — Técnicas & Tipos
+// ========================
+
+/** Técnicas avançadas de série */
+export type SetTechnique =
+    | 'normal'
+    | 'drop_set'
+    | 'rest_pause'
+    | 'forced_reps'
+    | 'negative'
+    | 'isometric'
+    | 'tempo'
+    | 'cluster'
+    | 'to_failure';
+
+/** Tipos de agrupamento de exercícios */
+export type GroupType =
+    | 'straight'    // Exercício solo (séries retas)
+    | 'bi_set'      // 2 exercícios alternados
+    | 'tri_set'     // 3 exercícios alternados
+    | 'giant_set'   // 4+ exercícios alternados
+    | 'circuit'     // Circuito com rounds
+    | 'superset';   // Agonista/antagonista
+
+// ========================
+// WORKOUT PLANNING — Estruturas
+// ========================
+
+/** Configuração de uma série individual (planejamento) */
+export interface PlannedSet {
+    reps: number;              // Repetições planejadas (0 = até falha)
+    weight?: number;           // Peso planejado (kg)
+    restTime: number;          // Descanso APÓS esta série (segundos)
+    technique?: SetTechnique;  // Técnica especial (default: 'normal')
+    notes?: string;            // Nota para esta série (ex: "3-1-2-0 tempo")
+}
+
+/** Exercício dentro de um grupo (planejamento) */
+export interface WorkoutExercise {
+    exerciseId: number;
+    exerciseName: string;
+    sets: PlannedSet[];         // Cada série é configurada individualmente
+    restAfterExercise: number;  // Descanso após este exercício dentro do grupo (seg)
+    notes?: string;
+}
+
+/** Grupo de exercícios — unidade de organização do treino */
+export interface ExerciseGroup {
+    groupType: GroupType;
+    rounds: number;              // Vezes para repetir o grupo (1 = normal; >1 = circuit)
+    restBetweenRounds: number;   // Descanso entre rounds (seg)
+    restAfterGroup: number;      // Descanso após o grupo inteiro, antes do próximo grupo (seg)
+    exercises: WorkoutExercise[];
+    notes?: string;
+}
+
+// ========================
+// WORKOUT
+// ========================
 
 export interface Workout {
     id?: string;
     userId: string;
     name: string;
     createdAt: Date;
-    exercises: {
-        exerciseId: number;      // ID do exercício na tabela 'exercises'
-        exerciseName: string;
-        sets: number;
-        reps: number;
-        restTime: number;        // em segundos
-    }[];
+    exercises: ExerciseGroup[];
     description?: string;
 }
 
-// export interface Workout {
-//     id?: number;
-//     userId: number;
-//     name: string;
-//     description?: string;
-//     createdAt: Date;
-//     exerciseGroups: ExerciseGroup[]; 
-// }
-// export interface ExerciseGroup {
-//     restBetweenExercises: number; // Descanso entre ex. do mesmo grupo (ex: Agachamento + Búlgaro)
-//     restAfterGroup: number;     // Descanso após terminar o bloco todo
-//     exercises: WorkoutExercise[];
-// }
-// export interface WorkoutExercise {
-//     exerciseId: number;
-//     exerciseName: string;
-//     sets: {
-//         reps: number; // "10-12" ou 10
-//         weight?: number;       // Peso planejado (opcional)
-//         restTime: number;      // Descanso após esta série específica
-//     }[];
-// }
+// ========================
+// EXECUTION — Séries & Exercícios executados (Sessão / Histórico)
+// ========================
+
+/** Série executada (registrada na sessão) */
+export interface ExecutedSet {
+    reps: number;
+    weight?: number;
+    rpe?: number;              // Rate of Perceived Exertion (1-10)
+    skipped?: boolean;
+    technique?: SetTechnique;
+    notes?: string;
+}
+
+/** Exercício executado */
+export interface ExecutedExercise {
+    exerciseId: number;
+    exerciseName: string;
+    sets: ExecutedSet[];
+}
+
+/** Grupo executado */
+export interface ExecutedGroup {
+    groupType: GroupType;
+    exercises: ExecutedExercise[];
+}
+
+// ========================
+// SCHEDULE
+// ========================
 
 export interface Schedule {
     id?: string;
     name: string;
     userId: string;
-    workouts: (string | null)[]; // Cada índice representa um dia da semana (0=Domingo, 1=Segunda, ..., 6=Sábado)
+    workouts: (string | null)[];
     startDate: Date;
     endDate?: Date;
     active: boolean;
-    lastCompleted?: number; // Index do último treino completado em workouts
+    lastCompleted?: number;
 }
+
+// ========================
+// HISTORY
+// ========================
 
 export interface History {
     id?: string;
     userId: string;
     workoutId: string;
-    workoutName: string; // Snapshot do nome para caso o Workout original mude
+    workoutName: string;
     date: Date;
-
-    executions?: {
-        exerciseId: number;
-        exerciseName: string; // Snapshot do nome
-        sets: {
-            reps: number;
-            weight?: number;
-            rpe?: number; // Rate of Perceived Exertion (1-10)
-        }[];
-    }[];
-
-    weight?: number; // peso do usuário no dia do treino
+    executions?: ExecutedGroup[];
+    weight?: number;
     description?: string;
-    duration?: number; // em ms
+    duration?: number;
     endDate?: Date;
     usingCreatine?: boolean;
 }
 
+// ========================
+// SESSION
+// ========================
 
 export interface Session {
     id?: string;
     userId: string;
     workoutId: string;
-    workoutName: string; // Snapshot do nome para caso o Workout original mude
+    workoutName: string;
     createdAt: Date;
-    exercisesToDo: {
-        exerciseId: number;      // ID do exercício na tabela 'exercises'
-        exerciseName: string;
-        sets: number;
-        reps: number;
-        restTime: number;        // em segundos
-    }[];
-    exercisesDone: {
-        exerciseId: number;
-        exerciseName: string; // Snapshot do nome
-        sets: {
-            reps: number;
-            weight?: number;
-            rpe?: number; // Rate of Perceived Exertion (1-10)
-        }[];
-    }[];
+    exercisesToDo: ExerciseGroup[];
+    exercisesDone: ExecutedGroup[];
     current: {
         step: 'executing' | 'resting' | 'completion';
-        exerciseIndex: number;
-        setIndex: number;
-    },
-    duration: number; //ms
+        groupIndex: number;     // Índice do grupo atual
+        exerciseIndex: number;  // Índice do exercício dentro do grupo
+        setIndex: number;       // Índice da série
+        roundIndex: number;     // Round atual (para circuits)
+    };
+    duration: number;
     pausedAt: Date | null;
     resumedAt: Date | null;
 }
