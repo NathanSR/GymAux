@@ -261,11 +261,8 @@ export default function HomeClient({
             <section className="relative bg-zinc-50/50 dark:bg-zinc-900/30 rounded-[32px] sm:rounded-[40px] p-5 sm:p-8 border border-zinc-200/50 dark:border-zinc-800/50 shadow-inner group/history mb-8">
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 mb-8">
                     <div className="flex flex-col gap-1">
-                        <h3 className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em] text-zinc-400">
-                            {t('history')}
-                        </h3>
                         <p className="text-xl sm:text-2xl font-black italic tracking-tighter uppercase text-zinc-900 dark:text-zinc-100">
-                            ATIVIDADE RECENTE
+                            {t('history')}
                         </p>
                     </div>
 
