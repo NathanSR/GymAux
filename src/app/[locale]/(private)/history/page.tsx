@@ -9,7 +9,7 @@ type Props = {
 export default async function HistoryPage(props: Props) {
     const searchParams = await props.searchParams;
     const dateQuery = typeof searchParams?.date === 'string' ? searchParams.date : undefined;
-    const idQuery = typeof searchParams?.id === 'string' ? searchParams.id : undefined;
+    const workoutIdQuery = typeof searchParams?.workoutId === 'string' ? searchParams.workoutId : undefined;
 
     const supabase = await createClient();
     
@@ -28,7 +28,7 @@ export default async function HistoryPage(props: Props) {
             userId={user.id}
             initialHistoryList={initialHistoryList}
             initialDate={dateQuery}
-            initialId={idQuery}
+            initialWorkoutId={workoutIdQuery}
         />
     );
 }

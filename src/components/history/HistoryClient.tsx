@@ -13,10 +13,10 @@ interface HistoryClientProps {
     userId: string;
     initialHistoryList: History[];
     initialDate?: string;
-    initialId?: string;
+    initialWorkoutId?: string;
 }
 
-export default function HistoryClient({ userId, initialHistoryList, initialDate, initialId }: HistoryClientProps) {
+export default function HistoryClient({ userId, initialHistoryList, initialDate, initialWorkoutId }: HistoryClientProps) {
     const t = useTranslations('History');
     const locale = useLocale();
     const router = useRouter();
@@ -32,16 +32,19 @@ export default function HistoryClient({ userId, initialHistoryList, initialDate,
     const [hasOpenedInitial, setHasOpenedInitial] = useState(false);
 
     useEffect(() => {
-        if (!hasOpenedInitial && initialDate && initialId && Object.keys(workoutData).length > 0) {
+        if (!hasOpenedInitial && initialDate && initialWorkoutId && Object.keys(workoutData).length > 0) {
             const d = new Date(initialDate);
             const dateKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-            if (workoutData[dateKey] && workoutData[dateKey].some(w => w.id === initialId)) {
+            if (workoutData[dateKey] && workoutData[dateKey].some(w =>
+                String(w.workoutId) === String(initialWorkoutId) ||
+                String(w.id) === String(initialWorkoutId)
+            )) {
                 setSelectedWorkouts(workoutData[dateKey]);
                 // Modal will be opened; state will prevent it from repeatedly doing it
             }
             setHasOpenedInitial(true); // Always set true to avoid doing it twice even if missing
         }
-    }, [hasOpenedInitial, initialDate, initialId, workoutData]);
+    }, [hasOpenedInitial, initialDate, initialWorkoutId, workoutData]);
 
     // Range de data baseado no currentDate do estado client
     const startMonthDate = useMemo(() => new Date(currentDate.getFullYear(), currentDate.getMonth(), 1), [currentDate]);
@@ -213,11 +216,11 @@ export default function HistoryClient({ userId, initialHistoryList, initialDate,
                     onClose={() => {
                         setSelectedWorkouts(null);
                         // Clean querystrings after closing modal
-                        if (initialId) {
+                        if (initialWorkoutId) {
                             router.replace('/history');
                         }
                     }}
-                    initialActiveId={!hasOpenedInitial ? initialId : undefined}
+                    initialActiveWorkoutId={initialWorkoutId}
                 />
             )}
         </div>

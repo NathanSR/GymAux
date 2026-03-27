@@ -2,7 +2,7 @@
 
 import { History } from "@/config/types";
 import { Activity, Clock, MessageSquare, Scale, Trophy, X } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { formatDuration } from "@/utils/dateUtil";
 import { useTranslations } from "next-intl";
 import { useLocale } from "next-intl";
@@ -10,15 +10,30 @@ import { useLocale } from "next-intl";
 interface WorkoutHistoryModalProps {
     selectedWorkouts: History[];
     onClose: () => void;
-    initialActiveId?: string;
+    initialActiveWorkoutId?: string;
 }
 
-export function WorkoutHistoryModal({ selectedWorkouts, onClose, initialActiveId }: WorkoutHistoryModalProps) {
+export function WorkoutHistoryModal({ selectedWorkouts, onClose, initialActiveWorkoutId }: WorkoutHistoryModalProps) {
     const language = useLocale();
 
-    const initialIndex = initialActiveId ? selectedWorkouts.findIndex(w => w.id === initialActiveId) : 0;
-    const [activeTab, setActiveTab] = useState(initialIndex >= 0 ? initialIndex : 0);
-    const currentWorkout = selectedWorkouts[activeTab];
+    const [activeId, setActiveId] = useState<string>(() => {
+        const found = initialActiveWorkoutId
+            ? selectedWorkouts.find(w => String(w.workoutId) === String(initialActiveWorkoutId) || String(w.id) === String(initialActiveWorkoutId))
+            : null;
+        return String(found?.id || selectedWorkouts[0]?.id);
+    });
+
+    useEffect(() => {
+        if (initialActiveWorkoutId) {
+            const found = selectedWorkouts.find(w =>
+                String(w.workoutId) === String(initialActiveWorkoutId) ||
+                String(w.id) === String(initialActiveWorkoutId)
+            );
+            if (found) setActiveId(String(found.id));
+        }
+    }, [initialActiveWorkoutId, selectedWorkouts]);
+
+    const currentWorkout = selectedWorkouts.find(w => String(w.id) === activeId) || selectedWorkouts[0];
 
     const t = useTranslations('History');
     const te = useTranslations('Exercises');
@@ -41,12 +56,12 @@ export function WorkoutHistoryModal({ selectedWorkouts, onClose, initialActiveId
                 {/* Abas para múltiplos treinos no mesmo dia */}
                 {selectedWorkouts.length > 1 && (
                     <div className="flex gap-2 p-6 pb-0 overflow-x-auto no-scrollbar">
-                        {selectedWorkouts.map((_, idx) => (
+                        {selectedWorkouts.map((workout, idx) => (
                             <button
-                                key={idx}
-                                onClick={() => setActiveTab(idx)}
+                                key={String(workout.id)}
+                                onClick={() => setActiveId(String(workout.id))}
                                 className={`px-5 py-2 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all
-                                    ${activeTab === idx ? 'bg-lime-400 text-zinc-950' : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-400'}`}
+                                    ${activeId === String(workout.id) ? 'bg-lime-400 text-zinc-950' : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-400'}`}
                             >
                                 {t('workout')} {idx + 1}
                             </button>
