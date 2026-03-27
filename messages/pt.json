@@ -1246,6 +1246,7 @@
     "sets": "Séries",
     "reps": "Reps",
     "rest": "Descanso (s)",
+    "copySet": "Copiar Série",
     "groupTypes": {
       "straight": "Série Direta",
       "bi_set": "Bi-Set",

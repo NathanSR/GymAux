@@ -1246,6 +1246,7 @@
     "sets": "Sets",
     "reps": "Reps",
     "rest": "Rest (s)",
+    "copySet": "Copy Set",
     "groupTypes": {
       "straight": "Straight Set",
       "bi_set": "Bi-Set",

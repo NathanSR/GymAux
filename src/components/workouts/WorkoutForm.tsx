@@ -33,7 +33,9 @@ function SortableGroupItem({
     control,
     register,
     removeGroup,
-    openSelectorFor
+    openSelectorFor,
+    setValue,
+    watch
 }: any) {
     const t = useTranslations('WorkoutForm');
     const te = useTranslations('Exercises');
@@ -59,98 +61,108 @@ function SortableGroupItem({
         name: `exercises.${groupIndex}.exercises`
     });
 
+    const handleRemoveExercise = (idx: number) => {
+        removeExercise(idx);
+        // Atualizar o tipo de grupo após remoção
+        const currentExs = watch(`exercises.${groupIndex}.exercises`);
+        if (currentExs) {
+            const nextCount = currentExs.length - 1;
+            if (nextCount === 1) setValue(`exercises.${groupIndex}.groupType`, 'straight');
+            else if (nextCount === 2) setValue(`exercises.${groupIndex}.groupType`, 'bi_set');
+            else if (nextCount === 3) setValue(`exercises.${groupIndex}.groupType`, 'tri_set');
+        }
+    };
+
     return (
         <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95 }}
             ref={setNodeRef}
             style={style}
-            className={`bg-white dark:bg-zinc-900 border ${isDragging ? 'border-lime-400 shadow-xl' : 'border-zinc-200 dark:border-zinc-800'} rounded-3xl p-5 mb-4 relative flex flex-col gap-4 overflow-hidden`}
+            className={`bg-white dark:bg-zinc-900 border ${isDragging ? 'border-lime-400 shadow-xl' : 'border-zinc-200 dark:border-zinc-800'} rounded-3xl p-4 mb-4 relative flex flex-col gap-3 transition-colors overflow-hidden`}
         >
-            <div className="flex items-center justify-between border-b border-zinc-100 dark:border-zinc-800 pb-3">
+            <div className="flex items-center justify-between border-b border-zinc-100 dark:border-zinc-800 pb-2">
                 <div className="flex items-center gap-2">
                     <div
                         {...attributes}
                         {...listeners}
-                        className="cursor-grab active:cursor-grabbing text-zinc-400 hover:text-lime-500 transition-colors"
+                        className="p-2 -ml-2 cursor-grab active:cursor-grabbing text-zinc-400 hover:text-lime-500 transition-colors"
                         style={{ touchAction: 'none' }}
                     >
-                        <GripVertical size={20} />
+                        <GripVertical size={18} />
                     </div>
                     <select
                         {...register(`exercises.${groupIndex}.groupType`)}
-                        className="bg-transparent text-sm font-black uppercase tracking-wider text-zinc-900 dark:text-zinc-100 outline-none cursor-pointer"
+                        className="bg-transparent text-[10px] font-black uppercase tracking-widest text-lime-500 dark:text-lime-400 outline-none cursor-pointer"
                     >
-                        <option value="straight">{t('groupTypes.straight')}</option>
-                        <option value="bi_set">{t('groupTypes.bi_set')}</option>
-                        <option value="tri_set">{t('groupTypes.tri_set')}</option>
-                        <option value="giant_set">{t('groupTypes.giant_set')}</option>
-                        <option value="circuit">{t('groupTypes.circuit')}</option>
+                        <option className='bg-background text-foreground' value="straight">{t('groupTypes.straight')}</option>
+                        <option className='bg-background text-foreground' value="bi_set">{t('groupTypes.bi_set')}</option>
+                        <option className='bg-background text-foreground' value="tri_set">{t('groupTypes.tri_set')}</option>
+                        <option className='bg-background text-foreground' value="giant_set">{t('groupTypes.giant_set')}</option>
+                        <option className='bg-background text-foreground' value="circuit">{t('groupTypes.circuit')}</option>
                     </select>
                 </div>
 
                 <button
                     type="button"
                     onClick={() => removeGroup(groupIndex)}
-                    className="text-red-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 p-2 rounded-xl transition-all"
+                    className="text-zinc-300 hover:text-red-500 p-2 rounded-xl transition-all"
                 >
-                    <Trash2 size={18} />
+                    <Trash2 size={16} />
                 </button>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-3">
                 {exerciseFields.map((exSubField: any, exIndex: number) => (
-                    <div key={exSubField.id} className="bg-zinc-50 dark:bg-zinc-950 rounded-2xl p-4 border border-zinc-100 dark:border-zinc-800">
-                        <div className="flex items-center gap-3 mb-4">
+                    <div key={exSubField.id} className="bg-zinc-50 dark:bg-zinc-950/50 rounded-2xl p-3 border border-zinc-100 dark:border-zinc-800">
+                        <div className="flex items-center gap-2 mb-3">
                             <button
                                 type="button"
                                 onClick={() => openSelectorFor(groupIndex, exIndex)}
-                                className="flex-1 flex items-center gap-3 p-3 bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 hover:border-lime-400/50 transition-all text-left group"
+                                className="flex-1 flex items-center gap-2 p-2.5 bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 hover:border-lime-400/50 transition-all text-left group"
                             >
-                                <div className="w-8 h-8 rounded-lg bg-lime-400/10 flex items-center justify-center">
-                                    <Dumbbell size={16} className="text-lime-500" />
-                                </div>
-                                <span className="text-sm font-bold text-zinc-800 dark:text-zinc-200 flex-1">
+                                <Dumbbell size={14} className="text-lime-500" />
+                                <span className="text-xs font-black text-zinc-800 dark:text-zinc-200 flex-1 truncate uppercase tracking-tight">
                                     {exSubField.exerciseName ? (te.has(exSubField.exerciseName) ? te(exSubField.exerciseName) : exSubField.exerciseName) : t('selectExercise')}
                                 </span>
-                                <ChevronDown size={16} className="text-zinc-400 group-hover:text-lime-500" />
+                                <ChevronDown size={14} className="text-zinc-400 group-hover:text-lime-500" />
                             </button>
                             {exerciseFields.length > 1 && (
                                 <button
                                     type="button"
-                                    onClick={() => removeExercise(exIndex)}
-                                    className="p-3 text-zinc-400 hover:text-red-500 rounded-xl hover:bg-red-50 dark:hover:bg-red-500/10"
+                                    onClick={() => handleRemoveExercise(exIndex)}
+                                    className="p-2.5 text-zinc-400 hover:text-red-500 rounded-xl hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors"
                                 >
-                                    <Trash2 size={18} />
+                                    <Trash2 size={16} />
                                 </button>
                             )}
                         </div>
 
-                        {/* Sets List Minimal UI */}
                         <SetsList groupIndex={groupIndex} exerciseIndex={exIndex} control={control} register={register} />
                     </div>
                 ))}
             </div>
 
-            <div className="flex gap-2">
-                <button
-                    type="button"
-                    onClick={() => openSelectorFor(groupIndex, null)}
-                    className="flex-1 py-3 mt-2 rounded-xl border-2 border-dashed border-zinc-200 dark:border-zinc-800 text-zinc-500 text-xs font-black uppercase tracking-widest hover:border-lime-400 hover:text-lime-500 transition-all"
-                >
-                    + {t('addExercise')}
-                </button>
-            </div>
-            
-            <div className="grid grid-cols-2 gap-3 mt-2 pt-4 border-t border-zinc-100 dark:border-zinc-800">
-                 <div className="bg-zinc-50 dark:bg-zinc-950 p-3 rounded-xl">
-                    <span className="block text-[9px] font-black text-zinc-400 uppercase tracking-widest mb-1">{t('restAfterGroup')}</span>
-                    <input type="number" {...register(`exercises.${groupIndex}.restAfterGroup`)} className="w-full bg-transparent font-bold text-sm outline-none" />
+            <button
+                type="button"
+                onClick={() => openSelectorFor(groupIndex, null)}
+                className="w-full py-2.5 rounded-xl border-2 border-dashed border-zinc-100 dark:border-zinc-800 text-zinc-400 text-[9px] font-black uppercase tracking-widest hover:border-lime-400/50 hover:text-lime-500 transition-all"
+            >
+                + {t('addExercise')}
+            </button>
+
+            <div className="grid grid-cols-2 gap-2 pt-3 border-t border-zinc-100 dark:border-zinc-800">
+                <div className="bg-zinc-50 dark:bg-zinc-950/50 p-2.5 rounded-xl border border-zinc-100 dark:border-zinc-800/50">
+                    <span className="block text-[8px] font-black text-zinc-400 uppercase tracking-widest mb-1">{t('restAfterGroup')}</span>
+                    <div className='flex items-center gap-2'>
+                        <input type="number" {...register(`exercises.${groupIndex}.restAfterGroup`)} className="w-full bg-transparent font-black text-sm outline-none text-zinc-800 dark:text-zinc-200" />
+                        <span className='text-[10px] text-zinc-500 font-bold'>s</span>
+                    </div>
                 </div>
-                 <div className="bg-zinc-50 dark:bg-zinc-950 p-3 rounded-xl">
-                    <span className="block text-[9px] font-black text-zinc-400 uppercase tracking-widest mb-1">{t('rounds')}</span>
-                    <input type="number" {...register(`exercises.${groupIndex}.rounds`)} className="w-full bg-transparent font-bold text-sm outline-none" />
+                <div className="bg-zinc-50 dark:bg-zinc-950/50 p-2.5 rounded-xl border border-zinc-100 dark:border-zinc-800/50">
+                    <span className="block text-[8px] font-black text-zinc-400 uppercase tracking-widest mb-1">{t('rounds')}</span>
+                    <input type="number" {...register(`exercises.${groupIndex}.rounds`)} className="w-full bg-transparent font-black text-sm outline-none text-zinc-800 dark:text-zinc-200" />
                 </div>
             </div>
         </motion.div>
@@ -165,54 +177,66 @@ function SetsList({ groupIndex, exerciseIndex, control, register }: any) {
     });
 
     return (
-        <div className="space-y-2">
-            <div className="grid grid-cols-12 gap-2 px-2 text-[9px] font-black tracking-widest uppercase text-zinc-400">
-                <div className="col-span-1 text-center">{t('set')}</div>
-                <div className="col-span-3">{t('reps')}</div>
-                <div className="col-span-3">{t('rest')}</div>
-                <div className="col-span-3">{t('tech')}</div>
-                <div className="col-span-2 text-right"></div>
+        <div className="space-y-1.5">
+            <div className="grid grid-cols-12 gap-1 px-1 text-[8px] font-black tracking-[0.1em] uppercase text-zinc-400">
+                <div className="col-span-1 text-center">#</div>
+                <div className="col-span-3 text-center">{t('reps')}</div>
+                <div className="col-span-3 text-center">{t('rest')}</div>
+                <div className="col-span-4 text-center">{t('tech')}</div>
+                <div className="col-span-1"></div>
             </div>
-            
+
             <AnimatePresence initial={false}>
                 {setFields.map((setField: any, setIndex: number) => (
-                    <motion.div 
+                    <motion.div
                         key={setField.id}
                         initial={{ opacity: 0, height: 0 }}
                         animate={{ opacity: 1, height: 'auto' }}
                         exit={{ opacity: 0, height: 0 }}
-                        className="grid grid-cols-12 gap-2 items-center bg-white dark:bg-zinc-800/50 p-2 rounded-xl group"
+                        className="grid grid-cols-12 gap-1 items-center bg-white dark:bg-zinc-800/40 p-1.5 rounded-xl group/set"
                     >
-                        <div className="col-span-1 text-center font-bold text-xs text-zinc-500">{setIndex + 1}</div>
+                        <div className="col-span-1 text-center font-bold text-[10px] text-zinc-400">{setIndex + 1}</div>
                         <div className="col-span-3">
-                            <input type="number" {...register(`exercises.${groupIndex}.exercises.${exerciseIndex}.sets.${setIndex}.reps`)} className="w-full bg-zinc-100 dark:bg-zinc-900 rounded-lg p-2 text-xs font-bold font-mono outline-none focus:ring-2 ring-lime-400 text-center" />
+                            <input type="number" {...register(`exercises.${groupIndex}.exercises.${exerciseIndex}.sets.${setIndex}.reps`)} className="w-full bg-zinc-50 dark:bg-zinc-900 border border-transparent focus:border-lime-500/30 rounded-lg p-1.5 text-xs font-bold font-mono outline-none text-center text-zinc-800 dark:text-zinc-200" />
                         </div>
                         <div className="col-span-3">
-                            <input type="number" {...register(`exercises.${groupIndex}.exercises.${exerciseIndex}.sets.${setIndex}.restTime`)} className="w-full bg-zinc-100 dark:bg-zinc-900 rounded-lg p-2 text-xs font-bold font-mono outline-none focus:ring-2 ring-lime-400 text-center" />
+                            <input type="number" {...register(`exercises.${groupIndex}.exercises.${exerciseIndex}.sets.${setIndex}.restTime`)} className="w-full bg-zinc-50 dark:bg-zinc-900 border border-transparent focus:border-lime-500/30 rounded-lg p-1.5 text-xs font-bold font-mono outline-none text-center text-zinc-800 dark:text-zinc-200" />
                         </div>
-                        <div className="col-span-3">
-                            <select {...register(`exercises.${groupIndex}.exercises.${exerciseIndex}.sets.${setIndex}.technique`)} className="w-full bg-zinc-100 dark:bg-zinc-900 rounded-lg p-2 text-xs font-bold outline-none cursor-pointer appearance-none truncate">
-                                <option value="normal">{t('techShorthand.normal')}</option>
-                                <option value="drop_set">{t('techShorthand.drop_set')}</option>
-                                <option value="rest_pause">{t('techShorthand.rest_pause')}</option>
-                                <option value="to_failure">{t('techShorthand.to_failure')}</option>
+                        <div className="col-span-4">
+                            <select {...register(`exercises.${groupIndex}.exercises.${exerciseIndex}.sets.${setIndex}.technique`)} className="w-full bg-zinc-50 dark:bg-zinc-900 border border-transparent focus:border-lime-500/30 rounded-lg p-1.5 text-[10px] font-black uppercase outline-none cursor-pointer appearance-none text-center text-zinc-800 dark:text-zinc-200">
+                                <option className='bg-background text-foreground' value="normal">{t('techShorthand.normal')}</option>
+                                <option className='bg-background text-foreground' value="drop_set">{t('techShorthand.drop_set')}</option>
+                                <option className='bg-background text-foreground' value="rest_pause">{t('techShorthand.rest_pause')}</option>
+                                <option className='bg-background text-foreground' value="to_failure">{t('techShorthand.to_failure')}</option>
                             </select>
                         </div>
-                        <div className="col-span-2 flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <button type="button" onClick={() => insert(setIndex + 1, setFields[setIndex])} className="p-1.5 text-lime-500 hover:bg-lime-500/20 rounded-lg"><Copy size={12} /></button>
-                            <button type="button" onClick={() => removeSet(setIndex)} className="p-1.5 text-red-400 hover:bg-red-400/20 rounded-lg"><Trash2 size={12} /></button>
+                        <div className="col-span-1 flex justify-end gap-1 opacity-100 lg:opacity-0 lg:group-hover/set:opacity-100 transition-opacity">
+                            <button type="button" onClick={() => removeSet(setIndex)} className="text-red-400 hover:text-red-500 transition-colors p-1"><Trash2 size={12} /></button>
                         </div>
                     </motion.div>
                 ))}
             </AnimatePresence>
 
-            <button
-                type="button"
-                onClick={() => appendSet({ reps: 10, restTime: 60, technique: 'normal' })}
-                className="w-full mt-2 py-2 rounded-xl bg-zinc-100 dark:bg-zinc-800/80 text-zinc-500 hover:text-zinc-900 dark:hover:text-white text-[10px] font-black uppercase tracking-widest transition-colors flex items-center justify-center gap-1"
-            >
-                <Plus size={14} /> {t('addSet')}
-            </button>
+            <div className="flex gap-2 mt-2">
+                <button
+                    type="button"
+                    // @ts-ignore
+                    onClick={() => appendSet({ reps: setFields[setFields.length - 1]?.reps || 10, restTime: setFields[setFields.length - 1]?.restTime || 60, technique: 'normal' })}
+                    className="flex-1 py-1.5 rounded-lg bg-zinc-100 dark:bg-zinc-800/80 text-zinc-500 hover:text-lime-500 text-[9px] font-black uppercase tracking-widest transition-colors flex items-center justify-center gap-1"
+                >
+                    <Plus size={12} /> {t('addSet')}
+                </button>
+                {setFields.length > 0 && (
+                    <button
+                        type="button"
+                        onClick={() => insert(setFields.length, { ...setFields[setFields.length - 1], id: undefined })}
+                        className="px-3 rounded-lg bg-zinc-100 dark:bg-zinc-800/80 text-zinc-500 hover:text-lime-500 transition-colors"
+                        title={t('copySet')}
+                    >
+                        <Copy size={12} />
+                    </button>
+                )}
+            </div>
         </div>
     );
 }
@@ -227,7 +251,7 @@ interface WorkoutFormProps {
 export default function WorkoutForm({ initialData, availableExercises = [], onSubmit, isLoading }: WorkoutFormProps) {
     const t = useTranslations('WorkoutForm');
 
-    const { register, control, handleSubmit, formState: { errors } } = useForm({
+    const { register, control, handleSubmit, setValue, watch, formState: { errors } } = useForm({
         defaultValues: initialData || {
             name: '',
             description: '',
@@ -262,7 +286,7 @@ export default function WorkoutForm({ initialData, availableExercises = [], onSu
         if (over && active.id !== over.id) {
             const oldIndex = groupFields.findIndex((f: any) => f.id === active.id || `group-${f.id}` === active.id);
             const newIndex = groupFields.findIndex((f: any) => f.id === over.id || `group-${f.id}` === over.id);
-            if(oldIndex !== -1 && newIndex !== -1) {
+            if (oldIndex !== -1 && newIndex !== -1) {
                 move(oldIndex, newIndex);
             }
         }
@@ -300,11 +324,23 @@ export default function WorkoutForm({ initialData, availableExercises = [], onSu
                     exerciseId: exercise.id,
                     exerciseName: exercise.name,
                     restAfterExercise: 0,
-                    sets: [{ reps: 10, restTime: 60, technique: 'normal' }]
+                    sets: (group.exercises && group.exercises[0]?.sets)
+                        ? JSON.parse(JSON.stringify(group.exercises[0].sets)) // Copiar estrutura do primeiro exercício
+                        : [{ reps: 10, restTime: 60, technique: 'normal' }]
                 };
+
+                const newExercises = [...(group.exercises || []), newEx];
+                let newGroupType = group.groupType;
+
+                // Sugerir tipo de grupo baseado na quantidade
+                if (newExercises.length === 2) newGroupType = 'bi_set';
+                else if (newExercises.length === 3) newGroupType = 'tri_set';
+                else if (newExercises.length >= 4) newGroupType = 'giant_set';
+
                 update(targetGroupIndex, {
                     ...group,
-                    exercises: [...(group.exercises || []), newEx]
+                    exercises: newExercises,
+                    groupType: newGroupType
                 });
             } else {
                 // Substituir exercício existente
@@ -328,7 +364,7 @@ export default function WorkoutForm({ initialData, availableExercises = [], onSu
 
     return (
         <>
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 pb-20">
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 pb-40">
                 <section className="bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 rounded-3xl p-5 shadow-sm">
                     <div className="mb-4">
                         <label className="block text-[10px] font-black uppercase text-zinc-400 mb-2 ml-1 tracking-widest">
@@ -337,7 +373,7 @@ export default function WorkoutForm({ initialData, availableExercises = [], onSu
                         <input
                             {...register("name", { required: t('nameRequired') })}
                             placeholder={t('namePlaceholder')}
-                            className={`w-full bg-zinc-50 dark:bg-zinc-950 border ${errors.name ? 'border-red-500' : 'border-transparent'} rounded-2xl p-4 text-base font-black focus:border-lime-400 focus:ring-4 focus:ring-lime-400/10 outline-none transition-all`}
+                            className={`w-full bg-zinc-50 dark:bg-zinc-950 border ${errors.name ? 'border-red-500' : 'border-transparent'} rounded-2xl p-4 text-base font-black focus:border-lime-400 focus:ring-4 focus:ring-lime-400/10 outline-none transition-all text-zinc-900 dark:text-zinc-100`}
                         />
                     </div>
                     <div>
@@ -348,7 +384,7 @@ export default function WorkoutForm({ initialData, availableExercises = [], onSu
                             {...register("description")}
                             rows={2}
                             placeholder={t('descriptionPlaceholder')}
-                            className="w-full bg-zinc-50 dark:bg-zinc-950 border border-transparent rounded-2xl p-4 text-sm font-medium focus:border-lime-400 focus:ring-4 focus:ring-lime-400/10 outline-none resize-none transition-all"
+                            className="w-full bg-zinc-50 dark:bg-zinc-950 border border-transparent rounded-2xl p-4 text-sm font-medium focus:border-lime-400 focus:ring-4 focus:ring-lime-400/10 outline-none resize-none transition-all text-zinc-900 dark:text-zinc-100"
                         />
                     </div>
                 </section>
@@ -375,6 +411,8 @@ export default function WorkoutForm({ initialData, availableExercises = [], onSu
                                         register={register}
                                         removeGroup={removeGroup}
                                         openSelectorFor={openSelectorFor}
+                                        setValue={setValue}
+                                        watch={watch}
                                     />
                                 ))}
                             </AnimatePresence>
