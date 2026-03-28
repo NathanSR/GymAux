@@ -1254,6 +1254,14 @@
       "giant_set": "Série Gigante",
       "circuit": "Circuito"
     },
+    "groupTypesHelp": {
+      "title": "Grupos de Exercícios",
+      "straight": "Foco total em um exercício. Faça todas as séries descansando entre elas antes de ir para o próximo.",
+      "bi_set": "Combine dois exercícios. Faça o primeiro e, sem descansar, comece o segundo. Descanse só após os dois.",
+      "tri_set": "Três exercícios seguidos. Faça um após o outro sem parar. O descanso vem apenas após o terceiro exercício.",
+      "giant_set": "Uma maratona de 4 ou mais exercícios para o mesmo músculo. Vá rápido entre eles e descanse no final.",
+      "circuit": "Uma sequência de vários exercícios diferentes. Ótimo para queimar calorias e manter o fôlego alto!"
+    },
     "restAfterGroup": "Descanso pós Grupo (s)",
     "rounds": "Rounds",
     "set": "Série",

@@ -1254,6 +1254,14 @@
       "giant_set": "Giant Set",
       "circuit": "Circuit"
     },
+    "groupTypesHelp": {
+      "title": "Exercise Groups",
+      "straight": "Focus on one exercise. Complete all sets with a rest between each before moving on.",
+      "bi_set": "Pair two exercises together. Do one, then immediately do the second one. Rest only after finishing both.",
+      "tri_set": "Three exercises in a row. Do them one after another without stopping. Take your rest after the third one.",
+      "giant_set": "A marathon of 4 or more exercises for the same area. Move quickly between them and rest at the very end.",
+      "circuit": "A 'round' of several different exercises. Good for burning calories and keeping your heart rate up!"
+    },
     "restAfterGroup": "Rest After Group (s)",
     "rounds": "Rounds",
     "set": "Set",

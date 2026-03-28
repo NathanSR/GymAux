@@ -2,11 +2,12 @@
 
 import { useState, useRef } from 'react';
 import { useForm, useFieldArray, Controller } from 'react-hook-form';
-import { Save, Plus, Trash2, Dumbbell, ChevronDown, GripVertical, Copy } from 'lucide-react';
+import { Save, Plus, Trash2, Dumbbell, ChevronDown, GripVertical, Copy, HelpCircle } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Exercise } from '@/config/types';
 import QuickExerciseDrawer from '../exercises/QuickExerciseDrawer';
 import { ExerciseSelector } from '../exercises/ExerciseSelector';
+import { GroupTypeHelpModal } from './GroupTypeHelpModal';
 import { motion, AnimatePresence } from 'framer-motion';
 
 import {
@@ -35,7 +36,8 @@ function SortableGroupItem({
     removeGroup,
     openSelectorFor,
     setValue,
-    watch
+    watch,
+    onShowHelp
 }: any) {
     const t = useTranslations('WorkoutForm');
     const te = useTranslations('Exercises');
@@ -102,6 +104,14 @@ function SortableGroupItem({
                         <option className='bg-background text-foreground' value="giant_set">{t('groupTypes.giant_set')}</option>
                         <option className='bg-background text-foreground' value="circuit">{t('groupTypes.circuit')}</option>
                     </select>
+                    <button
+                        type="button"
+                        onClick={onShowHelp}
+                        className="p-1 text-zinc-400 hover:text-lime-500 transition-colors"
+                        title={t('groupTypesHelp.title')}
+                    >
+                        <HelpCircle size={12} />
+                    </button>
                 </div>
 
                 <button
@@ -266,6 +276,7 @@ export default function WorkoutForm({ initialData, availableExercises = [], onSu
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isQuickDrawerOpen, setIsQuickDrawerOpen] = useState(false);
+    const [isHelpOpen, setIsHelpOpen] = useState(false);
     const [targetGroupIndex, setTargetGroupIndex] = useState<number | null>(null);
     const [targetExerciseIndex, setTargetExerciseIndex] = useState<number | null>(null);
 
@@ -413,6 +424,7 @@ export default function WorkoutForm({ initialData, availableExercises = [], onSu
                                         openSelectorFor={openSelectorFor}
                                         setValue={setValue}
                                         watch={watch}
+                                        onShowHelp={() => setIsHelpOpen(true)}
                                     />
                                 ))}
                             </AnimatePresence>
@@ -457,6 +469,11 @@ export default function WorkoutForm({ initialData, availableExercises = [], onSu
                 isOpen={isQuickDrawerOpen}
                 onClose={() => setIsQuickDrawerOpen(false)}
                 onExerciseCreated={handleExerciseSelected}
+            />
+
+            <GroupTypeHelpModal 
+                isOpen={isHelpOpen}
+                onClose={() => setIsHelpOpen(false)}
             />
         </>
     );
