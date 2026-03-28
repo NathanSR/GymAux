@@ -1,6 +1,22 @@
 import { createClient } from '@/lib/supabase/client';
-import { History } from '@/config/types';
+import { History, ExecutedGroup } from '@/config/types';
 import { userService } from './userService';
+
+const mapExecutedGroupFromSupabase = (g: any): ExecutedGroup => ({
+    groupType: g.groupType || 'straight',
+    exercises: (g.exercises || []).map((ex: any) => ({
+        exerciseId: ex.exerciseId,
+        exerciseName: ex.exerciseName,
+        sets: (ex.sets || []).map((s: any) => ({
+            reps: s.reps,
+            weight: s.weight,
+            rpe: s.rpe,
+            skipped: s.skipped,
+            technique: s.technique,
+            notes: s.notes,
+        })),
+    })),
+});
 
 const mapHistoryFromSupabase = (h: any): History => ({
     id: h.id,
@@ -13,21 +29,10 @@ const mapHistoryFromSupabase = (h: any): History => ({
     weight: h.weight ?? undefined,
     description: h.description || undefined,
     usingCreatine: h.using_creatine ?? undefined,
-    executions: (h.executions || []).map((ex: any) => ({
-        exerciseId: ex.exerciseId,
-        exerciseName: ex.exerciseName,
-        sets: (ex.sets || []).map((s: any) => ({
-            reps: s.reps,
-            weight: s.weight,
-            rpe: s.rpe,
-        })),
-    })),
+    executions: (h.executions || []).map(mapExecutedGroupFromSupabase),
 });
 
 export const HistoryService = {
-    /**
-     * Salva a conclusão de um treino no histórico.
-     */
     async createWorkout(historyData: Omit<History, 'id'>, supabaseInput?: any) {
         const supabase = supabaseInput || createClient();
         const { data, error } = await supabase
@@ -54,9 +59,6 @@ export const HistoryService = {
         return mapHistoryFromSupabase(data);
     },
 
-    /**
-     * Busca todo o histórico de um usuário específico, ordenado pela data mais recente.
-     */
     async getUserHistory(userId: string, page: number = 1, limit: number = 12, supabaseInput?: any) {
         const supabase = supabaseInput || createClient();
         const from = (page - 1) * limit;
@@ -77,9 +79,6 @@ export const HistoryService = {
         return (data || []).map(mapHistoryFromSupabase);
     },
 
-    /**
-     * Busca o histórico de um treino específico para ver evolução.
-     */
     async getWorkoutEvolution(userId: string, workoutId: string, supabaseInput?: any) {
         const supabase = supabaseInput || createClient();
         const { data, error } = await supabase
@@ -98,18 +97,16 @@ export const HistoryService = {
     },
 
     /**
-     * Busca a última execução de um exercício específico. 
+     * Busca a última execução de um exercício específico dentro dos groups.
      */
     async getLastExerciseExecution(userId: string, exerciseId: number, supabaseInput?: any) {
         const supabase = supabaseInput || createClient();
-        // No Supabase, podemos tentar filtrar no JSONB, mas pela simplicidade (e limitação de volume inicial), 
-        // buscamos os últimos e filtramos no JS.
         const { data, error } = await supabase
             .from('history')
             .select('*')
             .eq('user_id', userId)
             .order('date', { ascending: false })
-            .limit(20); // Busca nos últimos 20 treinos
+            .limit(20);
 
         if (error) {
             console.error('Error fetching last exercise execution:', error);
@@ -119,32 +116,26 @@ export const HistoryService = {
         const history = (data || []).map(mapHistoryFromSupabase);
 
         for (const log of history) {
-            const exerciseLog = log.executions?.find((e: any) => e.exerciseId === exerciseId);
-            if (exerciseLog) return exerciseLog;
+            if (!log.executions) continue;
+            for (const group of log.executions) {
+                const exerciseLog = group.exercises.find((e: any) => e.exerciseId === exerciseId);
+                if (exerciseLog) return exerciseLog;
+            }
         }
 
         return null;
     },
 
-    /**
-     * Busca o histórico pendente de um exercício.
-     */
     async getPendingHistory(userId: string, supabaseInput?: any) {
         const history = await this.getUserHistory(userId, 1, 1, supabaseInput);
         return history[0] || null;
     },
 
-    /**
-     * Busca o último histórico.
-     */
     async getLastHistory(userId: string, supabaseInput?: any) {
         const history = await this.getUserHistory(userId, 1, 1, supabaseInput);
         return history[0] || null;
     },
 
-    /**
-     * Calcula estatísticas básicas.
-     */
     async getTotalWorkoutsCount(userId: string, supabaseInput?: any) {
         const supabase = supabaseInput || createClient();
         const { count, error } = await supabase
@@ -160,9 +151,6 @@ export const HistoryService = {
         return count || 0;
     },
 
-    /**
-     * Busca o histórico dentro de um intervalo de datas.
-     */
     async getHistoryByRange(userId: string, startDate: Date, endDate: Date, supabaseInput?: any) {
         const supabase = supabaseInput || createClient();
         const { data, error } = await supabase
@@ -180,9 +168,6 @@ export const HistoryService = {
         return (data || []).map(mapHistoryFromSupabase);
     },
 
-    /**
-     * Permite deletar um registro do histórico.
-     */
     async deleteHistoryEntry(id: string, supabaseInput?: any) {
         const supabase = supabaseInput || createClient();
         const { data: { user } } = await supabase.auth.getUser();
@@ -199,9 +184,6 @@ export const HistoryService = {
         }
     },
 
-    /**
-     * Permite adicionar ou editar uma nota/descrição a um treino já realizado.
-     */
     async updateDescription(id: string, description: string, supabaseInput?: any) {
         const supabase = supabaseInput || createClient();
         const { data: { user } } = await supabase.auth.getUser();
@@ -222,9 +204,6 @@ export const HistoryService = {
         return mapHistoryFromSupabase(data);
     },
 
-    /**
-     * Atualiza um histórico existente.
-     */
     async updateHistory(id: string, historyData: Partial<History>, supabaseInput?: any) {
         const supabase = supabaseInput || createClient();
         const { data: { user } } = await supabase.auth.getUser();
@@ -238,7 +217,6 @@ export const HistoryService = {
         if (historyData.endDate) updates.end_date = historyData.endDate.toISOString();
         if (historyData.executions) updates.executions = historyData.executions as any;
 
-        // Regra: Atualizar peso do usuário se fornecido
         if (historyData.weight && historyData.weight > 0) {
             const entry = await this.getHistoryById(id, supabaseInput);
             if (entry && entry.userId === user.id) {

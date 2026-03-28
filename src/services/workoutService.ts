@@ -1,5 +1,26 @@
 import { createClient } from '@/lib/supabase/client';
-import { Workout } from '@/config/types';
+import { Workout, ExerciseGroup } from '@/config/types';
+
+const mapGroupFromSupabase = (g: any): ExerciseGroup => ({
+    groupType: g.groupType || 'straight',
+    rounds: g.rounds ?? 1,
+    restBetweenRounds: g.restBetweenRounds ?? 0,
+    restAfterGroup: g.restAfterGroup ?? 60,
+    exercises: (g.exercises || []).map((ex: any) => ({
+        exerciseId: ex.exerciseId,
+        exerciseName: ex.exerciseName,
+        sets: (ex.sets || []).map((s: any) => ({
+            reps: s.reps ?? 10,
+            weight: s.weight,
+            restTime: s.restTime ?? 60,
+            technique: s.technique || 'normal',
+            notes: s.notes,
+        })),
+        restAfterExercise: ex.restAfterExercise ?? 0,
+        notes: ex.notes,
+    })),
+    notes: g.notes,
+});
 
 const mapWorkoutFromSupabase = (workout: any): Workout => ({
     id: workout.id,
@@ -7,19 +28,32 @@ const mapWorkoutFromSupabase = (workout: any): Workout => ({
     name: workout.name,
     description: workout.description || undefined,
     createdAt: workout.created_at ? new Date(workout.created_at) : new Date(),
-    exercises: (workout.exercises || []).map((ex: any) => ({
-        exerciseId: ex.exerciseId,
-        exerciseName: ex.exerciseName,
-        sets: ex.sets,
-        reps: ex.reps,
-        restTime: ex.restTime,
-    }))
+    exercises: (workout.exercises || []).map(mapGroupFromSupabase),
 });
 
+const serializeGroups = (groups: ExerciseGroup[]) =>
+    groups.map(g => ({
+        groupType: g.groupType,
+        rounds: g.rounds,
+        restBetweenRounds: g.restBetweenRounds,
+        restAfterGroup: g.restAfterGroup,
+        notes: g.notes,
+        exercises: g.exercises.map(ex => ({
+            exerciseId: ex.exerciseId,
+            exerciseName: ex.exerciseName,
+            restAfterExercise: ex.restAfterExercise,
+            notes: ex.notes,
+            sets: ex.sets.map(s => ({
+                reps: Math.max(0, s.reps),
+                weight: s.weight,
+                restTime: Math.max(0, s.restTime),
+                technique: s.technique || 'normal',
+                notes: s.notes,
+            })),
+        })),
+    }));
+
 export const WorkoutService = {
-    /**
-     * Busca todos os treinos cadastrados no banco.
-     */
     async getAllWorkouts(supabaseInput?: any) {
         const supabase = supabaseInput || createClient();
         const { data, error } = await supabase
@@ -34,9 +68,6 @@ export const WorkoutService = {
         return (data || []).map(mapWorkoutFromSupabase);
     },
 
-    /**
-     * Busca os treinos de um usuário específico com filtros e paginação.
-     */
     async getWorkoutsByUserId(userId: string, searchQuery = '', pagination?: { page: number; limit: number }, supabaseInput?: any) {
         const supabase = supabaseInput || createClient();
         let query = supabase
@@ -73,9 +104,6 @@ export const WorkoutService = {
         return (data || []).map(mapWorkoutFromSupabase);
     },
 
-    /**
-     * Busca um treino pelo seu ID único.
-     */
     async getWorkoutById(id: string, supabaseInput?: any) {
         const supabase = supabaseInput || createClient();
         const { data, error } = await supabase
@@ -92,9 +120,6 @@ export const WorkoutService = {
         return data ? mapWorkoutFromSupabase(data) : null;
     },
 
-    /**
-     * Cria um novo treino com validações e formatações.
-     */
     async createWorkout(workoutData: Omit<Workout, 'id' | 'createdAt'>, supabaseInput?: any) {
         const supabase = supabaseInput || createClient();
         const formattedName = workoutData.name.trim();
@@ -104,16 +129,20 @@ export const WorkoutService = {
         }
 
         if (!workoutData.exercises || workoutData.exercises.length === 0) {
-            throw new Error("Um treino precisa ter pelo menos um exercício vinculado.");
+            throw new Error("Um treino precisa ter pelo menos um grupo de exercício.");
         }
 
-        const exercises = workoutData.exercises.map(ex => ({
-            exerciseId: ex.exerciseId,
-            exerciseName: ex.exerciseName,
-            sets: Math.max(1, ex.sets),
-            reps: ex.reps,
-            restTime: Math.max(0, ex.restTime)
-        }));
+        // Validate each group has at least one exercise with at least one set
+        for (const group of workoutData.exercises) {
+            if (!group.exercises || group.exercises.length === 0) {
+                throw new Error("Cada grupo precisa ter pelo menos um exercício.");
+            }
+            for (const ex of group.exercises) {
+                if (!ex.sets || ex.sets.length === 0) {
+                    throw new Error(`O exercício "${ex.exerciseName}" precisa ter pelo menos uma série.`);
+                }
+            }
+        }
 
         const { data, error } = await supabase
             .from('workouts')
@@ -121,7 +150,7 @@ export const WorkoutService = {
                 user_id: workoutData.userId,
                 name: formattedName,
                 description: workoutData.description,
-                exercises: exercises as any,
+                exercises: serializeGroups(workoutData.exercises) as any,
             })
             .select()
             .single();
@@ -133,9 +162,6 @@ export const WorkoutService = {
         return mapWorkoutFromSupabase(data);
     },
 
-    /**
-     * Atualiza um treino existente.
-     */
     async updateWorkout(id: string, workoutData: Partial<Workout>, supabaseInput?: any) {
         const supabase = supabaseInput || createClient();
         const { data: { user } } = await supabase.auth.getUser();
@@ -146,13 +172,7 @@ export const WorkoutService = {
         if (workoutData.description !== undefined) updates.description = workoutData.description;
         if (workoutData.userId) updates.user_id = workoutData.userId;
         if (workoutData.exercises) {
-            updates.exercises = workoutData.exercises.map(ex => ({
-                exerciseId: ex.exerciseId,
-                exerciseName: ex.exerciseName,
-                sets: Math.max(1, ex.sets),
-                reps: ex.reps,
-                restTime: Math.max(0, ex.restTime)
-            }));
+            updates.exercises = serializeGroups(workoutData.exercises);
         }
 
         const { data, error } = await supabase
@@ -170,7 +190,7 @@ export const WorkoutService = {
         return mapWorkoutFromSupabase(data);
     },
 
-    async addExerciseToWorkout(workoutId: string, newExercise: Workout['exercises'][0], supabaseInput?: any) {
+    async addExerciseToWorkout(workoutId: string, newExercise: ExerciseGroup, supabaseInput?: any) {
         const workout = await this.getWorkoutById(workoutId, supabaseInput);
         if (!workout) throw new Error("Treino não encontrado.");
 
@@ -181,9 +201,6 @@ export const WorkoutService = {
         }, supabaseInput);
     },
 
-    /**
-     * Deleta um treino específico.
-     */
     async deleteWorkout(id: string, supabaseInput?: any) {
         const supabase = supabaseInput || createClient();
         const { data: { user } } = await supabase.auth.getUser();

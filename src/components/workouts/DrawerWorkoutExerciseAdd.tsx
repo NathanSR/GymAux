@@ -87,15 +87,29 @@ export default function DrawerWorkoutExerciseAdd({
         if (!selectedWorkout?.id) return;
 
         try {
-            await WorkoutService.addExerciseToWorkout(selectedWorkout.id, {
-                ...data,
-                exerciseId: exercise.id as number,
-                exerciseName: exercise.name
-            });
+            const plannedSets = Array.from({ length: data.sets }, () => ({
+                reps: data.reps,
+                restTime: data.restTime,
+                technique: 'normal' as const,
+            }));
+
+            const newGroup = {
+                groupType: 'straight' as const,
+                rounds: 1,
+                restBetweenRounds: 0,
+                restAfterGroup: data.restTime,
+                exercises: [{
+                    exerciseId: exercise.id as number,
+                    exerciseName: exercise.name,
+                    sets: plannedSets,
+                    restAfterExercise: 0,
+                }],
+            };
+
+            await WorkoutService.addExerciseToWorkout(selectedWorkout.id, newGroup);
             setSuccess(true);
         } catch (error) {
-            console.error("Erro ao adicionar exercício:", error);
-            // Poderia adicionar um toast de erro aqui se houvesse um sistema de notificações
+            console.error("Error adding exercise:", error);
         }
     };
 
@@ -187,7 +201,7 @@ export default function DrawerWorkoutExerciseAdd({
                                         <div className="text-left">
                                             <p className="font-bold text-sm">{workout.name}</p>
                                             <p className="text-[10px] text-zinc-400 uppercase tracking-widest font-bold">
-                                                {workout.exercises.length} {t("exercisesCount")}
+                                                {workout.exercises.reduce((acc, g) => acc + g.exercises.length, 0)} {t("exercisesCount")}
                                             </p>
                                         </div>
                                     </div>

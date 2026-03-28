@@ -14,9 +14,10 @@ import {
     FastForward,
     Flame,
     Zap,
-    Trophy
+    Trophy,
+    RefreshCw
 } from 'lucide-react';
-import { Session } from '@/config/types';
+import { Session, ExecutedGroup, ExecutedExercise, ExecutedSet } from '@/config/types';
 import { RestTimer } from '@/components/session/RestTimer';
 import { useRouter } from '@/i18n/routing';
 import { useForm } from 'react-hook-form';
@@ -33,18 +34,18 @@ interface SessionClientProps {
     initialSession: Session;
 }
 
-const RPE_EMOJIS: Record<number, { emoji: string; label: string }> = {
-    0: { emoji: "☁️", label: "Muito Leve" },
-    1: { emoji: "☁️", label: "Muito Leve" },
-    2: { emoji: "☁️", label: "Muito Leve" },
-    3: { emoji: "🙂", label: "Leve" },
-    4: { emoji: "🙂", label: "Leve" },
-    5: { emoji: "😐", label: "Moderado" },
-    6: { emoji: "😐", label: "Moderado" },
-    7: { emoji: "💪", label: "Difícil" },
-    8: { emoji: "🔥", label: "Muito Difícil" },
-    9: { emoji: "💀", label: "Falha Técnica" },
-    10: { emoji: "🚀", label: "Falha Total" },
+const RPE_EMOJIS: Record<number, { emoji: string; labelKey: string }> = {
+    0: { emoji: "☁️", labelKey: "rpeVeryLight" },
+    1: { emoji: "☁️", labelKey: "rpeVeryLight" },
+    2: { emoji: "☁️", labelKey: "rpeVeryLight" },
+    3: { emoji: "🙂", labelKey: "rpeLight" },
+    4: { emoji: "🙂", labelKey: "rpeLight" },
+    5: { emoji: "😐", labelKey: "rpeModerate" },
+    6: { emoji: "😐", labelKey: "rpeModerate" },
+    7: { emoji: "💪", labelKey: "rpeHard" },
+    8: { emoji: "🔥", labelKey: "rpeVeryHard" },
+    9: { emoji: "💀", labelKey: "rpeTechnical" },
+    10: { emoji: "🚀", labelKey: "rpeTotal" },
 };
 
 const RPE_OPTIONS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
@@ -60,12 +61,21 @@ export default function SessionClient({ initialSession }: SessionClientProps) {
     const [showPreview, setShowPreview] = useState(false);
     const [showInstructions, setShowInstructions] = useState(false);
 
-    const currentExercise = session.exercisesToDo?.[session.current?.exerciseIndex || 0];
+    // Current Nav State
+    const currentGroupIndex = session.current?.groupIndex || 0;
+    const currentExerciseIndex = session.current?.exerciseIndex || 0;
+    const currentSetIndex = session.current?.setIndex || 0;
+
+    const currentGroup = session.exercisesToDo?.[currentGroupIndex];
+    const currentExercise = currentGroup?.exercises?.[currentExerciseIndex];
+    const currentPlannedSet = currentExercise?.sets?.[currentSetIndex];
+
+    const isGroupAlternating = currentGroup?.groupType !== 'straight';
 
     const { register, handleSubmit, watch, setValue } = useForm({
         defaultValues: {
             weight: 0,
-            reps: currentExercise?.reps || 0,
+            reps: currentPlannedSet?.reps || 0,
             rpe: 7,
             userWeight: 0,
             description: '',
@@ -77,12 +87,12 @@ export default function SessionClient({ initialSession }: SessionClientProps) {
     const rpeValue = watch("rpe");
 
     useEffect(() => {
-        setValue("weight", 0);
-    }, [session.current.exerciseIndex, setValue]);
+        setValue("weight", currentPlannedSet?.weight || 0);
+    }, [currentGroupIndex, currentExerciseIndex, setValue, currentPlannedSet?.weight]);
 
     useEffect(() => {
-        setValue("reps", currentExercise?.reps || 0);
-    }, [session.current.setIndex, setValue, currentExercise?.reps]);
+        setValue("reps", currentPlannedSet?.reps || 0);
+    }, [currentGroupIndex, currentExerciseIndex, currentSetIndex, setValue, currentPlannedSet?.reps]);
 
     useEffect(() => {
         window.history.pushState(null, '', window.location.href);
@@ -97,69 +107,126 @@ export default function SessionClient({ initialSession }: SessionClientProps) {
         };
     }, [session.id, exitSession]);
 
-    const synchronizeProgress = async () => {
-        if (!session.id) return;
-        await SessionService.syncSessionProgress(session.id, { ...session });
+    const synchronizeProgress = async (newSession: Session) => {
+        if (!newSession.id) return;
+        await SessionService.syncSessionProgress(newSession.id, { ...newSession });
     };
 
-    const handleSetCompletion = (formData: any) => {
-        if (!session || !currentExercise) return;
+    const handleSetCompletion = (formData: any, skipped: boolean = false) => {
+        if (!session || !currentExercise || !currentGroup) return;
 
-        const newSet = {
+        const newSet: ExecutedSet = {
             weight: Number(formData.weight),
             reps: Number(formData.reps),
             rpe: Number(formData.rpe),
+            skipped,
+            technique: currentPlannedSet?.technique || 'normal'
         };
 
-        let updatedExecutions = [...session.exercisesDone];
-        const exIdx = updatedExecutions.findIndex((e: any) => e.exerciseId === currentExercise.exerciseId);
+        const newSession = { ...session };
+        let updatedExecutions = [...newSession.exercisesDone];
 
-        if (exIdx !== -1) {
-            updatedExecutions[exIdx].sets.push(newSet);
-        } else {
-            updatedExecutions.push({
-                exerciseId: currentExercise.exerciseId,
-                exerciseName: currentExercise.exerciseName,
-                sets: [newSet]
-            });
+        // Ensure ExecutedGroup exists
+        if (!updatedExecutions[currentGroupIndex]) {
+            updatedExecutions[currentGroupIndex] = {
+                groupType: currentGroup.groupType,
+                exercises: []
+            };
         }
 
-        const isLastSet = session.current.setIndex >= currentExercise.sets - 1;
-        const isLastExercise = session.current.exerciseIndex >= session.exercisesToDo.length - 1;
+        const executedGroup = updatedExecutions[currentGroupIndex];
 
-        let nextStep: Session['current']['step'] = 'resting';
-        if (isLastSet)
-            if (isLastExercise) nextStep = 'completion';
-            else nextStep = 'resting';
-        else nextStep = 'resting';
+        // Ensure ExecutedExercise exists
+        let exIdx = executedGroup.exercises.findIndex(e => e.exerciseId === currentExercise.exerciseId);
+        if (exIdx === -1) {
+            executedGroup.exercises.push({
+                exerciseId: currentExercise.exerciseId,
+                exerciseName: currentExercise.exerciseName,
+                sets: []
+            });
+            exIdx = executedGroup.exercises.length - 1;
+        }
 
-        if (nextStep === 'completion') {
-            if (!session.pausedAt && session.resumedAt) {
-                const finalSegment = new Date().getTime() - session.resumedAt.getTime();
-                session.duration += finalSegment;
+        // Add set
+        executedGroup.exercises[exIdx].sets.push(newSet);
+        newSession.exercisesDone = updatedExecutions;
+
+        // --- Calculate Next Step ---
+        const totalExercisesInGroup = currentGroup.exercises.length;
+        const totalSetsInExercise = currentExercise.sets.length;
+
+        let nextGroupIndex = currentGroupIndex;
+        let nextExerciseIndex = currentExerciseIndex;
+        let nextSetIndex = currentSetIndex;
+        let isLastActionInWorkout = false;
+
+        if (isGroupAlternating) {
+            // Alternating (e.g., Bi-Set)
+            if (nextExerciseIndex < totalExercisesInGroup - 1) {
+                // Next exercise in the same round
+                nextExerciseIndex++;
+            } else {
+                // Same round finished
+                if (nextSetIndex < (currentGroup.rounds || totalSetsInExercise) - 1) {
+                    // Next round
+                    nextSetIndex++;
+                    nextExerciseIndex = 0;
+                } else {
+                    // Group Finished
+                    if (nextGroupIndex < session.exercisesToDo.length - 1) {
+                        nextGroupIndex++;
+                        nextExerciseIndex = 0;
+                        nextSetIndex = 0;
+                    } else {
+                        isLastActionInWorkout = true;
+                    }
+                }
+            }
+        } else {
+            // Straight Group
+            if (nextSetIndex < totalSetsInExercise - 1) {
+                // Next set of same exercise
+                nextSetIndex++;
+            } else {
+                // Exercise finished
+                if (nextExerciseIndex < totalExercisesInGroup - 1) {
+                    nextExerciseIndex++;
+                    nextSetIndex = 0;
+                } else {
+                    // Group Finished
+                    if (nextGroupIndex < session.exercisesToDo.length - 1) {
+                        nextGroupIndex++;
+                        nextExerciseIndex = 0;
+                        nextSetIndex = 0;
+                    } else {
+                        isLastActionInWorkout = true;
+                    }
+                }
             }
         }
 
-        const newSession = { ...session };
-        newSession.current.step = nextStep;
-        newSession.exercisesDone = updatedExecutions;
+        if (isLastActionInWorkout) {
+            newSession.current.step = 'completion';
+            if (!session.pausedAt && session.resumedAt) {
+                const finalSegment = new Date().getTime() - session.resumedAt.getTime();
+                newSession.duration += finalSegment;
+            }
+        } else {
+            newSession.current.step = 'resting';
+            newSession.current.groupIndex = nextGroupIndex;
+            newSession.current.exerciseIndex = nextExerciseIndex;
+            newSession.current.setIndex = nextSetIndex;
+        }
+
         setSession(newSession);
-        synchronizeProgress();
+        synchronizeProgress(newSession);
     };
 
     const moveToNextStep = () => {
         const newSession = { ...session };
         newSession.current.step = 'executing';
-        if (newSession.current.setIndex < (currentExercise?.sets || 0) - 1) {
-            newSession.current.setIndex = newSession.current.setIndex + 1;
-        } else if (newSession.current.exerciseIndex < newSession.exercisesToDo.length - 1) {
-            newSession.current.exerciseIndex = newSession.current.exerciseIndex + 1;
-            newSession.current.setIndex = 0;
-        } else {
-            newSession.current.step = 'completion';
-        }
         setSession(newSession);
-        synchronizeProgress();
+        synchronizeProgress(newSession);
     };
 
     const handleSkipSet = async () => {
@@ -171,7 +238,12 @@ export default function SessionClient({ initialSession }: SessionClientProps) {
             cancelText: t('exitCancel'),
         });
         if (result.isConfirmed) {
-            moveToNextStep();
+            const currentValues = {
+                weight: watch("weight"),
+                reps: watch("reps"),
+                rpe: watch("rpe")
+            };
+            handleSetCompletion(currentValues, true);
         }
     };
 
@@ -186,20 +258,23 @@ export default function SessionClient({ initialSession }: SessionClientProps) {
         });
         if (result.isConfirmed) {
             const newSession = { ...session };
-            if (newSession.current.exerciseIndex < newSession.exercisesToDo.length - 1) {
-                newSession.current.exerciseIndex = newSession.current.exerciseIndex + 1;
+            const nextGroupIndex = currentGroupIndex + 1;
+
+            if (nextGroupIndex < session.exercisesToDo.length) {
+                newSession.current.groupIndex = nextGroupIndex;
+                newSession.current.exerciseIndex = 0;
                 newSession.current.setIndex = 0;
                 newSession.current.step = 'executing';
             } else {
                 newSession.current.step = 'completion';
             }
             setSession(newSession);
-            synchronizeProgress();
+            synchronizeProgress(newSession);
         }
     };
 
     const handleForceFinishWorkout = () => {
-        forceFinishWorkout(session, (s) => setSession(s as Session), synchronizeProgress);
+        forceFinishWorkout(session, (s) => setSession(s as Session), () => synchronizeProgress(session));
     };
 
     const adjustWeight = (amount: number) => {
@@ -222,9 +297,9 @@ export default function SessionClient({ initialSession }: SessionClientProps) {
                 showPreview={showPreview}
                 onClose={() => setShowPreview(false)}
                 session={session}
-                setSession={setSession as any}
-                syncSession={synchronizeProgress}
-                currentExerciseIndex={session.current.exerciseIndex || 0}
+                setSession={setSession}
+                syncSession={() => synchronizeProgress(session)}
+                currentExerciseIndex={currentGroupIndex}
             />
 
             <ExerciseInstructionModal
@@ -233,7 +308,7 @@ export default function SessionClient({ initialSession }: SessionClientProps) {
                 exerciseId={currentExercise?.exerciseId as number}
             />
 
-            <header className="px-5 pt-10 pb-4 flex items-center justify-between z-10 sticky top-0 bg-zinc-950/80 backdrop-blur-xl border-b border-white/5">
+            <header className="px-5 pt-10 pb-4 flex items-center justify-between z-10 sticky top-0 bg-zinc-950/90 backdrop-blur-xl border-b border-white/5">
                 <button
                     onClick={() => exitSession(session.id as string)}
                     className="p-2.5 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-white active:scale-95 transition-all"
@@ -245,13 +320,13 @@ export default function SessionClient({ initialSession }: SessionClientProps) {
                     <h1 className="font-black w-full text-center text-zinc-500 uppercase text-[9px] tracking-[0.2em] truncate mb-1.5 group-hover:text-zinc-300 transition-colors">
                         {session.workoutName}
                     </h1>
-                    <div className="flex items-center justify-center gap-1 w-full max-w-[100px] mx-auto">
-                        {Array.from({ length: currentExercise?.sets || 0 }).map((_, i) => (
+                    <div className="flex items-center justify-center gap-1 w-full max-w-[150px] mx-auto opacity-80">
+                        {Array.from({ length: session.exercisesToDo.length }).map((_, i) => (
                             <div
                                 key={i}
-                                className={`h-1 flex-1 rounded-full transition-all duration-500 ${i < session.current.setIndex
+                                className={`h-1 flex-1 rounded-full transition-all duration-500 ${i < currentGroupIndex
                                     ? 'bg-lime-400'
-                                    : i === session.current.setIndex
+                                    : i === currentGroupIndex
                                         ? 'bg-white shadow-[0_0_10px_rgba(255,255,255,0.5)] animate-pulse'
                                         : 'bg-zinc-800'
                                     }`}
@@ -269,18 +344,28 @@ export default function SessionClient({ initialSession }: SessionClientProps) {
             </header>
 
             <main className="flex-1 flex flex-col px-5 py-2 overflow-y-auto overflow-x-hidden scrollbar-hide">
-                <section className="mb-4 mt-1">
+                <section className="mb-4 mt-2">
                     <div className="flex items-start justify-between gap-3">
                         <div className="flex-1 min-w-0">
+                            {isGroupAlternating && (
+                                <motion.span
+                                    initial={{ opacity: 0, scale: 0.8 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    className="inline-flex items-center gap-1.5 text-[9px] font-black text-indigo-400 uppercase tracking-widest bg-indigo-400/10 px-2.5 py-1 rounded-full mb-2 mr-2"
+                                >
+                                    <RefreshCw size={9} className="text-indigo-400" />
+                                    {t('groupTypes.' + currentGroup?.groupType)}
+                                </motion.span>
+                            )}
                             <motion.span
                                 initial={{ opacity: 0, scale: 0.8 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 className="inline-flex items-center gap-1.5 text-[9px] font-black text-lime-400 uppercase tracking-widest bg-lime-400/10 px-2.5 py-1 rounded-full mb-2"
                             >
                                 <Zap size={9} className="text-lime-400 fill-lime-400" />
-                                {t('exercise')} {(session.current.exerciseIndex || 0) + 1}/{session.exercisesToDo.length}
+                                {t('group')} {currentGroupIndex + 1}/{session.exercisesToDo.length}
                             </motion.span>
-                            <h2 className="text-3xl font-black uppercase tracking-tighter italic leading-none truncate pr-2">
+                            <h2 className="text-3xl font-black uppercase tracking-tighter italic leading-[0.9] truncate pr-2 mt-1">
                                 {te.has(currentExercise?.exerciseName!) ? te(currentExercise?.exerciseName!) : currentExercise?.exerciseName}
                             </h2>
                         </div>
@@ -298,28 +383,27 @@ export default function SessionClient({ initialSession }: SessionClientProps) {
                         </button>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-2 mt-4">
-                        <div className="flex flex-col p-4 bg-zinc-900/10 rounded-2xl border border-white/5 relative overflow-hidden group">
-                            <div className="absolute top-0 right-0 p-2 opacity-10 group-hover:opacity-20 transition-opacity">
-                                <Trophy size={30} className="text-lime-400" />
-                            </div>
+                    <div className="grid grid-cols-2 gap-2 mt-5">
+                        <div className="flex flex-col p-4 bg-zinc-900/40 rounded-3xl border border-white/5 relative overflow-hidden group">
                             <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest mb-0.5">{t('currentSet')}</span>
-                            <span className="text-3xl font-black tabular-nums flex items-baseline gap-1">
-                                {session.current.setIndex + 1}
-                                <span className="text-zinc-600 text-xs font-bold">/ {currentExercise?.sets}</span>
+                            <span className="text-2xl font-black tabular-nums flex items-baseline gap-1">
+                                {currentSetIndex + 1}
+                                <span className="text-zinc-600 text-[10px] font-bold">/ {isGroupAlternating ? currentGroup?.rounds : currentExercise?.sets.length}</span>
                             </span>
                         </div>
-                        <div className="flex flex-col p-4 bg-zinc-900/10 rounded-2xl border border-white/5 relative overflow-hidden group">
-                            <div className="absolute top-0 right-0 p-2 opacity-10 group-hover:opacity-20 transition-opacity">
-                                <Flame size={30} className="text-orange-500" />
-                            </div>
+                        <div className="flex flex-col p-4 bg-zinc-900/40 rounded-3xl border border-white/5 relative overflow-hidden group">
                             <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest mb-0.5">{t('goal')}</span>
-                            <span className="text-3xl font-black tabular-nums flex items-baseline gap-1.5">
-                                {currentExercise?.reps}
+                            <span className="text-2xl font-black tabular-nums flex items-baseline gap-1.5">
+                                {currentPlannedSet?.reps}
                                 <span className="text-[9px] text-zinc-500 uppercase font-black tracking-tighter">{t('reps')}</span>
                             </span>
                         </div>
                     </div>
+                    {currentPlannedSet?.technique && currentPlannedSet.technique !== 'normal' && (
+                        <div className="mt-2 text-center p-2 bg-rose-500/10 border border-rose-500/20 rounded-xl text-xs font-black text-rose-400 uppercase tracking-widest">
+                            🔥 {t('techniques.' + currentPlannedSet.technique)}
+                        </div>
+                    )}
                 </section>
 
                 <AnimatePresence mode="wait">
@@ -332,7 +416,7 @@ export default function SessionClient({ initialSession }: SessionClientProps) {
                             className="flex-1 flex flex-col justify-center"
                         >
                             <RestTimer
-                                seconds={currentExercise?.restTime || 0}
+                                seconds={currentPlannedSet?.restTime || 60}
                                 onFinish={moveToNextStep}
                             />
                         </motion.div>
@@ -345,11 +429,11 @@ export default function SessionClient({ initialSession }: SessionClientProps) {
                             className="space-y-3"
                         >
                             <form
-                                onSubmit={handleSubmit(handleSetCompletion)}
+                                onSubmit={handleSubmit((data) => handleSetCompletion(data, false))}
                                 className="space-y-3"
                             >
                                 <div className="grid grid-cols-2 gap-3">
-                                    <div className="group flex bg-zinc-900 border border-zinc-800 rounded-2xl px-4 py-3 focus-within:border-lime-400/50 focus-within:ring-4 focus-within:ring-lime-400/5 transition-all">
+                                    <div className="group flex bg-zinc-900 border border-zinc-800 rounded-3xl px-4 py-3 focus-within:border-lime-400/50 focus-within:ring-4 focus-within:ring-lime-400/5 transition-all">
                                         <div className='flex flex-col'>
                                             <label className="text-[8px] font-black uppercase text-zinc-500 tracking-[0.2em] block mb-1.5 group-focus-within:text-lime-400 transition-colors">
                                                 {t('weight')}
@@ -368,17 +452,17 @@ export default function SessionClient({ initialSession }: SessionClientProps) {
                                             </div>
                                         </div>
 
-                                        <div className="flex flex-col gap-1">
-                                            <button type="button" onClick={() => adjustWeight(5)} className="w-8 h-8 rounded-md bg-zinc-800 flex items-center justify-center hover:bg-zinc-700 active:scale-90 transition-all text-zinc-400 hover:text-white">
+                                        <div className="flex flex-col gap-1 justify-center">
+                                            <button type="button" onClick={() => adjustWeight(5)} className="w-8 h-8 rounded-xl bg-zinc-800 flex items-center justify-center hover:bg-zinc-700 active:scale-90 transition-all text-zinc-400 hover:text-white">
                                                 <Plus size={14} />
                                             </button>
-                                            <button type="button" onClick={() => adjustWeight(-5)} className="w-8 h-8 rounded-md bg-zinc-800 flex items-center justify-center hover:bg-zinc-700 active:scale-90 transition-all text-zinc-400 hover:text-white">
+                                            <button type="button" onClick={() => adjustWeight(-5)} className="w-8 h-8 rounded-xl bg-zinc-800 flex items-center justify-center hover:bg-zinc-700 active:scale-90 transition-all text-zinc-400 hover:text-white">
                                                 <Minus size={14} />
                                             </button>
                                         </div>
                                     </div>
 
-                                    <div className="group flex bg-zinc-900 border border-zinc-800 rounded-2xl px-4 py-3 focus-within:border-lime-400/50 focus-within:ring-4 focus-within:ring-lime-400/5 transition-all">
+                                    <div className="group flex bg-zinc-900 border border-zinc-800 rounded-3xl px-4 py-3 focus-within:border-lime-400/50 focus-within:ring-4 focus-within:ring-lime-400/5 transition-all">
                                         <div className='flex flex-col'>
                                             <label className="text-[8px] font-black uppercase text-zinc-500 tracking-[0.2em] block mb-1.5 group-focus-within:text-lime-400 transition-colors">
                                                 {t('performed')}
@@ -397,11 +481,11 @@ export default function SessionClient({ initialSession }: SessionClientProps) {
                                             </div>
                                         </div>
 
-                                        <div className="flex flex-col gap-1">
-                                            <button type="button" onClick={() => adjustReps(1)} className="w-8 h-8 rounded-md bg-zinc-800 flex items-center justify-center hover:bg-zinc-700 active:scale-90 transition-all text-zinc-400 hover:text-white">
+                                        <div className="flex flex-col gap-1 justify-center">
+                                            <button type="button" onClick={() => adjustReps(1)} className="w-8 h-8 rounded-xl bg-zinc-800 flex items-center justify-center hover:bg-zinc-700 active:scale-90 transition-all text-zinc-400 hover:text-white">
                                                 <Plus size={14} />
                                             </button>
-                                            <button type="button" onClick={() => adjustReps(-1)} className="w-8 h-8 rounded-md bg-zinc-800 flex items-center justify-center hover:bg-zinc-700 active:scale-90 transition-all text-zinc-400 hover:text-white">
+                                            <button type="button" onClick={() => adjustReps(-1)} className="w-8 h-8 rounded-xl bg-zinc-800 flex items-center justify-center hover:bg-zinc-700 active:scale-90 transition-all text-zinc-400 hover:text-white">
                                                 <Minus size={14} />
                                             </button>
                                         </div>
@@ -409,26 +493,26 @@ export default function SessionClient({ initialSession }: SessionClientProps) {
                                 </div>
 
                                 {/* RPE Simplificado (Apenas Emojis) */}
-                                <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 transition-colors duration-300">
+                                <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-4 transition-colors duration-300">
                                     <div className="flex justify-between items-center mb-3">
                                         <label className="text-[9px] font-black uppercase text-zinc-500 tracking-widest">{t('effort')}</label>
                                         <div className="flex items-center gap-2">
-                                            <span className="text-[9px] text-lime-400 font-bold uppercase tracking-tight">{RPE_EMOJIS[Number(rpeValue)]?.label}</span>
-                                            <span className="w-6 h-6 bg-lime-400 rounded-md text-zinc-950 flex items-center justify-center font-black text-xs italic">
+                                            <span className="text-[9px] text-lime-400 font-bold uppercase tracking-tight">{t(RPE_EMOJIS[Number(rpeValue)]?.labelKey)}</span>
+                                            <span className="w-6 h-6 bg-lime-400 rounded-lg text-zinc-950 flex items-center justify-center font-black text-xs italic">
                                                 {rpeValue}
                                             </span>
                                         </div>
                                     </div>
 
                                     <LayoutGroup>
-                                        <div className="flex flex-wrap justify-center gap-1.5 p-1 bg-black/20 rounded-xl">
+                                        <div className="flex flex-wrap justify-center gap-1.5 p-1 bg-black/20 rounded-2xl">
                                             {RPE_OPTIONS.map((val) => (
                                                 <motion.button
                                                     key={val}
                                                     type="button"
                                                     onClick={() => setValue("rpe", val)}
                                                     whileTap={{ scale: 0.9 }}
-                                                    className={`relative w-10 h-10 rounded-lg flex items-center justify-center text-3xl transition-colors overflow-hidden ${Number(rpeValue) === val
+                                                    className={`relative w-[11%] aspect-square rounded-xl flex items-center justify-center text-2xl sm:text-3xl transition-colors overflow-hidden ${Number(rpeValue) === val
                                                         ? 'bg-transparent text-zinc-950'
                                                         : 'bg-zinc-800/50 text-zinc-500'
                                                         }`}
@@ -443,18 +527,18 @@ export default function SessionClient({ initialSession }: SessionClientProps) {
                                                     <span className={`z-10 transition-transform ${Number(rpeValue) === val ? 'scale-110' : ''}`}>
                                                         {RPE_EMOJIS[val]?.emoji}
                                                     </span>
-                                                    <span className={`absolute bottom-0 right-0 px-0.5 text-sm font-black z-10 ${Number(rpeValue) === val ? 'text-lime-950/40' : 'text-lime-400'}`}>{val}</span>
+                                                    <span className={`absolute bottom-0 right-0 px-1 text-[10px] sm:text-xs font-black z-10 ${Number(rpeValue) === val ? 'text-lime-950/40' : 'text-lime-400'}`}>{val}</span>
                                                 </motion.button>
                                             ))}
                                         </div>
                                     </LayoutGroup>
                                 </div>
 
-                                <div className="grid grid-cols-2 gap-3">
+                                <div className="grid grid-cols-2 gap-3 pb-2 pt-1">
                                     <button
                                         type="button"
                                         onClick={handleSkipSet}
-                                        className="flex items-center justify-center gap-1.5 py-3.5 px-3 bg-zinc-900 border border-zinc-800 rounded-xl text-zinc-400 text-[9px] font-black uppercase tracking-widest active:scale-95 transition-all"
+                                        className="flex items-center justify-center gap-1.5 py-4 px-3 bg-zinc-900 border border-zinc-800 rounded-2xl text-zinc-400 text-[9px] font-black uppercase tracking-widest hover:bg-zinc-800 active:scale-[0.98] transition-all"
                                     >
                                         <SkipForward size={14} />
                                         {t('skipSet')}
@@ -462,34 +546,34 @@ export default function SessionClient({ initialSession }: SessionClientProps) {
                                     <button
                                         type="button"
                                         onClick={handleSkipExercise}
-                                        className="flex items-center justify-center gap-1.5 py-3.5 px-3 bg-red-950/10 border border-red-900/20 rounded-xl text-red-500 text-[9px] font-black uppercase tracking-widest active:scale-95 transition-all"
+                                        className="flex items-center justify-center gap-1.5 py-4 px-3 bg-rose-950/20 border border-rose-900/30 rounded-2xl text-rose-500 text-[9px] font-black uppercase tracking-widest hover:bg-rose-900/30 active:scale-[0.98] transition-all"
                                     >
                                         <FastForward size={14} />
-                                        {t('skipExercise')}
+                                        {isGroupAlternating ? t('skipGroup') : t('skipExercise')}
                                     </button>
                                 </div>
 
                                 <button
                                     type="submit"
-                                    className="group w-full py-5 bg-lime-400 text-zinc-950 rounded-2xl font-black uppercase text-xs tracking-[0.3em] flex items-center justify-center gap-3 shadow-[0_15px_40px_rgba(163,230,71,0.2)] hover:-translate-y-1 active:scale-[0.98] transition-all border-b-6 border-lime-600"
+                                    className="group w-full py-5 bg-lime-400 text-zinc-950 rounded-[24px] font-black uppercase text-[10px] tracking-[0.3em] flex items-center justify-center gap-3 shadow-[0_15px_40px_rgba(163,230,71,0.2)] hover:-translate-y-1 active:scale-[0.98] transition-all border-b-[6px] border-lime-600"
                                 >
                                     {t('confirmSet')}
-                                    <ArrowRight size={20} className="group-hover:translate-x-2 transition-transform" />
+                                    <ArrowRight size={18} className="group-hover:translate-x-2 transition-transform" />
                                 </button>
                             </form>
                         </motion.div>
                     )}
                 </AnimatePresence>
 
-                <div className="pb-6 pt-2">
+                <div className="pb-8 pt-4">
                     <button
                         type="button"
                         onClick={handleForceFinishWorkout}
-                        className="w-full py-4 text-zinc-600 hover:text-red-500 transition-all font-black uppercase text-[9px] tracking-[0.3em] opacity-30 hover:opacity-100 flex items-center justify-center gap-2"
+                        className="w-full py-4 text-zinc-600 hover:text-rose-500 transition-all font-black uppercase text-[9px] tracking-[0.3em] opacity-50 hover:opacity-100 flex items-center justify-center gap-2"
                     >
-                        <div className="w-6 h-[1px] bg-zinc-800" />
+                        <div className="w-8 h-[1px] bg-zinc-800" />
                         {t('finishNow')}
-                        <div className="w-6 h-[1px] bg-zinc-800" />
+                        <div className="w-8 h-[1px] bg-zinc-800" />
                     </button>
                 </div>
             </main>

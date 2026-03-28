@@ -51,7 +51,7 @@ export async function migrateLocalData() {
         user_id: user.id,
         name: w.name,
         description: w.description,
-        exercises: w.exercises, // JSON field (contains exercise IDs)
+        exercises: w.exercises as any, // JSON field (contains exercise IDs)
         created_at: new Date(w.createdAt).toISOString()
       }).select("id").single();
 
@@ -87,7 +87,7 @@ export async function migrateLocalData() {
       workout_id: workoutIdMap.get(h.workoutId) || null,
       workout_name: h.workoutName,
       date: new Date(h.date).toISOString(),
-      executions: h.executions, // JSON field
+      executions: h.executions as any, // JSON field
       weight: h.weight,
       description: h.description,
       duration: h.duration,
@@ -105,9 +105,9 @@ export async function migrateLocalData() {
       workout_id: workoutIdMap.get(s.workoutId) || null,
       workout_name: s.workoutName,
       created_at: new Date(s.createdAt).toISOString(),
-      exercises_to_do: s.exercisesToDo, // JSON field
-      exercises_done: s.exercisesDone, // JSON field
-      current_step: s.current, // JSON field
+      exercises_to_do: s.exercisesToDo as any, // JSON field
+      exercises_done: s.exercisesDone as any, // JSON field
+      current_step: s.current as any, // JSON field
       duration: s.duration,
       paused_at: s.pausedAt ? new Date(s.pausedAt).toISOString() : null,
       resumed_at: s.resumedAt ? new Date(s.resumedAt).toISOString() : null
