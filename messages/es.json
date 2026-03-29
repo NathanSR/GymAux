@@ -110,9 +110,18 @@
     "themeDark": "Modo Oscuro",
     "language": "Idioma",
     "editProfile": "Editar Perfil",
+    "myId": "Mi ID GymAux",
     "logout": "Cerrar Sesión",
     "selectLanguage": "Seleccionar Idioma",
     "installApp": "Instalar Aplicación"
+  },
+  "MyID": {
+    "title": "Mi ID GymAux",
+    "description": "Tu ID de identificación único en el sistema.",
+    "copySuccess": "¡ID copiado al portapapeles!",
+    "copyManual": "Copiar manualmente",
+    "qrcodePrompt": "Apunta la cámara para escanear tu ID",
+    "back": "Volver"
   },
   "ExerciseList": {
     "title": "Biblioteca",

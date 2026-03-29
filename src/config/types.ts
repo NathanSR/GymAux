@@ -185,3 +185,27 @@ export interface Session {
     pausedAt: Date | null;
     resumedAt: Date | null;
 }
+
+// ========================
+// CONNECTION
+// ========================
+
+export interface ConnectionPermissions {
+    manage_workouts: boolean;
+    manage_schedules: boolean;
+    view_history: boolean;
+    view_sessions: boolean;
+}
+
+export type ConnectionStatus = 'pending' | 'active' | 'revoked';
+
+export interface Connection {
+    id: string;
+    trainer_id: string;
+    student_id: string;
+    status: ConnectionStatus;
+    permissions: ConnectionPermissions;
+    created_at: string;
+    updated_at: string;
+
+}

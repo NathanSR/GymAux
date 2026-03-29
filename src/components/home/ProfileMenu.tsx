@@ -10,7 +10,8 @@ import {
     X,
     ChevronLeft,
     Check,
-    Download // Importado para o ícone de instalação
+    Download,
+    QrCode // Importado para o ícone de ID
 } from "lucide-react";
 import { useRouter, usePathname } from '@/i18n/routing';
 import { useTheme } from '@/context/ThemeContext';
@@ -153,6 +154,11 @@ const ProfileMenu: React.FC<ProfileMenuProps> = ({
                                 <span className="text-[10px] font-black bg-zinc-100 dark:bg-zinc-800 px-2 py-0.5 rounded text-zinc-500 uppercase">
                                     {locale}
                                 </span>
+                            </button>
+
+                            <button onClick={() => { router.push('/profile/my-id'); setShowProfileMenu(false); }} className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-xl transition-colors text-zinc-700 dark:text-zinc-200">
+                                <QrCode size={18} className="text-lime-500" />
+                                <span className="flex-1 text-left">{t('myId')}</span>
                             </button>
 
                             <button onClick={handleProfileEdit} className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-xl transition-colors text-zinc-700 dark:text-zinc-200">
