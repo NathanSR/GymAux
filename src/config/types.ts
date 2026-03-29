@@ -11,6 +11,7 @@ export interface User {
     id?: string;
     gymauxId?: string;
     name: string;
+    email?: string;
     avatar?: string | null;
     weight: number;
     height: number;

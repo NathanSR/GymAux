@@ -10,6 +10,7 @@ const mapProfileToUser = (profile: any): User => ({
     height: profile.height || 0,
     goal: profile.goal || undefined,
     role: profile.role || 'user',
+    email: profile.email || undefined,
     createdAt: profile.created_at ? new Date(profile.created_at) : new Date(),
 });
 
@@ -57,6 +58,23 @@ export const userService = {
 
         if (error) {
             console.error('Error fetching user by GymAux ID:', error);
+            return null;
+        }
+
+        return data ? mapProfileToUser(data) : null;
+    },
+
+    // Buscar por Email
+    async getUserByEmail(email: string, supabaseInput?: any) {
+        const supabase = supabaseInput || createClient();
+        const { data, error } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('email', email.toLowerCase().trim())
+            .maybeSingle();
+
+        if (error) {
+            console.error('Error fetching user by Email:', error);
             return null;
         }
 

@@ -39,7 +39,7 @@ export default function TrainerClient({ trainerId, initialStudents }: TrainerCli
     const supabase = createClient();
     const [students, setStudents] = useState<Student[]>(initialStudents);
     const [isScannerOpen, setIsScannerOpen] = useState(false);
-    const [manualId, setManualId] = useState('');
+    const [emailInput, setEmailInput] = useState('');
     const [isLinking, setIsLinking] = useState(false);
 
     useEffect(() => {
@@ -70,30 +70,46 @@ export default function TrainerClient({ trainerId, initialStudents }: TrainerCli
         // Suppress scanner errors to avoid too many logs
     }
 
-    async function linkStudent(idInput: string) {
-        if (!idInput || idInput.length < 5) {
-            toast.error(t('invalidId'));
+    async function handleManualLink() {
+        if (!emailInput.trim() || !emailInput.includes('@')) {
+            toast.error(t('invalidEmail'));
             return;
         }
+        await linkStudent(emailInput.trim(), 'email');
+    }
 
+    async function linkStudent(input: string, type: 'email' | 'id' = 'id') {
         setIsLinking(true);
         try {
-            let finalStudentId = idInput;
+            let finalStudentId = '';
 
-            // Se o ID não for um UUID (padrão simples: checar por hífen de UUID)
-            // Ou se tiver o prefixo que geramos
-            if (idInput.includes('USER-') || idInput.length < 36) {
-                const foundUser = await userService.getUserByGymauxId(idInput, supabase);
+            if (type === 'email') {
+                const foundUser = await userService.getUserByEmail(input, supabase);
                 if (!foundUser || !foundUser.id) {
                     toast.error(t('userNotFound'));
                     return;
                 }
                 finalStudentId = foundUser.id;
+            } else {
+                // Se o ID não for um UUID (padrão simples: checar por hífen de UUID)
+                // Ou se tiver o prefixo que geramos
+                if (input.includes('USER-') || input.length < 36) {
+                    const foundUser = await userService.getUserByGymauxId(input, supabase);
+                    if (!foundUser || !foundUser.id) {
+                        toast.error(t('userNotFound'));
+                        return;
+                    }
+                    finalStudentId = foundUser.id;
+                } else {
+                    finalStudentId = input;
+                }
             }
+
+            if (!finalStudentId) throw new Error('Could not determine student ID');
 
             await connectionService.createConnection(trainerId, finalStudentId, supabase);
             toast.success(t('requestSent'));
-            setManualId('');
+            setEmailInput('');
         } catch (error: any) {
             console.error(error);
             toast.error(t('requestError'));
@@ -133,25 +149,30 @@ export default function TrainerClient({ trainerId, initialStudents }: TrainerCli
                     <span className="font-semibold text-zinc-200">{t('linkStudent')}</span>
                 </motion.button>
 
-                <div className="p-6 bg-zinc-900 border border-zinc-800 rounded-[32px] space-y-4">
-                    <div className="flex items-center gap-2 text-zinc-400 text-sm">
-                        <Search className="w-4 h-4" />
-                        <span>{t('manualId')}</span>
+                <div className="p-6 bg-zinc-900 border border-zinc-800 rounded-[32px] space-y-4 shadow-xl">
+                    <div className="flex items-center gap-2 text-zinc-400 text-sm font-medium">
+                        <Search className="w-4 h-4 text-lime-400" />
+                        <span>{t('linkByEmail')}</span>
                     </div>
                     <div className="flex gap-2">
                         <input
-                            type="text"
-                            value={manualId}
-                            onChange={(e) => setManualId(e.target.value)}
+                            type="email"
+                            value={emailInput}
+                            onChange={(e) => setEmailInput(e.target.value)}
+                            onKeyDown={(e) => e.key === 'Enter' && handleManualLink()}
                             placeholder={t('idPlaceholder')}
-                            className="flex-1 bg-zinc-950 border border-zinc-800 rounded-2xl px-4 py-3 text-zinc-100 focus:outline-none focus:border-lime-400 transition-colors"
+                            className="flex-1 bg-zinc-950 border border-zinc-800 rounded-2xl px-4 py-3 text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-lime-400 focus:ring-1 focus:ring-lime-400/20 transition-all"
                         />
                         <button
-                            onClick={() => linkStudent(manualId)}
-                            disabled={!manualId || isLinking}
-                            className="p-3 bg-lime-400 rounded-2xl disabled:opacity-50 disabled:grayscale transition-all hover:brightness-110 active:scale-95"
+                            onClick={handleManualLink}
+                            disabled={!emailInput || isLinking}
+                            className="p-3 bg-lime-400 rounded-2xl disabled:opacity-50 disabled:grayscale transition-all hover:brightness-110 active:scale-95 flex items-center justify-center min-w-[50px]"
                         >
-                            <Check className="w-6 h-6 text-zinc-950" />
+                            {isLinking ? (
+                                <div className="w-6 h-6 border-2 border-zinc-950/30 border-t-zinc-950 rounded-full animate-spin" />
+                            ) : (
+                                <Check className="w-6 h-6 text-zinc-950" />
+                            )}
                         </button>
                     </div>
                 </div>
