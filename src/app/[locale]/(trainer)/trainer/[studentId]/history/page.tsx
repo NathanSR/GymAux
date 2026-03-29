@@ -13,8 +13,8 @@ export default async function TrainerStudentHistoryPage({
     const { date, workoutId } = await searchParams;
     const supabase = await createClient();
     
-    // Initial range: current month
-    const now = new Date();
+    // Initial range: based on query date or current month
+    const now = date ? new Date(date) : new Date();
     const start = new Date(now.getFullYear(), now.getMonth(), 1);
     const end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
 

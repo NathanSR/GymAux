@@ -22,6 +22,8 @@ export default function HistoryClient({ userId, initialHistoryList, initialDate,
     const locale = useLocale();
     const router = useRouter();
 
+    alert(initialDate + ' ' + initialWorkoutId)
+
     const [searchQuery, setSearchQuery] = useState('');
     const debouncedSearch = useDebounce(searchQuery, 300);
     const [currentDate, setCurrentDate] = useState(initialDate ? new Date(initialDate) : new Date());

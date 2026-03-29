@@ -1726,6 +1726,11 @@
     "totalVolume": "Volumen Total",
     "loadHistory": "Historial de Carga",
     "viewDetails": "Ver Detalles",
+    "activeWorkouts": "{count, plural, =0 {Sin Entrenamientos Activos} =1 {# Entrenamiento Activo} other {# Entrenamientos Activos}}",
+    "scheduleManagement": "Gestión de Agenda",
+    "recordedWeight": "Peso Registrado",
+    "noRecentHistory": "No hay historial reciente",
+    "historyWeight": "Peso Registrado",
     "noActiveSession": "No hay ninguna sesión activa en este momento"
   },
   "Connection": {
