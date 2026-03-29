@@ -121,7 +121,10 @@
     "copySuccess": "¡ID copiado al portapapeles!",
     "copyManual": "Copiar manualmente",
     "qrcodePrompt": "Apunta la cámara para escanear tu ID",
-    "back": "Volver"
+    "back": "Volver",
+    "idCard": "Tarjeta de Identificación",
+    "passTitle": "GymAux Pass",
+    "memberUid": "UID de Miembro"
   },
   "ExerciseList": {
     "title": "Biblioteca",

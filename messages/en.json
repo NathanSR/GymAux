@@ -121,7 +121,10 @@
     "copySuccess": "ID copied to clipboard!",
     "copyManual": "Copy manually",
     "qrcodePrompt": "Point the camera to scan your ID",
-    "back": "Back"
+    "back": "Back",
+    "idCard": "Identification Card",
+    "passTitle": "GymAux Pass",
+    "memberUid": "Member UID"
   },
   "ExerciseList": {
     "title": "Library",

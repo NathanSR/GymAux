@@ -84,11 +84,11 @@ export default function MyIDPage() {
                             </div>
 
                             <p className="text-[10px] font-black uppercase text-lime-500 tracking-[0.2em] mb-2">
-                                Identification Card
+                                {t('idCard')}
                             </p>
                             
                             <h2 className="text-3xl font-black text-zinc-900 dark:text-white mb-3 italic tracking-tighter uppercase">
-                                GymAux Pass
+                                {t('passTitle')}
                             </h2>
                             
                             <p className="text-xs text-zinc-500 dark:text-zinc-400 text-center mb-8 px-4 leading-relaxed font-medium">
@@ -122,7 +122,7 @@ export default function MyIDPage() {
                             {/* ID String Display */}
                             <div className="w-full space-y-2">
                                 <p className="text-[9px] font-black uppercase text-zinc-400 dark:text-zinc-600 tracking-widest ml-1">
-                                    Member UID
+                                    {t('memberUid')}
                                 </p>
                                 <div className="w-full bg-zinc-50 dark:bg-zinc-800/80 border border-zinc-100 dark:border-zinc-700/50 rounded-[20px] p-4 flex items-center justify-between gap-3 group/id">
                                     <span className="text-[12px] font-mono text-zinc-500 dark:text-zinc-400 truncate tracking-tight">
