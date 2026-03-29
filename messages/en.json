@@ -1710,7 +1710,20 @@
       "view_sessions": "View Sessions",
       "manage_workouts": "Manage Workouts",
       "manage_schedules": "Manage Schedules"
-    }
+    },
+    "editingMode": "Editing Mode - {student}",
+    "goBack": "Back to Students",
+    "summary": "Summary",
+    "workouts": "Workouts",
+    "schedule": "Schedule",
+    "history": "History",
+    "liveSession": "Live Session",
+    "lastActive": "Last Activity",
+    "completedSessions": "Completed Sessions",
+    "totalVolume": "Total Volume",
+    "loadHistory": "Load History",
+    "viewDetails": "View Details",
+    "noActiveSession": "No active session at the moment"
   },
   "Connection": {
     "pendingTitle": "New Trainer Request",

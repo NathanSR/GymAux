@@ -23,9 +23,10 @@ interface WorkoutsClientProps {
     initialWorkouts: Workout[];
     initialTotalCount: number;
     userId: string;
+    baseUrl?: string;
 }
 
-export default function WorkoutsClient({ initialWorkouts, initialTotalCount, userId }: WorkoutsClientProps) {
+export default function WorkoutsClient({ initialWorkouts, initialTotalCount, userId, baseUrl = '/workouts' }: WorkoutsClientProps) {
     const router = useRouter();
     const { startWorkout } = useSessionActions();
     const locale = useLocale();
@@ -76,14 +77,14 @@ export default function WorkoutsClient({ initialWorkouts, initialTotalCount, use
             <header className="sticky top-0 z-30 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-md border-b border-zinc-100 dark:border-zinc-900 px-6 py-4">
                 <div className="flex items-center justify-between mb-4">
                     <button
-                        onClick={() => router.push('/home')}
+                        onClick={() => router.push(baseUrl === '/workouts' ? '/home' : `/trainer/${userId}`)}
                         className="p-2 rounded-xl bg-zinc-100 dark:bg-zinc-900 text-zinc-500 cursor-pointer"
                     >
                         <ChevronLeft size={24} />
                     </button>
                     <h1 className="font-black text-lg uppercase tracking-tight">{t('title')}</h1>
                     <button
-                        onClick={() => router.push('/workouts/new')}
+                        onClick={() => router.push(`${baseUrl}/new`)}
                         className="p-2 rounded-xl bg-lime-400 text-zinc-950 shadow-lg shadow-lime-500/20 active:scale-90 transition-transform cursor-pointer"
                     >
                         <Plus size={24} />
@@ -150,7 +151,7 @@ export default function WorkoutsClient({ initialWorkouts, initialTotalCount, use
                                 </button>
 
                                 <button
-                                    onClick={() => router.push(`/workouts/${workout.id}/edit`)}
+                                    onClick={() => router.push(`${baseUrl}/${workout.id}/edit`)}
                                     className="flex-1 flex items-center justify-center gap-2 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-500 dark:text-zinc-300 py-4 rounded-2xl font-bold text-xs uppercase transition-all active:scale-95 border border-zinc-200/50 dark:border-zinc-700/50"
                                 >
                                     <Edit size={16} />

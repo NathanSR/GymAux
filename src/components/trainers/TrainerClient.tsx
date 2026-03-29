@@ -164,13 +164,13 @@ export default function TrainerClient({ trainerId, initialStudents }: TrainerCli
                     <AnimatePresence mode="popLayout">
                         {students.length > 0 ? (
                             students.map((student) => (
-                                <motion.div
-                                    key={student.id}
-                                    initial={{ opacity: 0, y: 10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    exit={{ opacity: 0, scale: 0.95 }}
-                                    className="p-4 bg-zinc-900/50 border border-zinc-800/50 rounded-[32px] flex items-center gap-4 hover:border-lime-400/30 transition-all group"
-                                >
+                                <Link key={student.id} href={`/trainer/${student.id}`}>
+                                    <motion.div
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0, scale: 0.95 }}
+                                        className="p-4 bg-zinc-900/50 border border-zinc-800/50 rounded-[32px] flex items-center gap-4 hover:border-lime-400/30 hover:bg-zinc-900 transition-all group cursor-pointer"
+                                    >
                                     <div className="relative w-14 h-14 rounded-2xl overflow-hidden bg-zinc-800 flex-shrink-0">
                                         {student.avatar ? (
                                             <Image
@@ -190,7 +190,8 @@ export default function TrainerClient({ trainerId, initialStudents }: TrainerCli
                                         <p className="text-sm text-zinc-500 truncate">ID: {student.id.split('-')[0]}...</p>
                                     </div>
                                     <ChevronRight className="w-5 h-5 text-zinc-700 group-hover:text-lime-400 transition-colors" />
-                                </motion.div>
+                                    </motion.div>
+                                </Link>
                             ))
                         ) : (
                             <div className="col-span-full py-12 text-center bg-zinc-900/30 rounded-[32px] border-2 border-dashed border-zinc-800">

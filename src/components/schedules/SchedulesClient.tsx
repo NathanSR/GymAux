@@ -23,9 +23,10 @@ interface SchedulesClientProps {
     initialSchedules: Schedule[];
     initialTotalCount: number;
     userId: string;
+    baseUrl?: string;
 }
 
-export default function SchedulesClient({ initialSchedules, initialTotalCount, userId }: SchedulesClientProps) {
+export default function SchedulesClient({ initialSchedules, initialTotalCount, userId, baseUrl = '/schedules' }: SchedulesClientProps) {
     const router = useRouter();
     const t = useTranslations('ScheduleList');
     const locale = useLocale()
@@ -75,11 +76,11 @@ export default function SchedulesClient({ initialSchedules, initialTotalCount, u
             {/* Header */}
             <header className="sticky top-0 z-30 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-md border-b border-zinc-100 dark:border-zinc-900 px-6 py-4">
                 <div className="flex items-center justify-between mb-4">
-                    <button onClick={() => router.push('/home')} className="p-2 rounded-xl bg-zinc-100 dark:bg-zinc-900 text-zinc-500">
+                    <button onClick={() => router.push(baseUrl === '/schedules' ? '/home' : `/trainer/${userId}`)} className="p-2 rounded-xl bg-zinc-100 dark:bg-zinc-900 text-zinc-500">
                         <ChevronLeft size={24} />
                     </button>
                     <h1 className="font-black text-lg uppercase tracking-tight">{t('title')}</h1>
-                    <button onClick={() => router.push('/schedules/new')} className="p-2 rounded-xl bg-lime-400 text-zinc-950 shadow-lg shadow-lime-500/20 active:scale-90 transition-transform">
+                    <button onClick={() => router.push(`${baseUrl}/new`)} className="p-2 rounded-xl bg-lime-400 text-zinc-950 shadow-lg shadow-lime-500/20 active:scale-90 transition-transform">
                         <Plus size={24} />
                     </button>
                 </div>
@@ -136,7 +137,7 @@ export default function SchedulesClient({ initialSchedules, initialTotalCount, u
                                     <div className="flex gap-2">
                                         <button
                                             className='w-10 h-10 rounded-full bg-zinc-50 dark:bg-zinc-800 flex items-center justify-center text-lime-500 hover:scale-105 transition-colors cursor-pointer'
-                                            onClick={() => router.push(`/schedules/${schedule.id}/edit`)}
+                                            onClick={() => router.push(`${baseUrl}/${schedule.id}/edit`)}
                                         >
                                             <Edit size={18} />
                                         </button>

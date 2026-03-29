@@ -1710,7 +1710,20 @@
       "view_sessions": "Ver sesiones",
       "manage_workouts": "Gestionar entrenamientos",
       "manage_schedules": "Gestionar agendas"
-    }
+    },
+    "editingMode": "Modo de Edición - {student}",
+    "goBack": "Volver a los Alumnos",
+    "summary": "Resumen",
+    "workouts": "Entrenamientos",
+    "schedule": "Cronograma",
+    "history": "Historial",
+    "liveSession": "Sesión Activa",
+    "lastActive": "Última Actividad",
+    "completedSessions": "Sesiones Completadas",
+    "totalVolume": "Volumen Total",
+    "loadHistory": "Historial de Carga",
+    "viewDetails": "Ver Detalles",
+    "noActiveSession": "No hay ninguna sesión activa en este momento"
   },
   "Connection": {
     "pendingTitle": "Nueva solicitud de entrenador",

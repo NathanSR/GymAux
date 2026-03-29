@@ -14,9 +14,10 @@ interface HistoryClientProps {
     initialHistoryList: History[];
     initialDate?: string;
     initialWorkoutId?: string;
+    baseUrl?: string;
 }
 
-export default function HistoryClient({ userId, initialHistoryList, initialDate, initialWorkoutId }: HistoryClientProps) {
+export default function HistoryClient({ userId, initialHistoryList, initialDate, initialWorkoutId, baseUrl = '/history' }: HistoryClientProps) {
     const t = useTranslations('History');
     const locale = useLocale();
     const router = useRouter();
@@ -128,7 +129,7 @@ export default function HistoryClient({ userId, initialHistoryList, initialDate,
             <header className="sticky top-0 z-30 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-md border-b border-zinc-100 dark:border-zinc-900 px-6 py-4">
                 <div className="flex items-center justify-between mb-4">
                     <button
-                        onClick={() => router.push('/home')}
+                        onClick={() => router.push(baseUrl === '/history' ? '/home' : `/trainer/${userId}`)}
                         className="p-3 rounded-2xl bg-zinc-100 dark:bg-zinc-900 text-zinc-500 cursor-pointer active:scale-90 transition-all">
                         <ChevronLeft size={20} />
                     </button>
@@ -217,7 +218,7 @@ export default function HistoryClient({ userId, initialHistoryList, initialDate,
                         setSelectedWorkouts(null);
                         // Clean querystrings after closing modal
                         if (initialWorkoutId) {
-                            router.replace('/history');
+                            router.replace(baseUrl);
                         }
                     }}
                     initialActiveWorkoutId={initialWorkoutId}
