@@ -4,12 +4,12 @@ import { createClient } from '@/lib/supabase/server';
 import { ArrowLeft, ShieldCheck, User } from 'lucide-react';
 import { Link } from '@/i18n/routing';
 
-export default async function TrainerLayout({ 
+export default async function TrainerLayout({
     children,
-    params 
-}: { 
+    params
+}: {
     children: React.ReactNode,
-    params: Promise<{ studentId: string }> 
+    params: Promise<{ studentId: string }>
 }) {
     const { studentId } = await params;
     const t = await getTranslations('Trainer');
@@ -19,48 +19,51 @@ export default async function TrainerLayout({
     return (
         <div className="min-h-screen bg-zinc-950 flex flex-col font-sans selection:bg-lime-400 selection:text-zinc-950 overflow-x-hidden">
             {/* Editing Mode Banner */}
-            <header className="sticky top-0 z-50 bg-zinc-950/80 border-b border-white/5 px-4 py-4 shadow-2xl backdrop-blur-2xl">
-                <div className="absolute inset-0 bg-gradient-to-r from-lime-500/5 via-transparent to-lime-500/5 pointer-events-none" />
+            <header className="sticky top-0 z-50 bg-lime-400 border-b border-zinc-950/10 px-4 py-2.5 shadow-xl transition-all">
                 <div className="max-w-6xl mx-auto flex items-center justify-between gap-4 relative z-10">
-                    <div className="flex items-center gap-4 flex-1">
-                        <Link 
-                            href="/trainer" 
-                            className="p-3 bg-zinc-900/50 hover:bg-zinc-800 rounded-2xl transition-all group active:scale-95 border border-white/5"
+                    <div className="flex items-center gap-3 flex-1 min-w-0">
+                        <Link
+                            href="/trainer"
+                            className="flex items-center gap-2 px-3 py-2 bg-zinc-950 hover:bg-zinc-800 rounded-xl transition-all group active:scale-95 shadow-lg shadow-zinc-950/20 flex-shrink-0"
                         >
-                            <ArrowLeft className="w-5 h-5 text-zinc-400 group-hover:text-lime-400 transition-colors" />
+                            <ArrowLeft className="w-4 h-4 text-lime-400 group-hover:-translate-x-1 transition-transform" />
+                            <span className="text-[10px] font-black text-white uppercase tracking-tight hidden xs:block">
+                                {t('exitEditingMode')}
+                            </span>
+                            <span className="text-[10px] font-black text-white uppercase tracking-tight xs:hidden">
+                                {t('exit') || 'Sair'}
+                            </span>
                         </Link>
-                        
-                        <div className="flex items-center gap-3">
-                            <div className="p-3 bg-lime-400 rounded-2xl border-2 border-zinc-950 shadow-[0_0_20px_rgba(163,230,53,0.3)]">
-                                <ShieldCheck className="w-6 h-6 text-zinc-950" />
+
+                        <div className="flex items-center gap-3 min-w-0">
+                            <div className="hidden sm:flex p-2 bg-zinc-950 rounded-lg shadow-md flex-shrink-0">
+                                <ShieldCheck className="w-4 h-4 text-lime-400" />
                             </div>
-                            <div>
-                                <h2 className="text-base font-black text-white uppercase italic tracking-tight line-clamp-1 leading-none mb-1">
-                                    {t('editingMode', { student: student?.name || '...' })}
+                            <div className="flex flex-col min-w-0">
+                                <h2 className="text-sm font-black text-zinc-950 uppercase italic tracking-tighter truncate leading-none mb-1">
+                                    {student?.name || '...'}
                                 </h2>
-                                <div className="flex items-center gap-2">
-                                    <div className="relative">
-                                        <div className="h-2 w-2 rounded-full bg-lime-500" />
-                                        <div className="absolute inset-0 h-2 w-2 rounded-full bg-lime-400 animate-ping" />
+                                <div className="flex items-center gap-1.5">
+                                    <div className="relative flex-shrink-0">
+                                        <div className="h-1.5 w-1.5 rounded-full bg-zinc-950" />
+                                        <div className="absolute inset-0 h-1.5 w-1.5 rounded-full bg-zinc-950 animate-ping" />
                                     </div>
-                                    <span className="text-[10px] font-black text-lime-400/60 uppercase tracking-[0.2em] leading-none italic">
-                                        Active Trainer Session
+                                    <span className="text-[9px] font-bold text-zinc-950/60 uppercase tracking-widest leading-none truncate italic">
+                                        {t('activeSession')}
                                     </span>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div className="hidden sm:flex items-center gap-3">
-                        <div className="flex flex-col items-end">
-                            <p className="text-[10px] font-black text-lime-400 uppercase tracking-widest leading-none mb-1 italic">Authorized</p>
-                            <p className="text-[9px] font-bold text-zinc-600 uppercase tracking-widest leading-none">Access Granted</p>
-                        </div>
-                        <div className="w-10 h-10 rounded-xl bg-zinc-800 border border-zinc-700/50 flex items-center justify-center p-2 overflow-hidden bg-[url('https://grainy-gradients.vercel.app/noise.svg')] bg-opacity-10">
+                    <div className="hidden sm:flex items-center gap-3 flex-shrink-0">
+                        <div className="w-9 h-9 rounded-xl bg-zinc-950/10 p-0.5 overflow-hidden ring-1 ring-zinc-950/10">
                             {student?.avatar ? (
-                                <img src={student.avatar} alt={student.name} className="w-full h-full object-cover rounded-md" />
+                                <img src={student.avatar} alt={student.name} className="w-full h-full object-cover rounded-lg" />
                             ) : (
-                                <User className="w-5 h-5 text-zinc-500" />
+                                <div className="w-full h-full flex items-center justify-center bg-zinc-950/5 rounded-lg">
+                                    <User className="w-4 h-4 text-zinc-950/30" />
+                                </div>
                             )}
                         </div>
                     </div>
