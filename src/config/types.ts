@@ -98,6 +98,8 @@ export interface ExerciseGroup {
 export interface Workout {
     id?: string;
     userId: string;
+    createdBy?: string;
+    createdByType?: "user" | "system" | "trainer";
     name: string;
     createdAt: Date;
     exercises: ExerciseGroup[];
@@ -139,6 +141,8 @@ export interface Schedule {
     id?: string;
     name: string;
     userId: string;
+    createdBy?: string;
+    createdByType?: "user" | "system" | "trainer";
     workouts: (string | null)[];
     startDate: Date;
     endDate?: Date;

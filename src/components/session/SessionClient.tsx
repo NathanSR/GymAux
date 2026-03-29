@@ -32,6 +32,7 @@ import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
 
 interface SessionClientProps {
     initialSession: Session;
+    isReadOnly?: boolean;
 }
 
 const RPE_EMOJIS: Record<number, { emoji: string; labelKey: string }> = {
@@ -50,7 +51,7 @@ const RPE_EMOJIS: Record<number, { emoji: string; labelKey: string }> = {
 
 const RPE_OPTIONS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
-export default function SessionClient({ initialSession }: SessionClientProps) {
+export default function SessionClient({ initialSession, isReadOnly = false }: SessionClientProps) {
     const t = useTranslations('Session');
     const te = useTranslations('Exercises');
     const router = useRouter();
@@ -219,14 +220,18 @@ export default function SessionClient({ initialSession }: SessionClientProps) {
         }
 
         setSession(newSession);
-        synchronizeProgress(newSession);
+        if (!isReadOnly) {
+            synchronizeProgress(newSession);
+        }
     };
 
     const moveToNextStep = () => {
         const newSession = { ...session };
         newSession.current.step = 'executing';
         setSession(newSession);
-        synchronizeProgress(newSession);
+        if (!isReadOnly) {
+            synchronizeProgress(newSession);
+        }
     };
 
     const handleSkipSet = async () => {
@@ -553,13 +558,15 @@ export default function SessionClient({ initialSession }: SessionClientProps) {
                                     </button>
                                 </div>
 
-                                <button
-                                    type="submit"
-                                    className="group w-full py-5 bg-lime-400 text-zinc-950 rounded-[24px] font-black uppercase text-[10px] tracking-[0.3em] flex items-center justify-center gap-3 shadow-[0_15px_40px_rgba(163,230,71,0.2)] hover:-translate-y-1 active:scale-[0.98] transition-all border-b-[6px] border-lime-600"
-                                >
-                                    {t('confirmSet')}
-                                    <ArrowRight size={18} className="group-hover:translate-x-2 transition-transform" />
-                                </button>
+                                {!isReadOnly && (
+                                    <button
+                                        type="submit"
+                                        className="group w-full py-5 bg-lime-400 text-zinc-950 rounded-[24px] font-black uppercase text-[10px] tracking-[0.3em] flex items-center justify-center gap-3 shadow-[0_15px_40px_rgba(163,230,71,0.2)] hover:-translate-y-1 active:scale-[0.98] transition-all border-b-[6px] border-lime-600"
+                                    >
+                                        {t('confirmSet')}
+                                        <ArrowRight size={18} className="group-hover:translate-x-2 transition-transform" />
+                                    </button>
+                                )}
                             </form>
                         </motion.div>
                     )}

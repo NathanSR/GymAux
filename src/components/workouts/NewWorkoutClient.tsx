@@ -12,9 +12,10 @@ import { Exercise } from '@/config/types';
 interface NewWorkoutClientProps {
     availableExercises: Exercise[];
     userId: string;
+    baseUrl?: string;
 }
 
-export default function NewWorkoutClient({ availableExercises, userId }: NewWorkoutClientProps) {
+export default function NewWorkoutClient({ availableExercises, userId, baseUrl = '/workouts' }: NewWorkoutClientProps) {
     const router = useRouter();
     const t = useTranslations('WorkoutRegister');
     const [isLoading, setIsLoading] = useState(false);
@@ -29,7 +30,7 @@ export default function NewWorkoutClient({ availableExercises, userId }: NewWork
             });
 
             toast.success(t('createdWorkout'));
-            router.push('/workouts');
+            router.push(baseUrl);
         } catch (error) {
             console.error("Erro ao criar treino:", error);
             toast.error(t('errorCreating'));

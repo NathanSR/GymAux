@@ -25,6 +25,8 @@ const mapGroupFromSupabase = (g: any): ExerciseGroup => ({
 const mapWorkoutFromSupabase = (workout: any): Workout => ({
     id: workout.id,
     userId: workout.user_id,
+    createdBy: workout.created_by,
+    createdByType: workout.created_by_type,
     name: workout.name,
     description: workout.description || undefined,
     createdAt: workout.created_at ? new Date(workout.created_at) : new Date(),
@@ -144,10 +146,30 @@ export const WorkoutService = {
             }
         }
 
+        // Validate permissions
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error("User not authenticated");
+
+        if (workoutData.userId !== user.id) {
+            const { data: connection } = await supabase
+                .from('connections')
+                .select('status, permissions')
+                .eq('trainer_id', user.id)
+                .eq('student_id', workoutData.userId)
+                .eq('status', 'active')
+                .maybeSingle();
+
+            if (!connection || !connection.permissions?.manage_workouts) {
+                throw new Error("Unauthorized to create workouts for this student");
+            }
+        }
+
         const { data, error } = await supabase
             .from('workouts')
             .insert({
                 user_id: workoutData.userId,
+                created_by: user.id,
+                created_by_type: workoutData.userId === user.id ? 'user' : 'trainer',
                 name: formattedName,
                 description: workoutData.description,
                 exercises: serializeGroups(workoutData.exercises) as any,
@@ -175,11 +197,34 @@ export const WorkoutService = {
             updates.exercises = serializeGroups(workoutData.exercises);
         }
 
+        // Fetch the workout to check ownership vs trainer connection
+        const { data: existingWorkout, error: fetchError } = await supabase
+            .from('workouts')
+            .select('user_id')
+            .eq('id', id)
+            .single();
+
+        if (fetchError || !existingWorkout) throw new Error("Workout not found");
+
+        if (existingWorkout.user_id !== user.id) {
+            // Check for trainer connection
+            const { data: connection } = await supabase
+                .from('connections')
+                .select('status, permissions')
+                .eq('trainer_id', user.id)
+                .eq('student_id', existingWorkout.user_id)
+                .eq('status', 'active')
+                .maybeSingle();
+
+            if (!connection || !connection.permissions?.manage_workouts) {
+                throw new Error("Unauthorized to manage this student's workouts");
+            }
+        }
+
         const { data, error } = await supabase
             .from('workouts')
             .update(updates)
             .eq('id', id)
-            .eq('user_id', user.id)
             .select()
             .single();
 
@@ -206,11 +251,33 @@ export const WorkoutService = {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) throw new Error("User not authenticated");
 
+        // Fetch to check ownership vs trainer
+        const { data: existingWorkout, error: fetchError } = await supabase
+            .from('workouts')
+            .select('user_id')
+            .eq('id', id)
+            .single();
+
+        if (fetchError || !existingWorkout) throw new Error("Workout not found");
+
+        if (existingWorkout.user_id !== user.id) {
+            const { data: connection } = await supabase
+                .from('connections')
+                .select('status, permissions')
+                .eq('trainer_id', user.id)
+                .eq('student_id', existingWorkout.user_id)
+                .eq('status', 'active')
+                .maybeSingle();
+
+            if (!connection || !connection.permissions?.manage_workouts) {
+                throw new Error("Unauthorized to manage this student's workouts");
+            }
+        }
+
         const { error } = await supabase
             .from('workouts')
             .delete()
-            .eq('id', id)
-            .eq('user_id', user.id);
+            .eq('id', id);
 
         if (error) {
             throw error;

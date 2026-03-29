@@ -15,9 +15,10 @@ interface EditWorkoutClientProps {
     initialWorkout: Workout;
     availableExercises: Exercise[];
     workoutId: string;
+    baseUrl?: string;
 }
 
-export default function EditWorkoutClient({ initialWorkout, availableExercises, workoutId }: EditWorkoutClientProps) {
+export default function EditWorkoutClient({ initialWorkout, availableExercises, workoutId, baseUrl = '/workouts' }: EditWorkoutClientProps) {
     const { isDark } = useTheme();
     const router = useRouter();
     const t = useTranslations('WorkoutEdit');
@@ -32,7 +33,7 @@ export default function EditWorkoutClient({ initialWorkout, availableExercises, 
                 updatedAt: new Date()
             });
             toast.success(t('updatedWorkout'));
-            router.push('/workouts');
+            router.push(baseUrl);
         } catch (error) {
             console.error("Erro ao atualizar treino:", error);
             toast.error("Error updating workout");
@@ -57,7 +58,7 @@ export default function EditWorkoutClient({ initialWorkout, availableExercises, 
             if (result.isConfirmed) {
                 try {
                     await WorkoutService.deleteWorkout(workoutId);
-                    router.push('/workouts');
+                    router.push(baseUrl);
                 } catch (error) {
                     console.error("Erro ao deletar:", error);
                 }

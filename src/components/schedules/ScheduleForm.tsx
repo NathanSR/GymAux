@@ -13,7 +13,7 @@ import { useSession } from '@/hooks/useSession';
 import { WorkoutService } from '@/services/workoutService';
 import { Workout } from '@/config/types';
 
-export const ScheduleForm = ({ initialData, onSubmit, isLoading }: { initialData?: any; onSubmit: (data: any) => void; isLoading?: boolean; }) => {
+export const ScheduleForm = ({ initialData, onSubmit, isLoading, userId }: { initialData?: any; onSubmit: (data: any) => void; isLoading?: boolean; userId?: string; }) => {
     const t = useTranslations('ScheduleForm');
 
     const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm({
@@ -40,12 +40,13 @@ export const ScheduleForm = ({ initialData, onSubmit, isLoading }: { initialData
 
     useEffect(() => {
         const fetchWorkouts = async () => {
-            if (!activeUser?.id) return;
-            const list = await WorkoutService.getWorkoutsByUserId(activeUser.id);
+            const targetId = userId || activeUser?.id;
+            if (!targetId) return;
+            const list = await WorkoutService.getWorkoutsByUserId(targetId);
             setWorkouts(list);
         };
         fetchWorkouts();
-    }, [activeUser?.id]);
+    }, [userId, activeUser?.id]);
 
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-8 animate-in fade-in duration-500">

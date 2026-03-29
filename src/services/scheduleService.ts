@@ -5,6 +5,8 @@ const mapScheduleFromSupabase = (s: any): Schedule => ({
     id: s.id,
     name: s.name,
     userId: s.user_id,
+    createdBy: s.created_by,
+    createdByType: s.created_by_type,
     workouts: s.workouts as (string | null)[],
     startDate: new Date(s.start_date),
     endDate: s.end_date ? new Date(s.end_date) : undefined,
@@ -113,6 +115,24 @@ export const ScheduleService = {
             throw new Error("O cronograma deve conter exatamente 7 dias (domingo a sábado).");
         }
 
+        // Validate permissions
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error("User not authenticated");
+
+        if (scheduleData.userId !== user.id) {
+            const { data: connection } = await supabase
+                .from('connections')
+                .select('status, permissions')
+                .eq('trainer_id', user.id)
+                .eq('student_id', scheduleData.userId)
+                .eq('status', 'active')
+                .maybeSingle();
+
+            if (!connection || !connection.permissions?.manage_schedules) {
+                throw new Error("Unauthorized to create schedules for this student");
+            }
+        }
+
         // Se for ativo, desativa os outros primeiro
         if (scheduleData.active) {
             await supabase
@@ -126,6 +146,8 @@ export const ScheduleService = {
             .insert({
                 name: formattedName,
                 user_id: scheduleData.userId,
+                created_by: user.id,
+                created_by_type: scheduleData.userId === user.id ? 'user' : 'trainer',
                 workouts: scheduleData.workouts as any,
                 start_date: typeof scheduleData.startDate === 'string' ? scheduleData.startDate : scheduleData.startDate.toISOString(),
                 end_date: scheduleData.endDate ? (typeof scheduleData.endDate === 'string' ? scheduleData.endDate : scheduleData.endDate.toISOString()) : undefined,
@@ -186,11 +208,33 @@ export const ScheduleService = {
         if (scheduleData.active !== undefined) updates.active = scheduleData.active;
         if (scheduleData.lastCompleted !== undefined) updates.last_completed = scheduleData.lastCompleted;
 
+        // Fetch to check ownership vs trainer
+        const { data: existingSchedule, error: fetchError } = await supabase
+            .from('schedules')
+            .select('user_id')
+            .eq('id', id)
+            .single();
+
+        if (fetchError || !existingSchedule) throw new Error("Schedule not found");
+
+        if (existingSchedule.user_id !== user.id) {
+            const { data: connection } = await supabase
+                .from('connections')
+                .select('status, permissions')
+                .eq('trainer_id', user.id)
+                .eq('student_id', existingSchedule.user_id)
+                .eq('status', 'active')
+                .maybeSingle();
+
+            if (!connection || !connection.permissions?.manage_schedules) {
+                throw new Error("Unauthorized to manage this student's schedule");
+            }
+        }
+
         const { data, error } = await supabase
             .from('schedules')
             .update(updates)
             .eq('id', id)
-            .eq('user_id', user.id)
             .select()
             .single();
 
@@ -207,7 +251,22 @@ export const ScheduleService = {
     async setActiveSchedule(id: string, userId: string, supabaseInput?: any) {
         const supabase = supabaseInput || createClient();
         const { data: { user } } = await supabase.auth.getUser();
-        if (!user || user.id !== userId) throw new Error("User not authenticated or unauthorized");
+        if (!user) throw new Error("User not authenticated");
+
+        if (user.id !== userId) {
+            // Check for trainer connection
+            const { data: connection } = await supabase
+                .from('connections')
+                .select('status, permissions')
+                .eq('trainer_id', user.id)
+                .eq('student_id', userId)
+                .eq('status', 'active')
+                .maybeSingle();
+
+            if (!connection || !connection.permissions?.manage_schedules) {
+                throw new Error("Unauthorized to manage this student's schedule");
+            }
+        }
 
         // Desativa todos
         await supabase
@@ -239,11 +298,33 @@ export const ScheduleService = {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) throw new Error("User not authenticated");
 
+        // Fetch to check ownership vs trainer
+        const { data: existingSchedule, error: fetchError } = await supabase
+            .from('schedules')
+            .select('user_id')
+            .eq('id', id)
+            .single();
+
+        if (fetchError || !existingSchedule) throw new Error("Schedule not found");
+
+        if (existingSchedule.user_id !== user.id) {
+            const { data: connection } = await supabase
+                .from('connections')
+                .select('status, permissions')
+                .eq('trainer_id', user.id)
+                .eq('student_id', existingSchedule.user_id)
+                .eq('status', 'active')
+                .maybeSingle();
+
+            if (!connection || !connection.permissions?.manage_schedules) {
+                throw new Error("Unauthorized to manage this student's schedule");
+            }
+        }
+
         const { error } = await supabase
             .from('schedules')
             .delete()
-            .eq('id', id)
-            .eq('user_id', user.id);
+            .eq('id', id);
 
         if (error) {
             throw error;

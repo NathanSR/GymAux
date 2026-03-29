@@ -10,9 +10,10 @@ import { toast } from "react-toastify";
 
 interface CreateScheduleClientProps {
     userId: string;
+    baseUrl?: string;
 }
 
-export default function CreateScheduleClient({ userId }: CreateScheduleClientProps) {
+export default function CreateScheduleClient({ userId, baseUrl = '/schedules' }: CreateScheduleClientProps) {
     const router = useRouter();
     const t = useTranslations('ScheduleRegister');
     const [isLoading, setIsLoading] = useState(false);
@@ -37,7 +38,7 @@ export default function CreateScheduleClient({ userId }: CreateScheduleClientPro
                 theme: "colored",
             });
 
-            router.push('/schedules');
+            router.push(baseUrl);
         } catch (error) {
             console.error("Erro ao criar cronograma de treino:", error);
             toast.error(t('createError'));
@@ -67,6 +68,7 @@ export default function CreateScheduleClient({ userId }: CreateScheduleClientPro
                 <ScheduleForm
                     onSubmit={handleCreate}
                     isLoading={isLoading}
+                    userId={userId}
                 />
             </main>
         </div>
