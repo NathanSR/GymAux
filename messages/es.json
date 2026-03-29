@@ -111,6 +111,7 @@
     "language": "Idioma",
     "editProfile": "Editar Perfil",
     "myId": "Mi ID GymAux",
+    "trainerPanel": "Panel del Entrenador",
     "logout": "Cerrar Sesión",
     "selectLanguage": "Seleccionar Idioma",
     "installApp": "Instalar Aplicación"
@@ -1689,5 +1690,35 @@
     "pageIndicator": "Página {current} de {total}",
     "itemsPerPage": "Elementos por página",
     "resultsCount": "{count} resultados encontrados"
+  },
+  "Trainer": {
+    "title": "Panel del Entrenador",
+    "linkStudent": "Vincular Nuevo Alumno",
+    "activeStudents": "Alumnos Activos",
+    "noStudents": "Ningún alumno activo todavía.",
+    "scanTitle": "Escanear Código QR del Aluno",
+    "manualId": "O ingrese el ID del alumno manualmente",
+    "idPlaceholder": "Ingrese el ID del usuario...",
+    "linkButton": "Enviar solicitud de conexión",
+    "requestSent": "¡Solicitud de conexión enviada al alumno!",
+    "userNotFound": "Usuario no encontrado con este ID.",
+    "requestError": "Error al enviar la solicitud. Por favor verifique el ID.",
+    "invalidId": "ID de alumno no válido",
+    "scannerError": "Error de escáner. Inténtelo de nuevo.",
+    "permissions": {
+      "view_history": "Ver historial",
+      "view_sessions": "Ver sesiones",
+      "manage_workouts": "Gestionar entrenamientos",
+      "manage_schedules": "Gestionar agendas"
+    }
+  },
+  "Connection": {
+    "pendingTitle": "Nueva solicitud de entrenador",
+    "pendingDescription": "{name} quiere ser tu entrenador. Podrá gestionar tus entrenamientos y agendas.",
+    "accept": "Aceptar",
+    "decline": "Rechazar",
+    "accepted": "¡Conexión aceptada!",
+    "declined": "Conexión rechazada.",
+    "error": "Algo salió mal. Inténtelo de nuevo."
   }
 }

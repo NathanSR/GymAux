@@ -3,11 +3,13 @@ import { User } from '@/config/types';
 
 const mapProfileToUser = (profile: any): User => ({
     id: profile.id,
+    gymauxId: profile.gymaux_id || undefined,
     name: profile.name,
     avatar: profile.avatar || undefined,
     weight: profile.weight || 0,
     height: profile.height || 0,
     goal: profile.goal || undefined,
+    role: profile.role || 'user',
     createdAt: profile.created_at ? new Date(profile.created_at) : new Date(),
 });
 
@@ -38,6 +40,23 @@ export const userService = {
 
         if (error) {
             console.error('Error fetching user by ID:', error);
+            return null;
+        }
+
+        return data ? mapProfileToUser(data) : null;
+    },
+
+    // Buscar por GymAux ID
+    async getUserByGymauxId(gymauxId: string, supabaseInput?: any) {
+        const supabase = supabaseInput || createClient();
+        const { data, error } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('gymaux_id', gymauxId)
+            .maybeSingle();
+
+        if (error) {
+            console.error('Error fetching user by GymAux ID:', error);
             return null;
         }
 

@@ -23,6 +23,7 @@ import { useRouter } from '@/i18n/routing';
 import { useSessionActions } from '@/hooks/useSessionActions';
 import { MenuTab } from '@/components/MenuTab';
 import ProfileMenu from '@/components/home/ProfileMenu';
+import ConnectionConfirmationModal from '@/components/home/ConnectionConfirmationModal';
 import { Workout, Schedule, History, Session, User as AppUser } from '@/config/types';
 import { formatDuration, getRelativeTime } from '@/utils/dateUtil';
 
@@ -112,7 +113,11 @@ export default function HomeClient({
                             ? <img src={activeUser.avatar} alt="User" className="w-full h-full object-cover" />
                             : <User size={24} />}
                     </button>
-                    <ProfileMenu showProfileMenu={showProfileMenu} setShowProfileMenu={setShowProfileMenu} />
+                    <ProfileMenu 
+                        showProfileMenu={showProfileMenu} 
+                        setShowProfileMenu={setShowProfileMenu} 
+                        activeUser={activeUser}
+                    />
                 </div>
             </header>
 
@@ -337,6 +342,7 @@ export default function HomeClient({
                 </div>
             </section>
 
+            {activeUser?.id && <ConnectionConfirmationModal userId={activeUser.id} />}
             <MenuTab
                 onPlay={onPlayWorkout}
                 completed={!todayWorkout || !!todayHistory}

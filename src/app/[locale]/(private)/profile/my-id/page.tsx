@@ -26,7 +26,14 @@ export default function MyIDPage() {
         const fetchUser = async () => {
             const { data: { user } } = await supabase.auth.getUser();
             if (user) {
-                setUid(user.id);
+                // Buscar o perfil para ter o gymauxId
+                const { data: profile } = await supabase
+                    .from('profiles')
+                    .select('gymaux_id')
+                    .eq('id', user.id)
+                    .single();
+                
+                setUid(profile?.gymaux_id || user.id);
             }
             setLoading(false);
         };

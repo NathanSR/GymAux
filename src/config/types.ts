@@ -9,11 +9,13 @@ import { CATEGORIES } from "./constants";
 
 export interface User {
     id?: string;
+    gymauxId?: string;
     name: string;
-    avatar?: string;
+    avatar?: string | null;
     weight: number;
     height: number;
     goal?: string;
+    role: 'user' | 'trainer' | 'admin';
     createdAt: Date;
 }
 

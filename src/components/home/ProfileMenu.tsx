@@ -11,18 +11,22 @@ import {
     ChevronLeft,
     Check,
     Download,
-    QrCode // Importado para o ícone de ID
+    QrCode, // Importado para o ícone de ID
+    User,
+    Users // Importado para o ícone de treinadores
 } from "lucide-react";
 import { useRouter, usePathname } from '@/i18n/routing';
 import { useTheme } from '@/context/ThemeContext';
 import { useTranslations, useLocale } from 'next-intl';
 import { LANGUAGES } from '@/config/constants';
+import { User as AppUser } from '@/config/types'; // Importar User
 
 import { createClient } from '@/lib/supabase/client';
 
 interface ProfileMenuProps {
     showProfileMenu: boolean;
     setShowProfileMenu: (show: boolean) => void;
+    activeUser: AppUser | null;
 }
 
 type Language = typeof LANGUAGES[number];
@@ -30,6 +34,7 @@ type Language = typeof LANGUAGES[number];
 const ProfileMenu: React.FC<ProfileMenuProps> = ({
     showProfileMenu,
     setShowProfileMenu,
+    activeUser
 }) => {
     const t = useTranslations('ProfileMenu');
     const locale = useLocale();
@@ -80,6 +85,11 @@ const ProfileMenu: React.FC<ProfileMenuProps> = ({
 
     const handleProfileEdit = () => {
         router.push('/profile/edit');
+        setShowProfileMenu(false);
+    }
+
+    const handleTrainerPanel = () => {
+        router.push('/trainer');
         setShowProfileMenu(false);
     }
 
@@ -164,6 +174,11 @@ const ProfileMenu: React.FC<ProfileMenuProps> = ({
                             <button onClick={handleProfileEdit} className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-xl transition-colors text-zinc-700 dark:text-zinc-200">
                                 <Settings size={18} className="text-zinc-500" />
                                 <span className="flex-1 text-left">{t('editProfile')}</span>
+                            </button>
+
+                            <button onClick={handleTrainerPanel} className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-xl transition-colors text-zinc-700 dark:text-zinc-200">
+                                <Users size={18} className="text-zinc-500" />
+                                <span className="flex-1 text-left">{t('trainerPanel')}</span>
                             </button>
 
                             <div className="h-[1px] bg-zinc-100 dark:bg-zinc-800 my-1" />
