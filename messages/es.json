@@ -1295,7 +1295,11 @@
       "drop_set": "DS",
       "rest_pause": "RP",
       "to_failure": "F"
-    }
+    },
+    "confirmTypeChange": "¿Cambiar tipo de grupo?",
+    "confirmTypeChangeText": "Al cambiar a {type}, se eliminarán los ejercicios con datos completos. ¿Deseas continuar?",
+    "confirmChange": "Sí, cambiar",
+    "cancelChange": "Cancelar"
   },
   "ExerciseSelector": {
     "title": "Añadir Ejercicio",

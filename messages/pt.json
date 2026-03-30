@@ -1295,7 +1295,11 @@
       "drop_set": "DS",
       "rest_pause": "RP",
       "to_failure": "F"
-    }
+    },
+    "confirmTypeChange": "Mudar tipo de grupo?",
+    "confirmTypeChangeText": "Ao mudar para {type}, os exercícios extras que possuem dados preenchidos serão excluídos. Deseja continuar?",
+    "confirmChange": "Sim, mudar",
+    "cancelChange": "Cancelar"
   },
   "ExerciseSelector": {
     "title": "Adicionar Exercício",

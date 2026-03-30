@@ -8,6 +8,7 @@ import { Exercise } from '@/config/types';
 import QuickExerciseDrawer from '../exercises/QuickExerciseDrawer';
 import { ExerciseSelector } from '../exercises/ExerciseSelector';
 import { GroupTypeHelpModal } from './GroupTypeHelpModal';
+import { ConfirmDialog } from '../ui/ConfirmDialog';
 import { motion, AnimatePresence } from 'framer-motion';
 
 import {
@@ -37,10 +38,13 @@ function SortableGroupItem({
     openSelectorFor,
     setValue,
     watch,
-    onShowHelp
+    onShowHelp,
+    onGroupTypeChange
 }: any) {
     const t = useTranslations('WorkoutForm');
     const te = useTranslations('Exercises');
+    const groupType = watch(`exercises.${groupIndex}.groupType`);
+    const isFixedType = groupType === 'bi_set' || groupType === 'tri_set';
 
     const {
         attributes,
@@ -95,7 +99,8 @@ function SortableGroupItem({
                         <GripVertical size={18} />
                     </div>
                     <select
-                        {...register(`exercises.${groupIndex}.groupType`)}
+                        value={groupType}
+                        onChange={(e) => onGroupTypeChange(groupIndex, e.target.value)}
                         className="bg-transparent text-[10px] font-black uppercase tracking-widest text-lime-500 dark:text-lime-400 outline-none cursor-pointer"
                     >
                         <option className='bg-background text-foreground' value="straight">{t('groupTypes.straight')}</option>
@@ -154,13 +159,15 @@ function SortableGroupItem({
                 ))}
             </div>
 
-            <button
-                type="button"
-                onClick={() => openSelectorFor(groupIndex, null)}
-                className="w-full py-2.5 rounded-xl border-2 border-dashed border-zinc-100 dark:border-zinc-800 text-zinc-400 text-[9px] font-black uppercase tracking-widest hover:border-lime-400/50 hover:text-lime-500 transition-all"
-            >
-                + {t('addExercise')}
-            </button>
+            {!isFixedType && (
+                <button
+                    type="button"
+                    onClick={() => openSelectorFor(groupIndex, null)}
+                    className="w-full py-2.5 rounded-xl border-2 border-dashed border-zinc-100 dark:border-zinc-800 text-zinc-400 text-[9px] font-black uppercase tracking-widest hover:border-lime-400/50 hover:text-lime-500 transition-all"
+                >
+                    + {t('addExercise')}
+                </button>
+            )}
 
             <div className="grid grid-cols-2 gap-2 pt-3 border-t border-zinc-100 dark:border-zinc-800">
                 <div className="bg-zinc-50 dark:bg-zinc-950/50 p-2.5 rounded-xl border border-zinc-100 dark:border-zinc-800/50">
@@ -279,6 +286,15 @@ export default function WorkoutForm({ initialData, availableExercises = [], onSu
     const [isHelpOpen, setIsHelpOpen] = useState(false);
     const [targetGroupIndex, setTargetGroupIndex] = useState<number | null>(null);
     const [targetExerciseIndex, setTargetExerciseIndex] = useState<number | null>(null);
+    const [confirmModal, setConfirmModal] = useState<{
+        isOpen: boolean;
+        groupIndex: number | null;
+        newType: string | null;
+    }>({
+        isOpen: false,
+        groupIndex: null,
+        newType: null
+    });
 
     const sensors = useSensors(
         useSensor(PointerSensor, { activationConstraint: { distance: 10 } }),
@@ -301,6 +317,69 @@ export default function WorkoutForm({ initialData, availableExercises = [], onSu
                 move(oldIndex, newIndex);
             }
         }
+    };
+
+    const handleGroupTypeChange = (groupIndex: number, newType: string) => {
+        const group = watch(`exercises.${groupIndex}`);
+        const currentExercises = group.exercises || [];
+        
+        let requiredCount = currentExercises.length;
+        if (newType === 'straight') requiredCount = 1;
+        else if (newType === 'bi_set') requiredCount = 2;
+        else if (newType === 'tri_set') requiredCount = 3;
+
+        if (requiredCount > currentExercises.length) {
+            // Adicionar exercícios vazios
+            const newExs = [...currentExercises];
+            while (newExs.length < requiredCount) {
+                newExs.push({
+                    exerciseId: '',
+                    exerciseName: '',
+                    restAfterExercise: 0,
+                    sets: currentExercises[0]?.sets 
+                        ? JSON.parse(JSON.stringify(currentExercises[0].sets))
+                        : [{ reps: 10, restTime: 60, technique: 'normal' }]
+                });
+            }
+            update(groupIndex, { ...group, exercises: newExs, groupType: newType });
+        } else if (requiredCount < currentExercises.length) {
+            // Verificar se exercícios que serão removidos estão preenchidos
+            const toRemove = currentExercises.slice(requiredCount);
+            const hasData = toRemove.some((ex: any) => ex.exerciseId || ex.exerciseName);
+
+            if (hasData) {
+                setConfirmModal({
+                    isOpen: true,
+                    groupIndex,
+                    newType
+                });
+            } else {
+                // Remover imediatamente
+                const newExs = currentExercises.slice(0, requiredCount);
+                update(groupIndex, { ...group, exercises: newExs, groupType: newType });
+            }
+        } else {
+            // Apenas mudar o tipo (pode ser giant_set, circuit ou o mesmo count)
+            setValue(`exercises.${groupIndex}.groupType`, newType);
+        }
+    };
+
+    const confirmTypeChange = () => {
+        if (confirmModal.groupIndex === null || confirmModal.newType === null) return;
+        
+        const groupIndex = confirmModal.groupIndex;
+        const newType = confirmModal.newType;
+        const group = watch(`exercises.${groupIndex}`);
+        
+        let requiredCount = group.exercises.length;
+        if (newType === 'straight') requiredCount = 1;
+        else if (newType === 'bi_set') requiredCount = 2;
+        else if (newType === 'tri_set') requiredCount = 3;
+
+        const newExs = group.exercises.slice(0, requiredCount);
+        update(groupIndex, { ...group, exercises: newExs, groupType: newType });
+        
+        setConfirmModal({ isOpen: false, groupIndex: null, newType: null });
     };
 
     const processingSelection = useRef(false);
@@ -425,6 +504,7 @@ export default function WorkoutForm({ initialData, availableExercises = [], onSu
                                         setValue={setValue}
                                         watch={watch}
                                         onShowHelp={() => setIsHelpOpen(true)}
+                                        onGroupTypeChange={handleGroupTypeChange}
                                     />
                                 ))}
                             </AnimatePresence>
@@ -474,6 +554,17 @@ export default function WorkoutForm({ initialData, availableExercises = [], onSu
             <GroupTypeHelpModal 
                 isOpen={isHelpOpen}
                 onClose={() => setIsHelpOpen(false)}
+            />
+
+            <ConfirmDialog
+                isOpen={confirmModal.isOpen}
+                onClose={() => setConfirmModal({ ...confirmModal, isOpen: false })}
+                onConfirm={confirmTypeChange}
+                title={t('confirmTypeChange')}
+                description={t('confirmTypeChangeText', { type: confirmModal.newType ? t(`groupTypes.${confirmModal.newType}`) : '' })}
+                confirmText={t('confirmChange')}
+                cancelText={t('cancelChange')}
+                variant="warning"
             />
         </>
     );
