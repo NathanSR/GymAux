@@ -2,10 +2,10 @@
 
 import { motion } from 'framer-motion';
 import { useTranslations, useLocale } from 'next-intl';
-import { 
-    Activity, 
-    Calendar, 
-    Dumbbell, 
+import {
+    Activity,
+    Calendar,
+    Dumbbell,
     History as HistoryIcon,
     ArrowRight,
     TrendingUp,
@@ -73,7 +73,7 @@ export default function TrainerStudentDashboard({
             {/* Quick Stats Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                 {stats.map((stat, idx) => (
-                    <motion.div 
+                    <motion.div
                         key={idx}
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -98,7 +98,7 @@ export default function TrainerStudentDashboard({
 
             {/* Live Monitoring Section */}
             {activeSession ? (
-                <motion.section 
+                <motion.section
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
                     className="bg-gradient-to-br from-lime-400 to-lime-500 p-8 md:p-10 rounded-[40px] text-zinc-950 relative overflow-hidden shadow-[0_30px_60px_-15px_rgba(163,230,53,0.3)] group"
@@ -120,9 +120,9 @@ export default function TrainerStudentDashboard({
                                 {t('lastActive')}: {getRelativeTime(activeSession.createdAt, locale)}
                             </p>
                         </div>
-                        
+
                         <div className="flex gap-4">
-                            <Link 
+                            <Link
                                 href={`/trainer/${studentId}/session`}
                                 className="px-10 py-5 bg-zinc-950 text-white rounded-[24px] font-black uppercase tracking-widest text-xs flex items-center justify-center gap-3 hover:scale-105 active:scale-95 transition-all shadow-2xl hover:bg-zinc-900 group/btn"
                             >
@@ -143,9 +143,9 @@ export default function TrainerStudentDashboard({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                 {/* Workouts Card */}
                 <Link href={`/trainer/${studentId}/workouts`} className="group">
-                    <motion.div 
+                    <motion.div
                         whileHover={{ y: -5 }}
-                        className="p-8 bg-zinc-900/50 backdrop-blur-md border border-zinc-800 rounded-[40px] flex items-center justify-between cursor-pointer hover:border-lime-400/50 transition-all overflow-hidden relative"
+                        className="p-4 md:p-8 bg-zinc-900/50 backdrop-blur-md border border-zinc-800 rounded-[40px] flex items-center justify-between cursor-pointer hover:border-lime-400/50 transition-all overflow-hidden relative"
                     >
                         <div className="absolute -right-10 -bottom-10 p-16 bg-lime-400/5 rounded-full blur-3xl group-hover:bg-lime-400/10 transition-colors" />
                         <div className="flex items-center gap-6 relative z-10">
@@ -167,9 +167,9 @@ export default function TrainerStudentDashboard({
 
                 {/* Schedule Card */}
                 <Link href={`/trainer/${studentId}/schedule`} className="group">
-                    <motion.div 
+                    <motion.div
                         whileHover={{ y: -5 }}
-                        className="p-8 bg-zinc-900/50 backdrop-blur-md border border-zinc-800 rounded-[40px] flex items-center justify-between cursor-pointer hover:border-lime-400/50 transition-all overflow-hidden relative"
+                        className="p-4 md:p-8 bg-zinc-900/50 backdrop-blur-md border border-zinc-800 rounded-[40px] flex items-center justify-between cursor-pointer hover:border-lime-400/50 transition-all overflow-hidden relative"
                     >
                         <div className="absolute -right-10 -bottom-10 p-16 bg-blue-400/5 rounded-full blur-3xl group-hover:bg-blue-400/10 transition-colors" />
                         <div className="flex items-center gap-6 relative z-10">
@@ -201,7 +201,7 @@ export default function TrainerStudentDashboard({
                             {t('history')}
                         </h3>
                     </div>
-                    <Link 
+                    <Link
                         href={`/trainer/${studentId}/history`}
                         className="group flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.15em] text-zinc-500 hover:text-lime-400 transition-all"
                     >
@@ -212,11 +212,11 @@ export default function TrainerStudentDashboard({
 
                 <div className="grid grid-cols-1 gap-4">
                     {recentHistory.length > 0 ? recentHistory.slice(0, 4).map((item, idx) => (
-                        <Link 
+                        <Link
                             key={item.id}
                             href={`/trainer/${studentId}/history?date=${new Date(item.date).toISOString().split('T')[0]}&workoutId=${item.id}`}
                         >
-                            <motion.div 
+                            <motion.div
                                 initial={{ opacity: 0, x: -20 }}
                                 animate={{ opacity: 1, x: 0 }}
                                 transition={{ delay: idx * 0.1 }}

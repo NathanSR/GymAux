@@ -176,8 +176,8 @@ const ProfileMenu: React.FC<ProfileMenuProps> = ({
                                 <span className="flex-1 text-left">{t('editProfile')}</span>
                             </button>
 
-                            <button onClick={handleTrainerPanel} className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-xl transition-colors text-zinc-700 dark:text-zinc-200">
-                                <Users size={18} className="text-zinc-500" />
+                            <button onClick={handleTrainerPanel} className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-xl transition-colors text-lime-700 dark:text-lime-200">
+                                <Users size={18} className="text-lime-500" />
                                 <span className="flex-1 text-left">{t('trainerPanel')}</span>
                             </button>
 
