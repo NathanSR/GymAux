@@ -17,7 +17,7 @@ export default async function TrainerLayout({
     const student = await userService.getUserById(studentId, supabase);
 
     return (
-        <div className="min-h-screen bg-zinc-950 flex flex-col font-sans selection:bg-lime-400 selection:text-zinc-950 overflow-x-hidden">
+        <div className="flex flex-col font-sans selection:bg-lime-400 selection:text-zinc-950 overflow-x-hidden">
             {/* Editing Mode Banner */}
             <header className="sticky top-0 z-50 bg-lime-400 border-b border-zinc-950/10 px-4 py-2.5 shadow-xl transition-all">
                 <div className="max-w-6xl mx-auto flex items-center justify-between gap-4 relative z-10">
