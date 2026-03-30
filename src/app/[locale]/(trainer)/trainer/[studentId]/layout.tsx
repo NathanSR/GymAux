@@ -70,7 +70,7 @@ export default async function TrainerLayout({
                 </div>
             </header>
 
-            <main className="flex-1 w-full max-w-6xl mx-auto pb-32">
+            <main className="flex-1 w-full max-w-6xl mx-auto">
                 {children}
             </main>
         </div>
