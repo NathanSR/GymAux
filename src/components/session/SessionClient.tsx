@@ -52,6 +52,57 @@ const RPE_EMOJIS: Record<number, { emoji: string; labelKey: string }> = {
 
 const RPE_OPTIONS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
+const GROUP_CONFIG: Record<string, {
+    color: string;
+    bg: string;
+    border: string;
+    icon: any;
+    glow: string;
+}> = {
+    straight: {
+        color: 'text-lime-400',
+        bg: 'bg-lime-400/10',
+        border: 'border-lime-400/20',
+        icon: Zap,
+        glow: 'shadow-lime-400/20'
+    },
+    bi_set: {
+        color: 'text-indigo-400',
+        bg: 'bg-indigo-400/10',
+        border: 'border-indigo-400/20',
+        icon: RefreshCw,
+        glow: 'shadow-indigo-400/20'
+    },
+    tri_set: {
+        color: 'text-amber-400',
+        bg: 'bg-amber-400/10',
+        border: 'border-amber-400/20',
+        icon: Flame,
+        glow: 'shadow-amber-400/20'
+    },
+    giant_set: {
+        color: 'text-rose-400',
+        bg: 'bg-rose-400/10',
+        border: 'border-rose-400/20',
+        icon: Trophy,
+        glow: 'shadow-rose-400/20'
+    },
+    circuit: {
+        color: 'text-cyan-400',
+        bg: 'bg-cyan-400/10',
+        border: 'border-cyan-400/20',
+        icon: RefreshCw,
+        glow: 'shadow-cyan-400/20'
+    },
+    superset: {
+        color: 'text-fuchsia-400',
+        bg: 'bg-fuchsia-400/10',
+        border: 'border-fuchsia-400/20',
+        icon: Zap,
+        glow: 'shadow-fuchsia-400/20'
+    }
+};
+
 export default function SessionClient({ initialSession, isReadOnly = false }: SessionClientProps) {
     const t = useTranslations('Session');
     const te = useTranslations('Exercises');
@@ -76,6 +127,7 @@ export default function SessionClient({ initialSession, isReadOnly = false }: Se
     const currentPlannedSet = currentExercise?.sets?.[currentSetIndex];
 
     const isGroupAlternating = currentGroup?.groupType !== 'straight';
+    const groupStyle = GROUP_CONFIG[currentGroup?.groupType || 'straight'] || GROUP_CONFIG.straight;
 
     const { register, handleSubmit, watch, setValue } = useForm({
         defaultValues: {
@@ -325,44 +377,91 @@ export default function SessionClient({ initialSession, isReadOnly = false }: Se
             </header>
 
             <main className="flex-1 flex flex-col px-5 py-2 overflow-y-auto overflow-x-hidden scrollbar-hide">
-                <section className="mb-4 mt-2">
-                    <div className="flex items-start justify-between gap-3">
+                <section className="mb-6 mt-2 relative">
+                    {/* Background Glow Identity */}
+                    <div className={`absolute -top-10 -left-10 w-40 h-40 rounded-full blur-[80px] opacity-15 -z-10 transition-colors duration-700 ${groupStyle.bg}`} />
+
+                    <div className="flex items-start justify-between gap-4">
                         <div className="flex-1 min-w-0">
-                            {isGroupAlternating && (
-                                <motion.span
-                                    initial={{ opacity: 0, scale: 0.8 }}
-                                    animate={{ opacity: 1, scale: 1 }}
-                                    className="inline-flex items-center gap-1.5 text-[9px] font-black text-indigo-400 uppercase tracking-widest bg-indigo-400/10 px-2.5 py-1 rounded-full mb-2 mr-2"
+                            <div className="flex flex-wrap items-center gap-2 mb-3">
+                                {isGroupAlternating && (
+                                    <motion.div
+                                        initial={{ opacity: 0, x: -10 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full border ${groupStyle.bg} ${groupStyle.color} ${groupStyle.border} shadow-sm backdrop-blur-md`}
+                                    >
+                                        <groupStyle.icon size={10} className="animate-pulse" />
+                                        <span className="text-[10px] font-black uppercase tracking-widest leading-none">
+                                            {t('groupTypes.' + currentGroup?.groupType)}
+                                        </span>
+                                    </motion.div>
+                                )}
+
+                                <motion.div
+                                    initial={{ opacity: 0, x: -10 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ delay: 0.1 }}
+                                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-zinc-500 shadow-sm"
                                 >
-                                    <RefreshCw size={9} className="text-indigo-400" />
-                                    {t('groupTypes.' + currentGroup?.groupType)}
-                                </motion.span>
-                            )}
-                            <motion.span
-                                initial={{ opacity: 0, scale: 0.8 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                className="inline-flex items-center gap-1.5 text-[9px] font-black text-lime-400 uppercase tracking-widest bg-lime-400/10 px-2.5 py-1 rounded-full mb-2"
+                                    <Zap size={10} className="fill-current" />
+                                    <span className="text-[10px] font-black uppercase tracking-widest leading-none">
+                                        {t('group')} {currentGroupIndex + 1}/{session.exercisesToDo.length}
+                                    </span>
+                                </motion.div>
+                            </div>
+
+                            <motion.h2
+                                key={currentExercise?.exerciseId}
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                className="text-4xl font-black uppercase tracking-tighter italic leading-[0.85] truncate pr-2 mt-1"
                             >
-                                <Zap size={9} className="text-lime-400 fill-lime-400" />
-                                {t('group')} {currentGroupIndex + 1}/{session.exercisesToDo.length}
-                            </motion.span>
-                            <h2 className="text-3xl font-black uppercase tracking-tighter italic leading-[0.9] truncate pr-2 mt-1">
                                 {te.has(currentExercise?.exerciseName!) ? te(currentExercise?.exerciseName!) : currentExercise?.exerciseName}
-                            </h2>
+                            </motion.h2>
                         </div>
 
                         <button
                             onClick={() => setShowInstructions(true)}
-                            className="flex flex-col items-center gap-1 group relative flex-shrink-0"
+                            className="flex flex-col items-center gap-1.5 group relative flex-shrink-0 transition-transform active:scale-90"
                         >
-                            <div className="w-10 h-10 rounded-xl bg-zinc-900 border border-zinc-800 flex items-center justify-center text-lime-400 group-hover:border-lime-400 transition-all">
-                                <CircleHelp size={20} className="group-hover:rotate-12 transition-transform" />
+                            <div className="w-12 h-12 rounded-2xl bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-400 group-hover:border-lime-400 group-hover:text-lime-400 transition-all shadow-lg">
+                                <CircleHelp size={22} className="group-hover:rotate-12 transition-transform" />
                             </div>
-                            <span className="text-[7px] font-black uppercase text-zinc-500 tracking-widest group-hover:text-lime-400">
+                            <span className="text-[8px] font-black uppercase text-zinc-600 tracking-widest group-hover:text-zinc-400 transition-colors">
                                 {t('howTo')}
                             </span>
                         </button>
                     </div>
+
+                    {/* Group Progression - visualizes all exercises in the current group */}
+                    {isGroupAlternating && currentGroup?.exercises && currentGroup.exercises.length > 1 && (
+                        <div className="mt-8">
+                            <p className="text-[9px] font-black uppercase text-zinc-600 tracking-[0.2em] mb-3 ml-1 flex items-center gap-2">
+                                <List size={10} />
+                                {t('groupComposition')}
+                            </p>
+                            <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide -mx-2 px-2">
+                                {currentGroup.exercises.map((ex, idx) => {
+                                    const isActive = idx === currentExerciseIndex;
+                                    return (
+                                        <div key={idx} className="flex items-center gap-2 shrink-0">
+                                            <div className={`
+                                                px-3 py-2 rounded-xl border text-[10px] font-black uppercase tracking-tight transition-all duration-300
+                                                ${isActive
+                                                    ? `${groupStyle.bg} ${groupStyle.color} ${groupStyle.border} shadow-lg ring-1 ${groupStyle.border}`
+                                                    : 'bg-zinc-900/30 text-zinc-600 border-zinc-800/50 opacity-40'}
+                                            `}>
+                                                {te.has(ex.exerciseName) ? te(ex.exerciseName) : ex.exerciseName}
+                                            </div>
+                                            {idx < currentGroup.exercises.length - 1 && (
+                                                <ArrowRight size={12} className="text-zinc-800/50 shrink-0" />
+                                            )}
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    )}
 
                     <div className="grid grid-cols-2 gap-2 mt-5">
                         <div className="flex flex-col p-4 bg-zinc-900/40 rounded-3xl border border-white/5 relative overflow-hidden group">
