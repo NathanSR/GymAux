@@ -132,6 +132,22 @@ export const SessionService = {
         if (error) throw error;
     },
 
+    async getActiveSessionByUserId(userId: string, supabaseInput?: any) {
+        const supabase = supabaseInput || createClient();
+        const { data, error } = await supabase
+            .from('sessions')
+            .select('*')
+            .eq('user_id', userId)
+            .maybeSingle();
+
+        if (error) {
+            console.error('Error fetching active session:', error);
+            return null;
+        }
+
+        return data ? mapSessionFromSupabase(data) : null;
+    },
+
     async getSessionsByUserId(userId: string, supabaseInput?: any) {
         const supabase = supabaseInput || createClient();
         const { data, error } = await supabase

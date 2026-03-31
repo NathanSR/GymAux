@@ -3,12 +3,12 @@
 import React, { useState, useEffect } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-    Copy, 
-    Check, 
-    QrCode, 
+import {
+    Copy,
+    Check,
+    QrCode,
     User,
-    ArrowLeft 
+    ArrowLeft
 } from 'lucide-react';
 import { useRouter } from '@/i18n/routing';
 import { useTranslations } from 'next-intl';
@@ -32,8 +32,8 @@ export default function MyIDPage() {
                     .select('gymaux_id')
                     .eq('id', user.id)
                     .single();
-                
-                setUid(profile?.gymaux_id || user.id);
+
+                setUid(user.id);
             }
             setLoading(false);
         };
@@ -60,7 +60,7 @@ export default function MyIDPage() {
         <div className="flex flex-col min-h-screen bg-white dark:bg-zinc-950 transition-colors duration-300 font-sans p-6 pb-12">
             {/* Header */}
             <header className="flex items-center justify-between mb-8">
-                <button 
+                <button
                     onClick={() => router.back()}
                     className="w-12 h-12 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl flex items-center justify-center text-zinc-600 dark:text-zinc-400 active:scale-90 transition-all shadow-sm"
                 >
@@ -73,7 +73,7 @@ export default function MyIDPage() {
             </header>
 
             <main className="flex-1 flex flex-col items-center justify-center">
-                <motion.div 
+                <motion.div
                     initial={{ opacity: 0, scale: 0.95, y: 20 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
@@ -82,9 +82,9 @@ export default function MyIDPage() {
                     <div className="relative group overflow-hidden">
                         {/* Glow effect */}
                         <div className="absolute -inset-1 bg-gradient-to-br from-lime-400 to-lime-600 rounded-[40px] blur opacity-20 group-hover:opacity-30 transition duration-1000"></div>
-                        
+
                         <div className="relative bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 rounded-[32px] p-8 flex flex-col items-center shadow-2xl">
-                            
+
                             {/* User Avatar Representation */}
                             <div className="w-20 h-20 bg-lime-400 rounded-[24px] flex items-center justify-center mb-6 shadow-xl shadow-lime-400/20 rotate-3 group-hover:rotate-0 transition-transform duration-500">
                                 <User size={40} className="text-zinc-950" />
@@ -93,24 +93,24 @@ export default function MyIDPage() {
                             <p className="text-[10px] font-black uppercase text-lime-500 tracking-[0.2em] mb-2">
                                 {t('idCard')}
                             </p>
-                            
+
                             <h2 className="text-3xl font-black text-zinc-900 dark:text-white mb-3 italic tracking-tighter uppercase">
                                 {t('passTitle')}
                             </h2>
-                            
+
                             <p className="text-xs text-zinc-500 dark:text-zinc-400 text-center mb-8 px-4 leading-relaxed font-medium">
                                 {t('description')}
                             </p>
 
                             {/* QR Code Container */}
-                            <motion.div 
+                            <motion.div
                                 whileHover={{ scale: 1.02 }}
                                 whileTap={{ scale: 0.98 }}
                                 className="bg-white p-6 rounded-[28px] shadow-sm mb-8 border border-zinc-100/50 dark:border-zinc-800/50"
                             >
                                 {uid && (
-                                    <QRCodeSVG 
-                                        value={uid} 
+                                    <QRCodeSVG
+                                        value={uid}
                                         size={180}
                                         level="H"
                                         includeMargin={false}
@@ -135,7 +135,7 @@ export default function MyIDPage() {
                                     <span className="text-[12px] font-mono text-zinc-500 dark:text-zinc-400 truncate tracking-tight">
                                         {uid}
                                     </span>
-                                    <button 
+                                    <button
                                         onClick={handleCopy}
                                         className="shrink-0 p-2.5 bg-white dark:bg-zinc-700 rounded-xl text-zinc-600 dark:text-zinc-300 hover:bg-lime-400 hover:text-zinc-950 transition-all shadow-sm active:scale-90"
                                     >
@@ -171,7 +171,7 @@ export default function MyIDPage() {
             {/* Notification Toast */}
             <AnimatePresence>
                 {copied && (
-                    <motion.div 
+                    <motion.div
                         initial={{ opacity: 0, y: 50, scale: 0.9 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 20, scale: 0.9 }}

@@ -75,6 +75,7 @@ export default function UserForm({ initialData, onSubmit, isLoading, submitLabel
                     >
                         {avatarPreview || watch('avatar') ? (
                             <img
+                                // @ts-ignore
                                 src={avatarPreview || watch('avatar')}
                                 alt="Avatar"
                                 className="w-full h-full object-cover"
