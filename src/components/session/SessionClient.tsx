@@ -62,6 +62,7 @@ export default function SessionClient({ initialSession, isReadOnly = false }: Se
     const [session, setSession] = useState<Session>(initialSession);
     const [showPreview, setShowPreview] = useState(false);
     const [showInstructions, setShowInstructions] = useState(false);
+    const [restDuration, setRestDuration] = useState<number>(60);
 
     const { getNextState } = useSessionNavigation(session);
 
@@ -163,7 +164,32 @@ export default function SessionClient({ initialSession, isReadOnly = false }: Se
                 newSession.duration += finalSegment;
             }
         } else {
-            newSession.current.step = 'resting';
+            let shouldRest = true;
+            let calculatedRestTime = 60;
+
+            const isNextSameGroup = nextGroupIndex === currentGroupIndex;
+
+            if (currentGroup.groupType === 'straight') {
+                if (isNextSameGroup) {
+                    calculatedRestTime = currentPlannedSet?.restTime || 60;
+                } else {
+                    calculatedRestTime = currentGroup.restAfterGroup || 60;
+                }
+            } else {
+                if (isNextSameGroup) {
+                    if (nextSetIndex > currentSetIndex) {
+                        calculatedRestTime = currentGroup.restAfterGroup || 60;
+                    } else {
+                        shouldRest = true;
+                        calculatedRestTime = 3;
+                    }
+                } else {
+                    calculatedRestTime = currentGroup.restAfterGroup || 60;
+                }
+            }
+
+            setRestDuration(calculatedRestTime);
+            newSession.current.step = shouldRest ? 'resting' : 'executing';
             newSession.current.groupIndex = nextGroupIndex;
             newSession.current.exerciseIndex = nextExerciseIndex;
             newSession.current.setIndex = nextSetIndex;
@@ -373,7 +399,7 @@ export default function SessionClient({ initialSession, isReadOnly = false }: Se
                             className="flex-1 flex flex-col justify-center"
                         >
                             <RestTimer
-                                seconds={currentPlannedSet?.restTime || 60}
+                                seconds={restDuration}
                                 onFinish={moveToNextStep}
                             />
                         </motion.div>

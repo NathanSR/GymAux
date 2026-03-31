@@ -106,8 +106,12 @@ export class SyncManager {
     // This provides the structural foundation for syncing offline data gracefully.
     
     private static async syncHistory(op: SyncOperation, supabase: any): Promise<boolean> {
-        if (op.action === 'CREATE' || op.action === 'UPDATE') {
-            const { error } = await supabase.from('history').upsert(op.payload);
+        if (op.action === 'CREATE') {
+            const { error } = await supabase.from('history').insert(op.payload);
+            // Ignore duplicate key error if it already exists (409 / 23505 usually)
+            if (error && error.code !== '23505') throw error;
+        } else if (op.action === 'UPDATE') {
+            const { error } = await supabase.from('history').update(op.payload).eq('id', op.entityId);
             if (error) throw error;
         } else if (op.action === 'DELETE') {
             const { error } = await supabase.from('history').delete().eq('id', op.entityId);
@@ -117,8 +121,11 @@ export class SyncManager {
     }
 
     private static async syncSession(op: SyncOperation, supabase: any): Promise<boolean> {
-        if (op.action === 'CREATE' || op.action === 'UPDATE') {
-            const { error } = await supabase.from('sessions').upsert(op.payload);
+        if (op.action === 'CREATE') {
+            const { error } = await supabase.from('sessions').insert(op.payload);
+            if (error && error.code !== '23505') throw error;
+        } else if (op.action === 'UPDATE') {
+            const { error } = await supabase.from('sessions').update(op.payload).eq('id', op.entityId);
             if (error) throw error;
         } else if (op.action === 'DELETE') {
             const { error } = await supabase.from('sessions').delete().eq('id', op.entityId);
@@ -128,8 +135,11 @@ export class SyncManager {
     }
 
     private static async syncWorkout(op: SyncOperation, supabase: any): Promise<boolean> {
-        if (op.action === 'CREATE' || op.action === 'UPDATE') {
-            const { error } = await supabase.from('workouts').upsert(op.payload);
+        if (op.action === 'CREATE') {
+            const { error } = await supabase.from('workouts').insert(op.payload);
+            if (error && error.code !== '23505') throw error;
+        } else if (op.action === 'UPDATE') {
+            const { error } = await supabase.from('workouts').update(op.payload).eq('id', op.entityId);
             if (error) throw error;
         } else if (op.action === 'DELETE') {
             const { error } = await supabase.from('workouts').delete().eq('id', op.entityId);
@@ -139,8 +149,11 @@ export class SyncManager {
     }
 
     private static async syncSchedule(op: SyncOperation, supabase: any): Promise<boolean> {
-        if (op.action === 'CREATE' || op.action === 'UPDATE') {
-            const { error } = await supabase.from('schedules').upsert(op.payload);
+        if (op.action === 'CREATE') {
+            const { error } = await supabase.from('schedules').insert(op.payload);
+            if (error && error.code !== '23505') throw error;
+        } else if (op.action === 'UPDATE') {
+            const { error } = await supabase.from('schedules').update(op.payload).eq('id', op.entityId);
             if (error) throw error;
         } else if (op.action === 'DELETE') {
             const { error } = await supabase.from('schedules').delete().eq('id', op.entityId);
@@ -150,8 +163,11 @@ export class SyncManager {
     }
 
     private static async syncExercise(op: SyncOperation, supabase: any): Promise<boolean> {
-        if (op.action === 'CREATE' || op.action === 'UPDATE') {
-            const { error } = await supabase.from('exercises').upsert(op.payload);
+        if (op.action === 'CREATE') {
+            const { error } = await supabase.from('exercises').insert(op.payload);
+            if (error && error.code !== '23505') throw error;
+        } else if (op.action === 'UPDATE') {
+            const { error } = await supabase.from('exercises').update(op.payload).eq('id', op.entityId);
             if (error) throw error;
         } else if (op.action === 'DELETE') {
             const { error } = await supabase.from('exercises').delete().eq('id', op.entityId);
