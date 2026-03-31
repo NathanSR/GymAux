@@ -157,7 +157,7 @@ export const HistoryService = {
         return (data || []).map(mapHistoryFromSupabase);
     },
 
-    async deleteHistoryEntry(id: string, supabaseInput?: any) {
+    async deleteHistoryEntry(id: string, userId: string, supabaseInput?: any) {
         if (typeof window !== 'undefined') {
             await db.history.delete(id);
             SyncManager.enqueue('DELETE', 'HISTORY', id, { id });
@@ -165,19 +165,16 @@ export const HistoryService = {
         }
 
         const supabase = supabaseInput || createClient();
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) throw new Error("User not authenticated");
-
         const { error } = await supabase
             .from('history')
             .delete()
             .eq('id', id)
-            .eq('user_id', user.id);
+            .eq('user_id', userId);
 
         if (error) throw error;
     },
 
-    async updateDescription(id: string, description: string, supabaseInput?: any) {
+    async updateDescription(id: string, description: string, userId: string, supabaseInput?: any) {
         if (typeof window !== 'undefined') {
             const local = await db.history.get(id);
             if (local) {
@@ -189,14 +186,11 @@ export const HistoryService = {
         }
 
         const supabase = supabaseInput || createClient();
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) throw new Error("User not authenticated");
-
         const { data, error } = await supabase
             .from('history')
             .update({ description })
             .eq('id', id)
-            .eq('user_id', user.id)
+            .eq('user_id', userId)
             .select()
             .single();
 
@@ -204,7 +198,7 @@ export const HistoryService = {
         return mapHistoryFromSupabase(data);
     },
 
-    async updateHistory(id: string, historyData: Partial<History>, supabaseInput?: any) {
+    async updateHistory(id: string, historyData: Partial<History> & { userId: string }, supabaseInput?: any) {
         const updates: any = {};
         if (historyData.weight) updates.weight = historyData.weight;
         if (historyData.description !== undefined) updates.description = historyData.description;
@@ -229,21 +223,16 @@ export const HistoryService = {
         }
 
         const supabase = supabaseInput || createClient();
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) throw new Error("User not authenticated");
 
         if (historyData.weight && historyData.weight > 0) {
-            const entry = await this.getHistoryById(id, supabaseInput);
-            if (entry && entry.userId === user.id) {
-                await userService.updateUser(entry.userId, { weight: historyData.weight }, supabaseInput);
-            }
+            await userService.updateUser(historyData.userId, { weight: historyData.weight }, supabaseInput);
         }
 
         const { data, error } = await supabase
             .from('history')
             .update(updates)
             .eq('id', id)
-            .eq('user_id', user.id)
+            .eq('user_id', historyData.userId)
             .select()
             .single();
 

@@ -26,6 +26,7 @@ export default function NewWorkoutClient({ availableExercises, userId, baseUrl =
             await WorkoutService.createWorkout({
                 ...data,
                 userId,
+                callerId: userId,
                 createdAt: new Date(),
             });
 

@@ -120,7 +120,7 @@ export const WorkoutService = {
         return data ? mapWorkoutFromSupabase(data) : null;
     },
 
-    async createWorkout(workoutData: Omit<Workout, 'id' | 'createdAt'>, supabaseInput?: any) {
+    async createWorkout(workoutData: Omit<Workout, 'id' | 'createdAt'> & { callerId: string }, supabaseInput?: any) {
         const formattedName = workoutData.name.trim();
 
         if (formattedName.length < 2) {
@@ -144,14 +144,12 @@ export const WorkoutService = {
 
         const id = crypto.randomUUID();
         const supabase = supabaseInput || createClient();
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) throw new Error("User not authenticated");
 
-        if (workoutData.userId !== user.id) {
+        if (workoutData.userId !== workoutData.callerId) {
             const { data: connection } = await supabase
                 .from('connections')
                 .select('status, permissions')
-                .eq('trainer_id', user.id)
+                .eq('trainer_id', workoutData.callerId)
                 .eq('student_id', workoutData.userId)
                 .eq('status', 'active')
                 .maybeSingle();
@@ -164,8 +162,8 @@ export const WorkoutService = {
         const apiPayload = {
             id,
             user_id: workoutData.userId,
-            created_by: user.id,
-            created_by_type: workoutData.userId === user.id ? 'user' : 'trainer',
+            created_by: workoutData.callerId,
+            created_by_type: workoutData.userId === workoutData.callerId ? 'user' : 'trainer',
             name: formattedName,
             description: workoutData.description,
             exercises: serializeGroups(workoutData.exercises) as any,
@@ -182,7 +180,7 @@ export const WorkoutService = {
         return mapWorkoutFromSupabase(data);
     },
 
-    async updateWorkout(id: string, workoutData: Partial<Workout>, supabaseInput?: any) {
+    async updateWorkout(id: string, workoutData: Partial<Workout> & { callerId: string }, supabaseInput?: any) {
         const updates: any = {};
         if (workoutData.name) updates.name = workoutData.name.trim();
         if (workoutData.description !== undefined) updates.description = workoutData.description;
@@ -202,8 +200,6 @@ export const WorkoutService = {
         }
 
         const supabase = supabaseInput || createClient();
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) throw new Error("User not authenticated");
 
         const { data: existingWorkout, error: fetchError } = await supabase
             .from('workouts')
@@ -213,11 +209,11 @@ export const WorkoutService = {
 
         if (fetchError || !existingWorkout) throw new Error("Workout not found");
 
-        if (existingWorkout.user_id !== user.id) {
+        if (existingWorkout.user_id !== workoutData.callerId) {
             const { data: connection } = await supabase
                 .from('connections')
                 .select('status, permissions')
-                .eq('trainer_id', user.id)
+                .eq('trainer_id', workoutData.callerId)
                 .eq('student_id', existingWorkout.user_id)
                 .eq('status', 'active')
                 .maybeSingle();
@@ -238,17 +234,18 @@ export const WorkoutService = {
         return mapWorkoutFromSupabase(data);
     },
 
-    async addExerciseToWorkout(workoutId: string, newExercise: ExerciseGroup, supabaseInput?: any) {
+    async addExerciseToWorkout(workoutId: string, newExercise: ExerciseGroup, callerId: string, supabaseInput?: any) {
         const workout = await this.getWorkoutById(workoutId, supabaseInput);
         if (!workout) throw new Error("Treino não encontrado.");
 
         const updatedExercises = [...(workout.exercises || []), newExercise];
         return await this.updateWorkout(workoutId, {
-            exercises: updatedExercises
+            exercises: updatedExercises,
+            callerId,
         }, supabaseInput);
     },
 
-    async deleteWorkout(id: string, supabaseInput?: any) {
+    async deleteWorkout(id: string, callerId: string, supabaseInput?: any) {
         if (typeof window !== 'undefined') {
             await db.workouts.delete(id);
             SyncManager.enqueue('DELETE', 'WORKOUT', id, { id });
@@ -256,8 +253,6 @@ export const WorkoutService = {
         }
 
         const supabase = supabaseInput || createClient();
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) throw new Error("User not authenticated");
 
         const { data: existingWorkout, error: fetchError } = await supabase
             .from('workouts')
@@ -267,11 +262,11 @@ export const WorkoutService = {
 
         if (fetchError || !existingWorkout) throw new Error("Workout not found");
 
-        if (existingWorkout.user_id !== user.id) {
+        if (existingWorkout.user_id !== callerId) {
             const { data: connection } = await supabase
                 .from('connections')
                 .select('status, permissions')
-                .eq('trainer_id', user.id)
+                .eq('trainer_id', callerId)
                 .eq('student_id', existingWorkout.user_id)
                 .eq('status', 'active')
                 .maybeSingle();

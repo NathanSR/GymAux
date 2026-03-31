@@ -17,7 +17,8 @@ export default async function TrainerStudentNewSchedulePage({
 
     return (
         <CreateScheduleClient 
-            userId={studentId} 
+            userId={studentId}
+            callerId={user!.id}
             baseUrl={`/trainer/${studentId}/schedule`}
         />
     );

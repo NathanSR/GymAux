@@ -11,6 +11,9 @@ interface EditWorkoutPageProps {
 export default async function EditWorkoutPage({ params }: EditWorkoutPageProps) {
     const { id } = await params;
     const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) redirect('/workouts');
 
     const [workout, availableExercises] = await Promise.all([
         WorkoutService.getWorkoutById(id, supabase),
@@ -26,6 +29,7 @@ export default async function EditWorkoutPage({ params }: EditWorkoutPageProps) 
             initialWorkout={workout}
             availableExercises={availableExercises.exercises}
             workoutId={id}
+            callerId={user.id}
         />
     );
 }

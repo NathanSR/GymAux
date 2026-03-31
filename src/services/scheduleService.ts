@@ -103,7 +103,7 @@ export const ScheduleService = {
      * Cria um novo cronograma.
      * Inclui regra para garantir que apenas um cronograma esteja ativo por vez.
      */
-    async createSchedule(scheduleData: Omit<Schedule, 'id'>, supabaseInput?: any) {
+    async createSchedule(scheduleData: Omit<Schedule, 'id'>, callerId: string, supabaseInput?: any) {
         const supabase = supabaseInput || createClient();
         const formattedName = scheduleData.name.trim();
 
@@ -115,15 +115,11 @@ export const ScheduleService = {
             throw new Error("O cronograma deve conter exatamente 7 dias (domingo a sábado).");
         }
 
-        // Validate permissions
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) throw new Error("User not authenticated");
-
-        if (scheduleData.userId !== user.id) {
+        if (scheduleData.userId !== callerId) {
             const { data: connection } = await supabase
                 .from('connections')
                 .select('status, permissions')
-                .eq('trainer_id', user.id)
+                .eq('trainer_id', callerId)
                 .eq('student_id', scheduleData.userId)
                 .eq('status', 'active')
                 .maybeSingle();
@@ -146,8 +142,8 @@ export const ScheduleService = {
             .insert({
                 name: formattedName,
                 user_id: scheduleData.userId,
-                created_by: user.id,
-                created_by_type: scheduleData.userId === user.id ? 'user' : 'trainer',
+                created_by: callerId,
+                created_by_type: scheduleData.userId === callerId ? 'user' : 'trainer',
                 workouts: scheduleData.workouts as any,
                 start_date: typeof scheduleData.startDate === 'string' ? scheduleData.startDate : scheduleData.startDate.toISOString(),
                 end_date: scheduleData.endDate ? (typeof scheduleData.endDate === 'string' ? scheduleData.endDate : scheduleData.endDate.toISOString()) : undefined,
@@ -167,10 +163,8 @@ export const ScheduleService = {
     /**
      * Atualiza o progresso do cronograma (qual foi o último treino concluído).
      */
-    async updateProgress(id: string, workoutIndex: number, supabaseInput?: any) {
+    async updateProgress(id: string, workoutIndex: number, userId: string, supabaseInput?: any) {
         const supabase = supabaseInput || createClient();
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) throw new Error("User not authenticated");
 
         if (workoutIndex < 0 || workoutIndex > 6) {
             throw new Error("Índice de dia inválido (deve ser entre 0 e 6).");
@@ -180,7 +174,7 @@ export const ScheduleService = {
             .from('schedules')
             .update({ last_completed: workoutIndex })
             .eq('id', id)
-            .eq('user_id', user.id)
+            .eq('user_id', userId)
             .select()
             .single();
 
@@ -194,10 +188,8 @@ export const ScheduleService = {
     /**
      * Atualiza um cronograma existente.
      */
-    async updateSchedule(id: string, scheduleData: Partial<Schedule>, supabaseInput?: any) {
+    async updateSchedule(id: string, scheduleData: Partial<Schedule>, callerId: string, supabaseInput?: any) {
         const supabase = supabaseInput || createClient();
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) throw new Error("User not authenticated");
 
         const updates: any = {};
         if (scheduleData.name) updates.name = scheduleData.name.trim();
@@ -217,11 +209,11 @@ export const ScheduleService = {
 
         if (fetchError || !existingSchedule) throw new Error("Schedule not found");
 
-        if (existingSchedule.user_id !== user.id) {
+        if (existingSchedule.user_id !== callerId) {
             const { data: connection } = await supabase
                 .from('connections')
                 .select('status, permissions')
-                .eq('trainer_id', user.id)
+                .eq('trainer_id', callerId)
                 .eq('student_id', existingSchedule.user_id)
                 .eq('status', 'active')
                 .maybeSingle();
@@ -248,17 +240,15 @@ export const ScheduleService = {
     /**
      * Ativa um cronograma específico e desativa todos os outros do mesmo usuário.
      */
-    async setActiveSchedule(id: string, userId: string, supabaseInput?: any) {
+    async setActiveSchedule(id: string, userId: string, callerId: string, supabaseInput?: any) {
         const supabase = supabaseInput || createClient();
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) throw new Error("User not authenticated");
 
-        if (user.id !== userId) {
+        if (callerId !== userId) {
             // Check for trainer connection
             const { data: connection } = await supabase
                 .from('connections')
                 .select('status, permissions')
-                .eq('trainer_id', user.id)
+                .eq('trainer_id', callerId)
                 .eq('student_id', userId)
                 .eq('status', 'active')
                 .maybeSingle();
@@ -293,10 +283,8 @@ export const ScheduleService = {
     /**
      * Remove um cronograma.
      */
-    async deleteSchedule(id: string, supabaseInput?: any) {
+    async deleteSchedule(id: string, callerId: string, supabaseInput?: any) {
         const supabase = supabaseInput || createClient();
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) throw new Error("User not authenticated");
 
         // Fetch to check ownership vs trainer
         const { data: existingSchedule, error: fetchError } = await supabase
@@ -307,11 +295,11 @@ export const ScheduleService = {
 
         if (fetchError || !existingSchedule) throw new Error("Schedule not found");
 
-        if (existingSchedule.user_id !== user.id) {
+        if (existingSchedule.user_id !== callerId) {
             const { data: connection } = await supabase
                 .from('connections')
                 .select('status, permissions')
-                .eq('trainer_id', user.id)
+                .eq('trainer_id', callerId)
                 .eq('student_id', existingSchedule.user_id)
                 .eq('status', 'active')
                 .maybeSingle();

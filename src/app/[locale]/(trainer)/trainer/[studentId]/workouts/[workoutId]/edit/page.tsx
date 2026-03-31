@@ -11,6 +11,9 @@ export default async function TrainerStudentEditWorkoutPage({
 }) {
     const { studentId, workoutId } = await params;
     const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) redirect(`/trainer/${studentId}/workouts`);
 
     const [workout, availableExercises] = await Promise.all([
         WorkoutService.getWorkoutById(workoutId, supabase),
@@ -26,6 +29,7 @@ export default async function TrainerStudentEditWorkoutPage({
             initialWorkout={workout}
             availableExercises={availableExercises.exercises}
             workoutId={workoutId}
+            callerId={user.id}
             baseUrl={`/trainer/${studentId}/workouts`}
         />
     );

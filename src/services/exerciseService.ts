@@ -105,7 +105,7 @@ export const ExerciseService = {
     },
 
     // Criar novo
-    async createExercise(exerciseData: Omit<Exercise, 'id'>, supabaseInput?: any) {
+    async createExercise(exerciseData: Omit<Exercise, 'id'> & { userId: string }, supabaseInput?: any) {
         const supabase = supabaseInput || createClient();
         const formattedName = exerciseData.name.trim();
 
@@ -113,11 +113,7 @@ export const ExerciseService = {
             throw new Error("Name too short");
         }
 
-        // Se o userId não for passado, tenta pegar do usuário autenticado atual
-        const { data: { user } } = await supabase.auth.getUser();
-        const userId = user?.id;
-
-        if (!userId) {
+        if (!exerciseData.userId) {
             throw new Error("User not found");
         }
 
@@ -131,7 +127,7 @@ export const ExerciseService = {
                 category: exerciseData.category,
                 tags: exerciseData.tags,
                 level: exerciseData.level,
-                created_by: userId,
+                created_by: exerciseData.userId,
                 created_by_type: 'user',
             })
             .select()
@@ -144,10 +140,8 @@ export const ExerciseService = {
         return mapExerciseFromSupabase(data);
     },
 
-    async updateExercise(id: number, updateData: Partial<Omit<Exercise, 'id'>>, supabaseInput?: any) {
+    async updateExercise(id: number, updateData: Partial<Omit<Exercise, 'id'>> & { userId: string }, supabaseInput?: any) {
         const supabase = supabaseInput || createClient();
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) throw new Error("User not authenticated");
 
         // Business rule: system exercises (id < 1000) cannot be updated by users
         if (id < 1000) {
@@ -173,7 +167,7 @@ export const ExerciseService = {
             .from('exercises')
             .update(updates)
             .eq('id', id)
-            .eq('created_by', user.id)
+            .eq('created_by', updateData.userId)
             .select()
             .single();
 
@@ -185,10 +179,8 @@ export const ExerciseService = {
     },
 
     // Deletar exercicio
-    async deleteExercise(id: number, supabaseInput?: any) {
+    async deleteExercise(id: number, userId: string, supabaseInput?: any) {
         const supabase = supabaseInput || createClient();
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) throw new Error("User not authenticated");
 
         if (id < 1000) {
             throw new Error("Cannot delete system exercises");
@@ -198,7 +190,7 @@ export const ExerciseService = {
             .from('exercises')
             .delete()
             .eq('id', id)
-            .eq('created_by', user.id);
+            .eq('created_by', userId);
 
         if (error) {
             throw error;

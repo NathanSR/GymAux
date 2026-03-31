@@ -10,6 +10,7 @@ import Swal from 'sweetalert2';
 import { useTheme } from '@/context/ThemeContext';
 import { toast } from 'react-toastify';
 import { Exercise } from '@/config/types';
+import { useSession } from '@/hooks/useSession';
 
 interface EditExerciseClientProps {
     initialExercise: any;
@@ -20,6 +21,7 @@ export default function EditExerciseClient({ initialExercise, exerciseId }: Edit
     const { isDark } = useTheme();
     const router = useRouter();
     const t = useTranslations('ExerciseEdit');
+    const { activeUser } = useSession();
 
     const [isLoading, setIsLoading] = useState(false);
 
@@ -33,7 +35,7 @@ export default function EditExerciseClient({ initialExercise, exerciseId }: Edit
                     : data.tags
             };
 
-            await ExerciseService.updateExercise(exerciseId, formattedData);
+            await ExerciseService.updateExercise(exerciseId, { ...formattedData, userId: activeUser!.id as string });
             toast.success(t('updatedExercise'));
             router.push('/exercises');
         } catch (error: any) {
@@ -59,7 +61,7 @@ export default function EditExerciseClient({ initialExercise, exerciseId }: Edit
         }).then(async (result) => {
             if (result.isConfirmed) {
                 try {
-                    await ExerciseService.deleteExercise(exerciseId);
+                    await ExerciseService.deleteExercise(exerciseId, activeUser!.id as string);
                     router.push('/exercises');
                 } catch (error: any) {
                     console.error("Erro ao deletar:", error?.message || error);

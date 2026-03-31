@@ -10,6 +10,9 @@ export default async function TrainerStudentEditSchedulePage({
 }) {
     const { studentId, scheduleId } = await params;
     const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) redirect(`/trainer/${studentId}/schedule`);
 
     const data: any = await ScheduleService.getScheduleById(scheduleId, supabase);
     if (!data) {
@@ -26,7 +29,8 @@ export default async function TrainerStudentEditSchedulePage({
     return (
         <EditScheduleClient 
             initialData={formattedData} 
-            scheduleId={scheduleId} 
+            scheduleId={scheduleId}
+            callerId={user.id}
             baseUrl={`/trainer/${studentId}/schedule`}
         />
     );

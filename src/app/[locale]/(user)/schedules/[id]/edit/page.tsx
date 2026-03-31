@@ -10,6 +10,9 @@ interface EditSchedulePageProps {
 export default async function EditSchedulePage({ params }: EditSchedulePageProps) {
     const { id } = await params;
     const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) redirect('/schedules');
 
     const data: any = await ScheduleService.getScheduleById(id, supabase);
     if (!data) {
@@ -24,6 +27,6 @@ export default async function EditSchedulePage({ params }: EditSchedulePageProps
     };
 
     return (
-        <EditScheduleClient initialData={formattedData} scheduleId={id} />
+        <EditScheduleClient initialData={formattedData} scheduleId={id} callerId={user.id} />
     );
 }

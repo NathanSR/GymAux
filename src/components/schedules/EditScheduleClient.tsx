@@ -13,10 +13,11 @@ import Swal from "sweetalert2";
 interface EditScheduleClientProps {
     initialData: any;
     scheduleId: string;
+    callerId: string;
     baseUrl?: string;
 }
 
-export default function EditScheduleClient({ initialData, scheduleId, baseUrl = '/schedules' }: EditScheduleClientProps) {
+export default function EditScheduleClient({ initialData, scheduleId, callerId, baseUrl = '/schedules' }: EditScheduleClientProps) {
     const { isDark } = useTheme();
     const router = useRouter();
     const t = useTranslations('ScheduleEdit');
@@ -31,7 +32,7 @@ export default function EditScheduleClient({ initialData, scheduleId, baseUrl = 
                 startDate: new Date(data.startDate),
                 endDate: data.endDate ? new Date(data.endDate) : undefined,
                 updatedAt: new Date()
-            });
+            }, callerId);
             toast.success(t('editSuccess'));
             router.push(baseUrl);
         } catch (error: any) {
@@ -56,7 +57,7 @@ export default function EditScheduleClient({ initialData, scheduleId, baseUrl = 
         }).then(async (result) => {
             if (result.isConfirmed) {
                 try {
-                    await ScheduleService.deleteSchedule(scheduleId);
+                    await ScheduleService.deleteSchedule(scheduleId, callerId);
                     router.push(baseUrl);
                 } catch (error: any) {
                     console.error("Error deleting schedule:", error?.message || error);

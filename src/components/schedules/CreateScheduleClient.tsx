@@ -10,13 +10,15 @@ import { toast } from "react-toastify";
 
 interface CreateScheduleClientProps {
     userId: string;
+    callerId?: string;
     baseUrl?: string;
 }
 
-export default function CreateScheduleClient({ userId, baseUrl = '/schedules' }: CreateScheduleClientProps) {
+export default function CreateScheduleClient({ userId, callerId, baseUrl = '/schedules' }: CreateScheduleClientProps) {
     const router = useRouter();
     const t = useTranslations('ScheduleRegister');
     const [isLoading, setIsLoading] = useState(false);
+    const effectiveCallerId = callerId ?? userId;
 
     const handleCreate = async (data: any) => {
         setIsLoading(true);
@@ -26,7 +28,7 @@ export default function CreateScheduleClient({ userId, baseUrl = '/schedules' }:
                 userId: userId,
                 startDate: new Date(data.startDate),
                 endDate: data.endDate ? new Date(data.endDate) : undefined,
-            });
+            }, effectiveCallerId);
 
             toast.success(t('createSuccess'), {
                 position: "bottom-center",
