@@ -1,6 +1,8 @@
 import { createClient } from '@/lib/supabase/client';
 import { History, ExecutedGroup } from '@/config/types';
 import { userService } from './userService';
+import { db } from '@/config/db';
+import { SyncManager } from './syncManager';
 
 const mapExecutedGroupFromSupabase = (g: any): ExecutedGroup => ({
     groupType: g.groupType || 'straight',
@@ -34,28 +36,30 @@ const mapHistoryFromSupabase = (h: any): History => ({
 
 export const HistoryService = {
     async createWorkout(historyData: Omit<History, 'id'>, supabaseInput?: any) {
-        const supabase = supabaseInput || createClient();
-        const { data, error } = await supabase
-            .from('history')
-            .insert({
-                user_id: historyData.userId,
-                workout_id: historyData.workoutId,
-                workout_name: historyData.workoutName,
-                date: (historyData.date || new Date()).toISOString(),
-                end_date: historyData.endDate?.toISOString(),
-                duration: historyData.duration,
-                weight: historyData.weight,
-                description: historyData.description,
-                using_creatine: historyData.usingCreatine,
-                executions: historyData.executions as any,
-            })
-            .select()
-            .single();
+        const historyId = crypto.randomUUID();
+        const apiPayload = {
+            id: historyId,
+            user_id: historyData.userId,
+            workout_id: historyData.workoutId,
+            workout_name: historyData.workoutName,
+            date: (historyData.date || new Date()).toISOString(),
+            end_date: historyData.endDate?.toISOString(),
+            duration: historyData.duration,
+            weight: historyData.weight,
+            description: historyData.description,
+            using_creatine: historyData.usingCreatine,
+            executions: historyData.executions as any,
+        };
 
-        if (error) {
-            throw error;
+        if (typeof window !== 'undefined') {
+            await db.history.put(mapHistoryFromSupabase(apiPayload));
+            SyncManager.enqueue('CREATE', 'HISTORY', historyId, apiPayload);
+            return mapHistoryFromSupabase(apiPayload);
         }
 
+        const supabase = supabaseInput || createClient();
+        const { data, error } = await supabase.from('history').insert(apiPayload).select().single();
+        if (error) throw error;
         return mapHistoryFromSupabase(data);
     },
 
@@ -96,9 +100,6 @@ export const HistoryService = {
         return (data || []).map(mapHistoryFromSupabase);
     },
 
-    /**
-     * Busca a última execução de um exercício específico dentro dos groups.
-     */
     async getLastExerciseExecution(userId: string, exerciseId: number, supabaseInput?: any) {
         const supabase = supabaseInput || createClient();
         const { data, error } = await supabase
@@ -108,10 +109,7 @@ export const HistoryService = {
             .order('date', { ascending: false })
             .limit(20);
 
-        if (error) {
-            console.error('Error fetching last exercise execution:', error);
-            return null;
-        }
+        if (error) return null;
 
         const history = (data || []).map(mapHistoryFromSupabase);
 
@@ -122,7 +120,6 @@ export const HistoryService = {
                 if (exerciseLog) return exerciseLog;
             }
         }
-
         return null;
     },
 
@@ -143,11 +140,7 @@ export const HistoryService = {
             .select('*', { count: 'exact', head: true })
             .eq('user_id', userId);
 
-        if (error) {
-            console.error('Error counting workouts:', error);
-            return 0;
-        }
-
+        if (error) return 0;
         return count || 0;
     },
 
@@ -160,15 +153,17 @@ export const HistoryService = {
             .gte('date', startDate.toISOString())
             .lte('date', endDate.toISOString());
 
-        if (error) {
-            console.error('Error fetching history by range:', error);
-            return [];
-        }
-
+        if (error) return [];
         return (data || []).map(mapHistoryFromSupabase);
     },
 
     async deleteHistoryEntry(id: string, supabaseInput?: any) {
+        if (typeof window !== 'undefined') {
+            await db.history.delete(id);
+            SyncManager.enqueue('DELETE', 'HISTORY', id, { id });
+            return;
+        }
+
         const supabase = supabaseInput || createClient();
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) throw new Error("User not authenticated");
@@ -179,12 +174,20 @@ export const HistoryService = {
             .eq('id', id)
             .eq('user_id', user.id);
 
-        if (error) {
-            throw error;
-        }
+        if (error) throw error;
     },
 
     async updateDescription(id: string, description: string, supabaseInput?: any) {
+        if (typeof window !== 'undefined') {
+            const local = await db.history.get(id);
+            if (local) {
+                local.description = description;
+                await db.history.put(local);
+                SyncManager.enqueue('UPDATE', 'HISTORY', id, { id, description });
+                return local;
+            }
+        }
+
         const supabase = supabaseInput || createClient();
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) throw new Error("User not authenticated");
@@ -197,18 +200,11 @@ export const HistoryService = {
             .select()
             .single();
 
-        if (error) {
-            throw error;
-        }
-
+        if (error) throw error;
         return mapHistoryFromSupabase(data);
     },
 
     async updateHistory(id: string, historyData: Partial<History>, supabaseInput?: any) {
-        const supabase = supabaseInput || createClient();
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) throw new Error("User not authenticated");
-
         const updates: any = {};
         if (historyData.weight) updates.weight = historyData.weight;
         if (historyData.description !== undefined) updates.description = historyData.description;
@@ -216,6 +212,25 @@ export const HistoryService = {
         if (historyData.duration) updates.duration = historyData.duration;
         if (historyData.endDate) updates.end_date = historyData.endDate.toISOString();
         if (historyData.executions) updates.executions = historyData.executions as any;
+
+        if (typeof window !== 'undefined') {
+            const local = await db.history.get(id);
+            if (local) {
+                const updated = { ...local, ...historyData };
+                await db.history.put(updated);
+                SyncManager.enqueue('UPDATE', 'HISTORY', id, { id, ...updates });
+
+                if (historyData.weight && historyData.weight > 0) {
+                    await userService.updateUser(local.userId, { weight: historyData.weight });
+                }
+
+                return updated;
+            }
+        }
+
+        const supabase = supabaseInput || createClient();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error("User not authenticated");
 
         if (historyData.weight && historyData.weight > 0) {
             const entry = await this.getHistoryById(id, supabaseInput);
@@ -232,14 +247,16 @@ export const HistoryService = {
             .select()
             .single();
 
-        if (error) {
-            throw error;
-        }
-
+        if (error) throw error;
         return mapHistoryFromSupabase(data);
     },
 
     async getHistoryById(id: string, supabaseInput?: any) {
+        if (typeof window !== 'undefined') {
+            const local = await db.history.get(id);
+            if (local) return local;
+        }
+
         const supabase = supabaseInput || createClient();
         const { data, error } = await supabase
             .from('history')
