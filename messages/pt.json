@@ -1276,6 +1276,7 @@
       "circuit": "Uma sequência de vários exercícios diferentes. Ótimo para queimar calorias e manter o fôlego alto!"
     },
     "restAfterGroup": "Descanso pós Grupo (s)",
+    "restBetweenRounds": "Descanso entre Rounds (s)",
     "rounds": "Rounds",
     "set": "Série",
     "tech": "Téc",

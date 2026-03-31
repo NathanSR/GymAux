@@ -75,7 +75,7 @@ export function ConfirmDialog({
       onClose={onClose}
       title="" // Title is handled inside for better UX
       maxWidth="max-w-md"
-      className="p-0 border-none"
+      className=""
     >
       <div className="p-8 flex flex-col items-center text-center">
         <motion.div
@@ -101,7 +101,7 @@ export function ConfirmDialog({
         <div className="flex flex-col sm:flex-row gap-3 w-full">
           <button
             onClick={onClose}
-            className="flex-1 rounded-2xl h-12 text-base font-semibold"
+            className="flex-1 rounded-2xl h-12 p-3 text-base font-semibold bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors"
             disabled={isLoading}
           >
             {cancelText}
@@ -109,13 +109,15 @@ export function ConfirmDialog({
           <button
             onClick={onConfirm}
             className={cn(
-              "flex-1 rounded-2xl h-12 text-base font-semibold transition-all hover:scale-[1.02] active:scale-[0.98]",
-              variant === 'delete' || variant === 'danger' ? "bg-destructive text-destructive-foreground hover:bg-destructive/90" : ""
+              "flex-1 rounded-2xl h-12 p-3 text-base font-semibold transition-all hover:scale-[1.02] active:scale-[0.98] shadow-md",
+              (variant === 'delete' || variant === 'danger') && "bg-destructive text-white hover:bg-destructive/90 shadow-destructive/20",
+              variant === 'warning' && "bg-yellow-500 text-white hover:bg-yellow-600 shadow-yellow-500/20",
+              variant === 'info' && "bg-lime-400 text-black hover:bg-lime-500 shadow-lime-400/20"
             )}
             disabled={isLoading}
           >
             {isLoading ? (
-              <div className="flex items-center gap-2">
+              <div className="flex items-center justify-center gap-2">
                 <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
                 <span>{confirmText}...</span>
               </div>

@@ -88,7 +88,7 @@ export function Drawer({
             exit={variant.exit}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
             className={cn(
-              'fixed bg-card dark:bg-card text-foreground shadow-[0_32px_64px_-16px_rgba(0,0,0,0.3)] dark:shadow-[0_32px_64px_-16px_rgba(0,0,0,0.7)] z-10 flex flex-col border border-white/20 dark:border-white/10 overflow-hidden',
+              'fixed bg-white dark:bg-zinc-900 text-foreground shadow-[0_32px_64px_-16px_rgba(0,0,0,0.3)] dark:shadow-[0_32px_64px_-16px_rgba(0,0,0,0.7)] z-10 flex flex-col border border-white/20 dark:border-white/10 overflow-hidden',
               variant.className,
               className
             )}

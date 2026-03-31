@@ -2,7 +2,7 @@
 
 import { useState, useRef } from 'react';
 import { useForm, useFieldArray, Controller } from 'react-hook-form';
-import { Save, Plus, Trash2, Dumbbell, ChevronDown, GripVertical, Copy, HelpCircle } from 'lucide-react';
+import { Save, Plus, Trash2, Dumbbell, ChevronDown, GripVertical, Copy, HelpCircle, Activity } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Exercise } from '@/config/types';
 import QuickExerciseDrawer from '../exercises/QuickExerciseDrawer';
@@ -44,7 +44,33 @@ function SortableGroupItem({
     const t = useTranslations('WorkoutForm');
     const te = useTranslations('Exercises');
     const groupType = watch(`exercises.${groupIndex}.groupType`);
+    const isStraight = groupType === 'straight';
     const isFixedType = groupType === 'bi_set' || groupType === 'tri_set';
+    const rounds = watch(`exercises.${groupIndex}.rounds`) || 1;
+
+    const handleRoundsChange = (val: number) => {
+        const newVal = Math.max(1, val);
+        setValue(`exercises.${groupIndex}.rounds`, newVal);
+
+        // Sync all exercises in group to have exactly newVal sets
+        const currentExs = watch(`exercises.${groupIndex}.exercises`);
+        if (currentExs) {
+            currentExs.forEach((ex: any, exIdx: number) => {
+                const currentSets = ex.sets || [];
+                if (currentSets.length < newVal) {
+                    const lastSet = currentSets[currentSets.length - 1] || { reps: 10, restTime: 60, technique: 'normal' };
+                    const toAdd = newVal - currentSets.length;
+                    const newSets = [...currentSets];
+                    for (let i = 0; i < toAdd; i++) {
+                        newSets.push({ ...lastSet, id: undefined });
+                    }
+                    setValue(`exercises.${groupIndex}.exercises.${exIdx}.sets`, newSets);
+                } else if (currentSets.length > newVal) {
+                    setValue(`exercises.${groupIndex}.exercises.${exIdx}.sets`, currentSets.slice(0, newVal));
+                }
+            });
+        }
+    };
 
     const {
         attributes,
@@ -67,17 +93,19 @@ function SortableGroupItem({
         name: `exercises.${groupIndex}.exercises`
     });
 
-    const handleRemoveExercise = (idx: number) => {
-        removeExercise(idx);
-        // Atualizar o tipo de grupo após remoção
-        const currentExs = watch(`exercises.${groupIndex}.exercises`);
-        if (currentExs) {
-            const nextCount = currentExs.length - 1;
-            if (nextCount === 1) setValue(`exercises.${groupIndex}.groupType`, 'straight');
-            else if (nextCount === 2) setValue(`exercises.${groupIndex}.groupType`, 'bi_set');
-            else if (nextCount === 3) setValue(`exercises.${groupIndex}.groupType`, 'tri_set');
-        }
-    };
+    // const handleRemoveExercise = (idx: number) => {
+    //     removeExercise(idx);
+    //     // Atualizar o tipo de grupo após remoção
+    //     const currentExs = watch(`exercises.${groupIndex}.exercises`);
+    //     if (currentExs) {
+    //         const nextCount = currentExs.length - 1;
+    //         if (nextCount === 1) setValue(`exercises.${groupIndex}.groupType`, 'straight');
+    //         else if (nextCount === 2) setValue(`exercises.${groupIndex}.groupType`, 'bi_set');
+    //         else if (nextCount === 3) setValue(`exercises.${groupIndex}.groupType`, 'tri_set');
+    //     }
+    // };
+
+    const isCompound = !isStraight;
 
     return (
         <motion.div
@@ -86,9 +114,22 @@ function SortableGroupItem({
             exit={{ opacity: 0, scale: 0.95 }}
             ref={setNodeRef}
             style={style}
-            className={`bg-white dark:bg-zinc-900 border ${isDragging ? 'border-lime-400 shadow-xl' : 'border-zinc-200 dark:border-zinc-800'} rounded-3xl p-4 mb-4 relative flex flex-col gap-3 transition-colors overflow-hidden`}
+            className={`
+                relative flex flex-col gap-3 rounded-3xl p-4 mb-4 transition-all overflow-hidden border
+                ${isDragging ? 'border-lime-400 shadow-xl z-20' : ''}
+                ${isStraight
+                    ? 'bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 shadow-sm'
+                    : 'bg-gradient-to-br from-lime-50/50 to-white dark:from-lime-500/5 dark:to-zinc-900 border-lime-500/30 shadow-md shadow-lime-500/5'
+                }
+            `}
         >
-            <div className="flex items-center justify-between border-b border-zinc-100 dark:border-zinc-800 pb-2">
+            {isCompound && (
+                <div className="absolute top-0 right-0 p-2 opacity-20 pointer-events-none">
+                    <Activity size={40} className="text-lime-500" />
+                </div>
+            )}
+
+            <div className="flex items-center justify-between border-b border-zinc-100 dark:border-zinc-800 pb-2 relative z-10">
                 <div className="flex items-center gap-2">
                     <div
                         {...attributes}
@@ -127,23 +168,52 @@ function SortableGroupItem({
                     <Trash2 size={16} />
                 </button>
             </div>
-
-            <div className="space-y-3">
+            <div className={`space-y-3 relative ${isCompound ? 'pl-5' : ''}`}>
                 {exerciseFields.map((exSubField: any, exIndex: number) => (
-                    <div key={exSubField.id} className="bg-zinc-50 dark:bg-zinc-950/50 rounded-2xl p-3 border border-zinc-100 dark:border-zinc-800">
-                        <div className="flex items-center gap-2 mb-3">
+                    <div key={exSubField.id} className={`${isCompound ? 'bg-transparent p-0 border-none' : 'bg-zinc-50 dark:bg-zinc-950/50 rounded-2xl p-3 border border-zinc-100 dark:border-zinc-800'} relative`}>
+                        <div className={`flex items-center gap-2 ${isCompound ? 'mb-0' : 'mb-3'}`}>
+                            {isCompound && (
+                                <>
+                                    {/* Vertical Connector Line - Segmented for perfect alignment */}
+                                    <div className={`absolute -left-4 w-0.5 bg-lime-500/30 ${
+                                        exIndex === 0 ? 'top-1/2 rounded-t-full' : 'top-[-12px]'
+                                    } ${
+                                        exIndex === exerciseFields.length - 1 ? 'bottom-1/2 rounded-b-full' : 'bottom-[-12px]'
+                                    }`} />
+                                    
+                                    {/* Indicator Dot at the joint */}
+                                    <div className="absolute -left-[19px] top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-lime-500 ring-4 ring-lime-500/10 z-10 shadow-[0_0_8px_rgba(132,204,22,0.3)]" />
+                                </>
+                            )}
                             <button
                                 type="button"
                                 onClick={() => openSelectorFor(groupIndex, exIndex)}
-                                className="flex-1 flex items-center gap-2 p-2.5 bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 hover:border-lime-400/50 transition-all text-left group"
+                                className="flex-1 flex items-center gap-2 p-2.5 bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 hover:border-lime-400/50 transition-all text-left group overflow-hidden"
                             >
-                                <Dumbbell size={14} className="text-lime-500" />
+                                <Dumbbell size={14} className="text-lime-500 shrink-0" />
                                 <span className="text-xs font-black text-zinc-800 dark:text-zinc-200 flex-1 truncate uppercase tracking-tight">
                                     {exSubField.exerciseName ? (te.has(exSubField.exerciseName) ? te(exSubField.exerciseName) : exSubField.exerciseName) : t('selectExercise')}
                                 </span>
-                                <ChevronDown size={14} className="text-zinc-400 group-hover:text-lime-500" />
+                                <ChevronDown size={14} className="text-zinc-400 group-hover:text-lime-500 shrink-0" />
                             </button>
-                            {exerciseFields.length > 1 && (
+
+                            {isCompound && (
+                                <div className="w-20 shrink-0 bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 px-2 py-1 flex flex-col justify-center items-center">
+                                    <span className="text-[7px] font-black text-zinc-400 uppercase tracking-widest">{t('reps')}</span>
+                                    <input
+                                        type="number"
+                                        className="w-full bg-transparent text-center font-black text-xs outline-none text-lime-500"
+                                        value={watch(`exercises.${groupIndex}.exercises.${exIndex}.sets.0.reps`) || 0}
+                                        onChange={(e) => {
+                                            const newVal = parseInt(e.target.value) || 0;
+                                            const currentSets = watch(`exercises.${groupIndex}.exercises.${exIndex}.sets`) || [];
+                                            setValue(`exercises.${groupIndex}.exercises.${exIndex}.sets`, currentSets.map((s: any) => ({ ...s, reps: newVal })));
+                                        }}
+                                    />
+                                </div>
+                            )}
+
+                            {/* {exerciseFields.length > (isStraight ? 0 : 1) && (
                                 <button
                                     type="button"
                                     onClick={() => handleRemoveExercise(exIndex)}
@@ -151,10 +221,12 @@ function SortableGroupItem({
                                 >
                                     <Trash2 size={16} />
                                 </button>
-                            )}
+                            )} */}
                         </div>
 
-                        <SetsList groupIndex={groupIndex} exerciseIndex={exIndex} control={control} register={register} />
+                        {!isCompound && (
+                            <SetsList groupIndex={groupIndex} exerciseIndex={exIndex} control={control} register={register} isStraight={isStraight} />
+                        )}
                     </div>
                 ))}
             </div>
@@ -170,23 +242,34 @@ function SortableGroupItem({
             )}
 
             <div className="grid grid-cols-2 gap-2 pt-3 border-t border-zinc-100 dark:border-zinc-800">
-                <div className="bg-zinc-50 dark:bg-zinc-950/50 p-2.5 rounded-xl border border-zinc-100 dark:border-zinc-800/50">
-                    <span className="block text-[8px] font-black text-zinc-400 uppercase tracking-widest mb-1">{t('restAfterGroup')}</span>
+                <div className={`${isStraight ? 'col-span-2' : ''} bg-zinc-50 dark:bg-zinc-950/50 p-2.5 rounded-xl border border-zinc-100 dark:border-zinc-800/50`}>
+                    <span className="block text-[8px] font-black text-zinc-400 uppercase tracking-widest mb-1">
+                        {isStraight ? t('restAfterGroup') : t('restBetweenRounds')}
+                    </span>
                     <div className='flex items-center gap-2'>
                         <input type="number" {...register(`exercises.${groupIndex}.restAfterGroup`)} className="w-full bg-transparent font-black text-sm outline-none text-zinc-800 dark:text-zinc-200" />
                         <span className='text-[10px] text-zinc-500 font-bold'>s</span>
                     </div>
                 </div>
-                <div className="bg-zinc-50 dark:bg-zinc-950/50 p-2.5 rounded-xl border border-zinc-100 dark:border-zinc-800/50">
-                    <span className="block text-[8px] font-black text-zinc-400 uppercase tracking-widest mb-1">{t('rounds')}</span>
-                    <input type="number" {...register(`exercises.${groupIndex}.rounds`)} className="w-full bg-transparent font-black text-sm outline-none text-zinc-800 dark:text-zinc-200" />
-                </div>
+                {!isStraight && (
+                    <div className="bg-zinc-50 dark:bg-zinc-950/50 p-2.5 rounded-xl border border-zinc-100 dark:border-zinc-800/50">
+                        <span className="block text-[8px] font-black text-zinc-400 uppercase tracking-widest mb-1">{t('rounds')}</span>
+                        <input
+                            type="number"
+                            value={rounds}
+                            onChange={(e) => handleRoundsChange(parseInt(e.target.value) || 1)}
+                            className="w-full bg-transparent font-black text-sm outline-none text-zinc-800 dark:text-zinc-200"
+                        />
+                    </div>
+                )}
             </div>
         </motion.div>
     );
 }
 
-function SetsList({ groupIndex, exerciseIndex, control, register }: any) {
+// --- Sets List Component ---
+
+function SetsList({ groupIndex, exerciseIndex, control, register, isStraight }: any) {
     const t = useTranslations('WorkoutForm');
     const { fields: setFields, append: appendSet, remove: removeSet, insert } = useFieldArray({
         control,
@@ -198,8 +281,8 @@ function SetsList({ groupIndex, exerciseIndex, control, register }: any) {
             <div className="grid grid-cols-12 gap-1 px-1 text-[8px] font-black tracking-[0.1em] uppercase text-zinc-400">
                 <div className="col-span-1 text-center">#</div>
                 <div className="col-span-3 text-center">{t('reps')}</div>
-                <div className="col-span-3 text-center">{t('rest')}</div>
-                <div className="col-span-4 text-center">{t('tech')}</div>
+                {isStraight && <div className="col-span-3 text-center">{t('rest')}</div>}
+                <div className={`${isStraight ? 'col-span-4' : 'col-span-7'} text-center`}>{t('tech')}</div>
                 <div className="col-span-1"></div>
             </div>
 
@@ -216,10 +299,12 @@ function SetsList({ groupIndex, exerciseIndex, control, register }: any) {
                         <div className="col-span-3">
                             <input type="number" {...register(`exercises.${groupIndex}.exercises.${exerciseIndex}.sets.${setIndex}.reps`)} className="w-full bg-zinc-50 dark:bg-zinc-900 border border-transparent focus:border-lime-500/30 rounded-lg p-1.5 text-xs font-bold font-mono outline-none text-center text-zinc-800 dark:text-zinc-200" />
                         </div>
-                        <div className="col-span-3">
-                            <input type="number" {...register(`exercises.${groupIndex}.exercises.${exerciseIndex}.sets.${setIndex}.restTime`)} className="w-full bg-zinc-50 dark:bg-zinc-900 border border-transparent focus:border-lime-500/30 rounded-lg p-1.5 text-xs font-bold font-mono outline-none text-center text-zinc-800 dark:text-zinc-200" />
-                        </div>
-                        <div className="col-span-4">
+                        {isStraight ? (
+                            <div className="col-span-3">
+                                <input type="number" {...register(`exercises.${groupIndex}.exercises.${exerciseIndex}.sets.${setIndex}.restTime`)} className="w-full bg-zinc-50 dark:bg-zinc-900 border border-transparent focus:border-lime-500/30 rounded-lg p-1.5 text-xs font-bold font-mono outline-none text-center text-zinc-800 dark:text-zinc-200" />
+                            </div>
+                        ) : null}
+                        <div className={isStraight ? 'col-span-4' : 'col-span-7'}>
                             <select {...register(`exercises.${groupIndex}.exercises.${exerciseIndex}.sets.${setIndex}.technique`)} className="w-full bg-zinc-50 dark:bg-zinc-900 border border-transparent focus:border-lime-500/30 rounded-lg p-1.5 text-[10px] font-black uppercase outline-none cursor-pointer appearance-none text-center text-zinc-800 dark:text-zinc-200">
                                 <option className='bg-background text-foreground' value="normal">{t('techShorthand.normal')}</option>
                                 <option className='bg-background text-foreground' value="drop_set">{t('techShorthand.drop_set')}</option>
@@ -234,26 +319,28 @@ function SetsList({ groupIndex, exerciseIndex, control, register }: any) {
                 ))}
             </AnimatePresence>
 
-            <div className="flex gap-2 mt-2">
-                <button
-                    type="button"
-                    // @ts-ignore
-                    onClick={() => appendSet({ reps: setFields[setFields.length - 1]?.reps || 10, restTime: setFields[setFields.length - 1]?.restTime || 60, technique: 'normal' })}
-                    className="flex-1 py-1.5 rounded-lg bg-zinc-100 dark:bg-zinc-800/80 text-zinc-500 hover:text-lime-500 text-[9px] font-black uppercase tracking-widest transition-colors flex items-center justify-center gap-1"
-                >
-                    <Plus size={12} /> {t('addSet')}
-                </button>
-                {setFields.length > 0 && (
+            {isStraight && (
+                <div className="flex gap-2 mt-2">
                     <button
                         type="button"
-                        onClick={() => insert(setFields.length, { ...setFields[setFields.length - 1], id: undefined })}
-                        className="px-3 rounded-lg bg-zinc-100 dark:bg-zinc-800/80 text-zinc-500 hover:text-lime-500 transition-colors"
-                        title={t('copySet')}
+                        // @ts-ignore
+                        onClick={() => appendSet({ reps: setFields[setFields.length - 1]?.reps || 10, restTime: setFields[setFields.length - 1]?.restTime || 60, technique: 'normal' })}
+                        className="flex-1 py-1.5 rounded-lg bg-zinc-100 dark:bg-zinc-800/80 text-zinc-500 hover:text-lime-500 text-[9px] font-black uppercase tracking-widest transition-colors flex items-center justify-center gap-1"
                     >
-                        <Copy size={12} />
+                        <Plus size={12} /> {t('addSet')}
                     </button>
-                )}
-            </div>
+                    {setFields.length > 0 && (
+                        <button
+                            type="button"
+                            onClick={() => insert(setFields.length, { ...setFields[setFields.length - 1], id: undefined })}
+                            className="px-3 rounded-lg bg-zinc-100 dark:bg-zinc-800/80 text-zinc-500 hover:text-lime-500 transition-colors"
+                            title={t('copySet')}
+                        >
+                            <Copy size={12} />
+                        </button>
+                    )}
+                </div>
+            )}
         </div>
     );
 }
@@ -322,7 +409,7 @@ export default function WorkoutForm({ initialData, availableExercises = [], onSu
     const handleGroupTypeChange = (groupIndex: number, newType: string) => {
         const group = watch(`exercises.${groupIndex}`);
         const currentExercises = group.exercises || [];
-        
+
         let requiredCount = currentExercises.length;
         if (newType === 'straight') requiredCount = 1;
         else if (newType === 'bi_set') requiredCount = 2;
@@ -336,7 +423,7 @@ export default function WorkoutForm({ initialData, availableExercises = [], onSu
                     exerciseId: '',
                     exerciseName: '',
                     restAfterExercise: 0,
-                    sets: currentExercises[0]?.sets 
+                    sets: currentExercises[0]?.sets
                         ? JSON.parse(JSON.stringify(currentExercises[0].sets))
                         : [{ reps: 10, restTime: 60, technique: 'normal' }]
                 });
@@ -366,11 +453,11 @@ export default function WorkoutForm({ initialData, availableExercises = [], onSu
 
     const confirmTypeChange = () => {
         if (confirmModal.groupIndex === null || confirmModal.newType === null) return;
-        
+
         const groupIndex = confirmModal.groupIndex;
         const newType = confirmModal.newType;
         const group = watch(`exercises.${groupIndex}`);
-        
+
         let requiredCount = group.exercises.length;
         if (newType === 'straight') requiredCount = 1;
         else if (newType === 'bi_set') requiredCount = 2;
@@ -378,7 +465,7 @@ export default function WorkoutForm({ initialData, availableExercises = [], onSu
 
         const newExs = group.exercises.slice(0, requiredCount);
         update(groupIndex, { ...group, exercises: newExs, groupType: newType, rounds: newExs[0]?.sets.length || 0 });
-        
+
         setConfirmModal({ isOpen: false, groupIndex: null, newType: null });
     };
 
@@ -552,7 +639,7 @@ export default function WorkoutForm({ initialData, availableExercises = [], onSu
                 onExerciseCreated={handleExerciseSelected}
             />
 
-            <GroupTypeHelpModal 
+            <GroupTypeHelpModal
                 isOpen={isHelpOpen}
                 onClose={() => setIsHelpOpen(false)}
             />

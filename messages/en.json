@@ -1276,6 +1276,7 @@
       "circuit": "A 'round' of several different exercises. Good for burning calories and keeping your heart rate up!"
     },
     "restAfterGroup": "Rest After Group (s)",
+    "restBetweenRounds": "Rest Between Rounds (s)",
     "rounds": "Rounds",
     "set": "Set",
     "tech": "Tech",
@@ -1752,4 +1753,4 @@
     "declined": "Connection declined.",
     "error": "Something went wrong. Please try again."
   }
-}
+}
