@@ -1,5 +1,5 @@
 import Dexie, { type Table } from 'dexie';
-import { Exercise, History, User, Workout, Schedule, Session } from './types';
+import { Exercise, History, User, Workout, Schedule, Session, SyncOperation } from './types';
 import { DEFAULT_EXERCISES } from "./seedExercises";
 
 // --- Configuração do Banco ---
@@ -11,18 +11,20 @@ export class GymDatabase extends Dexie {
     history!: Table<History>;
     schedules!: Table<Schedule>;
     sessions!: Table<Session>;
+    syncQueue!: Table<SyncOperation>;
 
     constructor() {
         super('GymAppDB');
 
         // Definimos os índices (campos que usaremos no .where() ou .orderBy())
-        this.version(1).stores({
+        this.version(2).stores({
             users: '++id, name',
-            exercises: '++id, name, category, *tags', // * significa que podemos buscar dentro do array de tags
+            exercises: '++id, name, category, *tags', 
             workouts: '++id, userId, name',
             history: '++id, userId, date, workoutId',
             schedules: '++id, name, userId, active',
-            sessions: '++id, userId, date, workoutId'
+            sessions: '++id, userId, date, workoutId',
+            syncQueue: '++id, status, entityType, createdAt'
         });
 
         // Evento profissional para sincronizar dados e travar IDs

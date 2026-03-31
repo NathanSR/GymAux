@@ -214,5 +214,20 @@ export interface Connection {
     permissions: ConnectionPermissions;
     created_at: string;
     updated_at: string;
-
 }
+
+// ========================
+// OFFLINE SYNC
+// ========================
+
+export interface SyncOperation {
+    id?: number;
+    action: 'CREATE' | 'UPDATE' | 'DELETE';
+    entityType: 'SESSION' | 'HISTORY' | 'WORKOUT' | 'SCHEDULE' | 'EXERCISE';
+    entityId: string | number; // Local ID or Temporary ID
+    payload: any;
+    status: 'PENDING' | 'FAILED' | 'SYNCED';
+    createdAt: Date;
+    retryCount: number;
+    errorMessage?: string;
+}

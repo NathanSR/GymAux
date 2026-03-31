@@ -7,6 +7,7 @@ import { getMessages } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { routing } from '@/i18n/routing';
 import { ThemeProvider } from "@/context/ThemeContext";
+import { OfflineSyncProvider } from "@/context/OfflineSyncProvider";
 import { ToastContainer } from 'react-toastify';
 import NextTopLoader from 'nextjs-toploader';
 
@@ -23,8 +24,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
 	title: "Gym Aux",
 	description: "Meu Treino Diário",
-	manifest: "/manifest.json", // Adicione esta linha
-	// themeColor: "#3b82f6",      // Cor da barra de status no celular
+	manifest: "/manifest.json", 
 };
 
 export const viewport = {
@@ -33,16 +33,14 @@ export const viewport = {
 
 export default async function RootLayout(props: {
 	children: React.ReactNode;
-	params: Promise<{ locale: string }>; // Defina como Promise
+	params: Promise<{ locale: string }>; 
 }) {
 
 	const { locale } = await props.params;
 	const children = props.children;
 
-	// Verifica se o locale é válido
 	if (!routing.locales.includes(locale as any)) notFound();
 
-	// Obtém as mensagens para o idioma
 	const messages = await getMessages();
 
 	return (
@@ -53,7 +51,9 @@ export default async function RootLayout(props: {
 				<NextTopLoader color="#a3e635" />
 				<NextIntlClientProvider messages={messages}>
 					<ThemeProvider>
-						{children}
+						<OfflineSyncProvider>
+							{children}
+						</OfflineSyncProvider>
 					</ThemeProvider>
 				</NextIntlClientProvider>
 				<ToastContainer pauseOnHover closeOnClick draggable />
