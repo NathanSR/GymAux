@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, TouchSensor } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import { X, Plus, Save, Dumbbell, ChevronDown, GripVertical, History, CheckCircle2, Trash2, RefreshCw } from "lucide-react";
+import { X, Plus, Save, Dumbbell, ChevronDown, GripVertical, History, CheckCircle2, Trash2, RefreshCw, Activity } from "lucide-react";
 import { useForm } from 'react-hook-form';
 import { DraggableExerciseItem } from './DraggableExerciseItem';
 import { Session, ExerciseGroup, ExecutedGroup } from '@/config/types';
@@ -44,8 +44,8 @@ export const WorkoutDrawer = ({ showPreview, onClose, session, setSession, syncS
         newType: null
     });
 
-    const { register, handleSubmit, reset, setValue, watch } = useForm({
-        defaultValues: { groupType: 'straight', sets: 3, reps: 12, restTime: 60 }
+    const { register, handleSubmit, reset, setValue, watch } = useForm<any>({
+        defaultValues: { groupType: 'straight', sets: 3, reps: 12, restTime: 60, exerciseReps: {} }
     });
 
     const groupType = watch('groupType');
@@ -72,13 +72,13 @@ export const WorkoutDrawer = ({ showPreview, onClose, session, setSession, syncS
         setEditingGroupIdx(idx);
         const exs = group.exercises.map(ex => ({ id: ex.exerciseId, name: ex.exerciseName } as any));
         setFormExercises(exs);
-        
+
         const firstEx = group.exercises[0];
         setValue('groupType', group.groupType);
         setValue('sets', firstEx?.sets.length || 3);
         setValue('reps', firstEx?.sets[0]?.reps || 12);
         setValue('restTime', group.restAfterGroup || 60);
-        
+
         setIsFormOpen(true);
     };
 
@@ -149,19 +149,23 @@ export const WorkoutDrawer = ({ showPreview, onClose, session, setSession, syncS
         const setsCount = Number(data.sets);
         const reps = Number(data.reps);
         const restTime = Number(data.restTime);
+        const exerciseReps = watch('exerciseReps') || {};
 
-        const plannedSets = Array.from({ length: setsCount }, () => ({
-            reps,
-            restTime,
-            technique: 'normal' as const
-        }));
+        const mappedExercises = formExercises.map((ex, idx) => {
+            const exReps = Number(exerciseReps[idx] || reps);
+            const plannedSets = Array.from({ length: setsCount }, () => ({
+                reps: exReps,
+                restTime,
+                technique: 'normal' as const
+            }));
 
-        const mappedExercises = formExercises.map(ex => ({
-            exerciseId: ex!.id!,
-            exerciseName: ex!.name,
-            sets: plannedSets,
-            restAfterExercise: 0
-        }));
+            return {
+                exerciseId: ex!.id!,
+                exerciseName: ex!.name,
+                sets: plannedSets,
+                restAfterExercise: 0
+            };
+        });
 
         if (editingGroupIdx !== null) {
             const updatedGroups = [...groups];
@@ -429,7 +433,16 @@ export const WorkoutDrawer = ({ showPreview, onClose, session, setSession, syncS
 
                 {/* Add/Edit Form */}
                 {isFormOpen && (
-                    <div className="absolute inset-0 bg-zinc-950 z-20 rounded-t-[40px] p-8 animate-in slide-in-from-bottom duration-300 flex flex-col">
+                    <div className={`absolute bg-zinc-950 inset-0 z-20 rounded-t-[40px] p-8 animate-in slide-in-from-bottom duration-300 flex flex-col overflow-hidden
+                        ${groupType === 'straight'
+                            ? 'bg-zinc-950'
+                            : 'bg-gradient-to-br from-lime-500/5 to-zinc-950 border-t border-lime-500/20'}
+                    `}>
+                        {groupType !== 'straight' && (
+                            <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
+                                <Activity size={80} className="text-lime-500" />
+                            </div>
+                        )}
                         <div className="flex items-center justify-between mb-8">
                             <h4 className="text-lg font-black uppercase italic tracking-tighter">
                                 {editingGroupIdx !== null ? t('editExercise') : t('addExercise')}
@@ -455,34 +468,50 @@ export const WorkoutDrawer = ({ showPreview, onClose, session, setSession, syncS
                                     </select>
                                 </div>
 
-                                {/* Exercise slots */}
-                                <div className="space-y-3">
+                                <div className={`space-y-3 relative ${groupType !== 'straight' ? 'pl-5' : ''}`}>
+                                    {groupType !== 'straight' && (
+                                        <div className="absolute left-[7px] top-6 bottom-6 w-0.5 bg-lime-500/20 rounded-full" />
+                                    )}
                                     {formExercises.map((ex, idx) => (
-                                        <div key={idx} className="bg-zinc-900/50 border border-zinc-800 rounded-[28px] p-4 flex items-center gap-4 group hover:border-lime-400/30 transition-all">
-                                            <div className="w-10 h-10 rounded-2xl bg-zinc-950 flex items-center justify-center border border-zinc-800 text-[10px] font-black text-zinc-600 group-hover:text-lime-500 transition-colors">
-                                                {idx + 1}
-                                            </div>
+                                        <div key={idx} className={`relative flex items-center gap-3 group transition-all`}>
+                                            {groupType !== 'straight' && (
+                                                <div className="absolute -left-[19px] top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-lime-500 ring-4 ring-lime-500/10 z-10" />
+                                            )}
+
                                             <button
                                                 type="button"
                                                 onClick={() => {
                                                     setSelectingIndex(idx);
                                                     setIsSelectorOpen(true);
                                                 }}
-                                                className="flex-1 flex items-center justify-between bg-zinc-950 p-4 rounded-2xl border border-zinc-800/50 text-left group-hover:border-lime-400/20 transition-all"
+                                                className="flex-1 flex items-center justify-between bg-zinc-900/50 p-3 rounded-2xl border border-zinc-800/50 text-left group-hover:border-lime-400/20 transition-all overflow-hidden"
                                             >
                                                 <div className="flex items-center gap-3">
-                                                    <Dumbbell size={16} className={`${ex ? 'text-lime-400' : 'text-zinc-700'} group-hover:scale-110 transition-transform`} />
-                                                    <span className={`text-[11px] font-black uppercase tracking-tight ${ex ? 'text-white' : 'text-zinc-600'}`}>
+                                                    <Dumbbell size={14} className={`${ex ? 'text-lime-400' : 'text-zinc-700'} shrink-0`} />
+                                                    <span className={`text-[10px] sm:text-xs font-black uppercase tracking-tight truncate ${ex ? 'text-white' : 'text-zinc-600'}`}>
                                                         {ex ? (te.has(ex.name) ? te(ex.name) : ex.name) : t('selectExercise')}
                                                     </span>
                                                 </div>
-                                                <ChevronDown size={14} className="text-zinc-700" />
+                                                <ChevronDown size={14} className="text-zinc-700 shrink-0" />
                                             </button>
+
+                                            {groupType !== 'straight' && (
+                                                <div className="w-16 shrink-0 bg-zinc-900/50 rounded-2xl border border-zinc-800/50 p-2 flex flex-col items-center justify-center">
+                                                    <span className="text-[7px] font-black text-zinc-500 uppercase tracking-widest">{t('reps')}</span>
+                                                    <input
+                                                        type="number"
+                                                        className="w-full bg-transparent text-center font-black text-xs outline-none text-lime-400"
+                                                        value={watch(`exerciseReps.${idx}`) || watch('reps') || 10}
+                                                        onChange={(e) => setValue(`exerciseReps.${idx}`, parseInt(e.target.value) || 0)}
+                                                    />
+                                                </div>
+                                            )}
+
                                             {formExercises.length > 1 && groupType !== 'bi_set' && groupType !== 'tri_set' && (
                                                 <button
                                                     type="button"
                                                     onClick={() => setFormExercises(formExercises.filter((_, i) => i !== idx))}
-                                                    className="p-3 text-red-500/50 hover:text-red-500 transition-colors"
+                                                    className="p-2 text-zinc-600 hover:text-red-500 transition-colors shrink-0"
                                                 >
                                                     <X size={18} />
                                                 </button>
@@ -495,7 +524,7 @@ export const WorkoutDrawer = ({ showPreview, onClose, session, setSession, syncS
                                         <button
                                             type="button"
                                             onClick={() => setFormExercises([...formExercises, null])}
-                                            className="w-full py-4 border-2 border-dashed border-zinc-800 rounded-2xl text-[10px] font-black uppercase tracking-widest text-zinc-600 hover:border-lime-400/30 hover:text-lime-500 transition-all mt-2"
+                                            className="w-full py-3 border-2 border-dashed border-zinc-800 rounded-2xl text-[9px] font-black uppercase tracking-widest text-zinc-600 hover:border-lime-400/30 hover:text-lime-500 transition-all"
                                         >
                                             + {t('addExercise')}
                                         </button>
@@ -503,19 +532,44 @@ export const WorkoutDrawer = ({ showPreview, onClose, session, setSession, syncS
                                 </div>
 
                                 {/* Parameters Grid */}
-                                <div className="grid grid-cols-3 gap-2 pt-2">
-                                    {['sets', 'reps', 'restTime'].map((field) => (
-                                        <div key={field} className="bg-zinc-900/80 p-3 rounded-2xl border border-zinc-800 focus-within:ring-2 focus-within:ring-lime-400/50 transition-all">
+                                <div className={`grid ${groupType === 'straight' ? 'grid-cols-3' : 'grid-cols-2'} gap-2 pt-2`}>
+                                    <div className="bg-zinc-900/80 p-3 rounded-2xl border border-zinc-800 focus-within:ring-2 focus-within:ring-lime-400/50 transition-all">
+                                        <span className="block text-[8px] font-black text-zinc-500 uppercase mb-1 tracking-tighter">
+                                            {groupType === 'straight' ? t('sets') : t('rounds')}
+                                        </span>
+                                        <input
+                                            type="number"
+                                            {...register('sets')}
+                                            className="w-full bg-transparent font-black outline-none text-white text-lg"
+                                        />
+                                    </div>
+
+                                    {groupType === 'straight' && (
+                                        <div className="bg-zinc-900/80 p-3 rounded-2xl border border-zinc-800 focus-within:ring-2 focus-within:ring-lime-400/50 transition-all">
                                             <span className="block text-[8px] font-black text-zinc-500 uppercase mb-1 tracking-tighter">
-                                                {t(field)}
+                                                {t('reps')}
                                             </span>
                                             <input
                                                 type="number"
-                                                {...register(field as any)}
+                                                {...register('reps')}
                                                 className="w-full bg-transparent font-black outline-none text-white text-lg"
                                             />
                                         </div>
-                                    ))}
+                                    )}
+
+                                    <div className="bg-zinc-900/80 p-3 rounded-2xl border border-zinc-800 focus-within:ring-2 focus-within:ring-lime-400/50 transition-all">
+                                        <span className="block text-[8px] font-black text-zinc-500 uppercase mb-1 tracking-tighter">
+                                            {groupType === 'straight' ? t('restTime') : t('restBetweenRounds')}
+                                        </span>
+                                        <div className="flex items-center gap-2">
+                                            <input
+                                                type="number"
+                                                {...register('restTime')}
+                                                className="flex-1 bg-transparent font-black outline-none text-white text-lg"
+                                            />
+                                            <span className="text-[10px] font-black text-zinc-600">S</span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 

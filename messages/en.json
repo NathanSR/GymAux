@@ -1488,6 +1488,7 @@
     "groupTypeLabel": "Group Type",
     "addExercise": "New Exercise",
     "restTime": "Rest",
+    "restBetweenRounds": "Rest between rounds",
     "confirmAdd": "Add to Session",
     "selectExercise": "Select Exercise",
     "confirmDeleteTitle": "Remove Exercise?",

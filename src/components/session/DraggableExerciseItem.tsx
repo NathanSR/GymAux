@@ -1,7 +1,7 @@
 'use client';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Check, GripVertical, Trash2, Pencil, RefreshCw } from "lucide-react";
+import { Check, GripVertical, Trash2, Pencil, RefreshCw, Activity } from "lucide-react";
 import { useTranslations } from 'next-intl';
 import { ExerciseGroup } from '@/config/types';
 
@@ -42,9 +42,18 @@ export const DraggableExerciseItem = ({ group, idx, currentGroupIndex, onRemove,
         <div
             ref={setNodeRef}
             style={style}
-            className={`rounded-[28px] border transition-all overflow-hidden ${isCurrent ? 'bg-lime-400/10 border-lime-400/40' : 'bg-zinc-900/50 border-zinc-800/50'
-                } ${isCompleted ? 'opacity-40' : ''} ${isDragging ? 'shadow-2xl border-lime-400/50 ring-1 ring-lime-400/20' : ''}`}
+            className={`relative rounded-[28px] border transition-all overflow-hidden 
+                ${isCurrent ? 'bg-lime-400/10 border-lime-400/40' : 'bg-zinc-900/50 border-zinc-800/50'} 
+                ${isAlternating && !isCompleted ? 'bg-gradient-to-br from-lime-500/5 to-zinc-900/40 border-lime-500/30 shadow-lg shadow-lime-500/5' : ''}
+                ${isCompleted ? 'opacity-40' : ''} 
+                ${isDragging ? 'shadow-2xl border-lime-400/50 ring-1 ring-lime-400/20 z-50' : ''}
+            `}
         >
+            {isAlternating && !isCompleted && (
+                <div className="absolute top-0 right-0 p-2 opacity-10 pointer-events-none">
+                    <Activity size={32} className="text-lime-500" />
+                </div>
+            )}
             {/* Group Header */}
             <div className="flex items-center justify-between p-4">
                 <div className="flex items-center gap-3 flex-1 min-w-0">
@@ -71,11 +80,21 @@ export const DraggableExerciseItem = ({ group, idx, currentGroupIndex, onRemove,
                                 {t(`groupTypes.${group.groupType}`)}
                             </span>
                         )}
-                        {group.exercises.map((ex, exIdx) => (
-                            <p key={exIdx} className={`font-black text-sm uppercase tracking-tight truncate ${isCurrent ? 'text-white' : 'text-zinc-400'}`}>
-                                {te.has(ex.exerciseName) ? te(ex.exerciseName) : ex.exerciseName}
-                            </p>
-                        ))}
+                        <div className={`space-y-1 relative ${isAlternating ? 'pl-4' : ''}`}>
+                            {isAlternating && (
+                                <div className="absolute left-0 top-2 bottom-2 w-0.5 bg-lime-500/20 rounded-full" />
+                            )}
+                            {group.exercises.map((ex, exIdx) => (
+                                <div key={exIdx} className="relative flex items-center gap-2">
+                                    {isAlternating && (
+                                        <div className="absolute -left-[19px] top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-lime-500/40" />
+                                    )}
+                                    <p className={`font-black text-xs sm:text-sm uppercase italic tracking-tight truncate ${isCurrent ? 'text-white' : 'text-zinc-400'}`}>
+                                        {te.has(ex.exerciseName) ? te(ex.exerciseName) : ex.exerciseName}
+                                    </p>
+                                </div>
+                            ))}
+                        </div>
                         <div className="flex items-center gap-2 mt-1">
                             <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">
                                 {totalSets} {t('sets')}
