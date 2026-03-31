@@ -27,6 +27,7 @@ import { useTranslations } from 'next-intl';
 import { useSessionActions } from '@/hooks/useSessionActions';
 import { CompletedSession } from '@/components/session/CompletedSession';
 import { ExerciseInstructionModal } from '@/components/session/ExerciseInstructionModal';
+import { useSessionNavigation } from '@/hooks/useSessionNavigation';
 import { useAlerts } from '@/hooks/useAlerts';
 import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
 
@@ -62,6 +63,8 @@ export default function SessionClient({ initialSession, isReadOnly = false }: Se
     const [showPreview, setShowPreview] = useState(false);
     const [showInstructions, setShowInstructions] = useState(false);
 
+    const { getNextState } = useSessionNavigation(session);
+
     // Current Nav State
     const currentGroupIndex = session.current?.groupIndex || 0;
     const currentExerciseIndex = session.current?.exerciseIndex || 0;
@@ -89,11 +92,9 @@ export default function SessionClient({ initialSession, isReadOnly = false }: Se
 
     useEffect(() => {
         setValue("weight", currentPlannedSet?.weight || 0);
-    }, [currentGroupIndex, currentExerciseIndex, setValue, currentPlannedSet?.weight]);
-
-    useEffect(() => {
         setValue("reps", currentPlannedSet?.reps || 0);
-    }, [currentGroupIndex, currentExerciseIndex, currentSetIndex, setValue, currentPlannedSet?.reps]);
+        setValue("rpe", 7); // Reset RPE on every change
+    }, [currentGroupIndex, currentExerciseIndex, currentSetIndex, setValue, currentPlannedSet]);
 
     useEffect(() => {
         window.history.pushState(null, '', window.location.href);
@@ -153,58 +154,7 @@ export default function SessionClient({ initialSession, isReadOnly = false }: Se
         newSession.exercisesDone = updatedExecutions;
 
         // --- Calculate Next Step ---
-        const totalExercisesInGroup = currentGroup.exercises.length;
-        const totalSetsInExercise = currentExercise.sets.length;
-
-        let nextGroupIndex = currentGroupIndex;
-        let nextExerciseIndex = currentExerciseIndex;
-        let nextSetIndex = currentSetIndex;
-        let isLastActionInWorkout = false;
-
-        if (isGroupAlternating) {
-            // Alternating (e.g., Bi-Set)
-            if (nextExerciseIndex < totalExercisesInGroup - 1) {
-                // Next exercise in the same round
-                nextExerciseIndex++;
-            } else {
-                // Same round finished
-                if (nextSetIndex < (currentGroup.rounds || totalSetsInExercise) - 1) {
-                    // Next round
-                    nextSetIndex++;
-                    nextExerciseIndex = 0;
-                } else {
-                    // Group Finished
-                    if (nextGroupIndex < session.exercisesToDo.length - 1) {
-                        nextGroupIndex++;
-                        nextExerciseIndex = 0;
-                        nextSetIndex = 0;
-                    } else {
-                        isLastActionInWorkout = true;
-                    }
-                }
-            }
-        } else {
-            // Straight Group
-            if (nextSetIndex < totalSetsInExercise - 1) {
-                // Next set of same exercise
-                nextSetIndex++;
-            } else {
-                // Exercise finished
-                if (nextExerciseIndex < totalExercisesInGroup - 1) {
-                    nextExerciseIndex++;
-                    nextSetIndex = 0;
-                } else {
-                    // Group Finished
-                    if (nextGroupIndex < session.exercisesToDo.length - 1) {
-                        nextGroupIndex++;
-                        nextExerciseIndex = 0;
-                        nextSetIndex = 0;
-                    } else {
-                        isLastActionInWorkout = true;
-                    }
-                }
-            }
-        }
+        const { nextGroupIndex, nextExerciseIndex, nextSetIndex, isLastActionInWorkout } = getNextState();
 
         if (isLastActionInWorkout) {
             newSession.current.step = 'completion';
@@ -390,10 +340,12 @@ export default function SessionClient({ initialSession, isReadOnly = false }: Se
 
                     <div className="grid grid-cols-2 gap-2 mt-5">
                         <div className="flex flex-col p-4 bg-zinc-900/40 rounded-3xl border border-white/5 relative overflow-hidden group">
-                            <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest mb-0.5">{t('currentSet')}</span>
+                            <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest mb-0.5">
+                                {isGroupAlternating ? t('round') : t('currentSet')}
+                            </span>
                             <span className="text-2xl font-black tabular-nums flex items-baseline gap-1">
                                 {currentSetIndex + 1}
-                                <span className="text-zinc-600 text-[10px] font-bold">/ {isGroupAlternating ? currentGroup?.rounds : currentExercise?.sets.length}</span>
+                                <span className="text-zinc-600 text-[10px] font-bold">/ {isGroupAlternating ? (currentGroup.rounds || 1) : currentExercise.sets.length}</span>
                             </span>
                         </div>
                         <div className="flex flex-col p-4 bg-zinc-900/40 rounded-3xl border border-white/5 relative overflow-hidden group">

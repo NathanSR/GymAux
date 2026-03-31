@@ -168,6 +168,7 @@ export const WorkoutDrawer = ({ showPreview, onClose, session, setSession, syncS
             updatedGroups[editingGroupIdx] = {
                 ...updatedGroups[editingGroupIdx],
                 groupType: currentGroupType,
+                rounds: setsCount,
                 exercises: mappedExercises,
                 restAfterGroup: restTime
             };
@@ -175,7 +176,7 @@ export const WorkoutDrawer = ({ showPreview, onClose, session, setSession, syncS
         } else {
             const newGroup: ExerciseGroup = {
                 groupType: currentGroupType,
-                rounds: 1,
+                rounds: setsCount,
                 restBetweenRounds: 0,
                 restAfterGroup: restTime,
                 exercises: mappedExercises

@@ -341,7 +341,7 @@ export default function WorkoutForm({ initialData, availableExercises = [], onSu
                         : [{ reps: 10, restTime: 60, technique: 'normal' }]
                 });
             }
-            update(groupIndex, { ...group, exercises: newExs, groupType: newType });
+            update(groupIndex, { ...group, exercises: newExs, groupType: newType, rounds: newExs[0]?.sets.length || 0 });
         } else if (requiredCount < currentExercises.length) {
             // Verificar se exercícios que serão removidos estão preenchidos
             const toRemove = currentExercises.slice(requiredCount);
@@ -356,11 +356,11 @@ export default function WorkoutForm({ initialData, availableExercises = [], onSu
             } else {
                 // Remover imediatamente
                 const newExs = currentExercises.slice(0, requiredCount);
-                update(groupIndex, { ...group, exercises: newExs, groupType: newType });
+                update(groupIndex, { ...group, exercises: newExs, groupType: newType, rounds: newExs[0]?.sets.length || 0 });
             }
         } else {
             // Apenas mudar o tipo (pode ser giant_set, circuit ou o mesmo count)
-            setValue(`exercises.${groupIndex}.groupType`, newType);
+            update(groupIndex, { ...group, groupType: newType, rounds: currentExercises[0]?.sets.length || 0 });
         }
     };
 
@@ -377,7 +377,7 @@ export default function WorkoutForm({ initialData, availableExercises = [], onSu
         else if (newType === 'tri_set') requiredCount = 3;
 
         const newExs = group.exercises.slice(0, requiredCount);
-        update(groupIndex, { ...group, exercises: newExs, groupType: newType });
+        update(groupIndex, { ...group, exercises: newExs, groupType: newType, rounds: newExs[0]?.sets.length || 0 });
         
         setConfirmModal({ isOpen: false, groupIndex: null, newType: null });
     };
@@ -392,7 +392,7 @@ export default function WorkoutForm({ initialData, availableExercises = [], onSu
             // Criar novo grupo com 1 exercício (Straight)
             appendGroup({
                 groupType: 'straight',
-                rounds: 1,
+                rounds: 3,
                 restBetweenRounds: 0,
                 restAfterGroup: 60,
                 exercises: [{
@@ -430,7 +430,8 @@ export default function WorkoutForm({ initialData, availableExercises = [], onSu
                 update(targetGroupIndex, {
                     ...group,
                     exercises: newExercises,
-                    groupType: newGroupType
+                    groupType: newGroupType,
+                    rounds: newExercises[0]?.sets.length || 0
                 });
             } else {
                 // Substituir exercício existente
