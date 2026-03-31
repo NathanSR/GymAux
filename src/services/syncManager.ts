@@ -27,7 +27,7 @@ export class SyncManager {
 
         // Trigger sync process asynchronously
         this.processQueue();
-        
+
         return id as number;
     }
 
@@ -39,7 +39,7 @@ export class SyncManager {
         if (typeof window !== 'undefined' && !navigator.onLine) return;
 
         this.isSyncing = true;
-        
+
         try {
             const pendingOps = await db.syncQueue
                 .where('status')
@@ -58,7 +58,7 @@ export class SyncManager {
                 if (typeof window !== 'undefined' && !navigator.onLine) break;
 
                 let success = false;
-                
+
                 try {
                     switch (op.entityType) {
                         case 'HISTORY':
@@ -86,7 +86,7 @@ export class SyncManager {
                         await db.syncQueue.delete(op.id!);
                     }
                 } catch (error: any) {
-                    console.error(`[SyncManager] Error syncing operation ${op.id}:`, error);
+                    console.error(`[SyncManager] Error syncing operation ${op.id}:`, error?.message || error);
                     // increment retries, handle fails later
                     await db.syncQueue.update(op.id!, {
                         retryCount: op.retryCount + 1,
@@ -101,10 +101,10 @@ export class SyncManager {
     }
 
     // --- Private Sync Implementations per Entity ---
-    
+
     // Note: To be fully implemented based on Supabase tables. 
     // This provides the structural foundation for syncing offline data gracefully.
-    
+
     private static async syncHistory(op: SyncOperation, supabase: any): Promise<boolean> {
         if (op.action === 'CREATE') {
             const { error } = await supabase.from('history').insert(op.payload);

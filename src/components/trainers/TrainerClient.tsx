@@ -39,8 +39,8 @@ interface TrainerClientProps {
 
 const Header = memo(({ t }: { t: any }) => (
     <header className="flex items-center gap-4 mb-10">
-        <Link 
-            href="/home" 
+        <Link
+            href="/home"
             className="group p-3 bg-white dark:bg-zinc-900/50 backdrop-blur-xl border border-zinc-200 dark:border-white/5 rounded-2xl hover:border-lime-400/50 transition-all duration-300 shadow-sm dark:shadow-none"
         >
             <ArrowLeft className="w-5 h-5 text-zinc-500 dark:text-zinc-400 group-hover:text-lime-500 dark:group-hover:text-lime-400 transition-colors" />
@@ -173,7 +173,7 @@ export default function TrainerClient({ trainerId, initialStudents }: TrainerCli
         await linkStudent(decodedText);
     }, []);
 
-    const onScanError = useCallback(() => {}, []);
+    const onScanError = useCallback(() => { }, []);
 
     const handleManualLink = useCallback(async () => {
         if (!emailInput.trim() || !emailInput.includes('@')) {
@@ -202,7 +202,7 @@ export default function TrainerClient({ trainerId, initialStudents }: TrainerCli
             await connectionService.createConnection(trainerId, finalId, supabase);
             toast.success(t('requestSent'));
             setEmailInput('');
-        } catch (error) {
+        } catch (error: any) {
             toast.error(t('requestError'));
         } finally {
             setIsLinking(false);
@@ -214,13 +214,13 @@ export default function TrainerClient({ trainerId, initialStudents }: TrainerCli
             <Header t={t} />
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <QuickActionCard 
-                    onClick={() => setIsScannerOpen(true)} 
-                    icon={QrCode} 
-                    label={t('linkStudent')} 
-                    t={t} 
+                <QuickActionCard
+                    onClick={() => setIsScannerOpen(true)}
+                    icon={QrCode}
+                    label={t('linkStudent')}
+                    t={t}
                 />
-                <EmailLinkCard 
+                <EmailLinkCard
                     emailInput={emailInput}
                     setEmailInput={setEmailInput}
                     onLink={handleManualLink}
@@ -238,7 +238,7 @@ export default function TrainerClient({ trainerId, initialStudents }: TrainerCli
                         </span>
                     </h2>
                 </div>
-                
+
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     <AnimatePresence mode="popLayout" initial={false}>
                         {students.length > 0 ? (
@@ -246,7 +246,7 @@ export default function TrainerClient({ trainerId, initialStudents }: TrainerCli
                                 <StudentCard key={student.id} student={student} />
                             ))
                         ) : (
-                            <motion.div 
+                            <motion.div
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
                                 className="col-span-full py-16 text-center bg-zinc-50 dark:bg-zinc-900/20 rounded-[40px] border-2 border-dashed border-zinc-200 dark:border-zinc-800"
@@ -261,7 +261,7 @@ export default function TrainerClient({ trainerId, initialStudents }: TrainerCli
 
             <AnimatePresence>
                 {isScannerOpen && (
-                    <motion.div 
+                    <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}

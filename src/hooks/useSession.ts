@@ -22,8 +22,8 @@ export function useSession() {
                 } else {
                     setActiveUser(null);
                 }
-            } catch (error) {
-                console.error("Error loading session:", error);
+            } catch (error: any) {
+                console.error("Error loading session:", error?.message || error);
                 setActiveUser(null);
             } finally {
                 setLoading(false);

@@ -70,8 +70,8 @@ export default function ExercisesClient({ initialExercises, initialTotalCount }:
                 });
                 setExercises(result.exercises);
                 setTotalCount(result.totalCount);
-            } catch (error) {
-                console.error("Error fetching exercises:", error);
+            } catch (error: any) {
+                console.error("Error fetching exercises:", error?.message || error);
             } finally {
                 setLoading(false);
             }

@@ -44,7 +44,7 @@ export const ExerciseService = {
         const { data, error } = await query;
 
         if (error) {
-            console.error('Error fetching exercises:', error);
+            console.error('Error fetching exercises:', error?.message || error);
             return { exercises: [], totalCount: 0 };
         }
 
@@ -97,7 +97,7 @@ export const ExerciseService = {
             .maybeSingle();
 
         if (error) {
-            console.error('Error fetching exercise by ID:', error);
+            console.error('Error fetching exercise by ID:', error?.message || error);
             return null;
         }
 

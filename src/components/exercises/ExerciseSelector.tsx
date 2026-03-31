@@ -48,8 +48,8 @@ export const ExerciseSelector = ({ isOpen, onClose, onSelect }: {
                     });
                     setExercises(res.exercises);
                     setTotalCount(res.totalCount);
-                } catch (error) {
-                    console.error('Error fetching exercises:', error);
+                } catch (error: any) {
+                    console.error('Error fetching exercises:', error?.message || error);
                 } finally {
                     setIsLoading(false);
                 }

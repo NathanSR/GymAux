@@ -108,8 +108,8 @@ export default function DrawerWorkoutExerciseAdd({
 
             await WorkoutService.addExerciseToWorkout(selectedWorkout.id, newGroup);
             setSuccess(true);
-        } catch (error) {
-            console.error("Error adding exercise:", error);
+        } catch (error: any) {
+            console.error("Error adding exercise:", error?.message || error);
         }
     };
 

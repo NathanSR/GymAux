@@ -38,8 +38,8 @@ export default function ExerciseDetailsPage() {
             try {
                 const data = await ExerciseService.getExerciseById(Number(id));
                 setExercise(data);
-            } catch (error) {
-                console.error("Error fetching exercise details:", error);
+            } catch (error: any) {
+                console.error("Error fetching exercise details:", error?.message || error);
             } finally {
                 setLoading(false);
             }

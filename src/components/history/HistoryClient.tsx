@@ -69,8 +69,8 @@ export default function HistoryClient({
             try {
                 const list = await HistoryService.getHistoryByRange(userId, startMonthDate, endMonthDate);
                 setHistoryList(list || []);
-            } catch (error) {
-                console.error("Error fetching history:", error);
+            } catch (error: any) {
+                console.error("Error fetching history:", error?.message || error);
                 setHistoryList([]);
             } finally {
                 setLoading(false);

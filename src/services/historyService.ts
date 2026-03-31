@@ -76,7 +76,7 @@ export const HistoryService = {
             .range(from, to);
 
         if (error) {
-            console.error('Error fetching user history:', error);
+            console.error('Error fetching user history:', error?.message || error);
             return [];
         }
 
@@ -93,7 +93,7 @@ export const HistoryService = {
             .order('date', { ascending: false });
 
         if (error) {
-            console.error('Error fetching workout evolution:', error);
+            console.error('Error fetching workout evolution:', error?.message || error);
             return [];
         }
 

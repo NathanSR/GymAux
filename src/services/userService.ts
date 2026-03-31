@@ -23,7 +23,7 @@ export const userService = {
             .select('*');
 
         if (error) {
-            console.error('Error fetching users:', error);
+            console.error('Error fetching users:', error?.message || error);
             return [];
         }
 
@@ -40,7 +40,7 @@ export const userService = {
             .maybeSingle();
 
         if (error) {
-            console.error('Error fetching user by ID:', error);
+            console.error('Error fetching user by ID:', error?.message || error);
             return null;
         }
 
@@ -57,7 +57,7 @@ export const userService = {
             .maybeSingle();
 
         if (error) {
-            console.error('Error fetching user by GymAux ID:', error);
+            console.error('Error fetching user by GymAux ID:', error?.message || error);
             return null;
         }
 
@@ -74,7 +74,7 @@ export const userService = {
             .maybeSingle();
 
         if (error) {
-            console.error('Error fetching user by Email:', error);
+            console.error('Error fetching user by Email:', error?.message || error);
             return null;
         }
 

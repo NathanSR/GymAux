@@ -6,10 +6,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { createClient } from '@/lib/supabase/client';
 import { connectionService, Connection } from '@/services/connectionService';
 import { toast } from 'react-toastify';
-import { 
-    UserPlus, 
-    Check, 
-    X, 
+import {
+    UserPlus,
+    Check,
+    X,
     ShieldAlert,
     Loader2
 } from 'lucide-react';
@@ -58,8 +58,8 @@ export default function ConnectionConfirmationModal({ userId }: ConnectionConfir
         try {
             const pending = await connectionService.getPendingConnectionForStudent(userId, supabase);
             setPendingConnection(pending);
-        } catch (error) {
-            console.error('Error checking pending connection:', error);
+        } catch (error: any) {
+            console.error('Error checking pending connection:', error?.message || error);
         }
     }
 
@@ -71,8 +71,8 @@ export default function ConnectionConfirmationModal({ userId }: ConnectionConfir
             await connectionService.respondToConnection(pendingConnection.id, status, supabase);
             toast.success(status === 'active' ? t('accepted') : t('declined'));
             setPendingConnection(null);
-        } catch (error) {
-            console.error('Error responding to connection:', error);
+        } catch (error: any) {
+            console.error('Error responding to connection:', error?.message || error);
             toast.error(t('error'));
         } finally {
             setIsResponding(false);

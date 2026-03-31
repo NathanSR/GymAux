@@ -25,7 +25,7 @@ export const ScheduleService = {
             .select('*');
 
         if (error) {
-            console.error('Error fetching all schedules:', error);
+            console.error('Error fetching all schedules:', error?.message || error);
             return [];
         }
 
@@ -53,7 +53,7 @@ export const ScheduleService = {
         const { data, count, error } = await query.range(from, to);
 
         if (error) {
-            console.error('Error fetching schedules by user ID:', error);
+            console.error('Error fetching schedules by user ID:', error?.message || error);
             return { schedules: [], totalCount: 0 };
         }
 
@@ -76,7 +76,7 @@ export const ScheduleService = {
             .maybeSingle();
 
         if (error) {
-            console.error('Error fetching active schedule:', error);
+            console.error('Error fetching active schedule:', error?.message || error);
             return null;
         }
 
@@ -92,7 +92,7 @@ export const ScheduleService = {
             .maybeSingle();
 
         if (error) {
-            console.error('Error fetching schedule by ID:', error);
+            console.error('Error fetching schedule by ID:', error?.message || error);
             return null;
         }
 

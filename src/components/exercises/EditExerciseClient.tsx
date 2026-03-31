@@ -36,8 +36,8 @@ export default function EditExerciseClient({ initialExercise, exerciseId }: Edit
             await ExerciseService.updateExercise(exerciseId, formattedData);
             toast.success(t('updatedExercise'));
             router.push('/exercises');
-        } catch (error) {
-            console.error("Erro ao atualizar:", error);
+        } catch (error: any) {
+            console.error("Erro ao atualizar:", error?.message || error);
             toast.error("Error updating exercise");
             setIsLoading(false);
         } finally {
@@ -61,8 +61,8 @@ export default function EditExerciseClient({ initialExercise, exerciseId }: Edit
                 try {
                     await ExerciseService.deleteExercise(exerciseId);
                     router.push('/exercises');
-                } catch (error) {
-                    console.error("Erro ao deletar:", error);
+                } catch (error: any) {
+                    console.error("Erro ao deletar:", error?.message || error);
                 }
             }
         });

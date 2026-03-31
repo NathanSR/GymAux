@@ -39,8 +39,8 @@ export default function CreateScheduleClient({ userId, baseUrl = '/schedules' }:
             });
 
             router.push(baseUrl);
-        } catch (error) {
-            console.error("Erro ao criar cronograma de treino:", error);
+        } catch (error: any) {
+            console.error("Erro ao criar cronograma de treino:", error?.message || error);
             toast.error(t('createError'));
             setIsLoading(false);
         } finally {

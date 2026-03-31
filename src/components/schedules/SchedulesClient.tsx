@@ -59,8 +59,8 @@ export default function SchedulesClient({ initialSchedules, initialTotalCount, u
                 );
                 setSchedules(result.schedules);
                 setTotalCount(result.totalCount);
-            } catch (error) {
-                console.error("Error fetching schedules:", error);
+            } catch (error: any) {
+                console.error("Error fetching schedules:", error?.message || error);
             } finally {
                 setLoading(false);
             }

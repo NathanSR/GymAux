@@ -34,8 +34,8 @@ export default function EditWorkoutClient({ initialWorkout, availableExercises, 
             });
             toast.success(t('updatedWorkout'));
             router.push(baseUrl);
-        } catch (error) {
-            console.error("Erro ao atualizar treino:", error);
+        } catch (error: any) {
+            console.error("Erro ao atualizar treino:", error?.message || error);
             toast.error("Error updating workout");
             setIsSaving(false);
         } finally {
@@ -59,8 +59,8 @@ export default function EditWorkoutClient({ initialWorkout, availableExercises, 
                 try {
                     await WorkoutService.deleteWorkout(workoutId);
                     router.push(baseUrl);
-                } catch (error) {
-                    console.error("Erro ao deletar:", error);
+                } catch (error: any) {
+                    console.error("Erro ao deletar:", error?.message || error);
                 }
             }
         });

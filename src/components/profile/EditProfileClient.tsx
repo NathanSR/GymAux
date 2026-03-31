@@ -29,7 +29,7 @@ export default function EditProfileClient({ initialUser }: EditProfileClientProp
                 goal: data.goal,
             });
             toast.success(t('success'));
-        } catch (error) {
+        } catch (error: any) {
             toast.error(t('error'));
         } finally {
             setIsSaving(false);

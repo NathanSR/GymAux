@@ -120,10 +120,10 @@ export const SessionService = {
                 localSession.pausedAt = null;
                 localSession.resumedAt = new Date();
                 await db.sessions.put(localSession);
-                SyncManager.enqueue('UPDATE', 'SESSION', sessionId, { 
-                    id: sessionId, 
-                    paused_at: null, 
-                    resumed_at: localSession.resumedAt.toISOString() 
+                SyncManager.enqueue('UPDATE', 'SESSION', sessionId, {
+                    id: sessionId,
+                    paused_at: null,
+                    resumed_at: localSession.resumedAt.toISOString()
                 });
                 return;
             }
@@ -145,7 +145,7 @@ export const SessionService = {
                 localSession.duration += now.getTime() - new Date(localSession.resumedAt).getTime();
                 localSession.pausedAt = now;
                 await db.sessions.put(localSession);
-                
+
                 SyncManager.enqueue('UPDATE', 'SESSION', sessionId, {
                     id: sessionId,
                     paused_at: now.toISOString(),
@@ -188,7 +188,7 @@ export const SessionService = {
             .maybeSingle();
 
         if (error) {
-            console.error('Error fetching active session:', error);
+            console.error('Error fetching active session:', error?.message || error);
             return null;
         }
 
@@ -204,7 +204,7 @@ export const SessionService = {
             .order('created_at', { ascending: false });
 
         if (error) {
-            console.error('Error fetching sessions:', error);
+            console.error('Error fetching sessions:', error?.message || error);
             return [];
         }
 

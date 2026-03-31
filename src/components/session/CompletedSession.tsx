@@ -44,8 +44,8 @@ export function CompletedSession({ session }: CompletedSessionProps) {
                 usingCreatine: data.usingCreatine
             });
             router.push('/home');
-        } catch (error) {
-            console.error("Error finishing workout:", error);
+        } catch (error: any) {
+            console.error("Error finishing workout:", error?.message || error);
             setIsSubmitting(false);
         }
     };

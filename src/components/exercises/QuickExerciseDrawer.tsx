@@ -26,7 +26,7 @@ export default function QuickExerciseDrawer({ isOpen, onClose, onExerciseCreated
 
             console.log("Simulando criação de exercício:", data);
 
-        } catch (error) {
+        } catch (error: any) {
             console.error(error);
         } finally {
             setIsSaving(false);

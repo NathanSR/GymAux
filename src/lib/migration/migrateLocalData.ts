@@ -58,7 +58,7 @@ export async function migrateLocalData() {
       if (data && w.id) {
         workoutIdMap.set(w.id, data.id);
       } else if (error) {
-        console.error(`Error migrating workout ${w.name}:`, error);
+        console.error(`Error migrating workout ${w.name}:`, error?.message || error);
       }
     }
   }

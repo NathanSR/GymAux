@@ -59,8 +59,8 @@ export default function WorkoutsClient({ initialWorkouts, initialTotalCount, use
                 setWorkouts(result.workouts);
                 // @ts-ignore
                 setTotalCount(result.totalCount);
-            } catch (error) {
-                console.error("Error fetching workouts:", error);
+            } catch (error: any) {
+                console.error("Error fetching workouts:", error?.message || error);
             } finally {
                 setLoading(false);
             }
