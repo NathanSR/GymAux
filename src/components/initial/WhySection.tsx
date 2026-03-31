@@ -23,7 +23,7 @@ export default function WhySection() {
     const t = useTranslations('Marketing');
 
     return (
-        <section id="features" className="max-w-7xl mx-auto py-32 flex flex-col items-center gap-20 px-6">
+        <section className="max-w-7xl mx-auto py-32 flex flex-col items-center gap-20 px-6">
             <div className="text-center flex flex-col items-center gap-4">
                 <motion.span {...fadeInUp} className="text-brand font-black tracking-widest text-xs uppercase italic">{t('WhyGymAux.title')}</motion.span>
                 <motion.h2 {...fadeInUp} className="text-4xl md:text-5xl font-black italic uppercase tracking-tighter text-zinc-100">{t('WhyGymAux.subtitle')}</motion.h2>
@@ -37,16 +37,16 @@ export default function WhySection() {
             >
                 {[
                     {
-                        key: 'boostSeo',
+                        key: 'smartPlanning',
                         icon: <Sparkles className="w-6 h-6" />,
-                        title: t('WhyGymAux.features.boostSeo.title'),
-                        description: t('WhyGymAux.features.boostSeo.description')
+                        title: t('WhyGymAux.features.smartPlanning.title'),
+                        description: t('WhyGymAux.features.smartPlanning.description')
                     },
                     {
-                        key: 'treadPredictor',
+                        key: 'performanceSync',
                         icon: <Zap className="w-6 h-6" />,
-                        title: t('WhyGymAux.features.treadPredictor.title'),
-                        description: t('WhyGymAux.features.treadPredictor.description')
+                        title: t('WhyGymAux.features.performanceSync.title'),
+                        description: t('WhyGymAux.features.performanceSync.description')
                     },
                     {
                         key: 'dataDriven',

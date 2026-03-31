@@ -1556,6 +1556,36 @@
     "iosStep3": "\"Añadir a pantalla de inicio\""
   },
   "Marketing": {
+    "Features": {
+      "title": "Libera tu Potencial",
+      "subtitle": "Todo lo que necesitas para dominar tus entrenamientos",
+      "items": {
+        "workout": {
+          "title": "Constructor de Entrenamiento Inteligente",
+          "description": "Crea rutinas complejas con Bi-sets, Tri-sets y Circuitos. Organiza tu entrenamiento exactamente como quieras."
+        },
+        "trainer": {
+          "title": "Conexión Entrenador-Alumno",
+          "description": "Conéctate con tu entrenador para actualizaciones de planes en tiempo real, comentarios y monitoreo de desempeño."
+        },
+        "tracking": {
+          "title": "Analíticas Avanzadas",
+          "description": "Sigue cada serie, repetición y peso. Visualiza tu progreso con gráficos detallados e historial."
+        },
+        "offline": {
+          "title": "Rendimiento Offline",
+          "description": "No dejes que el mal Wi-Fi del gimnasio te detenga. Nuestro PWA funciona perfectamente sin internet para que te concentres."
+        },
+        "multilingual": {
+          "title": "Soporte Global",
+          "description": "El entrenamiento no conoce fronteras. Vive GymAux en Inglés, Portugués o Español."
+        },
+        "realtime": {
+          "title": "Seguimiento de Sesión en Vivo",
+          "description": "Registra peso, reps y RPE mientras entrenas. Los temporizadores de descanso automáticos mantienen tu intensidad."
+        }
+      }
+    },
     "Navbar": {
       "features": "Funcionalidades",
       "pricing": "Precios",
@@ -1565,7 +1595,7 @@
     },
     "Hero": {
       "title": "Tome el control de su entrenamiento.",
-      "subtitle": "La herramienta de alto rendimiento para entusiastas del gimnasio y entrenadores. Diseñada para precisión biométrica y entrada rápida de datos.",
+      "subtitle": "El ecosistema completo para atletas y entrenadores de alto rendimiento. Crea rutinas complejas, sigue cada métrica y evoluciona con precisión.",
       "getStarted": "Comenzar",
       "freeDemo": "Demo Gratuito"
     },
@@ -1573,13 +1603,13 @@
       "title": "POR QUÉ GYMAUX?",
       "subtitle": "Gestión de gimnasios simplificada para tu viaje fitness.",
       "features": {
-        "boostSeo": {
-          "title": "Impulso SEO y Adaptación",
-          "description": "Algoritmos inteligentes que ayudan a que tu gimnasio sea encontrado. Adapta tu experiencia de gimnasio para tu audiencia única."
+        "smartPlanning": {
+          "title": "Planificación Inteligente",
+          "description": "Crea rutinas perfectamente equilibradas con nuestro diseñador inteligente."
         },
-        "treadPredictor": {
-          "title": "Predictor de Cintas",
-          "description": "Predice el mantenimiento y uso de tus equipos. Enfócate en el entrenamiento, no en el tiempo de inactividad de las máquinas."
+        "performanceSync": {
+          "title": "Sincronización de Rendimiento",
+          "description": "Sincroniza tu progreso entre tus dispositivos y tu entrenador al instante."
         },
         "dataDriven": {
           "title": "Estadísticas basadas en datos",

@@ -1556,6 +1556,36 @@
     "iosStep3": "\"Tela de Início\""
   },
   "Marketing": {
+    "Features": {
+      "title": "Libere Seu Potencial",
+      "subtitle": "Tudo o que você precisa para dominar seus treinos",
+      "items": {
+        "workout": {
+          "title": "Montador de Treino Inteligente",
+          "description": "Crie rotinas complexas com Bi-sets, Tri-sets e Circuitos. Organize seu treino exatamente como você deseja."
+        },
+        "trainer": {
+          "title": "Conexão Treinador-Aluno",
+          "description": "Conecte-se com seu treinador para atualizações de plano em tempo real, feedback e monitoramento de desempenho."
+        },
+        "tracking": {
+          "title": "Análises Avançadas",
+          "description": "Acompanhe cada série, repetição e carga. Visualize seu progresso com gráficos detalhados e histórico."
+        },
+        "offline": {
+          "title": "Desempenho Offline",
+          "description": "Não deixe o Wi-Fi ruim da academia te parar. Nosso PWA funciona perfeitamente offline para você focar no treino."
+        },
+        "multilingual": {
+          "title": "Suporte Global",
+          "description": "O treino não conhece fronteiras. Experimente o GymAux em Inglês, Português ou Espanhol."
+        },
+        "realtime": {
+          "title": "Rastreamento de Sessão ao Vivo",
+          "description": "Registre carga, reps e RPE enquanto treina. Timers de descanso automáticos mantêm sua intensidade alta."
+        }
+      }
+    },
     "Navbar": {
       "features": "Funcionalidades",
       "pricing": "Preços",
@@ -1565,7 +1595,7 @@
     },
     "Hero": {
       "title": "Assuma o Controle do Seu Treino.",
-      "subtitle": "A ferramenta de alta performance para entusiastas e treinadores. Projetada para precisão biométrica e entrada rápida de dados.",
+      "subtitle": "O ecossistema completo para atletas e treinadores de alta performance. Monte rotinas complexas, acompanhe cada métrica e evolua com precisão.",
       "getStarted": "Começar",
       "freeDemo": "Demo Grátis"
     },
@@ -1573,13 +1603,13 @@
       "title": "POR QUE O GYMAUX?",
       "subtitle": "Gestão de treino simplificada para sua jornada fitness.",
       "features": {
-        "boostSeo": {
-          "title": "Impulsione SEO & Personalize",
-          "description": "Algoritmos inteligentes que ajudam sua academia a ser encontrada. Personalize sua experiência para seu público único."
+        "smartPlanning": {
+          "title": "Planejamento Inteligente",
+          "description": "Crie rotinas perfeitamente equilibradas com nosso designer inteligente."
         },
-        "treadPredictor": {
-          "title": "Preditor de Manutenção",
-          "description": "Preveja a manutenção e o uso de seus equipamentos. Foque no treino, não no tempo de inatividade da máquina."
+        "performanceSync": {
+          "title": "Sincronização de Performance",
+          "description": "Sincronize seu progresso entre seus dispositivos e seu treinador instantaneamente."
         },
         "dataDriven": {
           "title": "Estatísticas Baseadas em Dados",

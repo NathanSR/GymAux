@@ -1556,6 +1556,36 @@
     "iosStep3": "\"Add to Home Screen\""
   },
   "Marketing": {
+    "Features": {
+      "title": "Unleash Your Potential",
+      "subtitle": "Everything you need to dominate your training",
+      "items": {
+        "workout": {
+          "title": "Smart Workout Builder",
+          "description": "Create complex routines with Bi-sets, Tri-sets, and Circuits. Organize your training exactly how you want it."
+        },
+        "trainer": {
+          "title": "Trainer-Student Link",
+          "description": "Connect with your trainer for real-time plan updates, feedback, and performance monitoring."
+        },
+        "tracking": {
+          "title": "Advanced Analytics",
+          "description": "Track every set, rep, and weight. Visualize your progress with detailed charts and history."
+        },
+        "offline": {
+          "title": "Offline Performance",
+          "description": "Don't let bad gym Wi-Fi stop you. Our PWA works perfectly offline so you can stay focused."
+        },
+        "multilingual": {
+          "title": "Global Support",
+          "description": "Training knows no borders. Experience GymAux in English, Portuguese, or Spanish."
+        },
+        "realtime": {
+          "title": "Live Session Tracking",
+          "description": "Log weight, reps, and RPE as you train. Automatic rest timers keep your intensity high."
+        }
+      }
+    },
     "Navbar": {
       "features": "Features",
       "pricing": "Pricing",
@@ -1565,7 +1595,7 @@
     },
     "Hero": {
       "title": "Take Control of Your Workout.",
-      "subtitle": "The high-performance tool for gym enthusiasts and trainers. Engineered for biometric precision and rapid data entry.",
+      "subtitle": "The complete ecosystem for athletes and high-performance trainers. Build complex routines, track every metric, and evolve with precision.",
       "getStarted": "Get Started",
       "freeDemo": "Free Demo"
     },
@@ -1573,13 +1603,13 @@
       "title": "WHY GYMAUX?",
       "subtitle": "Gym management simplified for your fitness journey.",
       "features": {
-        "boostSeo": {
-          "title": "Boost SEO & Tailor",
-          "description": "Smart algorithms that help your gym get found. Tailor your gym experience for your unique audience."
+        "smartPlanning": {
+          "title": "Smart Planning",
+          "description": "Build perfectly balanced routines with our intelligent workout designer."
         },
-        "treadPredictor": {
-          "title": "Tread Predictor",
-          "description": "Predict maintenance and usage of your equipment. Focus on training, not machine downtime."
+        "performanceSync": {
+          "title": "Performance Sync",
+          "description": "Sync your progress between your devices and your trainer instantly."
         },
         "dataDriven": {
           "title": "Data-Driven Stats",

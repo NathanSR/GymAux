@@ -5,6 +5,7 @@ import PWAInstallButton from '@/components/PWAInstallButton';
 
 import Navbar from '@/components/initial/Navbar';
 import HeroSection from '@/components/initial/HeroSection';
+import FeaturesGridSection from '@/components/initial/FeaturesGridSection';
 import WhySection from '@/components/initial/WhySection';
 import SessionControlSection from '@/components/initial/SessionControlSection';
 import StatsSection from '@/components/initial/StatsSection';
@@ -26,6 +27,7 @@ export default function HomePage() {
 
             <main className="relative z-10">
                 <HeroSection />
+                <FeaturesGridSection />
                 <WhySection />
                 <SessionControlSection />
                 <StatsSection />
