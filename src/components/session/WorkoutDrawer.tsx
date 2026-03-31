@@ -12,6 +12,8 @@ import { useTheme } from '@/context/ThemeContext';
 import { ExerciseSelector } from '../exercises/ExerciseSelector';
 import { SessionService } from '@/services/sessionService';
 import { useRouter } from '@/i18n/routing';
+import { ConfirmDialog } from '../ui/ConfirmDialog';
+import { type Exercise } from '@/config/types';
 
 interface WorkoutDrawerProps {
     showPreview: boolean;
@@ -31,12 +33,22 @@ export const WorkoutDrawer = ({ showPreview, onClose, session, setSession, syncS
     const [activeTab, setActiveTab] = useState<'todo' | 'done'>('todo');
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [isSelectorOpen, setIsSelectorOpen] = useState(false);
-    const [selectedExercise, setSelectedExercise] = useState<{ id: number; name: string } | null>(null);
     const [editingGroupIdx, setEditingGroupIdx] = useState<number | null>(null);
-
-    const { register, handleSubmit, reset, setValue } = useForm({
-        defaultValues: { sets: 3, reps: 12, restTime: 60 }
+    const [formExercises, setFormExercises] = useState<(Exercise | null)[]>([]);
+    const [selectingIndex, setSelectingIndex] = useState<number | null>(null);
+    const [confirmModal, setConfirmModal] = useState<{
+        isOpen: boolean;
+        newType: string | null;
+    }>({
+        isOpen: false,
+        newType: null
     });
+
+    const { register, handleSubmit, reset, setValue, watch } = useForm({
+        defaultValues: { groupType: 'straight', sets: 3, reps: 12, restTime: 60 }
+    });
+
+    const groupType = watch('groupType');
 
     const groups = session.exercisesToDo || [];
     const doneGroups: ExecutedGroup[] = session.exercisesDone || [];
@@ -51,31 +63,89 @@ export const WorkoutDrawer = ({ showPreview, onClose, session, setSession, syncS
 
     const handleOpenAdd = () => {
         setEditingGroupIdx(null);
-        setSelectedExercise(null);
-        reset({ sets: 3, reps: 12, restTime: 60 });
+        setFormExercises([null]);
+        reset({ groupType: 'straight', sets: 3, reps: 12, restTime: 60 });
         setIsFormOpen(true);
     };
 
     const handleEditClick = (group: ExerciseGroup, idx: number) => {
         setEditingGroupIdx(idx);
-        const firstExercise = group.exercises[0];
-        if (firstExercise) {
-            setSelectedExercise({ id: firstExercise.exerciseId, name: firstExercise.exerciseName });
-            setValue('sets', firstExercise.sets.length);
-            setValue('reps', firstExercise.sets[0]?.reps || 12);
-            setValue('restTime', firstExercise.sets[0]?.restTime || 60);
-        }
+        const exs = group.exercises.map(ex => ({ id: ex.exerciseId, name: ex.exerciseName } as any));
+        setFormExercises(exs);
+        
+        const firstEx = group.exercises[0];
+        setValue('groupType', group.groupType);
+        setValue('sets', firstEx?.sets.length || 3);
+        setValue('reps', firstEx?.sets[0]?.reps || 12);
+        setValue('restTime', group.restAfterGroup || 60);
+        
         setIsFormOpen(true);
     };
 
     const handleSelectExercise = (exercise: any) => {
-        setSelectedExercise({ id: exercise.id, name: exercise.name });
+        if (selectingIndex !== null) {
+            const newExs = [...formExercises];
+            newExs[selectingIndex] = { id: exercise.id, name: exercise.name } as any;
+            setFormExercises(newExs);
+        }
         setIsSelectorOpen(false);
+        setSelectingIndex(null);
+    };
+
+    const handleGroupTypeChange = (newType: string) => {
+        const currentType = watch('groupType');
+        if (newType === currentType) return;
+
+        let requiredCount = formExercises.length;
+        if (newType === 'straight') requiredCount = 1;
+        else if (newType === 'bi_set') requiredCount = 2;
+        else if (newType === 'tri_set') requiredCount = 3;
+
+        if (requiredCount > formExercises.length) {
+            const newExs = [...formExercises];
+            while (newExs.length < requiredCount) {
+                newExs.push(null);
+            }
+            setFormExercises(newExs);
+            setValue('groupType', newType);
+        } else if (requiredCount < formExercises.length) {
+            const toRemove = formExercises.slice(requiredCount);
+            const hasData = toRemove.some(ex => !!ex);
+
+            if (hasData) {
+                setConfirmModal({ isOpen: true, newType });
+            } else {
+                setFormExercises(formExercises.slice(0, requiredCount));
+                setValue('groupType', newType);
+            }
+        } else {
+            setValue('groupType', newType);
+        }
+    };
+
+    const confirmTypeChange = () => {
+        const newType = confirmModal.newType;
+        if (!newType) return;
+
+        let requiredCount = formExercises.length;
+        if (newType === 'straight') requiredCount = 1;
+        else if (newType === 'bi_set') requiredCount = 2;
+        else if (newType === 'tri_set') requiredCount = 3;
+
+        setFormExercises(formExercises.slice(0, requiredCount));
+        setValue('groupType', newType);
+        setConfirmModal({ isOpen: false, newType: null });
     };
 
     const onSave = (data: any) => {
-        if (!selectedExercise) return setIsSelectorOpen(true);
+        const filledCount = formExercises.filter(ex => !!ex).length;
+        if (filledCount < formExercises.length) {
+            const missingIdx = formExercises.findIndex(ex => !ex);
+            setSelectingIndex(missingIdx);
+            return setIsSelectorOpen(true);
+        }
 
+        const currentGroupType = data.groupType;
         const setsCount = Number(data.sets);
         const reps = Number(data.reps);
         const restTime = Number(data.restTime);
@@ -86,28 +156,29 @@ export const WorkoutDrawer = ({ showPreview, onClose, session, setSession, syncS
             technique: 'normal' as const
         }));
 
+        const mappedExercises = formExercises.map(ex => ({
+            exerciseId: ex!.id!,
+            exerciseName: ex!.name,
+            sets: plannedSets,
+            restAfterExercise: 0
+        }));
+
         if (editingGroupIdx !== null) {
             const updatedGroups = [...groups];
-            const group = { ...updatedGroups[editingGroupIdx] };
-            group.exercises = group.exercises.map(ex =>
-                ex.exerciseId === selectedExercise.id
-                    ? { ...ex, exerciseName: selectedExercise.name, sets: plannedSets }
-                    : ex
-            );
-            updatedGroups[editingGroupIdx] = group;
+            updatedGroups[editingGroupIdx] = {
+                ...updatedGroups[editingGroupIdx],
+                groupType: currentGroupType,
+                exercises: mappedExercises,
+                restAfterGroup: restTime
+            };
             session.exercisesToDo = updatedGroups;
         } else {
             const newGroup: ExerciseGroup = {
-                groupType: 'straight',
+                groupType: currentGroupType,
                 rounds: 1,
                 restBetweenRounds: 0,
                 restAfterGroup: restTime,
-                exercises: [{
-                    exerciseId: selectedExercise.id,
-                    exerciseName: selectedExercise.name,
-                    sets: plannedSets,
-                    restAfterExercise: 0
-                }]
+                exercises: mappedExercises
             };
             session.exercisesToDo = [...groups, newGroup];
         }
@@ -365,30 +436,75 @@ export const WorkoutDrawer = ({ showPreview, onClose, session, setSession, syncS
                             <button onClick={() => setIsFormOpen(false)} className="text-zinc-500 p-2"><X /></button>
                         </div>
 
-                        <form onSubmit={handleSubmit(onSave)} className="space-y-6">
-                            <div className="bg-zinc-900 border border-zinc-800 rounded-[32px] p-5 shadow-sm space-y-4">
-                                <div className="flex items-center gap-3">
-                                    <div className="p-2 text-zinc-700"><GripVertical size={20} /></div>
-                                    <button
-                                        type="button"
-                                        onClick={() => setIsSelectorOpen(true)}
-                                        className="flex-1 flex items-center justify-between bg-zinc-950 p-4 rounded-2xl border border-zinc-800 text-left hover:border-lime-400/50 transition-all group"
+                        <form onSubmit={handleSubmit(onSave)} className="flex-1 overflow-y-auto no-scrollbar py-2 space-y-6">
+                            <div className="space-y-4">
+                                {/* Group Type Header */}
+                                <div className="flex items-center justify-between px-2">
+                                    <label className="text-[10px] font-black uppercase tracking-widest text-zinc-600">{t('groupTypeLabel')}</label>
+                                    <select
+                                        value={groupType}
+                                        onChange={(e) => handleGroupTypeChange(e.target.value)}
+                                        className="bg-zinc-950 text-lime-400 text-[10px] font-black uppercase tracking-widest px-4 py-2 rounded-2xl border border-zinc-800 outline-none cursor-pointer hover:border-lime-400/50 transition-colors shadow-lg shadow-black/50"
                                     >
-                                        <div className="flex items-center gap-3">
-                                            <Dumbbell size={16} className="text-lime-500 group-hover:scale-110 transition-transform" />
-                                            <span className="text-xs font-black uppercase tracking-tight">
-                                                {selectedExercise
-                                                    ? (te.has(selectedExercise.name) ? te(selectedExercise.name) : selectedExercise.name)
-                                                    : t('selectExercise')}
-                                            </span>
-                                        </div>
-                                        <ChevronDown size={16} className="text-zinc-400" />
-                                    </button>
+                                        <option value="straight">{t('groupTypes.straight')}</option>
+                                        <option value="bi_set">{t('groupTypes.bi_set')}</option>
+                                        <option value="tri_set">{t('groupTypes.tri_set')}</option>
+                                        <option value="giant_set">{t('groupTypes.giant_set')}</option>
+                                        <option value="circuit">{t('groupTypes.circuit')}</option>
+                                    </select>
                                 </div>
 
-                                <div className="grid grid-cols-3 gap-2">
+                                {/* Exercise slots */}
+                                <div className="space-y-3">
+                                    {formExercises.map((ex, idx) => (
+                                        <div key={idx} className="bg-zinc-900/50 border border-zinc-800 rounded-[28px] p-4 flex items-center gap-4 group hover:border-lime-400/30 transition-all">
+                                            <div className="w-10 h-10 rounded-2xl bg-zinc-950 flex items-center justify-center border border-zinc-800 text-[10px] font-black text-zinc-600 group-hover:text-lime-500 transition-colors">
+                                                {idx + 1}
+                                            </div>
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    setSelectingIndex(idx);
+                                                    setIsSelectorOpen(true);
+                                                }}
+                                                className="flex-1 flex items-center justify-between bg-zinc-950 p-4 rounded-2xl border border-zinc-800/50 text-left group-hover:border-lime-400/20 transition-all"
+                                            >
+                                                <div className="flex items-center gap-3">
+                                                    <Dumbbell size={16} className={`${ex ? 'text-lime-400' : 'text-zinc-700'} group-hover:scale-110 transition-transform`} />
+                                                    <span className={`text-[11px] font-black uppercase tracking-tight ${ex ? 'text-white' : 'text-zinc-600'}`}>
+                                                        {ex ? (te.has(ex.name) ? te(ex.name) : ex.name) : t('selectExercise')}
+                                                    </span>
+                                                </div>
+                                                <ChevronDown size={14} className="text-zinc-700" />
+                                            </button>
+                                            {formExercises.length > 1 && groupType !== 'bi_set' && groupType !== 'tri_set' && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setFormExercises(formExercises.filter((_, i) => i !== idx))}
+                                                    className="p-3 text-red-500/50 hover:text-red-500 transition-colors"
+                                                >
+                                                    <X size={18} />
+                                                </button>
+                                            )}
+                                        </div>
+                                    ))}
+
+                                    {/* Add extra exercise button (only for giant_set/circuit) */}
+                                    {groupType !== 'bi_set' && groupType !== 'tri_set' && groupType !== 'straight' && (
+                                        <button
+                                            type="button"
+                                            onClick={() => setFormExercises([...formExercises, null])}
+                                            className="w-full py-4 border-2 border-dashed border-zinc-800 rounded-2xl text-[10px] font-black uppercase tracking-widest text-zinc-600 hover:border-lime-400/30 hover:text-lime-500 transition-all mt-2"
+                                        >
+                                            + {t('addExercise')}
+                                        </button>
+                                    )}
+                                </div>
+
+                                {/* Parameters Grid */}
+                                <div className="grid grid-cols-3 gap-2 pt-2">
                                     {['sets', 'reps', 'restTime'].map((field) => (
-                                        <div key={field} className="bg-zinc-950 p-3 rounded-2xl border border-zinc-800 focus-within:ring-2 focus-within:ring-lime-400/50 transition-all">
+                                        <div key={field} className="bg-zinc-900/80 p-3 rounded-2xl border border-zinc-800 focus-within:ring-2 focus-within:ring-lime-400/50 transition-all">
                                             <span className="block text-[8px] font-black text-zinc-500 uppercase mb-1 tracking-tighter">
                                                 {t(field)}
                                             </span>
@@ -402,10 +518,21 @@ export const WorkoutDrawer = ({ showPreview, onClose, session, setSession, syncS
                                 </div>
                             </div>
 
-                            <button type="submit" className="w-full py-5 bg-lime-400 text-zinc-950 rounded-[28px] font-black uppercase text-xs tracking-[0.2em] flex items-center justify-center gap-2 shadow-xl shadow-lime-400/10 active:scale-95 transition-all mt-4">
+                            <button type="submit" className="w-full py-5 bg-lime-400 text-zinc-950 rounded-[32px] font-black uppercase text-[11px] tracking-[0.2em] flex items-center justify-center gap-3 shadow-xl shadow-lime-400/10 active:scale-95 transition-all mt-6">
                                 <Save size={18} /> {editingGroupIdx !== null ? t('confirmEdit') : t('confirmAdd')}
                             </button>
                         </form>
+
+                        <ConfirmDialog
+                            isOpen={confirmModal.isOpen}
+                            onClose={() => setConfirmModal({ ...confirmModal, isOpen: false })}
+                            onConfirm={confirmTypeChange}
+                            title={t('confirmTypeChange')}
+                            description={t('confirmTypeChangeText', { type: confirmModal.newType ? t(`groupTypes.${confirmModal.newType}`) : '' })}
+                            confirmText={t('confirmChange')}
+                            cancelText={t('cancelChange')}
+                            variant="warning"
+                        />
                     </div>
                 )}
             </div>

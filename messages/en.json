@@ -1483,6 +1483,7 @@
   "WorkoutDrawer": {
     "sets": "sets",
     "reps": "reps",
+    "groupTypeLabel": "Group Type",
     "addExercise": "New Exercise",
     "restTime": "Rest",
     "confirmAdd": "Add to Session",
@@ -1513,7 +1514,11 @@
       "giant_set": "Giant Set",
       "circuit": "Circuit",
       "superset": "Superset"
-    }
+    },
+    "confirmTypeChange": "Change group type?",
+    "confirmTypeChangeText": "Changing to {type} will remove exercises with filled data. Do you want to continue?",
+    "confirmChange": "Yes, change",
+    "cancelChange": "Cancel"
   },
   "DrawerWorkoutExerciseAdd": {
     "successTitle": "Success!",

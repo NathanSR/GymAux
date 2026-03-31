@@ -1483,6 +1483,7 @@
   "WorkoutDrawer": {
     "sets": "séries",
     "reps": "reps",
+    "groupTypeLabel": "Tipo de Grupo",
     "addExercise": "Novo Exercício",
     "restTime": "Descanso",
     "confirmAdd": "Adicionar à Sessão",
@@ -1513,7 +1514,11 @@
       "giant_set": "Giant Set",
       "circuit": "Circuito",
       "superset": "Superset"
-    }
+    },
+    "confirmTypeChange": "Mudar tipo de grupo?",
+    "confirmTypeChangeText": "Ao mudar para {type}, os exercícios extras que possuem dados preenchidos serão excluídos. Deseja continuar?",
+    "confirmChange": "Sim, mudar",
+    "cancelChange": "Cancelar"
   },
   "DrawerWorkoutExerciseAdd": {
     "successTitle": "Sucesso!",
