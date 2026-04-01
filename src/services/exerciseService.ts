@@ -4,7 +4,7 @@ import { Exercise } from '@/config/types';
 const mapExerciseFromSupabase = (ex: any): Exercise => ({
     id: ex.id,
     created_by: ex.created_by,
-    created_by_type: "user",
+    created_by_type: ex.created_by_type || "system",
     name: ex.name,
     description: ex.description || undefined,
     category: ex.category as any,
@@ -73,6 +73,23 @@ export const ExerciseService = {
                 });
             }
         }
+
+        // 3. Ordenação: User > Trainer > System
+        const typePriority: Record<string, number> = {
+            'user': 1,
+            'trainer': 2,
+            'system': 3
+        };
+
+        exercises.sort((a: Exercise, b: Exercise) => {
+            const pA = typePriority[a.created_by_type] || 4;
+            const pB = typePriority[b.created_by_type] || 4;
+            // Se o tipo for o mesmo, ordena por ID (ascendente)
+            if (pA === pB) {
+                return (a.id || 0) - (b.id || 0);
+            }
+            return pA - pB;
+        });
 
         const totalCount = exercises.length;
 
