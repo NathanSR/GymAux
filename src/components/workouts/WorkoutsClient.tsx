@@ -11,7 +11,7 @@ import {
     Info,
     Dumbbell
 } from 'lucide-react';
-import { useRouter } from '@/i18n/routing';
+import { Link } from '@/i18n/routing';
 import { WorkoutService } from '@/services/workoutService';
 import { useSessionActions } from '@/hooks/useSessionActions';
 import { useTranslations, useLocale } from 'next-intl';
@@ -26,8 +26,9 @@ interface WorkoutsClientProps {
     baseUrl?: string;
 }
 
+import PageHeader from '@/components/ui/PageHeader';
+
 export default function WorkoutsClient({ initialWorkouts, initialTotalCount, userId, baseUrl = '/workouts' }: WorkoutsClientProps) {
-    const router = useRouter();
     const { startWorkout } = useSessionActions();
     const locale = useLocale();
 
@@ -74,23 +75,18 @@ export default function WorkoutsClient({ initialWorkouts, initialTotalCount, use
     return (
         <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white pb-32 transition-colors">
             {/* Header */}
-            <header className="sticky top-0 z-30 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-md border-b border-zinc-100 dark:border-zinc-900 px-6 py-4">
-                <div className="flex items-center justify-between mb-4">
-                    <button
-                        onClick={() => router.push(baseUrl === '/workouts' ? '/home' : `/trainer/${userId}`)}
-                        className="p-2 rounded-xl bg-zinc-100 dark:bg-zinc-900 text-zinc-500 cursor-pointer"
-                    >
-                        <ChevronLeft size={24} />
-                    </button>
-                    <h1 className="font-black text-lg uppercase tracking-tight">{t('title')}</h1>
-                    <button
-                        onClick={() => router.push(`${baseUrl}/new`)}
+            <PageHeader
+                title={t('title')}
+                backHref={baseUrl === '/workouts' ? '/home' : `/trainer/${userId}`}
+                rightAction={
+                    <Link
+                        href={`${baseUrl}/new`}
                         className="p-2 rounded-xl bg-lime-400 text-zinc-950 shadow-lg shadow-lime-500/20 active:scale-90 transition-transform cursor-pointer"
                     >
                         <Plus size={24} />
-                    </button>
-                </div>
-
+                    </Link>
+                }
+            >
                 <div className="relative">
                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400" size={18} />
                     <input
@@ -104,7 +100,7 @@ export default function WorkoutsClient({ initialWorkouts, initialTotalCount, use
                         }}
                     />
                 </div>
-            </header>
+            </PageHeader>
 
             {/* Grid de Treinos */}
             <main className="px-6 space-y-4 pt-4">
@@ -150,12 +146,12 @@ export default function WorkoutsClient({ initialWorkouts, initialTotalCount, use
                                     {t('train')}
                                 </button>
 
-                                <button
-                                    onClick={() => router.push(`${baseUrl}/${workout.id}/edit`)}
+                                <Link
+                                    href={`${baseUrl}/${workout.id}/edit`}
                                     className="flex-1 flex items-center justify-center gap-2 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-500 dark:text-zinc-300 py-4 rounded-2xl font-bold text-xs uppercase transition-all active:scale-95 border border-zinc-200/50 dark:border-zinc-700/50"
                                 >
                                     <Edit size={16} />
-                                </button>
+                                </Link>
                             </div>
                         </div>
                     ))

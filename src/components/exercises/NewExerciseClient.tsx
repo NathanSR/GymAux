@@ -1,13 +1,13 @@
 "use client";
 
 import { useState } from 'react';
-import { ChevronLeft } from 'lucide-react';
 import { useRouter } from '@/i18n/routing';
 import { useTranslations } from 'next-intl';
 import { useSession } from '@/hooks/useSession';
 import ExerciseForm from '@/components/exercises/ExerciseForm';
 import { ExerciseService } from '@/services/exerciseService';
 import { toast } from 'react-toastify';
+import PageHeader from '@/components/ui/PageHeader';
 
 export default function NewExerciseClient() {
     const router = useRouter();
@@ -39,21 +39,7 @@ export default function NewExerciseClient() {
 
     return (
         <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white transition-colors duration-300">
-            <header className="sticky top-0 z-50 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-md border-b border-zinc-100 dark:border-zinc-900 px-6 py-4 flex items-center justify-between">
-                <button
-                    onClick={() => router.back()}
-                    className="p-2 rounded-xl bg-zinc-100 dark:bg-zinc-900 text-zinc-500 hover:text-zinc-900 dark:hover:text-white transition-colors"
-                    aria-label="Voltar"
-                >
-                    <ChevronLeft size={24} />
-                </button>
-
-                <h1 className="font-black text-lg tracking-tight uppercase">
-                    {t('newExercise')}
-                </h1>
-
-                <div className="w-10" />
-            </header>
+            <PageHeader title={t('newExercise')} backHref="/exercises" />
 
             <main className="p-6 max-w-2xl mx-auto">
                 <ExerciseForm onSubmit={handleCreate} isLoading={isLoading} />

@@ -17,6 +17,8 @@ interface EditScheduleClientProps {
     baseUrl?: string;
 }
 
+import PageHeader from "@/components/ui/PageHeader";
+
 export default function EditScheduleClient({ initialData, scheduleId, callerId, baseUrl = '/schedules' }: EditScheduleClientProps) {
     const { isDark } = useTheme();
     const router = useRouter();
@@ -68,25 +70,19 @@ export default function EditScheduleClient({ initialData, scheduleId, callerId, 
 
     return (
         <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white pb-12 transition-colors">
-            <header className="sticky top-0 z-50 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-md border-b border-zinc-100 dark:border-zinc-900 px-6 py-4 flex items-center justify-between">
-                <button
-                    onClick={() => router.back()}
-                    className="p-3 rounded-2xl bg-zinc-100 dark:bg-zinc-900 text-zinc-500 hover:text-zinc-900 dark:hover:text-white transition-all active:scale-90 cursor-pointer"
-                >
-                    <ChevronLeft size={20} />
-                </button>
-
-                <h1 className="font-black text-xs tracking-widest uppercase text-zinc-400 dark:text-zinc-500">
-                    {t('editTitle')}
-                </h1>
-
-                <button
-                    onClick={handleDelete}
-                    className="p-3 rounded-2xl bg-red-50 dark:bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all active:scale-90 cursor-pointer"
-                >
-                    <Trash2 size={20} />
-                </button>
-            </header>
+            <PageHeader
+                title={t('editTitle')}
+                variant="minimal"
+                backHref={baseUrl}
+                rightAction={
+                    <button
+                        onClick={handleDelete}
+                        className="p-3 rounded-2xl bg-red-50 dark:bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all active:scale-90 cursor-pointer"
+                    >
+                        <Trash2 size={20} />
+                    </button>
+                }
+            />
 
             <main className="px-6 max-w-2xl mx-auto mt-6 animate-in fade-in slide-in-from-bottom-2 duration-500">
                 <ScheduleForm

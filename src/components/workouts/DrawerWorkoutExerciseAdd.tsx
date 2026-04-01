@@ -17,7 +17,7 @@ import { Exercise, Workout } from "@/config/types";
 import { useSession } from "@/hooks/useSession";
 import { WorkoutService } from "@/services/workoutService";
 import { useTranslations } from "next-intl";
-import { useRouter } from "@/i18n/routing";
+import { Link } from "@/i18n/routing";
 
 interface DrawerProps {
     isOpen: boolean;
@@ -36,7 +36,6 @@ export default function DrawerWorkoutExerciseAdd({
     onClose,
     exercise,
 }: DrawerProps) {
-    const router = useRouter();
     const { activeUser } = useSession();
     const [step, setStep] = useState<'select' | 'form'>('select');
     const [selectedWorkout, setSelectedWorkout] = useState<Workout | null>(null);
@@ -169,14 +168,12 @@ export default function DrawerWorkoutExerciseAdd({
                         </div>
 
                         <div className="flex flex-col w-full gap-3 pt-4">
-                            <button
-                                onClick={() => {
-                                    router.push(`/workouts/${selectedWorkout?.id}/edit`);
-                                }}
+                            <Link
+                                href={`/workouts/${selectedWorkout?.id}/edit`}
                                 className="w-full py-5 bg-zinc-950 dark:bg-zinc-100 dark:text-zinc-950 text-white rounded-3xl font-black uppercase text-xs tracking-[0.2em] flex items-center justify-center gap-2"
                             >
                                 {t("goToWorkout")} <ArrowRight size={16} />
-                            </button>
+                            </Link>
                             <button
                                 onClick={resetAndClose}
                                 className="w-full py-4 bg-transparent text-zinc-500 font-bold text-sm"
@@ -211,9 +208,9 @@ export default function DrawerWorkoutExerciseAdd({
                         ) : (
                             <div className="py-10 text-center space-y-4">
                                 <p className="text-zinc-400 text-sm">{t("noWorkouts")}</p>
-                                <button className="text-lime-500 font-black uppercase text-xs tracking-widest">
+                                <Link href="/workouts/new" className="text-lime-500 font-black uppercase text-xs tracking-widest">
                                     {t("createFirstWorkout")}
-                                </button>
+                                </Link>
                             </div>
                         )}
                     </div>

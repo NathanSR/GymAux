@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from 'react';
-import { ChevronLeft, Trash2 } from 'lucide-react';
+import { Trash2 } from 'lucide-react';
 import { useRouter } from '@/i18n/routing';
 import { useTranslations } from 'next-intl';
 import ExerciseForm from '@/components/exercises/ExerciseForm';
@@ -11,6 +11,7 @@ import { useTheme } from '@/context/ThemeContext';
 import { toast } from 'react-toastify';
 import { Exercise } from '@/config/types';
 import { useSession } from '@/hooks/useSession';
+import PageHeader from '@/components/ui/PageHeader';
 
 interface EditExerciseClientProps {
     initialExercise: any;
@@ -72,25 +73,18 @@ export default function EditExerciseClient({ initialExercise, exerciseId }: Edit
 
     return (
         <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white transition-colors duration-300">
-            <header className="sticky top-0 z-50 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-md border-b border-zinc-100 dark:border-zinc-900 px-6 py-4 flex items-center justify-between">
-                <button
-                    onClick={() => router.back()}
-                    className="p-2 rounded-xl bg-zinc-100 dark:bg-zinc-900 text-zinc-500 hover:text-zinc-900 dark:hover:text-white transition-colors"
-                >
-                    <ChevronLeft size={24} />
-                </button>
-
-                <h1 className="font-black text-lg tracking-tight uppercase">
-                    {t('editExercise')}
-                </h1>
-
-                <button
-                    onClick={handleDelete}
-                    className="p-2 rounded-xl bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all cursor-pointer"
-                >
-                    <Trash2 size={20} />
-                </button>
-            </header>
+            <PageHeader 
+                title={t('editExercise')}
+                backHref="/exercises"
+                rightAction={
+                    <button
+                        onClick={handleDelete}
+                        className="p-2 rounded-xl bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all cursor-pointer"
+                    >
+                        <Trash2 size={20} />
+                    </button>
+                }
+            />
 
             <main className="p-6 max-2xl mx-auto animate-in fade-in duration-500">
                 <ExerciseForm

@@ -1,15 +1,16 @@
 "use client";
 
 import { useEffect, useMemo, useState } from 'react';
-import { ChevronLeft, Search, Dumbbell, Info, PlayCircle, Plus, Edit, Eye } from 'lucide-react';
+import { Search, Dumbbell, Info, PlayCircle, Plus, Edit, Eye } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useRouter } from '@/i18n/routing';
+import { Link } from '@/i18n/routing';
 import { ExerciseService } from '@/services/exerciseService';
 import { useDebounce } from '@/hooks/useDebounce';
 import { CATEGORIES } from '@/config/constants';
 import { Exercise } from '@/config/types';
 import { Pagination } from '@/components/ui/Pagination';
 import { useSession } from '@/hooks/useSession';
+import PageHeader from '@/components/ui/PageHeader';
 
 interface ExercisesClientProps {
     initialExercises: Exercise[];
@@ -17,7 +18,6 @@ interface ExercisesClientProps {
 }
 
 export default function ExercisesClient({ initialExercises, initialTotalCount }: ExercisesClientProps) {
-    const router = useRouter();
     const { activeUser } = useSession();
 
     // Estados de interface
@@ -85,17 +85,15 @@ export default function ExercisesClient({ initialExercises, initialTotalCount }:
     return (
         <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white transition-colors duration-300 font-sans pb-10">
             {/* Header */}
-            <header className="sticky top-0 z-30 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-md border-b border-zinc-100 dark:border-zinc-900 px-6 py-4">
-                <div className="flex items-center justify-between mb-4">
-                    <button onClick={() => router.push('/home')} className="p-2 rounded-xl bg-zinc-100 dark:bg-zinc-900 text-zinc-500 cursor-pointer">
-                        <ChevronLeft size={24} />
-                    </button>
-                    <h1 className="font-black text-lg uppercase tracking-tight">{t('title')}</h1>
-                    <button onClick={() => router.push('/exercises/new')} className="p-2 rounded-xl bg-lime-400 text-zinc-950 shadow-lg shadow-lime-500/20 active:scale-90 transition-transform cursor-pointer">
+            <PageHeader
+                title={t('title')}
+                backHref="/home"
+                rightAction={
+                    <Link href="/exercises/new" className="p-2 rounded-xl bg-lime-400 text-zinc-950 shadow-lg shadow-lime-500/20 active:scale-90 transition-transform flex items-center justify-center">
                         <Plus size={24} />
-                    </button>
-                </div>
-
+                    </Link>
+                }
+            >
                 <div className="relative">
                     <Search className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors ${searchQuery.startsWith('#') ? 'text-lime-500' : 'text-zinc-400'}`} size={18} />
                     <input
@@ -111,7 +109,7 @@ export default function ExercisesClient({ initialExercises, initialTotalCount }:
                         </span>
                     )}
                 </div>
-            </header>
+            </PageHeader>
 
             <main className="p-6">
                 {/* Categorias */}
@@ -167,22 +165,22 @@ export default function ExercisesClient({ initialExercises, initialTotalCount }:
                                 </div>
 
                                 <div className="flex gap-2 mt-5">
-                                    <button
-                                        onClick={() => router.push(`/exercises/${exercise.id}`)}
+                                    <Link
+                                        href={`/exercises/${exercise.id}`}
                                         className="flex-1 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-900 dark:text-white py-3 rounded-2xl text-[11px] font-black uppercase tracking-wider flex items-center justify-center gap-2 transition-colors"
                                     >
                                         <Eye size={14} />
                                         {t('viewDetails')}
-                                    </button>
+                                    </Link>
 
                                     {(exercise.created_by === activeUser?.id) && (
-                                        <button
-                                            onClick={() => router.push(`/exercises/${exercise.id}/edit`)}
+                                        <Link
+                                            href={`/exercises/${exercise.id}/edit`}
                                             className="bg-lime-400 hover:bg-lime-500 text-zinc-950 px-4 py-3 rounded-2xl transition-colors flex items-center justify-center"
                                             title={t('edit')}
                                         >
                                             <Edit size={16} />
-                                        </button>
+                                        </Link>
                                     )}
                                 </div>
                             </div>

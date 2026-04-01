@@ -1,4 +1,4 @@
-"use client";
+"use client"
 
 import { History } from "@/config/types";
 import { useRouter } from "@/i18n/routing";
@@ -8,6 +8,7 @@ import { useEffect, useMemo, useState, useCallback } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { WorkoutHistoryModal } from "@/components/history/WorkoutHistoryModal";
 import { useDebounce } from "@/hooks/useDebounce";
+import PageHeader from "@/components/ui/PageHeader";
 
 interface HistoryClientProps {
     userId: string;
@@ -117,23 +118,19 @@ export default function HistoryClient({
     };
 
     return (
-        <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white pb-24 transition-colors">
-            <header className="sticky top-0 z-30 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-md border-b border-zinc-100 dark:border-zinc-900 px-6 py-4">
-                <div className="flex items-center justify-between mb-4">
-                    <button onClick={() => router.push(baseUrl === '/history' ? '/home' : `/trainer/${userId}`)}
-                        className="p-3 rounded-2xl bg-zinc-100 dark:bg-zinc-900 text-zinc-500 active:scale-95 transition-all">
-                        <ChevronLeft size={20} />
-                    </button>
-                    <h1 className="font-black text-xs uppercase tracking-[0.2em] text-zinc-400">{t('title')}</h1>
-                    <div className="w-10" />
-                </div>
+        <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white pb-10 transition-colors duration-300">
+            <PageHeader
+                title={t('title')}
+                variant="minimal"
+                backHref="/home"
+            >
                 <div className="relative">
                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400" size={18} />
                     <input type="text" placeholder={t('filterPlaceholder')}
                         className="w-full bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800 rounded-2xl py-4 pl-12 pr-4 text-sm font-bold outline-none focus:ring-2 focus:ring-lime-400 transition-all"
                         value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
                 </div>
-            </header>
+            </PageHeader>
 
             <section className="p-6 space-y-4 max-w-lg mx-auto">
                 <div className="flex items-center bg-white dark:bg-zinc-900 rounded-[24px] shadow-sm border border-zinc-100 dark:border-zinc-800 p-2">

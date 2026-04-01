@@ -15,6 +15,8 @@ interface NewWorkoutClientProps {
     baseUrl?: string;
 }
 
+import PageHeader from '@/components/ui/PageHeader';
+
 export default function NewWorkoutClient({ availableExercises, userId, baseUrl = '/workouts' }: NewWorkoutClientProps) {
     const router = useRouter();
     const t = useTranslations('WorkoutRegister');
@@ -42,20 +44,7 @@ export default function NewWorkoutClient({ availableExercises, userId, baseUrl =
 
     return (
         <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white transition-colors duration-300">
-            <header className="sticky top-0 z-50 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-md border-b border-zinc-100 dark:border-zinc-900 px-6 py-4 flex items-center justify-between">
-                <button
-                    onClick={() => router.back()}
-                    className="p-2 rounded-xl bg-zinc-100 dark:bg-zinc-900 text-zinc-500 hover:text-zinc-900 dark:hover:text-white transition-colors cursor-pointer"
-                >
-                    <ChevronLeft size={24} />
-                </button>
-
-                <h1 className="font-black text-lg tracking-tight uppercase">
-                    {t('newWorkout')}
-                </h1>
-
-                <div className="w-10" />
-            </header>
+            <PageHeader title={t('newWorkout')} backHref={baseUrl} />
 
             <main className="p-6 max-w-3xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
                 <WorkoutForm

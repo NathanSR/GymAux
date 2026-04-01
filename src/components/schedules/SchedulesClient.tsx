@@ -11,7 +11,7 @@ import {
     CheckCircle2,
     XCircle
 } from 'lucide-react';
-import { useRouter } from '@/i18n/routing';
+import { useRouter, Link } from '@/i18n/routing';
 import { ScheduleService } from '@/services/scheduleService';
 import { useLocale, useTranslations } from 'next-intl';
 import { Schedule } from '@/config/types';
@@ -25,6 +25,8 @@ interface SchedulesClientProps {
     userId: string;
     baseUrl?: string;
 }
+
+import PageHeader from '@/components/ui/PageHeader';
 
 export default function SchedulesClient({ initialSchedules, initialTotalCount, userId, baseUrl = '/schedules' }: SchedulesClientProps) {
     const router = useRouter();
@@ -74,17 +76,15 @@ export default function SchedulesClient({ initialSchedules, initialTotalCount, u
     return (
         <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white pb-32 transition-colors">
             {/* Header */}
-            <header className="sticky top-0 z-30 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-md border-b border-zinc-100 dark:border-zinc-900 px-6 py-4">
-                <div className="flex items-center justify-between mb-4">
-                    <button onClick={() => router.push(baseUrl === '/schedules' ? '/home' : `/trainer/${userId}`)} className="p-2 rounded-xl bg-zinc-100 dark:bg-zinc-900 text-zinc-500">
-                        <ChevronLeft size={24} />
-                    </button>
-                    <h1 className="font-black text-lg uppercase tracking-tight">{t('title')}</h1>
-                    <button onClick={() => router.push(`${baseUrl}/new`)} className="p-2 rounded-xl bg-lime-400 text-zinc-950 shadow-lg shadow-lime-500/20 active:scale-90 transition-transform">
+            <PageHeader
+                title={t('title')}
+                backHref={baseUrl === '/schedules' ? '/home' : `/trainer/${userId}`}
+                rightAction={
+                    <Link href={`${baseUrl}/new`} className="p-2 rounded-xl bg-lime-400 text-zinc-950 shadow-lg shadow-lime-500/20 active:scale-90 transition-transform">
                         <Plus size={24} />
-                    </button>
-                </div>
-
+                    </Link>
+                }
+            >
                 <div className="relative">
                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400" size={18} />
                     <input
@@ -98,13 +98,13 @@ export default function SchedulesClient({ initialSchedules, initialTotalCount, u
                         }}
                     />
                 </div>
-            </header>
+            </PageHeader>
 
             {/* Lista de Cards */}
             <main className="px-6 space-y-6 pt-6 mb-10">
                 {loading ? (
                     Array.from({ length: 3 }).map((_, i) => (
-                        <div key={i} className="h-64 bg-zinc-100 dark:bg-zinc-900 rounded-[32px] animate-pulse" />
+                        <div key={i} className="h-64 bg-white dark:bg-zinc-900 rounded-[32px] animate-pulse" />
                     ))
                 ) : schedules.length > 0 ? (
                     schedules.map((schedule) => {
@@ -113,7 +113,7 @@ export default function SchedulesClient({ initialSchedules, initialTotalCount, u
                         return (
                             <div
                                 key={schedule.id}
-                                className="group relative bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 rounded-[32px] p-6 shadow-sm transition-all hover:shadow-md"
+                                className="block group relative bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 rounded-[32px] p-6 shadow-sm transition-all hover:shadow-md"
                             >
                                 <div className="flex justify-between items-start mb-4">
                                     <div className="space-y-2">
@@ -135,12 +135,12 @@ export default function SchedulesClient({ initialSchedules, initialTotalCount, u
                                     </div>
 
                                     <div className="flex gap-2">
-                                        <button
+                                        <Link
+                                            href={`${baseUrl}/${schedule.id}/edit`}
                                             className='w-10 h-10 rounded-full bg-zinc-50 dark:bg-zinc-800 flex items-center justify-center text-lime-500 hover:scale-105 transition-colors cursor-pointer'
-                                            onClick={() => router.push(`${baseUrl}/${schedule.id}/edit`)}
                                         >
                                             <Edit size={18} />
-                                        </button>
+                                        </Link>
                                     </div>
                                 </div>
 

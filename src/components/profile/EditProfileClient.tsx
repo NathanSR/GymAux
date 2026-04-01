@@ -13,6 +13,8 @@ interface EditProfileClientProps {
     initialUser: AppUser;
 }
 
+import PageHeader from "@/components/ui/PageHeader";
+
 export default function EditProfileClient({ initialUser }: EditProfileClientProps) {
     const router = useRouter();
     const t = useTranslations('UserEdit');
@@ -38,20 +40,7 @@ export default function EditProfileClient({ initialUser }: EditProfileClientProp
 
     return (
         <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white pb-10 transition-colors">
-            <header className="sticky top-0 z-30 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-md border-b border-zinc-100 dark:border-zinc-900 px-6 py-4">
-                <div className="flex items-center justify-between max-w-lg mx-auto">
-                    <button
-                        type="button"
-                        className="p-2 rounded-xl bg-zinc-100 dark:bg-zinc-900 text-zinc-500 hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors"
-                        onClick={() => router.push("/home")}>
-                        <ChevronLeft size={24} />
-                    </button>
-                    <h1 className="font-black text-lg uppercase tracking-tight italic">
-                        {t('title')}
-                    </h1>
-                    <div className="w-10"></div>
-                </div>
-            </header>
+            <PageHeader title={t('title')} backHref="/profile" className="max-w-lg mx-auto rounded-b-[32px] border-x" />
 
             <main className="p-6 max-w-lg mx-auto">
                 <UserForm
