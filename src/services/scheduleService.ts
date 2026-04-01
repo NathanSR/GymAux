@@ -223,6 +223,15 @@ export const ScheduleService = {
             }
         }
 
+        // Se estiver ativando este cronograma, desativa os outros primeiro
+        if (updates.active === true) {
+            await supabase
+                .from('schedules')
+                .update({ active: false })
+                .eq('user_id', existingSchedule.user_id)
+                .neq('id', id);
+        }
+
         const { data, error } = await supabase
             .from('schedules')
             .update(updates)
