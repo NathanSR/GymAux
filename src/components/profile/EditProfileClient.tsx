@@ -40,7 +40,7 @@ export default function EditProfileClient({ initialUser }: EditProfileClientProp
 
     return (
         <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white pb-10 transition-colors">
-            <PageHeader title={t('title')} backHref="/profile" className="max-w-lg mx-auto rounded-b-[32px] border-x" />
+            <PageHeader title={t('title')} backHref="/home" className="max-w-lg mx-auto rounded-b-[32px] border-x" />
 
             <main className="p-6 max-w-lg mx-auto">
                 <UserForm

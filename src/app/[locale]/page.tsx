@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import PWAInstallButton from '@/components/PWAInstallButton';
+import PWAInstallButton from '@/components/ui/PWAInstallButton';
 
 import Navbar from '@/components/initial/Navbar';
 import HeroSection from '@/components/initial/HeroSection';

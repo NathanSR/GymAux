@@ -114,7 +114,11 @@
     "trainerPanel": "Panel del Entrenador",
     "logout": "Cerrar Sesión",
     "selectLanguage": "Seleccionar Idioma",
-    "installApp": "Instalar Aplicación"
+    "installApp": "Instalar Aplicación",
+    "userProfile": "Perfil de Usuario",
+    "athlete": "Atleta",
+    "trainer": "Entrenador",
+    "admin": "Administrador"
   },
   "MyID": {
     "title": "Mi ID GymAux",

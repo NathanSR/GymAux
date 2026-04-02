@@ -60,25 +60,25 @@ export default function PageHeader({
         `}>
             <div className={`flex items-center justify-between ${children ? 'mb-4' : ''}`}>
                 {/* Left Action: Back Button */}
-                {backHref ? (
+                {/* {backHref ? (
                     <Link href={backHref} aria-label="Voltar">
                         {backButtonContent}
                     </Link>
-                ) : (
-                    <button
-                        onClick={handleBack}
-                        type="button"
-                        aria-label="Voltar"
-                    >
-                        {backButtonContent}
-                    </button>
-                )}
+                ) : ( */}
+                <button
+                    onClick={handleBack}
+                    type="button"
+                    aria-label="Voltar"
+                >
+                    {backButtonContent}
+                </button>
+                {/*)}*/}
 
                 {/* Center Content: Title */}
                 <h1 className={`
                     font-black uppercase tracking-tight
-                    ${isMinimal 
-                        ? 'text-xs tracking-widest text-zinc-400 dark:text-zinc-500' 
+                    ${isMinimal
+                        ? 'text-xs tracking-widest text-zinc-400 dark:text-zinc-500'
                         : 'text-lg italic tracking-tight text-zinc-900 dark:text-white text-center'
                     }
                     ${titleClassName}

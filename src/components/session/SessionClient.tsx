@@ -19,7 +19,6 @@ import {
 } from 'lucide-react';
 import { Session, ExecutedGroup, ExecutedExercise, ExecutedSet } from '@/config/types';
 import { RestTimer } from '@/components/session/RestTimer';
-import { useRouter } from '@/i18n/routing';
 import { useForm } from 'react-hook-form';
 import { WorkoutDrawer } from '@/components/session/WorkoutDrawer';
 import { SessionService } from '@/services/sessionService';
@@ -106,7 +105,6 @@ const GROUP_CONFIG: Record<string, {
 export default function SessionClient({ initialSession, isReadOnly = false }: SessionClientProps) {
     const t = useTranslations('Session');
     const te = useTranslations('Exercises');
-    const router = useRouter();
     const { exitSession, forceFinishWorkout } = useSessionActions();
     const { confirm } = useAlerts();
 
@@ -144,7 +142,7 @@ export default function SessionClient({ initialSession, isReadOnly = false }: Se
     const rpeValue = watch("rpe");
 
     useEffect(() => {
-        setValue("weight", currentPlannedSet?.weight || 0);
+        setValue("weight", currentPlannedSet?.weight || weight || 0);
         setValue("reps", currentPlannedSet?.reps || 0);
         setValue("rpe", 7); // Reset RPE on every change
     }, [currentGroupIndex, currentExerciseIndex, currentSetIndex, setValue, currentPlannedSet]);
@@ -414,7 +412,7 @@ export default function SessionClient({ initialSession, isReadOnly = false }: Se
                                 key={currentExercise?.exerciseId}
                                 initial={{ opacity: 0, y: 10 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                className="text-4xl font-black uppercase tracking-tighter italic leading-[0.85] truncate pr-2 mt-1"
+                                className="text-3xl font-black uppercase tracking-tighter italic leading-[0.85] truncate pr-2 mt-1"
                             >
                                 {te.has(currentExercise?.exerciseName!) ? te(currentExercise?.exerciseName!) : currentExercise?.exerciseName}
                             </motion.h2>

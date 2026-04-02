@@ -21,7 +21,7 @@ import {
 import { useTranslations, useLocale } from 'next-intl';
 import { useRouter } from '@/i18n/routing';
 import { useSessionActions } from '@/hooks/useSessionActions';
-import { MenuTab } from '@/components/MenuTab';
+import { MenuTab } from '@/components/ui/MenuTab';
 import ProfileMenu from '@/components/home/ProfileMenu';
 import ConnectionConfirmationModal from '@/components/home/ConnectionConfirmationModal';
 import { Workout, History, Session, User as AppUser } from '@/config/types';
@@ -50,15 +50,16 @@ export function HomeHeader({ activeUser, formattedDate }: { activeUser: AppUser 
             <div className="relative">
                 <button
                     onClick={() => setShowProfileMenu(!showProfileMenu)}
-                    className="w-12 h-12 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 flex items-center justify-center text-zinc-600 dark:text-zinc-400 overflow-hidden active:scale-90 transition-transform shadow-sm"
+                    className="group relative w-12 h-12 rounded-[20px] bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 flex items-center justify-center text-zinc-600 dark:text-zinc-400 overflow-hidden active:scale-95 transition-all shadow-sm hover:shadow-md hover:border-lime-500/50"
                 >
+                    <div className="absolute inset-0 bg-gradient-to-br from-lime-400/0 to-lime-400/0 group-hover:from-lime-400/5 group-hover:to-lime-400/10 transition-all duration-500" />
                     {activeUser?.avatar
-                        ? <img src={activeUser.avatar} alt="User" className="w-full h-full object-cover" />
-                        : <User size={24} />}
+                        ? <img src={activeUser.avatar} alt="User" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                        : <User size={22} className="group-hover:scale-110 transition-transform duration-500" />}
                 </button>
-                <ProfileMenu 
-                    showProfileMenu={showProfileMenu} 
-                    setShowProfileMenu={setShowProfileMenu} 
+                <ProfileMenu
+                    showProfileMenu={showProfileMenu}
+                    setShowProfileMenu={setShowProfileMenu}
                     activeUser={activeUser}
                 />
             </div>
@@ -312,7 +313,7 @@ export function HomeLists({ historyList, sessionList, activeUserId }: { historyL
                     })}
                 </div>
             </section>
-            
+
             {activeUserId && <ConnectionConfirmationModal userId={activeUserId} />}
         </>
     );
@@ -345,7 +346,7 @@ export default function HomeClient({
             <HomeHeader activeUser={activeUser} formattedDate={formattedDate} />
             <HomeWorkoutBanner todayWorkout={initialTodayWorkout} todayHistory={initialTodayHistory} />
             <HomeLists historyList={initialHistoryList} sessionList={initialSessionList} activeUserId={activeUser?.id!} />
-            
+
             <MenuTab onPlay={() => startWorkout(initialTodayWorkout as Workout)} completed={!initialTodayWorkout || !!initialTodayHistory} />
         </div>
     );
