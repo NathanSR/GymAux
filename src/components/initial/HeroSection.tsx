@@ -9,6 +9,15 @@ import { ArrowRight, Play, TrendingUp, Calendar, Timer } from 'lucide-react';
 export default function HeroSection() {
     const t = useTranslations('Marketing');
 
+    const [hasAccount, setHasAccount] = React.useState(false);
+
+    React.useEffect(() => {
+        const storedFlag = localStorage.getItem('gymaux_has_account');
+        if (storedFlag === 'true') {
+            setHasAccount(true);
+        }
+    }, []);
+
     return (
         <section id="hero" className="max-w-7xl mx-auto flex flex-col items-center text-center gap-8 mb-32 pt-32 px-6">
             <motion.div
@@ -16,7 +25,7 @@ export default function HeroSection() {
                 whileInView={{ opacity: 1, scale: 1, y: 0 }}
                 viewport={{ once: false, amount: 0.3 }}
                 transition={{ duration: 0.8, ease: "easeOut" }}
-                className="px-4 py-1.5 rounded-full bg-brand/10 border border-brand/20 text-brand text-[10px] font-bold tracking-[0.2em] uppercase"
+                className="px-4 py-1.5 rounded-full bg-brand/10 border border-brand/20 text-brand text-[10px] font-black tracking-[0.2em] uppercase"
             >
                 {t('Stats.uptime')} - 99.9%
             </motion.div>
@@ -50,22 +59,41 @@ export default function HeroSection() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: false, amount: 0.3 }}
                 transition={{ duration: 0.8, delay: 0.3 }}
-                className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto text-zinc-100"
+                className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto text-zinc-100 mt-4"
             >
-                <Link
-                    href="/register"
-                    className="bg-brand text-black px-10 py-5 rounded-2xl font-black text-sm tracking-wide shadow-[0_0_30px_-10px_#ccff00] hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2 group"
-                >
-                    {t('Hero.getStarted').toUpperCase()}
-                    <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                </Link>
-                {/* <Link
-                    href="#"
-                    className="px-10 py-5 rounded-2xl border border-white/10 font-bold text-sm tracking-wide hover:bg-white/5 transition-all flex items-center justify-center gap-2"
-                >
-                    <Play className="w-4 h-4 fill-current" />
-                    {t('Hero.freeDemo').toUpperCase()}
-                </Link> */}
+                {hasAccount ? (
+                    <>
+                        <Link
+                            href="/login"
+                            className="bg-brand text-black px-12 py-5 rounded-2xl font-black text-sm tracking-widest shadow-[0_10px_40px_-10px_#ccff00] hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-3 group uppercase"
+                        >
+                            {t('Navbar.login')}
+                            <Play className="w-4 h-4 fill-current group-hover:translate-x-1 transition-transform" />
+                        </Link>
+                        <Link
+                            href="/register"
+                            className="px-12 py-5 rounded-2xl border-2 border-white/10 font-black text-sm tracking-widest hover:bg-white/5 transition-all flex items-center justify-center gap-2 uppercase"
+                        >
+                            {t('Navbar.getStarted')}
+                        </Link>
+                    </>
+                ) : (
+                    <>
+                        <Link
+                            href="/register"
+                            className="bg-brand text-black px-12 py-5 rounded-2xl font-black text-sm tracking-widest shadow-[0_10px_40px_-10px_#ccff00] hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-3 group uppercase"
+                        >
+                            {t('Hero.getStarted')}
+                            <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                        </Link>
+                        <Link
+                            href="/login"
+                            className="px-12 py-5 rounded-2xl border-2 border-white/10 font-black text-sm tracking-widest hover:bg-white/5 transition-all flex items-center justify-center gap-2 uppercase"
+                        >
+                            {t('Navbar.login')}
+                        </Link>
+                    </>
+                )}
             </motion.div>
 
             {/* Dashboard Preview / Floating elements */}

@@ -8,13 +8,21 @@ import { Dumbbell, Menu, X } from 'lucide-react';
 
 export default function Navbar() {
     const t = useTranslations('Marketing');
+    const [hasAccount, setHasAccount] = useState(false);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
     const navLinks = [
-        { href: '#features', label: t('Navbar.features') },
-        { href: '#pricing', label: t('Navbar.pricing') },
-        { href: '#faq', label: t('Navbar.faq') },
+        { label: t('Navbar.features'), href: '#features' },
+        { label: t('Navbar.pricing'), href: '#pricing' },
+        { label: t('Navbar.faq'), href: '#faq' },
     ];
+
+    React.useEffect(() => {
+        const storedFlag = localStorage.getItem('gymaux_has_account');
+        if (storedFlag === 'true') {
+            setHasAccount(true);
+        }
+    }, []);
 
     return (
         <header className="fixed top-0 left-0 right-0 z-50 px-6 py-4 flex justify-center">
@@ -22,37 +30,40 @@ export default function Navbar() {
                 initial={{ y: -100, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ duration: 0.8, ease: "easeOut" }}
-                className="max-w-7xl w-full flex items-center justify-between px-6 h-14 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl"
+                className="max-w-7xl w-full flex items-center justify-between px-6 h-16 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.3)]"
             >
-                <Link href="#hero" className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-lg bg-brand flex items-center justify-center">
-                        <Dumbbell className="w-5 h-5 text-black" strokeWidth={2.5} />
+                <Link href="#hero" className="flex items-center gap-2 group">
+                    <div className="w-9 h-9 rounded-xl bg-brand flex items-center justify-center transform transition-transform group-hover:rotate-12">
+                        <Dumbbell className="w-6 h-6 text-black" strokeWidth={2.5} />
                     </div>
-                    <span className="text-xl font-bold tracking-tighter uppercase italic text-zinc-100">GymAux</span>
+                    <span className="text-2xl font-black tracking-tighter uppercase italic text-zinc-100 pb-1">GymAux</span>
                 </Link>
 
                 {/* Desktop Menu */}
-                <div className="hidden md:flex items-center gap-8">
+                <div className="hidden md:flex items-center gap-10">
                     {navLinks.map((link) => (
                         <Link
                             key={link.href}
                             href={link.href}
-                            className="text-sm font-medium text-zinc-400 hover:text-brand transition-colors"
+                            className="text-sm font-bold text-zinc-400 hover:text-brand transition-all uppercase tracking-wider relative group"
                         >
                             {link.label}
+                            <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-brand transition-all group-hover:w-full" />
                         </Link>
                     ))}
                 </div>
 
-                <div className="hidden md:flex items-center gap-4">
-                    <Link href="/login" className="text-sm font-medium hover:text-brand transition-colors transition-all duration-300 text-zinc-100">
-                        {t('Navbar.login')}
-                    </Link>
+                <div className="hidden md:flex items-center gap-6">
+                    {!hasAccount && (
+                        <Link href="/login" className="text-sm font-black hover:text-brand transition-all duration-300 text-zinc-100 uppercase tracking-widest">
+                            {t('Navbar.login')}
+                        </Link>
+                    )}
                     <Link
-                        href="/register"
-                        className="px-5 py-2 rounded-xl bg-brand font-bold text-xs text-black transition-all hover:scale-105 active:scale-95 shadow-[0_0_20px_-10px_#ccff00] uppercase"
+                        href={hasAccount ? "/login" : "/register"}
+                        className="px-8 py-3 rounded-xl bg-brand font-black text-xs text-black transition-all hover:scale-105 active:scale-95 shadow-[0_8px_30px_-12px_#ccff00] uppercase tracking-widest flex items-center gap-2"
                     >
-                        {t('Navbar.getStarted')}
+                        {hasAccount ? t('Navbar.login') : t('Navbar.getStarted')}
                     </Link>
                 </div>
 
@@ -61,7 +72,7 @@ export default function Navbar() {
                     className="md:hidden p-2 text-zinc-400 hover:text-brand transition-colors"
                     onClick={() => setIsMenuOpen(!isMenuOpen)}
                 >
-                    {isMenuOpen ? <X /> : <Menu />}
+                    {isMenuOpen ? <X size={28} /> : <Menu size={28} />}
                 </button>
             </motion.nav>
 

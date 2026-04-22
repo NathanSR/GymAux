@@ -59,6 +59,9 @@ export default function RegisterPage() {
       if (error) {
         setAuthError(error.message)
       } else if (authData.user) {
+        // Set local flag that user has an account
+        localStorage.setItem('gymaux_has_account', 'true')
+        
         if (authData.session) {
           setMigrating(true)
           try {
