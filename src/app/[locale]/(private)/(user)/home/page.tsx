@@ -9,6 +9,7 @@ import { Workout, History, Session, User as AppUser } from '@/config/types';
 import { Suspense } from 'react';
 import { BannerSkeleton, HeaderSkeleton, ListSkeleton, Skeleton } from '@/components/ui/Skeleton';
 import HomeMenuTabHandler from '@/components/home/HomeMenuTabHandler';
+import { getBrazilDayOfWeek, getBrazilToday, getBrazilDayRange } from '@/utils/dateUtil';
 
 /**
  * Optimized Home Page
@@ -53,7 +54,7 @@ export default async function HomePage() {
 
 async function HomeMenuTab({ activeUser }: { activeUser: AppUser }) {
   const supabase = await createClient();
-  const today = new Date();
+  const today = getBrazilToday();
   const dayOfWeek = today.getDay();
 
   const activeSchedule = await ScheduleService.getActiveSchedule(activeUser.id as string, supabase);
@@ -64,9 +65,8 @@ async function HomeMenuTab({ activeUser }: { activeUser: AppUser }) {
   if (activeSchedule?.workouts?.[dayOfWeek]) {
     todayWorkout = await WorkoutService.getWorkoutById(activeSchedule.workouts[dayOfWeek]!, supabase);
     if (todayWorkout?.id) {
-      const startTodayDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-      const endTodayDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
-      const history = await HistoryService.getHistoryByRange(activeUser.id as string, startTodayDate, endTodayDate, supabase);
+      const { start, end } = getBrazilDayRange();
+      const history = await HistoryService.getHistoryByRange(activeUser.id as string, start, end, supabase);
       todayHistory = history.find((h: any) => h.workoutId === todayWorkout?.id) || null;
     }
   }
@@ -88,7 +88,12 @@ async function HomeMenuTab({ activeUser }: { activeUser: AppUser }) {
 async function HomeHeader({ activeUser }: { activeUser: AppUser }) {
   const locale = 'pt'; // can be fetched from context or params if needed
   const today = new Date();
-  const formattedDate = new Intl.DateTimeFormat(locale, { weekday: 'long', day: 'numeric', month: 'long' }).format(today);
+  const formattedDate = new Intl.DateTimeFormat(locale, { 
+    weekday: 'long', 
+    day: 'numeric', 
+    month: 'long',
+    timeZone: 'America/Sao_Paulo' 
+  }).format(today);
 
   return (
     <HomeUIHeader
@@ -100,10 +105,8 @@ async function HomeHeader({ activeUser }: { activeUser: AppUser }) {
 
 async function HomeWorkoutBanner({ activeUser }: { activeUser: AppUser }) {
   const supabase = await createClient();
-  const today = new Date();
+  const today = getBrazilToday();
   const dayOfWeek = today.getDay();
-  const startTodayDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-  const endTodayDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
 
   const activeSchedule = await ScheduleService.getActiveSchedule(activeUser.id as string, supabase);
 
@@ -113,7 +116,8 @@ async function HomeWorkoutBanner({ activeUser }: { activeUser: AppUser }) {
   if (activeSchedule?.workouts?.[dayOfWeek]) {
     todayWorkout = await WorkoutService.getWorkoutById(activeSchedule.workouts[dayOfWeek]!, supabase);
     if (todayWorkout?.id) {
-      const history = await HistoryService.getHistoryByRange(activeUser.id as string, startTodayDate, endTodayDate, supabase);
+      const { start, end } = getBrazilDayRange();
+      const history = await HistoryService.getHistoryByRange(activeUser.id as string, start, end, supabase);
       todayHistory = history.find((h: any) => h.workoutId === todayWorkout?.id) || null;
     }
   }

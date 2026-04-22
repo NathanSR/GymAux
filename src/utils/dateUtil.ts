@@ -25,3 +25,38 @@ export const formatDuration = (ms: number) => {
 
 
 export const formatDate = (date: Date, locale: string) => new Intl.DateTimeFormat(locale, { day: '2-digit', month: '2-digit', year: 'numeric' }).format(date);
+
+/**
+ * Returns the current date adjusted to America/Sao_Paulo timezone.
+ * This is useful for server-side logic that needs to match the user's day.
+ */
+export const getBrazilToday = () => {
+    const now = new Date();
+    return new Date(now.toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' }));
+};
+
+/**
+ * Returns the day of the week (0-6) for Brazil.
+ */
+export const getBrazilDayOfWeek = () => {
+    return getBrazilToday().getDay();
+};
+
+/**
+ * Returns the UTC date range corresponding to 'today' in Brazil.
+ * Useful for querying databases that store dates in UTC.
+ */
+export const getBrazilDayRange = () => {
+    const today = getBrazilToday();
+    const y = today.getFullYear();
+    const m = today.getMonth();
+    const d = today.getDate();
+    
+    // America/Sao_Paulo is UTC-3.
+    // 00:00 BRT = 03:00 UTC
+    // 23:59 BRT = 02:59 UTC (next day)
+    const start = new Date(Date.UTC(y, m, d, 3, 0, 0, 0));
+    const end = new Date(Date.UTC(y, m, d + 1, 2, 59, 59, 999));
+    
+    return { start, end };
+};

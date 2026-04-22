@@ -26,6 +26,7 @@ import ProfileMenu from '@/components/home/ProfileMenu';
 import ConnectionConfirmationModal from '@/components/home/ConnectionConfirmationModal';
 import { Workout, History, Session, User as AppUser } from '@/config/types';
 import { formatDuration, getRelativeTime } from '@/utils/dateUtil';
+import Link from 'next/link';
 
 // --- Sub-components for Suspense Support ---
 
@@ -262,13 +263,13 @@ export function HomeLists({ historyList, sessionList, activeUserId }: { historyL
                         </p>
                     </div>
 
-                    <button
-                        onClick={() => router.push("/history")}
+                    <Link
+                        href="/history"
                         className="w-full sm:w-auto h-11 sm:h-10 px-6 sm:px-4 bg-white dark:bg-zinc-800 text-[10px] text-zinc-900 dark:text-zinc-100 font-black uppercase tracking-widest flex items-center justify-center gap-2 rounded-xl sm:rounded-2xl border border-zinc-200 dark:border-zinc-700 hover:border-lime-500/50 active:scale-95 transition-all shadow-sm group/btn"
                     >
                         {t('viewAll')}
                         <ChevronRight size={14} className="text-lime-500 group-hover/btn:translate-x-1 transition-transform" />
-                    </button>
+                    </Link>
                 </div>
 
                 <div className="grid gap-3">
@@ -277,9 +278,9 @@ export function HomeLists({ historyList, sessionList, activeUserId }: { historyL
                         const durationDisplay = formatDuration(item.duration || 0);
 
                         return (
-                            <div
+                            <Link
                                 key={item.id}
-                                onClick={() => router.push(`/history?date=${new Date(item.date).toISOString()}&workoutId=${item.workoutId}`)}
+                                href={`/history?date=${new Date(item.date).toISOString()}&workoutId=${item.workoutId}`}
                                 className="group relative flex items-center gap-3 sm:gap-4 p-4 sm:p-5 bg-white dark:bg-zinc-900 rounded-[24px] sm:rounded-[28px] border border-zinc-100 dark:border-zinc-800/80 hover:border-lime-500/30 hover:shadow-md transition-all duration-300 cursor-pointer active:scale-[0.98]"
                             >
                                 <div className="shrink-0 w-11 h-11 sm:w-14 sm:h-14 bg-zinc-50 dark:bg-zinc-800/50 rounded-lg sm:rounded-2xl flex items-center justify-center text-lime-500 transition-colors group-hover:bg-lime-500/10">
@@ -308,7 +309,7 @@ export function HomeLists({ historyList, sessionList, activeUserId }: { historyL
                                         </div>
                                     </div>
                                 </div>
-                            </div>
+                            </Link>
                         );
                     })}
                 </div>
