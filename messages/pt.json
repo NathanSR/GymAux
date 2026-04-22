@@ -1315,7 +1315,10 @@
     "confirmTypeChange": "Mudar tipo de grupo?",
     "confirmTypeChangeText": "Ao mudar para {type}, os exercícios extras que possuem dados preenchidos serão excluídos. Deseja continuar?",
     "confirmChange": "Sim, mudar",
-    "cancelChange": "Cancelar"
+    "cancelChange": "Cancelar",
+    "simplifiedView": "Visão Simplificada",
+    "detailedView": "Visão Detalhada",
+    "quickSets": "Configuração Rápida"
   },
   "ExerciseSelector": {
     "title": "Adicionar Exercício",
