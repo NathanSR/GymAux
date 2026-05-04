@@ -8,7 +8,13 @@ export default async function middleware(request: NextRequest) {
     const handleI18nRouting = createMiddleware(routing);
     let response = handleI18nRouting(request);
 
-    // 2. Criamos o client do Supabase (SSR)
+    // 2. Se o next-intl já decidiu por um redirecionamento (ex: de / para /pt), 
+    // retornamos imediatamente para que a próxima execução do middleware lide com a nova rota.
+    if (response.status === 307 || response.status === 308) {
+        return response;
+    }
+
+    // 3. Criamos o client do Supabase (SSR)
     const supabase = createServerClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
         process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -28,23 +34,27 @@ export default async function middleware(request: NextRequest) {
         }
     );
 
-    // 3. Verificamos a sessão do usuário
+    // 4. Verificamos a sessão do usuário
     const { data: { user } } = await supabase.auth.getUser();
 
-    // 4. Lógica de Proteção de Rotas
+    // 5. Lógica de Proteção de Rotas
     const pathname = request.nextUrl.pathname;
 
-    // Regex para identificar se a rota (removendo o prefixo de idioma) é pública
-    // Isso cobre "/", "/en", "/pt/login", "/register", etc.
+    // Páginas que não requerem autenticação
     const publicPages = ['/', '/login', '/register'];
 
     const isPublicPage = publicPages.some((page) => {
-        const publicPath = page === '/' ? '' : page;
-        const regex = new RegExp(`^(/(${routing.locales.join('|')}))?${publicPath}$`, 'i');
+        const locales = routing.locales.join('|');
+        // Regex flexível para aceitar:
+        // - Rota pura: /login
+        // - Rota com locale: /pt/login
+        // - Rota com/sem trailing slash: /login/
+        const path = page === '/' ? '/?' : `${page}/?`;
+        const regex = new RegExp(`^(/(${locales}))?${path}$`, 'i');
         return regex.test(pathname);
     });
 
-    // 5. Redirecionamento se não estiver autenticado em rota privada
+    // 6. Redirecionamento se não estiver autenticado em rota privada
     if (!user && !isPublicPage) {
         const locale = pathname.split('/')[1] || routing.defaultLocale;
         const loginUrl = new URL(`/${locale}/login`, request.url);
