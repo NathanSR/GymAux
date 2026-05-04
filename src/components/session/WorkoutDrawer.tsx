@@ -19,18 +19,17 @@ interface WorkoutDrawerProps {
     currentExerciseIndex: number;
 }
 
-export const WorkoutDrawer = ({ 
-    showPreview, 
-    onClose, 
-    session, 
-    setSession, 
-    syncSession, 
-    currentExerciseIndex 
+export const WorkoutDrawer = ({
+    showPreview,
+    onClose,
+    session,
+    setSession,
+    syncSession,
+    currentExerciseIndex
 }: WorkoutDrawerProps) => {
     const t = useTranslations('WorkoutDrawer');
     const te = useTranslations('Exercises');
     const { isDark } = useTheme();
-    const router = useRouter();
 
     const {
         activeTab,
@@ -45,7 +44,7 @@ export const WorkoutDrawer = ({
         onConfirmDeleteSession,
         handleFullClose,
         handleOpenAdd
-    } = useWorkoutDrawer(session, setSession, syncSession, isDark, t, router, onClose);
+    } = useWorkoutDrawer(session, setSession, syncSession, isDark, t, onClose);
 
     if (!showPreview) return null;
 

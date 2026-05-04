@@ -38,6 +38,7 @@ export const WorkoutDrawerHeader = ({
 
             <div className="flex items-center justify-end gap-2 ml-auto sm:ml-0">
                 <button
+                    type="button"
                     onClick={onConfirmDeleteSession}
                     className="p-3 rounded-xl bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all cursor-pointer active:scale-95"
                     title={t('confirmDeleteSessionTitle')}

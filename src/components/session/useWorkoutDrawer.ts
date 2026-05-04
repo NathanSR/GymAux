@@ -3,6 +3,7 @@ import { Session } from '@/config/types';
 import Swal from 'sweetalert2';
 import { arrayMove } from '@dnd-kit/sortable';
 import { SessionService } from '@/services/sessionService';
+import { useRouter } from '@/i18n/routing';
 
 export const useWorkoutDrawer = (
     session: Session,
@@ -10,9 +11,9 @@ export const useWorkoutDrawer = (
     syncSession: () => void,
     isDark: boolean,
     t: any,
-    router: any,
     onClose: () => void
 ) => {
+    const router = useRouter();
     const [activeTab, setActiveTab] = useState<'todo' | 'done'>('todo');
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [editingGroupIdx, setEditingGroupIdx] = useState<number | null>(null);
@@ -67,8 +68,8 @@ export const useWorkoutDrawer = (
         syncSession();
     };
 
-    const onConfirmDeleteSession = () => {
-        Swal.fire({
+    const onConfirmDeleteSession = async () => {
+        const result = await Swal.fire({
             title: t('confirmDeleteSessionTitle'),
             text: t('confirmDeleteSessionText'),
             icon: 'warning',
@@ -79,13 +80,26 @@ export const useWorkoutDrawer = (
             cancelButtonText: t('cancelButton'),
             background: isDark ? '#18181b' : '#ffffff',
             color: isDark ? '#ffffff' : '#18181b',
-        }).then(async (result) => {
-            if (result.isConfirmed) {
-                await SessionService.deleteSession(session.id!);
-                router.push('/home');
-                onClose();
-            }
         });
+
+        if (result.isConfirmed) {
+            try {
+                if (session.id) {
+                    await SessionService.deleteSession(session.id);
+                    // Force a hard redirect to bypass any Next.js router unmount/lifecycle issues
+                    window.location.href = '/home';
+                }
+            } catch (error) {
+                console.error('Error deleting session:', error);
+                Swal.fire({
+                    title: 'Error',
+                    text: 'Could not delete session',
+                    icon: 'error',
+                    background: isDark ? '#18181b' : '#ffffff',
+                    color: isDark ? '#ffffff' : '#18181b',
+                });
+            }
+        }
     };
 
     const handleFullClose = () => {
