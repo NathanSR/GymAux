@@ -36,7 +36,8 @@ export default function EditScheduleClient({ initialData, scheduleId, callerId, 
                 updatedAt: new Date()
             }, callerId);
             toast.success(t('editSuccess'));
-            router.push(baseUrl);
+            router.refresh();
+            router.replace(baseUrl);
         } catch (error: any) {
             console.error("Error updating schedule:", error?.message || error);
             setLoading(false);
@@ -60,7 +61,8 @@ export default function EditScheduleClient({ initialData, scheduleId, callerId, 
             if (result.isConfirmed) {
                 try {
                     await ScheduleService.deleteSchedule(scheduleId, callerId);
-                    router.push(baseUrl);
+                    router.refresh();
+                    router.replace(baseUrl);
                 } catch (error: any) {
                     console.error("Error deleting schedule:", error?.message || error);
                 }

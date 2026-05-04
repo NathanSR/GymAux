@@ -28,7 +28,8 @@ export default function NewExerciseClient() {
 
             await ExerciseService.createExercise(formattedData);
             toast.success(t('createdExercise'));
-            router.push('/exercises');
+            router.refresh();
+            router.replace('/exercises');
         } catch (error: any) {
             console.error("Erro ao criar exercício:", error?.message || error);
             toast.error(t('errorCreating'));

@@ -33,7 +33,8 @@ export default function NewWorkoutClient({ availableExercises, userId, baseUrl =
             });
 
             toast.success(t('createdWorkout'));
-            router.push(baseUrl);
+            router.refresh();
+            router.replace(baseUrl);
         } catch (error: any) {
             console.error("Erro ao criar treino:", error?.message || error);
             toast.error(t('errorCreating'));
