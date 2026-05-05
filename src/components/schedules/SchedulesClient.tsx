@@ -1,23 +1,24 @@
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import {
     Plus,
     Search,
-    ChevronLeft,
     Edit,
     Clock,
     ClipboardList,
     CheckCircle2,
-    XCircle
+    XCircle,
+    Loader2
 } from 'lucide-react';
 import { useRouter, Link } from '@/i18n/routing';
 import { ScheduleService } from '@/services/scheduleService';
 import { useLocale, useTranslations } from 'next-intl';
 import { Schedule } from '@/config/types';
 import { useDebounce } from '@/hooks/useDebounce';
-import { Pagination } from '@/components/ui/Pagination';
 import { formatDate } from '@/utils/dateUtil';
+import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
+import PageHeader from '@/components/ui/PageHeader';
 
 interface SchedulesClientProps {
     initialSchedules: Schedule[];
@@ -26,41 +27,51 @@ interface SchedulesClientProps {
     baseUrl?: string;
 }
 
-import PageHeader from '@/components/ui/PageHeader';
-
 export default function SchedulesClient({ initialSchedules, initialTotalCount, userId, baseUrl = '/schedules' }: SchedulesClientProps) {
     const router = useRouter();
     const t = useTranslations('ScheduleList');
-    const locale = useLocale()
+    const locale = useLocale();
 
-    const [schedules, setSchedules] = useState<Schedule[]>(initialSchedules);
     const [loading, setLoading] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
-    const [page, setPage] = useState(1);
-    const [limit, setLimit] = useState(20);
-    const [totalCount, setTotalCount] = useState(initialTotalCount);
 
     const debouncedSearch = useDebounce(searchQuery, 300);
 
     // Busca o array de labels traduzido (ex: ['D', 'S', 'T'...])
     const dayLabels = t.raw('dayLabels') as string[];
 
+    // Função para buscar mais cronogramas
+    const fetchMoreSchedules = useCallback(async (page: number, pageSize: number) => {
+        try {
+            const result = await ScheduleService.getSchedulesByUserId(
+                userId,
+                debouncedSearch,
+                { page, limit: pageSize }
+            );
+            return result.schedules;
+        } catch (error) {
+            console.error("Error fetching more schedules:", error);
+            return [];
+        }
+    }, [userId, debouncedSearch]);
+
+    const [initialData, setInitialData] = useState<Schedule[]>(initialSchedules);
+
     useEffect(() => {
         // Skip initial load
-        if (page === 1 && debouncedSearch === '' && schedules === initialSchedules) {
+        if (debouncedSearch === '' && initialData === initialSchedules) {
             return;
         }
 
-        const fetchSchedules = async () => {
+        const fetchFirstPage = async () => {
             setLoading(true);
             try {
                 const result = await ScheduleService.getSchedulesByUserId(
                     userId,
                     debouncedSearch,
-                    { page, limit }
+                    { page: 1, limit: 20 }
                 );
-                setSchedules(result.schedules);
-                setTotalCount(result.totalCount);
+                setInitialData(result.schedules);
             } catch (error: any) {
                 console.error("Error fetching schedules:", error?.message || error);
             } finally {
@@ -68,10 +79,14 @@ export default function SchedulesClient({ initialSchedules, initialTotalCount, u
             }
         };
 
-        fetchSchedules();
-    }, [userId, debouncedSearch, page, limit, initialSchedules]);
+        fetchFirstPage();
+    }, [userId, debouncedSearch, initialSchedules]);
 
-    const totalPages = Math.ceil(totalCount / limit);
+    const { visibleData, isLoadingMore, lastItemRef } = useInfiniteScroll(initialData, {
+        pageSize: 20,
+        fetchData: fetchMoreSchedules,
+        keyExtractor: (item) => item.id as string
+    });
 
     return (
         <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white pb-32 transition-colors">
@@ -94,7 +109,6 @@ export default function SchedulesClient({ initialSchedules, initialTotalCount, u
                         value={searchQuery}
                         onChange={(e) => {
                             setSearchQuery(e.target.value);
-                            setPage(1);
                         }}
                     />
                 </div>
@@ -106,13 +120,14 @@ export default function SchedulesClient({ initialSchedules, initialTotalCount, u
                     Array.from({ length: 3 }).map((_, i) => (
                         <div key={i} className="h-64 bg-white dark:bg-zinc-900 rounded-[32px] animate-pulse" />
                     ))
-                ) : schedules.length > 0 ? (
-                    schedules.map((schedule) => {
+                ) : visibleData.length > 0 ? (
+                    visibleData.map((schedule, index) => {
                         const activeDaysCount = schedule.workouts.filter((w: any) => w !== null).length;
 
                         return (
                             <div
                                 key={schedule.id}
+                                ref={index === visibleData.length - 1 ? lastItemRef : null}
                                 className="block group relative bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 rounded-[32px] p-6 shadow-sm transition-all hover:shadow-md"
                             >
                                 <div className="flex justify-between items-start mb-4">
@@ -198,22 +213,14 @@ export default function SchedulesClient({ initialSchedules, initialTotalCount, u
                         </p>
                     </div>
                 )}
-            </main>
 
-            {/* Paginação */}
-            <div className="fixed bottom-0 left-0 right-0 z-40">
-                <Pagination
-                    currentPage={page}
-                    totalPages={totalPages}
-                    onPageChange={setPage}
-                    limit={limit}
-                    onLimitChange={(l) => {
-                        setLimit(l);
-                        setPage(1);
-                    }}
-                    totalCount={totalCount}
-                />
-            </div>
+                {/* Loading More Indicator */}
+                {isLoadingMore && (
+                    <div className="flex justify-center py-4">
+                        <Loader2 size={24} className="animate-spin text-lime-500" />
+                    </div>
+                )}
+            </main>
         </div>
     );
 }

@@ -1,16 +1,16 @@
 "use client";
 
-import { useEffect, useMemo, useState } from 'react';
-import { Search, Dumbbell, Info, PlayCircle, Plus, Edit, Eye } from 'lucide-react';
+import { useEffect, useMemo, useState, useCallback } from 'react';
+import { Search, Dumbbell, Info, PlayCircle, Plus, Edit, Eye, Loader2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
 import { ExerciseService } from '@/services/exerciseService';
 import { useDebounce } from '@/hooks/useDebounce';
 import { CATEGORIES } from '@/config/constants';
 import { Exercise } from '@/config/types';
-import { Pagination } from '@/components/ui/Pagination';
 import { useSession } from '@/hooks/useSession';
 import PageHeader from '@/components/ui/PageHeader';
+import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
 
 interface ExercisesClientProps {
     initialExercises: Exercise[];
@@ -23,13 +23,7 @@ export default function ExercisesClient({ initialExercises, initialTotalCount }:
     // Estados de interface
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('all');
-    const [exercises, setExercises] = useState<Exercise[]>(initialExercises);
     const [loading, setLoading] = useState(false);
-
-    // Paginação
-    const [page, setPage] = useState(1);
-    const [limit, setLimit] = useState(20);
-    const [totalCount, setTotalCount] = useState(initialTotalCount);
 
     // Debounce de 300ms para a busca
     const debouncedSearch = useDebounce(searchQuery, 300);
@@ -41,35 +35,52 @@ export default function ExercisesClient({ initialExercises, initialTotalCount }:
 
     const handleSearchChange = (val: string) => {
         setSearchQuery(val);
-        setPage(1); // Resetar para primeira página ao buscar
     };
 
     const handleCategoryChange = (cat: string) => {
         setSelectedCategory(cat);
-        setPage(1); // Resetar para primeira página ao mudar categoria
     };
 
     const categories = useMemo(() => {
         return ['all', ...CATEGORIES];
     }, []);
 
+    // Função para buscar dados da próxima página
+    const fetchMoreExercises = useCallback(async (page: number, pageSize: number) => {
+        try {
+            const result = await ExerciseService.getAllExercises({
+                searchQuery: debouncedSearch,
+                category: selectedCategory,
+                pagination: { page, limit: pageSize },
+                translations: { te, tt }
+            });
+            return result.exercises;
+        } catch (error) {
+            console.error("Error fetching more exercises:", error);
+            return [];
+        }
+    }, [debouncedSearch, selectedCategory, te, tt]);
+
+    // Estados locais para controlar a data inicial que será passada para o hook
+    const [initialData, setInitialData] = useState<Exercise[]>(initialExercises);
+
+    // Efeito para lidar com filtros e resetar a lista
     useEffect(() => {
         // Se for o carregamento inicial (primeira página, sem filtros), não bucar de novo
-        if (page === 1 && selectedCategory === 'all' && debouncedSearch === '' && exercises === initialExercises) {
+        if (selectedCategory === 'all' && debouncedSearch === '' && initialData === initialExercises) {
             return;
         }
 
-        const fetchExercises = async () => {
+        const fetchFirstPage = async () => {
             setLoading(true);
             try {
                 const result = await ExerciseService.getAllExercises({
                     searchQuery: debouncedSearch,
                     category: selectedCategory,
-                    pagination: { page, limit },
+                    pagination: { page: 1, limit: 20 },
                     translations: { te, tt }
                 });
-                setExercises(result.exercises);
-                setTotalCount(result.totalCount);
+                setInitialData(result.exercises);
             } catch (error: any) {
                 console.error("Error fetching exercises:", error?.message || error);
             } finally {
@@ -77,13 +88,18 @@ export default function ExercisesClient({ initialExercises, initialTotalCount }:
             }
         };
 
-        fetchExercises();
-    }, [debouncedSearch, selectedCategory, page, limit, initialExercises]);
+        fetchFirstPage();
+    }, [debouncedSearch, selectedCategory, te, tt, initialExercises]);
 
-    const totalPages = Math.ceil(totalCount / limit);
+    // Hook de Scroll Infinito
+    const { visibleData, isLoadingMore, lastItemRef } = useInfiniteScroll(initialData, {
+        pageSize: 20,
+        fetchData: fetchMoreExercises,
+        keyExtractor: (item) => item.id as number
+    });
 
     return (
-        <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white transition-colors duration-300 font-sans pb-10">
+        <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white transition-colors duration-300 font-sans pb-32">
             {/* Header */}
             <PageHeader
                 title={t('title')}
@@ -134,10 +150,11 @@ export default function ExercisesClient({ initialExercises, initialTotalCount }:
                         Array.from({ length: 5 }).map((_, i) => (
                             <div key={i} className="h-32 bg-zinc-100 dark:bg-zinc-900 rounded-[32px] animate-pulse" />
                         ))
-                    ) : exercises && exercises.length > 0 ? (
-                        exercises.map(exercise => (
+                    ) : visibleData.length > 0 ? (
+                        visibleData.map((exercise, index) => (
                             <div
                                 key={exercise.id}
+                                ref={index === visibleData.length - 1 ? lastItemRef : null}
                                 className="group bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 rounded-[32px] p-5 shadow-sm transition-all overflow-hidden"
                             >
                                 <div className="flex gap-4">
@@ -191,23 +208,15 @@ export default function ExercisesClient({ initialExercises, initialTotalCount }:
                             <p className="text-sm font-medium">{t('noResults')}</p>
                         </div>
                     )}
+
+                    {/* Loading More Indicator */}
+                    {isLoadingMore && (
+                        <div className="flex justify-center py-4">
+                            <Loader2 size={24} className="animate-spin text-lime-500" />
+                        </div>
+                    )}
                 </div>
             </main>
-
-            {/* Paginação */}
-            <div className="fixed bottom-0 left-0 right-0 z-40">
-                <Pagination
-                    currentPage={page}
-                    totalPages={totalPages}
-                    onPageChange={setPage}
-                    limit={limit}
-                    onLimitChange={(l) => {
-                        setLimit(l);
-                        setPage(1);
-                    }}
-                    totalCount={totalCount}
-                />
-            </div>
         </div>
     );
 }

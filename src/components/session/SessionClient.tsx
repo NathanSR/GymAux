@@ -3,13 +3,13 @@
 import { useRef } from 'react';
 import { Session } from '@/config/types';
 import { RestTimer } from '@/components/session/RestTimer';
-import { WorkoutDrawer } from '@/components/session/WorkoutDrawer';
+import { WorkoutDrawer } from '@/components/session/workoutList/WorkoutDrawer';
 import { useTranslations } from 'next-intl';
 import { CompletedSession } from '@/components/session/CompletedSession';
 import { ExerciseInstructionModal } from '@/components/session/ExerciseInstructionModal';
 import { motion, AnimatePresence } from 'framer-motion';
 
-import { useSessionClient } from './useSessionClient';
+import { useSessionClient } from '../../hooks/useSessionClient';
 import { SessionHeader } from './SessionHeader';
 import { SessionExerciseInfo } from './SessionExerciseInfo';
 import { SessionSetForm } from './SessionSetForm';

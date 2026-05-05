@@ -12,7 +12,7 @@ import {
     Share2,
     Info
 } from "lucide-react";
-import { Link } from "@/i18n/routing";
+import { Link, useRouter } from "@/i18n/routing";
 import { useTranslations } from "next-intl";
 import DrawerWorkoutExerciseAdd from "@/components/workouts/DrawerWorkoutExerciseAdd";
 import { Exercise } from "@/config/types";
@@ -27,6 +27,8 @@ export default function ViewExerciseClient({ exercise }: ViewExerciseClientProps
     const tc = useTranslations('Categories');
     const tt = useTranslations('Tags');
     const te = useTranslations('Exercises');
+
+    const router = useRouter();
 
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
@@ -86,12 +88,12 @@ export default function ViewExerciseClient({ exercise }: ViewExerciseClientProps
 
                 {/* Top Actions Nav */}
                 <nav className="absolute top-0 inset-x-0 p-6 flex items-center justify-between z-20">
-                    <Link
-                        href="/exercises"
+                    <button
+                        onClick={() => router.back()}
                         className="p-3 rounded-2xl bg-white/10 backdrop-blur-xl text-white border border-white/20 hover:bg-white/20 transition-all active:scale-90 shadow-2xl"
                     >
                         <ChevronLeft size={24} />
-                    </Link>
+                    </button>
 
                     <div className="flex gap-2">
                         <button

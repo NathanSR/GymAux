@@ -4,7 +4,7 @@ import { useTranslations } from 'next-intl';
 import { useTheme } from '@/context/ThemeContext';
 import { useRouter } from '@/i18n/routing';
 import { Session } from '@/config/types';
-import { useWorkoutDrawer } from './useWorkoutDrawer';
+import { useWorkoutDrawer } from '../useWorkoutDrawer';
 import { WorkoutDrawerHeader } from './WorkoutDrawerHeader';
 import { WorkoutDrawerTodoList } from './WorkoutDrawerTodoList';
 import { WorkoutDrawerDoneList } from './WorkoutDrawerDoneList';

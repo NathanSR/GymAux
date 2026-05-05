@@ -76,8 +76,8 @@ export const connectionService = {
         return data as Connection;
     },
 
-    async getActiveStudents(trainerId: string, supabase: SupabaseClient) {
-        const { data, error } = await supabase
+    async getActiveStudents(trainerId: string, supabase: SupabaseClient, pagination?: { page: number, limit: number }) {
+        let query = supabase
             .from('connections')
             .select(`
                 *,
@@ -86,11 +86,26 @@ export const connectionService = {
                     name,
                     avatar
                 )
-            `)
+            `, { count: 'exact' })
             .eq('trainer_id', trainerId)
             .eq('status', 'active');
 
+        if (pagination) {
+            const from = (pagination.page - 1) * pagination.limit;
+            const to = from + pagination.limit - 1;
+            query = query.range(from, to);
+        }
+
+        const { data, error, count } = await query;
+
         if (error) throw error;
-        return data as (Connection & { student: { id: string; name: string; avatar: string | null } })[];
+        return {
+            students: (data || []).map((conn: any) => ({
+                id: conn.student.id,
+                name: conn.student.name,
+                avatar: conn.student.avatar
+            })) as Student[],
+            totalCount: count || 0
+        };
     }
 };

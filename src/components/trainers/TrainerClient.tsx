@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, memo } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Html5QrcodeScanner } from 'html5-qrcode';
@@ -13,11 +13,13 @@ import {
     QrCode,
     X,
     Camera,
+    Loader2
 } from 'lucide-react';
 import { Student, StudentCard } from './StudentCard';
 import { TrainerHeader } from './TrainerHeader';
 import { QuickActionCard } from './QuickActionCard';
 import { EmailLinkCard } from './EmailLinkCard';
+import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
 
 
 interface TrainerClientProps {
@@ -30,10 +32,26 @@ interface TrainerClientProps {
 export default function TrainerClient({ trainerId, initialStudents }: TrainerClientProps) {
     const t = useTranslations('Trainer');
     const supabase = createClient();
-    const [students] = useState<Student[]>(initialStudents);
     const [isScannerOpen, setIsScannerOpen] = useState(false);
     const [emailInput, setEmailInput] = useState('');
     const [isLinking, setIsLinking] = useState(false);
+
+    // Função para buscar mais alunos
+    const fetchMoreStudents = useCallback(async (page: number, pageSize: number) => {
+        try {
+            const result = await connectionService.getActiveStudents(trainerId, supabase, { page, limit: pageSize });
+            return result.students;
+        } catch (error) {
+            console.error("Error fetching more students:", error);
+            return [];
+        }
+    }, [trainerId, supabase]);
+
+    const { visibleData: students, isLoadingMore, lastItemRef } = useInfiniteScroll(initialStudents, {
+        pageSize: 10,
+        fetchData: fetchMoreStudents,
+        keyExtractor: (item) => item.id
+    });
 
     useEffect(() => {
         let scanner: Html5QrcodeScanner | null = null;
@@ -124,8 +142,10 @@ export default function TrainerClient({ trainerId, initialStudents }: TrainerCli
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     <AnimatePresence mode="popLayout" initial={false}>
                         {students.length > 0 ? (
-                            students.map(student => (
-                                <StudentCard key={student.id} student={student} />
+                            students.map((student, index) => (
+                                <div key={student.id} ref={index === students.length - 1 ? lastItemRef : null}>
+                                    <StudentCard student={student} />
+                                </div>
                             ))
                         ) : (
                             <motion.div
@@ -139,6 +159,13 @@ export default function TrainerClient({ trainerId, initialStudents }: TrainerCli
                         )}
                     </AnimatePresence>
                 </div>
+
+                {/* Loading More Indicator */}
+                {isLoadingMore && (
+                    <div className="flex justify-center py-4">
+                        <Loader2 size={24} className="animate-spin text-lime-500" />
+                    </div>
+                )}
             </section>
 
             <AnimatePresence>

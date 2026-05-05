@@ -1,15 +1,15 @@
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import {
     Plus,
     Search,
     Calendar,
-    ChevronLeft,
     Edit,
     Play,
     Info,
-    Dumbbell
+    Dumbbell,
+    Loader2
 } from 'lucide-react';
 import { Link } from '@/i18n/routing';
 import { WorkoutService } from '@/services/workoutService';
@@ -17,7 +17,8 @@ import { useSessionActions } from '@/hooks/useSessionActions';
 import { useTranslations, useLocale } from 'next-intl';
 import { Workout } from '@/config/types';
 import { useDebounce } from '@/hooks/useDebounce';
-import { Pagination } from '@/components/ui/Pagination';
+import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
+import PageHeader from '@/components/ui/PageHeader';
 
 interface WorkoutsClientProps {
     initialWorkouts: Workout[];
@@ -26,40 +27,50 @@ interface WorkoutsClientProps {
     baseUrl?: string;
 }
 
-import PageHeader from '@/components/ui/PageHeader';
-
 export default function WorkoutsClient({ initialWorkouts, initialTotalCount, userId, baseUrl = '/workouts' }: WorkoutsClientProps) {
     const { startWorkout } = useSessionActions();
     const locale = useLocale();
 
-    const [workouts, setWorkouts] = useState<Workout[]>(initialWorkouts);
     const [loading, setLoading] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
-    const [page, setPage] = useState(1);
-    const [limit, setLimit] = useState(20);
-    const [totalCount, setTotalCount] = useState(initialTotalCount);
 
     const debouncedSearch = useDebounce(searchQuery, 300);
     const t = useTranslations('WorkoutList');
 
+    // Função para buscar mais treinos
+    const fetchMoreWorkouts = useCallback(async (page: number, pageSize: number) => {
+        try {
+            const result = await WorkoutService.getWorkoutsByUserId(
+                userId,
+                debouncedSearch,
+                { page, limit: pageSize }
+            );
+            // @ts-ignore
+            return result.workouts;
+        } catch (error) {
+            console.error("Error fetching more workouts:", error);
+            return [];
+        }
+    }, [userId, debouncedSearch]);
+
+    const [initialData, setInitialData] = useState<Workout[]>(initialWorkouts);
+
     useEffect(() => {
-        // Skip initial load if no search/paging has occurred
-        if (page === 1 && debouncedSearch === '' && workouts === initialWorkouts) {
+        // Skip initial load
+        if (debouncedSearch === '' && initialData === initialWorkouts) {
             return;
         }
 
-        const fetchWorkouts = async () => {
+        const fetchFirstPage = async () => {
             setLoading(true);
             try {
                 const result = await WorkoutService.getWorkoutsByUserId(
                     userId,
                     debouncedSearch,
-                    { page, limit }
+                    { page: 1, limit: 20 }
                 );
                 // @ts-ignore
-                setWorkouts(result.workouts);
-                // @ts-ignore
-                setTotalCount(result.totalCount);
+                setInitialData(result.workouts);
             } catch (error: any) {
                 console.error("Error fetching workouts:", error?.message || error);
             } finally {
@@ -67,10 +78,14 @@ export default function WorkoutsClient({ initialWorkouts, initialTotalCount, use
             }
         };
 
-        fetchWorkouts();
-    }, [userId, debouncedSearch, page, limit, initialWorkouts]);
+        fetchFirstPage();
+    }, [userId, debouncedSearch, initialWorkouts]);
 
-    const totalPages = Math.ceil(totalCount / limit);
+    const { visibleData, isLoadingMore, lastItemRef } = useInfiniteScroll(initialData, {
+        pageSize: 20,
+        fetchData: fetchMoreWorkouts,
+        keyExtractor: (item) => item.id as string
+    });
 
     return (
         <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white pb-32 transition-colors">
@@ -96,7 +111,6 @@ export default function WorkoutsClient({ initialWorkouts, initialTotalCount, use
                         value={searchQuery}
                         onChange={(e) => {
                             setSearchQuery(e.target.value);
-                            setPage(1);
                         }}
                     />
                 </div>
@@ -108,10 +122,11 @@ export default function WorkoutsClient({ initialWorkouts, initialTotalCount, use
                     Array.from({ length: 4 }).map((_, i) => (
                         <div key={i} className="h-40 bg-zinc-100 dark:bg-zinc-900 rounded-[32px] animate-pulse" />
                     ))
-                ) : workouts.length > 0 ? (
-                    workouts.map((workout) => (
+                ) : visibleData.length > 0 ? (
+                    visibleData.map((workout, index) => (
                         <div
                             key={workout.id}
+                            ref={index === visibleData.length - 1 ? lastItemRef : null}
                             className="group bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 rounded-[32px] p-6 shadow-sm hover:shadow-md transition-all active:scale-[0.99]"
                         >
                             <div className="flex justify-between items-start mb-6">
@@ -161,22 +176,14 @@ export default function WorkoutsClient({ initialWorkouts, initialTotalCount, use
                         <p className="text-sm font-medium">{t('noResults')}</p>
                     </div>
                 )}
-            </main>
 
-            {/* Paginação */}
-            <div className="fixed bottom-0 left-0 right-0 z-40">
-                <Pagination
-                    currentPage={page}
-                    totalPages={totalPages}
-                    onPageChange={setPage}
-                    limit={limit}
-                    onLimitChange={(l) => {
-                        setLimit(l);
-                        setPage(1);
-                    }}
-                    totalCount={totalCount}
-                />
-            </div>
+                {/* Loading More Indicator */}
+                {isLoadingMore && (
+                    <div className="flex justify-center py-4">
+                        <Loader2 size={24} className="animate-spin text-lime-500" />
+                    </div>
+                )}
+            </main>
         </div>
     );
 }

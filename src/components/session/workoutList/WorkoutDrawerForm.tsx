@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { X, Save, Dumbbell, ChevronDown, Activity } from "lucide-react";
 import { ExerciseGroup, Exercise, Session } from '@/config/types';
-import { ExerciseSelector } from '../exercises/ExerciseSelector';
-import { ConfirmDialog } from '../ui/ConfirmDialog';
+import { ExerciseSelector } from '../../exercises/ExerciseSelector';
+import { ConfirmDialog } from '../../ui/ConfirmDialog';
 
 interface WorkoutDrawerFormProps {
     session: Session;

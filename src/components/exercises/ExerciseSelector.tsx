@@ -10,9 +10,9 @@ import {
     Loader2
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, useCallback } from 'react';
 import { useDebounce } from '@/hooks/useDebounce';
-import { Pagination } from '@/components/ui/Pagination';
+import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
 
 export const ExerciseSelector = ({ isOpen, onClose, onSelect }: {
     isOpen: boolean,
@@ -27,41 +27,56 @@ export const ExerciseSelector = ({ isOpen, onClose, onSelect }: {
 
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('all');
-    const [exercises, setExercises] = useState<Exercise[]>([]);
-    const [totalCount, setTotalCount] = useState(0);
-    const [currentPage, setCurrentPage] = useState(1);
-    const [limit, setLimit] = useState(10);
     const [isLoading, setIsLoading] = useState(false);
 
     const debouncedSearchTerm = useDebounce(searchTerm, 500);
 
+    const [initialData, setInitialData] = useState<Exercise[]>([]);
+
+    // Função para buscar dados da próxima página
+    const fetchMoreExercises = useCallback(async (page: number, pageSize: number) => {
+        try {
+            const res = await ExerciseService.getAllExercises({
+                searchQuery: debouncedSearchTerm,
+                category: selectedCategory,
+                pagination: { page, limit: pageSize },
+                translations: { te, tt: te }
+            });
+            return res.exercises;
+        } catch (error) {
+            console.error('Error fetching more exercises:', error);
+            return [];
+        }
+    }, [debouncedSearchTerm, selectedCategory, te]);
+
     useEffect(() => {
         if (isOpen) {
-            const fetchExercises = async () => {
+            const fetchFirstPage = async () => {
                 setIsLoading(true);
                 try {
                     const res = await ExerciseService.getAllExercises({
                         searchQuery: debouncedSearchTerm,
                         category: selectedCategory,
-                        pagination: { page: currentPage, limit },
+                        pagination: { page: 1, limit: 10 },
                         translations: { te, tt: te }
                     });
-                    setExercises(res.exercises);
-                    setTotalCount(res.totalCount);
+                    setInitialData(res.exercises);
                 } catch (error: any) {
                     console.error('Error fetching exercises:', error?.message || error);
                 } finally {
                     setIsLoading(false);
                 }
             };
-            fetchExercises();
+            fetchFirstPage();
         }
-    }, [isOpen, debouncedSearchTerm, selectedCategory, currentPage, limit, te]);
+    }, [isOpen, debouncedSearchTerm, selectedCategory, te]);
 
-    // Reset para primeira página ao filtrar
-    useEffect(() => {
-        setCurrentPage(1);
-    }, [debouncedSearchTerm, selectedCategory, limit]);
+    // Hook de Scroll Infinito
+    const { visibleData: exercises, isLoadingMore, lastItemRef } = useInfiniteScroll(initialData, {
+        pageSize: 10,
+        fetchData: fetchMoreExercises,
+        keyExtractor: (item) => item.id as number
+    });
 
     const categories = useMemo(() => {
         return ['all', ...CATEGORIES];
@@ -124,26 +139,34 @@ export const ExerciseSelector = ({ isOpen, onClose, onSelect }: {
                             <p className="text-xs font-bold uppercase tracking-widest">{t('loading') || 'Carregando...'}</p>
                         </div>
                     ) : exercises.length > 0 ? (
-                        exercises.map(ex => (
-                            <button
-                                key={ex.id}
-                                onClick={() => onSelect(ex)}
-                                className="w-full flex items-center gap-4 p-4 rounded-2xl bg-zinc-50 dark:bg-zinc-900/50 hover:bg-lime-50 dark:hover:bg-lime-400/10 border border-transparent hover:border-lime-200 dark:hover:border-lime-500/30 transition-all text-left group cursor-pointer"
-                            >
-                                <div className="w-12 h-12 bg-zinc-200 dark:bg-zinc-800 rounded-xl flex items-center justify-center group-hover:bg-lime-200 dark:group-hover:bg-lime-400/20 transition-colors">
-                                    <Dumbbell className="text-zinc-500 dark:text-zinc-400 group-hover:text-lime-600 dark:group-hover:text-lime-400" size={20} />
+                        <>
+                            {exercises.map((ex, index) => (
+                                <button
+                                    key={ex.id}
+                                    ref={index === exercises.length - 1 ? lastItemRef : null}
+                                    onClick={() => onSelect(ex)}
+                                    className="w-full flex items-center gap-4 p-4 rounded-2xl bg-zinc-50 dark:bg-zinc-900/50 hover:bg-lime-50 dark:hover:bg-lime-400/10 border border-transparent hover:border-lime-200 dark:hover:border-lime-500/30 transition-all text-left group cursor-pointer"
+                                >
+                                    <div className="w-12 h-12 bg-zinc-200 dark:bg-zinc-800 rounded-xl flex items-center justify-center group-hover:bg-lime-200 dark:group-hover:bg-lime-400/20 transition-colors">
+                                        <Dumbbell className="text-zinc-500 dark:text-zinc-400 group-hover:text-lime-600 dark:group-hover:text-lime-400" size={20} />
+                                    </div>
+                                    <div className="flex-1">
+                                        <p className="font-black text-zinc-900 dark:text-white uppercase text-sm leading-tight">
+                                            {te.has(ex.name) ? te(ex.name) : ex.name}
+                                        </p>
+                                        <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest">
+                                            {tc(ex.category)}
+                                        </p>
+                                    </div>
+                                    <ArrowRight size={16} className="text-zinc-300 group-hover:text-lime-500 group-hover:translate-x-1 transition-all" />
+                                </button>
+                            ))}
+                            {isLoadingMore && (
+                                <div className="flex justify-center py-4">
+                                    <Loader2 size={24} className="animate-spin text-lime-500" />
                                 </div>
-                                <div className="flex-1">
-                                    <p className="font-black text-zinc-900 dark:text-white uppercase text-sm leading-tight">
-                                        {te.has(ex.name) ? te(ex.name) : ex.name}
-                                    </p>
-                                    <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest">
-                                        {tc(ex.category)}
-                                    </p>
-                                </div>
-                                <ArrowRight size={16} className="text-zinc-300 group-hover:text-lime-500 group-hover:translate-x-1 transition-all" />
-                            </button>
-                        ))
+                            )}
+                        </>
                     ) : (
                         <div className="flex flex-col items-center justify-center py-10 text-zinc-400">
                             <Info size={32} className="mb-2 opacity-20" />
@@ -151,18 +174,6 @@ export const ExerciseSelector = ({ isOpen, onClose, onSelect }: {
                         </div>
                     )}
                 </div>
-
-                {/* Paginação */}
-                {totalCount > 0 && (
-                    <Pagination
-                        currentPage={currentPage}
-                        totalPages={Math.ceil(totalCount / limit)}
-                        onPageChange={setCurrentPage}
-                        limit={limit}
-                        onLimitChange={setLimit}
-                        totalCount={totalCount}
-                    />
-                )}
             </div>
         </div>
     );
