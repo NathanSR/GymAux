@@ -193,7 +193,23 @@
     "saveButton": "Salvar Exercício",
     "howToLabel": "Instruções de Execução",
     "howToPlaceholder": "1. Posicione os pés...\n2. Mantenha a coluna ereta...",
-    "howToHint": "Pressione Enter para separar os parágrafos."
+    "howToHint": "Pressione Enter para separar os parágrafos.",
+    "quickAdd": "Cadastro Rápido",
+    "quickAddSubtitle": "Adicione sem interromper o fluxo",
+    "savingSubtitle": "Sincronizando com seu treino...",
+    "success": "Exercício adicionado com sucesso!",
+    "error": "Erro ao adicionar exercício. Tente novamente.",
+    "userNotFound": "Usuário não encontrado"
+  },
+  "ExerciseSelector": {
+    "title": "Selecionar Exercício",
+    "searchPlaceholder": "Buscar por nome ou #tag...",
+    "loading": "Sincronizando...",
+    "emptyResultsTitle": "Nenhum resultado",
+    "emptyResultsDescription": "Não encontramos o que você busca.<br />Tente outro filtro ou crie um novo.",
+    "createNew": "Criar Novo Exercício",
+    "allCategories": "Todos",
+    "noResults": "Nenhum exercício encontrado"
   },
   "Exercises": {
     "standard_push_up": "Flexão de Braços Padrão",
@@ -1319,13 +1335,6 @@
     "simplifiedView": "Visão Simplificada",
     "detailedView": "Visão Detalhada",
     "quickSets": "Configuração Rápida"
-  },
-  "ExerciseSelector": {
-    "title": "Adicionar Exercício",
-    "searchPlaceholder": "Buscar exercício...",
-    "allCategories": "Todos",
-    "noResults": "Nenhum exercício encontrado",
-    "loading": "Carregando..."
   },
   "ScheduleList": {
     "title": "Cronogramas",

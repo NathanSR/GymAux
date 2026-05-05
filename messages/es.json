@@ -193,7 +193,23 @@
     "saveButton": "Guardar Ejercicio",
     "howToLabel": "Instrucciones de Ejecución",
     "howToPlaceholder": "1. Posicione los pies...\n2. Mantenga la columna recta...",
-    "howToHint": "Presione Enter para separar los párrafos."
+    "howToHint": "Presione Enter para separar los párrafos.",
+    "quickAdd": "Registro Rápido",
+    "quickAddSubtitle": "Añade sin interrumpir el flujo",
+    "savingSubtitle": "Sincronizando con tu entrenamiento...",
+    "success": "Ejercicio añadido correctamente!",
+    "error": "Error al añadir el ejercicio. Inténtalo de nuevo.",
+    "userNotFound": "Usuario no encontrado"
+  },
+  "ExerciseSelector": {
+    "title": "Seleccionar Ejercicio",
+    "searchPlaceholder": "Buscar por nombre o #etiqueta...",
+    "loading": "Sincronizando...",
+    "emptyResultsTitle": "Sin resultados",
+    "emptyResultsDescription": "No encontramos lo que buscas.<br />Prueba otro filtro o crea uno nuevo.",
+    "createNew": "Crear Nuevo Ejercicio",
+    "allCategories": "Todos",
+    "noResults": "No se encontraron ejercicios"
   },
   "Exercises": {
     "standard_push_up": "Flexiones de Pecho Estándar",
@@ -1319,13 +1335,6 @@
     "simplifiedView": "Vista Simplificada",
     "detailedView": "Vista Detallada",
     "quickSets": "Configuración Rápida"
-  },
-  "ExerciseSelector": {
-    "title": "Añadir Ejercicio",
-    "searchPlaceholder": "Buscar ejercicio...",
-    "allCategories": "Todos",
-    "noResults": "No se encontraron ejercicios",
-    "loading": "Cargando..."
   },
   "ScheduleList": {
     "title": "Cronogramas",

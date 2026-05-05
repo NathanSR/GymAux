@@ -193,7 +193,23 @@
     "saveButton": "Save Exercise",
     "howToLabel": "Execution Instructions",
     "howToPlaceholder": "1. Place your feet...\n2. Keep your back straight...",
-    "howToHint": "Press Enter to separate paragraphs."
+    "howToHint": "Press Enter to separate paragraphs.",
+    "quickAdd": "Quick Add",
+    "quickAddSubtitle": "Add without interrupting the flow",
+    "savingSubtitle": "Syncing with your workout...",
+    "success": "Exercise added successfully!",
+    "error": "Error adding exercise. Try again.",
+    "userNotFound": "User not found"
+  },
+  "ExerciseSelector": {
+    "title": "Select Exercise",
+    "searchPlaceholder": "Search by name or #tag...",
+    "loading": "Syncing...",
+    "emptyResultsTitle": "No results",
+    "emptyResultsDescription": "We couldn't find what you're looking for.<br />Try another filter or create a new one.",
+    "createNew": "Create New Exercise",
+    "allCategories": "All",
+    "noResults": "No exercises found"
   },
   "Exercises": {
     "standard_push_up": "Standard Push Up",
@@ -1319,13 +1335,6 @@
     "simplifiedView": "Simplified View",
     "detailedView": "Detailed View",
     "quickSets": "Quick Setup"
-  },
-  "ExerciseSelector": {
-    "title": "Add Exercise",
-    "searchPlaceholder": "Search exercise...",
-    "allCategories": "All",
-    "noResults": "No exercises found",
-    "loading": "Loading..."
   },
   "ScheduleList": {
     "title": "Schedules",
