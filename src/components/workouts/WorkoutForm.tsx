@@ -10,7 +10,7 @@ import { ExerciseSelector } from '../exercises/ExerciseSelector';
 import { GroupTypeHelpModal } from './GroupTypeHelpModal';
 import { ConfirmDialog } from '../ui/ConfirmDialog';
 import { motion, AnimatePresence } from 'framer-motion';
-import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, TouchSensor } from '@dnd-kit/core';
+import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, TouchSensor, DragOverlay, defaultDropAnimationSideEffects } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from '@dnd-kit/sortable';
 
 import { SortableGroupItem } from './SortableGroupItem';
@@ -52,6 +52,7 @@ export default function WorkoutForm({ initialData, availableExercises = [], onSu
         groupIndex: null,
         newType: null
     });
+    const [activeId, setActiveId] = useState<string | null>(null);
 
     const sensors = useSensors(
         useSensor(PointerSensor, { activationConstraint: { distance: 10 } }),
@@ -65,15 +66,24 @@ export default function WorkoutForm({ initialData, availableExercises = [], onSu
         setIsModalOpen(true);
     };
 
-    const handleDragEnd = (event: any) => {
+    const handleDragStart = (event: any) => {
+        setActiveId(event.active.id);
+    };
+
+    const handleDragOver = (event: any) => {
         const { active, over } = event;
         if (over && active.id !== over.id) {
-            const oldIndex = groupFields.findIndex((f: any) => f.id === active.id || `group-${f.id}` === active.id);
-            const newIndex = groupFields.findIndex((f: any) => f.id === over.id || `group-${f.id}` === over.id);
+            const oldIndex = groupFields.findIndex((f: any) => f.id === active.id);
+            const newIndex = groupFields.findIndex((f: any) => f.id === over.id);
+            
             if (oldIndex !== -1 && newIndex !== -1) {
                 move(oldIndex, newIndex);
             }
         }
+    };
+
+    const handleDragEnd = (event: any) => {
+        setActiveId(null);
     };
 
     const handleGroupTypeChange = (groupIndex: number, newType: string) => {
@@ -247,8 +257,14 @@ export default function WorkoutForm({ initialData, availableExercises = [], onSu
                         </span>
                     </div>
 
-                    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-                        <SortableContext items={groupFields.map((f: any) => f.id || `group-${f}`)} strategy={verticalListSortingStrategy}>
+                    <DndContext 
+                        sensors={sensors} 
+                        collisionDetection={closestCenter} 
+                        onDragStart={handleDragStart}
+                        onDragOver={handleDragOver}
+                        onDragEnd={handleDragEnd}
+                    >
+                        <SortableContext items={groupFields.map((f: any) => f.id)} strategy={verticalListSortingStrategy}>
                             <AnimatePresence>
                                 {groupFields.map((field: any, index) => (
                                     <SortableGroupItem
@@ -263,10 +279,40 @@ export default function WorkoutForm({ initialData, availableExercises = [], onSu
                                         watch={watch}
                                         onShowHelp={() => setIsHelpOpen(true)}
                                         onGroupTypeChange={handleGroupTypeChange}
+                                        isAnyItemDragging={!!activeId}
                                     />
                                 ))}
                             </AnimatePresence>
                         </SortableContext>
+                        
+                        <DragOverlay dropAnimation={{
+                            sideEffects: defaultDropAnimationSideEffects({
+                                styles: {
+                                    active: {
+                                        opacity: '0.5',
+                                    },
+                                },
+                            }),
+                        }}>
+                            {activeId ? (
+                                <div className="w-full max-w-[calc(100vw-3rem)] md:max-w-3xl">
+                                    <SortableGroupItem
+                                        group={groupFields.find(f => f.id === activeId)}
+                                        groupIndex={groupFields.findIndex(f => f.id === activeId)}
+                                        control={control}
+                                        register={register}
+                                        removeGroup={() => {}}
+                                        openSelectorFor={() => {}}
+                                        setValue={setValue}
+                                        watch={watch}
+                                        onShowHelp={() => {}}
+                                        onGroupTypeChange={() => {}}
+                                        isAnyItemDragging={true}
+                                        isOverlay
+                                    />
+                                </div>
+                            ) : null}
+                        </DragOverlay>
                     </DndContext>
 
                     <button

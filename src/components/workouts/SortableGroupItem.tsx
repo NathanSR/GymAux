@@ -26,6 +26,8 @@ interface SortableGroupItemProps {
     watch: any;
     onShowHelp: () => void;
     onGroupTypeChange: (index: number, type: string) => void;
+    isAnyItemDragging?: boolean;
+    isOverlay?: boolean;
 }
 
 export function SortableGroupItem({
@@ -38,7 +40,9 @@ export function SortableGroupItem({
     setValue,
     watch,
     onShowHelp,
-    onGroupTypeChange
+    onGroupTypeChange,
+    isAnyItemDragging = false,
+    isOverlay = false
 }: SortableGroupItemProps) {
     const t = useTranslations('WorkoutForm');
     const te = useTranslations('Exercises');
@@ -78,14 +82,13 @@ export function SortableGroupItem({
         transform,
         transition,
         isDragging
-    } = useSortable({ id: group.id || `group-${groupIndex}` });
+    } = useSortable({ id: group.id, disabled: isOverlay });
 
     const style = {
-        transform: CSS.Transform.toString(transform),
-        transition,
-        zIndex: isDragging ? 10 : 1,
-        opacity: isDragging ? 0.9 : 1,
+        zIndex: isOverlay ? 100 : (isDragging ? 50 : 1),
     };
+
+    const isMinimized = isAnyItemDragging || isDragging || isOverlay;
 
     const { fields: exerciseFields } = useFieldArray({
         control,
@@ -96,18 +99,28 @@ export function SortableGroupItem({
 
     return (
         <motion.div
+            layout
             initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
+            animate={{ 
+                opacity: isOverlay ? 1 : (isDragging ? 0.3 : 1), 
+                y: 0,
+                scale: isOverlay ? 1.02 : 1,
+                boxShadow: isOverlay 
+                    ? '0 25px 50px -12px rgba(132, 204, 22, 0.25)' 
+                    : (isDragging ? 'none' : '0 1px 2px 0 rgb(0 0 0 / 0.05)')
+            }}
             exit={{ opacity: 0, scale: 0.95 }}
             ref={setNodeRef}
             style={style}
             className={`
                 relative flex flex-col gap-3 rounded-3xl p-4 mb-4 transition-all overflow-hidden border
-                ${isDragging ? 'border-lime-400 shadow-xl z-20' : ''}
-                ${isStraight
+                ${isOverlay ? 'border-lime-400 bg-white dark:bg-zinc-900 ring-2 ring-lime-400/20 z-[100]' : ''}
+                ${isDragging && !isOverlay ? 'border-dashed border-lime-400/50 bg-lime-400/5' : ''}
+                ${!isMinimized && (isStraight
                     ? 'bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 shadow-sm'
-                    : 'bg-gradient-to-br from-lime-50/50 to-white dark:from-lime-500/5 dark:to-zinc-900 border-lime-500/30 shadow-md shadow-lime-500/5'
+                    : 'bg-gradient-to-br from-lime-50/50 to-white dark:from-lime-500/5 dark:to-zinc-900 border-lime-500/30 shadow-md shadow-lime-500/5')
                 }
+                ${isMinimized && !isDragging && !isOverlay ? 'bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 opacity-60' : ''}
             `}
         >
             {isCompound && (
@@ -126,40 +139,50 @@ export function SortableGroupItem({
                     >
                         <GripVertical size={18} />
                     </div>
-                    <select
-                        value={groupType}
-                        onChange={(e) => onGroupTypeChange(groupIndex, e.target.value)}
-                        className="bg-transparent text-[10px] font-black uppercase tracking-widest text-lime-500 dark:text-lime-400 outline-none cursor-pointer"
-                    >
-                        <option className='bg-background text-foreground' value="straight">{t('groupTypes.straight')}</option>
-                        <option className='bg-background text-foreground' value="bi_set">{t('groupTypes.bi_set')}</option>
-                        <option className='bg-background text-foreground' value="tri_set">{t('groupTypes.tri_set')}</option>
-                        <option className='bg-background text-foreground' value="giant_set">{t('groupTypes.giant_set')}</option>
-                        <option className='bg-background text-foreground' value="circuit">{t('groupTypes.circuit')}</option>
-                    </select>
-                    <button
-                        type="button"
-                        onClick={onShowHelp}
-                        className="p-1 text-zinc-400 hover:text-lime-500 transition-colors"
-                        title={t('groupTypesHelp.title')}
-                    >
-                        <HelpCircle size={12} />
-                    </button>
+                    {isMinimized ? (
+                        <span className="text-[10px] font-black uppercase tracking-widest text-lime-500 dark:text-lime-400 py-1 px-2 bg-lime-500/10 rounded-lg">
+                            {t(`groupTypes.${groupType}`)}
+                        </span>
+                    ) : (
+                        <>
+                            <select
+                                value={groupType}
+                                onChange={(e) => onGroupTypeChange(groupIndex, e.target.value)}
+                                className="bg-transparent text-[10px] font-black uppercase tracking-widest text-lime-500 dark:text-lime-400 outline-none cursor-pointer"
+                            >
+                                <option className='bg-background text-foreground' value="straight">{t('groupTypes.straight')}</option>
+                                <option className='bg-background text-foreground' value="bi_set">{t('groupTypes.bi_set')}</option>
+                                <option className='bg-background text-foreground' value="tri_set">{t('groupTypes.tri_set')}</option>
+                                <option className='bg-background text-foreground' value="giant_set">{t('groupTypes.giant_set')}</option>
+                                <option className='bg-background text-foreground' value="circuit">{t('groupTypes.circuit')}</option>
+                            </select>
+                            <button
+                                type="button"
+                                onClick={onShowHelp}
+                                className="p-1 text-zinc-400 hover:text-lime-500 transition-colors"
+                                title={t('groupTypesHelp.title')}
+                            >
+                                <HelpCircle size={12} />
+                            </button>
+                        </>
+                    )}
                 </div>
 
-                <button
-                    type="button"
-                    onClick={() => removeGroup(groupIndex)}
-                    className="text-zinc-300 hover:text-red-500 p-2 rounded-xl transition-all"
-                >
-                    <Trash2 size={16} />
-                </button>
+                {!isMinimized && (
+                    <button
+                        type="button"
+                        onClick={() => removeGroup(groupIndex)}
+                        className="text-zinc-300 hover:text-red-500 p-2 rounded-xl transition-all"
+                    >
+                        <Trash2 size={16} />
+                    </button>
+                )}
             </div>
-            <div className={`space-y-3 relative ${isCompound ? 'pl-5' : ''}`}>
+            <div className={`space-y-3 relative ${isCompound && !isMinimized ? 'pl-5' : ''}`}>
                 {exerciseFields.map((exSubField: any, exIndex: number) => (
-                    <div key={exSubField.id} className={`${isCompound ? 'bg-transparent p-0 border-none' : 'bg-zinc-50 dark:bg-zinc-950/50 rounded-2xl p-3 border border-zinc-100 dark:border-zinc-800'} relative`}>
-                        <div className={`flex items-center gap-2 ${isCompound ? 'mb-0' : 'mb-3'}`}>
-                            {isCompound && (
+                    <div key={exSubField.id} className={`${isMinimized ? 'bg-transparent p-0 border-none' : (isCompound ? 'bg-transparent p-0 border-none' : 'bg-zinc-50 dark:bg-zinc-950/50 rounded-2xl p-3 border border-zinc-100 dark:border-zinc-800')} relative`}>
+                        <div className={`flex items-center gap-2 ${isMinimized ? 'mb-0' : (isCompound ? 'mb-0' : 'mb-3')}`}>
+                            {isCompound && !isMinimized && (
                                 <>
                                     {/* Vertical Connector Line - Segmented for perfect alignment */}
                                     <div className={`absolute -left-4 w-0.5 bg-lime-500/30 ${
@@ -174,17 +197,21 @@ export function SortableGroupItem({
                             )}
                             <button
                                 type="button"
-                                onClick={() => openSelectorFor(groupIndex, exIndex)}
-                                className="flex-1 flex items-center gap-2 p-2.5 bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 hover:border-lime-400/50 transition-all text-left group overflow-hidden"
+                                onClick={() => !isMinimized && openSelectorFor(groupIndex, exIndex)}
+                                className={`flex-1 flex items-center gap-2 p-2.5 rounded-xl border transition-all text-left group overflow-hidden ${
+                                    isMinimized 
+                                    ? 'bg-zinc-50 dark:bg-zinc-950 border-zinc-100 dark:border-zinc-800' 
+                                    : 'bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 hover:border-lime-400/50'
+                                }`}
                             >
                                 <Dumbbell size={14} className="text-lime-500 shrink-0" />
-                                <span className="text-xs font-black text-zinc-800 dark:text-zinc-200 flex-1 truncate uppercase tracking-tight">
+                                <span className={`font-black flex-1 truncate uppercase tracking-tight ${isMinimized ? 'text-[10px] text-zinc-600 dark:text-zinc-400' : 'text-xs text-zinc-800 dark:text-zinc-200'}`}>
                                     {exSubField.exerciseName ? (te.has(exSubField.exerciseName) ? te(exSubField.exerciseName) : exSubField.exerciseName) : t('selectExercise')}
                                 </span>
-                                <ChevronDown size={14} className="text-zinc-400 group-hover:text-lime-500 shrink-0" />
+                                {!isMinimized && <ChevronDown size={14} className="text-zinc-400 group-hover:text-lime-500 shrink-0" />}
                             </button>
 
-                            {isCompound && (
+                            {isCompound && !isMinimized && (
                                 <div className="w-20 shrink-0 bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 px-2 py-1 flex flex-col justify-center items-center">
                                     <span className="text-[7px] font-black text-zinc-400 uppercase tracking-widest">{t('reps')}</span>
                                     <input
@@ -201,20 +228,22 @@ export function SortableGroupItem({
                             )}
                         </div>
 
-                        <SetsList 
-                            groupIndex={groupIndex} 
-                            exerciseIndex={exIndex} 
-                            control={control} 
-                            register={register} 
-                            isStraight={isStraight} 
-                            watch={watch}
-                            setValue={setValue}
-                        />
+                        {!isMinimized && (
+                            <SetsList 
+                                groupIndex={groupIndex} 
+                                exerciseIndex={exIndex} 
+                                control={control} 
+                                register={register} 
+                                isStraight={isStraight} 
+                                watch={watch}
+                                setValue={setValue}
+                            />
+                        )}
                     </div>
                 ))}
             </div>
 
-            {!isFixedType && (
+            {!isFixedType && !isMinimized && (
                 <button
                     type="button"
                     onClick={() => openSelectorFor(groupIndex, null)}
@@ -224,28 +253,30 @@ export function SortableGroupItem({
                 </button>
             )}
 
-            <div className="grid grid-cols-2 gap-2 pt-3 border-t border-zinc-100 dark:border-zinc-800">
-                <div className={`${isStraight ? 'col-span-2' : ''} bg-zinc-50 dark:bg-zinc-950/50 p-2.5 rounded-xl border border-zinc-100 dark:border-zinc-800/50`}>
-                    <span className="block text-[8px] font-black text-zinc-400 uppercase tracking-widest mb-1">
-                        {isStraight ? t('restAfterGroup') : t('restBetweenRounds')}
-                    </span>
-                    <div className='flex items-center gap-2'>
-                        <input type="number" {...register(`exercises.${groupIndex}.restAfterGroup`)} className="w-full bg-transparent font-black text-sm outline-none text-zinc-800 dark:text-zinc-200" />
-                        <span className='text-[10px] text-zinc-500 font-bold'>s</span>
+            {!isMinimized && (
+                <div className="grid grid-cols-2 gap-2 pt-3 border-t border-zinc-100 dark:border-zinc-800">
+                    <div className={`${isStraight ? 'col-span-2' : ''} bg-zinc-50 dark:bg-zinc-950/50 p-2.5 rounded-xl border border-zinc-100 dark:border-zinc-800/50`}>
+                        <span className="block text-[8px] font-black text-zinc-400 uppercase tracking-widest mb-1">
+                            {isStraight ? t('restAfterGroup') : t('restBetweenRounds')}
+                        </span>
+                        <div className='flex items-center gap-2'>
+                            <input type="number" {...register(`exercises.${groupIndex}.restAfterGroup`)} className="w-full bg-transparent font-black text-sm outline-none text-zinc-800 dark:text-zinc-200" />
+                            <span className='text-[10px] text-zinc-500 font-bold'>s</span>
+                        </div>
                     </div>
+                    {!isStraight && (
+                        <div className="bg-zinc-50 dark:bg-zinc-950/50 p-2.5 rounded-xl border border-zinc-100 dark:border-zinc-800/50">
+                            <span className="block text-[8px] font-black text-zinc-400 uppercase tracking-widest mb-1">{t('rounds')}</span>
+                            <input
+                                type="number"
+                                value={rounds}
+                                onChange={(e) => handleRoundsChange(parseInt(e.target.value) || 1)}
+                                className="w-full bg-transparent font-black text-sm outline-none text-zinc-800 dark:text-zinc-200"
+                            />
+                        </div>
+                    )}
                 </div>
-                {!isStraight && (
-                    <div className="bg-zinc-50 dark:bg-zinc-950/50 p-2.5 rounded-xl border border-zinc-100 dark:border-zinc-800/50">
-                        <span className="block text-[8px] font-black text-zinc-400 uppercase tracking-widest mb-1">{t('rounds')}</span>
-                        <input
-                            type="number"
-                            value={rounds}
-                            onChange={(e) => handleRoundsChange(parseInt(e.target.value) || 1)}
-                            className="w-full bg-transparent font-black text-sm outline-none text-zinc-800 dark:text-zinc-200"
-                        />
-                    </div>
-                )}
-            </div>
+            )}
         </motion.div>
     );
 }
