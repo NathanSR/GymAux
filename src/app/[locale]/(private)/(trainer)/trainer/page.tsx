@@ -22,10 +22,10 @@ export default async function TrainerDashboardPage() {
     return (
         <TrainerClient
             trainerId={user.id}
-            initialStudents={activeStudents.map(c => ({
-                id: c.student.id,
-                name: c.student.name,
-                avatar: c.student.avatar
+            initialStudents={activeStudents.students.map(c => ({
+                id: c.id,
+                name: c.name,
+                avatar: c.avatar
             }))}
         />
     );

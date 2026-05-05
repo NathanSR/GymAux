@@ -1,3 +1,4 @@
+import { Student } from '@/components/trainers/StudentCard';
 import { SupabaseClient } from '@supabase/supabase-js';
 
 export type ConnectionStatus = 'pending' | 'active' | 'revoked';
