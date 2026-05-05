@@ -13,6 +13,7 @@ import PricingSection from '@/components/initial/PricingSection';
 import FAQSection from '@/components/initial/FAQSection';
 import CTASection from '@/components/initial/CTASection';
 import Footer from '@/components/initial/Footer';
+import LoggedInRedirect from '@/components/initial/LoggedInRedirect';
 
 export default function HomePage() {
     return (
@@ -37,6 +38,8 @@ export default function HomePage() {
             </main>
 
             <Footer />
+
+            <LoggedInRedirect />
 
             {/* Floating PWA Button */}
             <div className="fixed bottom-8 right-8 z-[100]">

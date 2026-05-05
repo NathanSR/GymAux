@@ -1,6 +1,8 @@
 {
   "Auth": {
     "backToHome": "Back to Home",
+    "welcomeBack": "Welcome back!",
+    "continueToApp": "Access your dashboard",
     "titleLogin": "Access GymAux",
     "titleRegister": "Create Account",
     "descriptionLogin": "Your local data will be migrated automatically.",
