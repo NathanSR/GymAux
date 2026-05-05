@@ -33,6 +33,7 @@ export interface Exercise {
     howTo?: string;
     mediaUrl?: string;
     level?: "beginner" | "intermediate" | "advanced";
+    isPublic?: boolean;
 }
 
 // ========================
@@ -230,4 +231,4 @@ export interface SyncOperation {
     createdAt: Date;
     retryCount: number;
     errorMessage?: string;
-}
+}

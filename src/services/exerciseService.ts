@@ -12,6 +12,7 @@ const mapExerciseFromSupabase = (ex: any): Exercise => ({
     howTo: ex.how_to || undefined,
     mediaUrl: ex.media_url || undefined,
     level: ex.level as any,
+    isPublic: ex.is_public,
 });
 
 export const ExerciseService = {
@@ -146,6 +147,7 @@ export const ExerciseService = {
                 level: exerciseData.level,
                 created_by: exerciseData.userId,
                 created_by_type: 'user',
+                is_public: exerciseData.isPublic ?? false,
             })
             .select()
             .single();
@@ -179,6 +181,7 @@ export const ExerciseService = {
         if (updateData.category !== undefined) updates.category = updateData.category;
         if (updateData.tags !== undefined) updates.tags = updateData.tags;
         if (updateData.level !== undefined) updates.level = updateData.level;
+        if (updateData.isPublic !== undefined) updates.is_public = updateData.isPublic;
 
         const { data, error } = await supabase
             .from('exercises')
