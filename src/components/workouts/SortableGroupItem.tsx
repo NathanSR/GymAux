@@ -27,6 +27,7 @@ interface SortableGroupItemProps {
     onShowHelp: () => void;
     onGroupTypeChange: (index: number, type: string) => void;
     isAnyItemDragging?: boolean;
+    isReorderMode?: boolean;
     isOverlay?: boolean;
 }
 
@@ -42,6 +43,7 @@ export function SortableGroupItem({
     onShowHelp,
     onGroupTypeChange,
     isAnyItemDragging = false,
+    isReorderMode = false,
     isOverlay = false
 }: SortableGroupItemProps) {
     const t = useTranslations('WorkoutForm');
@@ -82,13 +84,16 @@ export function SortableGroupItem({
         transform,
         transition,
         isDragging
-    } = useSortable({ id: group.id, disabled: isOverlay });
+    } = useSortable({ 
+        id: group.id, 
+        disabled: isOverlay || !isReorderMode 
+    });
 
     const style = {
         zIndex: isOverlay ? 100 : (isDragging ? 50 : 1),
     };
 
-    const isMinimized = isAnyItemDragging || isDragging || isOverlay;
+    const isMinimized = isAnyItemDragging || isDragging || isOverlay || isReorderMode;
 
     const { fields: exerciseFields } = useFieldArray({
         control,
@@ -134,7 +139,11 @@ export function SortableGroupItem({
                     <div
                         {...attributes}
                         {...listeners}
-                        className="p-2 -ml-2 cursor-grab active:cursor-grabbing text-zinc-400 hover:text-lime-500 transition-colors"
+                        className={`p-2 -ml-2 transition-all duration-300 ${
+                            isReorderMode 
+                            ? 'cursor-grab active:cursor-grabbing text-lime-500 opacity-100 scale-100' 
+                            : 'cursor-default text-zinc-300 opacity-0 scale-50 pointer-events-none w-0 overflow-hidden'
+                        }`}
                         style={{ touchAction: 'none' }}
                     >
                         <GripVertical size={18} />

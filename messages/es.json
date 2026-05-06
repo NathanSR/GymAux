@@ -1336,7 +1336,9 @@
     "cancelChange": "Cancelar",
     "simplifiedView": "Vista Simplificada",
     "detailedView": "Vista Detallada",
-    "quickSets": "Configuración Rápida"
+    "quickSets": "Configuración Rápida",
+    "reorderItems": "Reorganizar",
+    "doneReordering": "Hecho"
   },
   "ScheduleList": {
     "title": "Cronogramas",

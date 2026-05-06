@@ -2,7 +2,7 @@
 
 import { useState, useRef } from 'react';
 import { useForm, useFieldArray, Controller } from 'react-hook-form';
-import { Save, Plus } from 'lucide-react';
+import { Save, Plus, GripVertical, Check } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Exercise } from '@/config/types';
 import QuickExerciseDrawer from '../exercises/QuickExerciseDrawer';
@@ -53,6 +53,7 @@ export default function WorkoutForm({ initialData, availableExercises = [], onSu
         newType: null
     });
     const [activeId, setActiveId] = useState<string | null>(null);
+    const [isReorderMode, setIsReorderMode] = useState(false);
 
     const sensors = useSensors(
         useSensor(PointerSensor, { activationConstraint: { distance: 10 } }),
@@ -249,12 +250,36 @@ export default function WorkoutForm({ initialData, availableExercises = [], onSu
 
                 <section>
                     <div className="flex items-center justify-between mb-4 px-2">
-                        <label className="text-xs font-black uppercase text-zinc-800 dark:text-zinc-200 tracking-widest">
-                            {t('programming')}
-                        </label>
-                        <span className="text-[10px] font-bold bg-lime-400 text-zinc-900 px-3 py-1 rounded-full">
-                            {t('groupsCount', { count: groupFields.length })}
-                        </span>
+                        <div className="flex items-center gap-3">
+                            <label className="text-xs font-black uppercase text-zinc-800 dark:text-zinc-200 tracking-widest">
+                                {t('programming')}
+                            </label>
+                            <span className="text-[10px] font-bold bg-lime-400 text-zinc-900 px-3 py-1 rounded-full">
+                                {t('groupsCount', { count: groupFields.length })}
+                            </span>
+                        </div>
+
+                        <button
+                            type="button"
+                            onClick={() => setIsReorderMode(!isReorderMode)}
+                            className={`flex items-center gap-2 px-4 py-2 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${
+                                isReorderMode 
+                                ? 'bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 shadow-lg shadow-black/10' 
+                                : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100'
+                            }`}
+                        >
+                            {isReorderMode ? (
+                                <>
+                                    <Check className="w-3 h-3" />
+                                    {t('doneReordering')}
+                                </>
+                            ) : (
+                                <>
+                                    <GripVertical className="w-3 h-3" />
+                                    {t('reorderItems')}
+                                </>
+                            )}
+                        </button>
                     </div>
 
                     <DndContext 
@@ -280,6 +305,7 @@ export default function WorkoutForm({ initialData, availableExercises = [], onSu
                                         onShowHelp={() => setIsHelpOpen(true)}
                                         onGroupTypeChange={handleGroupTypeChange}
                                         isAnyItemDragging={!!activeId}
+                                        isReorderMode={isReorderMode}
                                     />
                                 ))}
                             </AnimatePresence>

@@ -1336,7 +1336,9 @@
     "cancelChange": "Cancel",
     "simplifiedView": "Simplified View",
     "detailedView": "Detailed View",
-    "quickSets": "Quick Setup"
+    "quickSets": "Quick Setup",
+    "reorderItems": "Reorder",
+    "doneReordering": "Done"
   },
   "ScheduleList": {
     "title": "Schedules",
