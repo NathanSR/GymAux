@@ -4,6 +4,7 @@ import { CSS } from '@dnd-kit/utilities';
 import { Check, GripVertical, Trash2, Pencil, RefreshCw, Activity } from "lucide-react";
 import { useTranslations } from 'next-intl';
 import { ExerciseGroup } from '@/config/types';
+import { motion } from 'framer-motion';
 
 interface DraggableExerciseItemProps {
     group: ExerciseGroup;
@@ -11,25 +12,31 @@ interface DraggableExerciseItemProps {
     currentGroupIndex: number;
     onRemove: (idx: number) => void;
     onEdit: (group: ExerciseGroup, idx: number) => void;
+    isOverlay?: boolean;
+    isAnyItemDragging?: boolean;
 }
 
-export const DraggableExerciseItem = ({ group, idx, currentGroupIndex, onRemove, onEdit }: DraggableExerciseItemProps) => {
+export const DraggableExerciseItem = ({ 
+    group, 
+    idx, 
+    currentGroupIndex, 
+    onRemove, 
+    onEdit,
+    isOverlay = false,
+    isAnyItemDragging = false
+}: DraggableExerciseItemProps) => {
     const t = useTranslations('WorkoutDrawer');
     const te = useTranslations('Exercises');
 
-    const groupId = `group-${idx}`;
+    const groupId = group.id || `group-${idx}`;
 
     const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
         id: groupId,
-        disabled: idx < currentGroupIndex
+        disabled: isOverlay || idx < currentGroupIndex
     });
 
     const style = {
-        transform: CSS.Transform.toString(transform),
-        transition,
-        zIndex: isDragging ? 100 : "auto",
-        opacity: isDragging ? 0.6 : 1,
-        touchAction: 'auto' as const
+        zIndex: isOverlay ? 100 : (isDragging ? 50 : 1),
     };
 
     const isCurrent = idx === currentGroupIndex;
@@ -38,15 +45,28 @@ export const DraggableExerciseItem = ({ group, idx, currentGroupIndex, onRemove,
 
     const totalSets = group.exercises.reduce((sum, ex) => sum + ex.sets.length, 0);
 
+    const isMinimized = isAnyItemDragging || isDragging || isOverlay;
+
     return (
-        <div
+        <motion.div
+            layout
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ 
+                opacity: isOverlay ? 1 : (isDragging ? 0.3 : (isAnyItemDragging ? 0.6 : 1)), 
+                y: 0,
+                scale: isOverlay ? 1.02 : 1,
+                boxShadow: isOverlay 
+                    ? '0 25px 50px -12px rgba(132, 204, 22, 0.25)' 
+                    : 'none'
+            }}
+            exit={{ opacity: 0, scale: 0.95 }}
             ref={setNodeRef}
             style={style}
             className={`relative rounded-[28px] border transition-all overflow-hidden 
-                ${isCurrent ? 'bg-lime-400/10 border-lime-400/40' : 'bg-zinc-900/50 border-zinc-800/50'} 
+                ${isOverlay ? 'border-lime-400 bg-zinc-900 ring-2 ring-lime-400/20' : (isCurrent ? 'bg-lime-400/10 border-lime-400/40' : 'bg-zinc-900/50 border-zinc-800/50')} 
                 ${isAlternating && !isCompleted ? 'bg-gradient-to-br from-lime-500/5 to-zinc-900/40 border-lime-500/30 shadow-lg shadow-lime-500/5' : ''}
-                ${isCompleted ? 'opacity-40' : ''} 
-                ${isDragging ? 'shadow-2xl border-lime-400/50 ring-1 ring-lime-400/20 z-50' : ''}
+                ${isCompleted && !isOverlay ? 'opacity-40' : ''} 
+                ${isDragging && !isOverlay ? 'border-dashed border-lime-400/50 bg-lime-400/5' : ''}
             `}
         >
             {isAlternating && !isCompleted && (
@@ -61,7 +81,9 @@ export const DraggableExerciseItem = ({ group, idx, currentGroupIndex, onRemove,
                         <div
                             {...attributes}
                             {...listeners}
-                            className="p-2 cursor-grab active:cursor-grabbing text-zinc-600 active:text-lime-400 flex-shrink-0"
+                            className={`p-2 transition-all duration-300 ${
+                                isOverlay ? 'cursor-grabbing text-lime-400' : 'cursor-grab text-zinc-600 hover:text-lime-400'
+                            }`}
                             style={{ touchAction: 'none' }}
                         >
                             <GripVertical size={18} />
@@ -111,7 +133,7 @@ export const DraggableExerciseItem = ({ group, idx, currentGroupIndex, onRemove,
                     </div>
                 </div>
 
-                {!isCompleted && (
+                {!isCompleted && !isOverlay && (
                     <div className="flex items-center gap-1 flex-shrink-0">
                         <button
                             onClick={() => onEdit(group, idx)}
@@ -131,6 +153,6 @@ export const DraggableExerciseItem = ({ group, idx, currentGroupIndex, onRemove,
                     </div>
                 )}
             </div>
-        </div>
+        </motion.div>
     );
 };

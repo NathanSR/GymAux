@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Session } from '@/config/types';
 import Swal from 'sweetalert2';
 import { arrayMove } from '@dnd-kit/sortable';
@@ -18,17 +18,50 @@ export const useWorkoutDrawer = (
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [editingGroupIdx, setEditingGroupIdx] = useState<number | null>(null);
 
-    const handleDragEnd = (event: any) => {
+    const [activeId, setActiveId] = useState<string | null>(null);
+    const [activeGroup, setActiveGroup] = useState<any>(null);
+
+    // Ensure all groups have stable IDs for DnD
+    useEffect(() => {
+        if (session.exercisesToDo) {
+            const hasMissingId = session.exercisesToDo.some(g => !g.id);
+            if (hasMissingId) {
+                const updated = session.exercisesToDo.map(g => ({
+                    ...g,
+                    id: g.id || `group-${Math.random().toString(36).substr(2, 9)}`
+                }));
+                setSession({ ...session, exercisesToDo: updated });
+            }
+        }
+    }, [session.exercisesToDo]);
+
+    const handleDragStart = (event: any) => {
+        const { active } = event;
+        setActiveId(active.id);
+        const group = session.exercisesToDo?.find(g => g.id === active.id);
+        if (group) setActiveGroup(group);
+    };
+
+    const handleDragOver = (event: any) => {
         const { active, over } = event;
         if (active && over && active.id !== over.id) {
-            const groups = session.exercisesToDo || [];
-            const oldIndex = groups.findIndex((_: any, i: number) => `group-${i}` === active.id);
-            const newIndex = groups.findIndex((_: any, i: number) => `group-${i}` === over.id);
+            const groups = [...(session.exercisesToDo || [])];
+            const oldIndex = groups.findIndex(g => g.id === active.id);
+            const newIndex = groups.findIndex(g => g.id === over.id);
+            
             if (oldIndex !== -1 && newIndex !== -1) {
-                session.exercisesToDo = arrayMove(groups, oldIndex, newIndex);
-                setSession({ ...session });
-                syncSession();
+                const newGroups = arrayMove(groups, oldIndex, newIndex);
+                setSession({ ...session, exercisesToDo: newGroups });
             }
+        }
+    };
+
+    const handleDragEnd = (event: any) => {
+        setActiveId(null);
+        setActiveGroup(null);
+        const { active, over } = event;
+        if (active && over && active.id !== over.id) {
+            syncSession();
         }
     };
 
@@ -120,6 +153,10 @@ export const useWorkoutDrawer = (
         setIsFormOpen,
         editingGroupIdx,
         setEditingGroupIdx,
+        activeId,
+        activeGroup,
+        handleDragStart,
+        handleDragOver,
         handleDragEnd,
         handleDeleteGroup,
         handleUpdateHistorySet,

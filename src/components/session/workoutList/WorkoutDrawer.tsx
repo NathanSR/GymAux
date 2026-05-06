@@ -37,6 +37,10 @@ export const WorkoutDrawer = ({
         setIsFormOpen,
         editingGroupIdx,
         setEditingGroupIdx,
+        activeId,
+        activeGroup,
+        handleDragStart,
+        handleDragOver,
         handleDragEnd,
         handleDeleteGroup,
         handleUpdateHistorySet,
@@ -73,6 +77,10 @@ export const WorkoutDrawer = ({
                         <WorkoutDrawerTodoList
                             groups={groups}
                             currentGroupIndex={currentGroupIndex}
+                            activeId={activeId}
+                            activeGroup={activeGroup}
+                            handleDragStart={handleDragStart}
+                            handleDragOver={handleDragOver}
                             handleDragEnd={handleDragEnd}
                             handleDeleteGroup={handleDeleteGroup}
                             handleEditClick={(group, idx) => {

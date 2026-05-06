@@ -85,6 +85,7 @@ export interface WorkoutExercise {
 
 /** Grupo de exercícios — unidade de organização do treino */
 export interface ExerciseGroup {
+    id?: string;
     groupType: GroupType;
     rounds: number;              // Vezes para repetir o grupo (1 = normal; >1 = circuit)
     restBetweenRounds: number;   // Descanso entre rounds (seg)
