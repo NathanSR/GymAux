@@ -15,20 +15,6 @@ const mapProfileToUser = (profile: any): User => ({
 });
 
 export const userService = {
-    // Buscar todos
-    async getAllUsers(supabaseInput?: any) {
-        const supabase = supabaseInput || createClient();
-        const { data, error } = await supabase
-            .from('profiles')
-            .select('*');
-
-        if (error) {
-            console.error('Error fetching users:', error?.message || error);
-            return [];
-        }
-
-        return (data || []).map(mapProfileToUser);
-    },
 
     // Buscar por ID
     async getUserById(id: string, supabaseInput?: any) {
@@ -81,34 +67,6 @@ export const userService = {
         return data ? mapProfileToUser(data) : null;
     },
 
-    // Criar novo profile
-    async createUser(userData: Omit<User, 'id' | 'createdAt'>, supabaseInput?: any) {
-        const supabase = supabaseInput || createClient();
-        const formattedName = userData.name.trim();
-
-        if (formattedName.length < 2) {
-            throw new Error("Name too short");
-        }
-
-        const { data, error } = await supabase
-            .from('profiles')
-            .insert({
-                name: formattedName,
-                avatar: userData.avatar,
-                weight: userData.weight,
-                height: userData.height,
-                goal: userData.goal,
-            })
-            .select()
-            .single();
-
-        if (error) {
-            throw error;
-        }
-
-        return mapProfileToUser(data);
-    },
-
     // Atualizar com regras de negócio
     async updateUser(id: string, updateData: Partial<Omit<User, 'id' | 'createdAt'>>, supabaseInput?: any) {
         const supabase = supabaseInput || createClient();
@@ -134,16 +92,4 @@ export const userService = {
         return data ? mapProfileToUser(data) : null;
     },
 
-    // Deletar usuário e seus treinos
-    async deleteUser(id: string, supabaseInput?: any) {
-        const supabase = supabaseInput || createClient();
-        const { error: historyError } = await supabase.from('history').delete().eq('user_id', id);
-        const { error: workoutError } = await supabase.from('workouts').delete().eq('user_id', id);
-        const { error: profileError } = await supabase.from('profiles').delete().eq('id', id);
-
-        if (historyError || workoutError || profileError) {
-            console.error('Error deleting user data:', { historyError, workoutError, profileError });
-            throw new Error("Erro ao deletar usuário");
-        }
-    }
 };

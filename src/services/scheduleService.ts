@@ -15,22 +15,6 @@ const mapScheduleFromSupabase = (s: any): Schedule => ({
 });
 
 export const ScheduleService = {
-    /**
-     * Busca todos os cronogramas do banco.
-     */
-    async getAllSchedules(supabaseInput?: any) {
-        const supabase = supabaseInput || createClient();
-        const { data, error } = await supabase
-            .from('schedules')
-            .select('*');
-
-        if (error) {
-            console.error('Error fetching all schedules:', error?.message || error);
-            return [];
-        }
-
-        return (data || []).map(mapScheduleFromSupabase);
-    },
 
     /**
      * Busca cronogramas de um usuário específico de forma paginada e com busca.
@@ -161,31 +145,6 @@ export const ScheduleService = {
     },
 
     /**
-     * Atualiza o progresso do cronograma (qual foi o último treino concluído).
-     */
-    async updateProgress(id: string, workoutIndex: number, userId: string, supabaseInput?: any) {
-        const supabase = supabaseInput || createClient();
-
-        if (workoutIndex < 0 || workoutIndex > 6) {
-            throw new Error("Índice de dia inválido (deve ser entre 0 e 6).");
-        }
-
-        const { data, error } = await supabase
-            .from('schedules')
-            .update({ last_completed: workoutIndex })
-            .eq('id', id)
-            .eq('user_id', userId)
-            .select()
-            .single();
-
-        if (error) {
-            throw error;
-        }
-
-        return mapScheduleFromSupabase(data);
-    },
-
-    /**
      * Atualiza um cronograma existente.
      */
     async updateSchedule(id: string, scheduleData: Partial<Schedule>, callerId: string, supabaseInput?: any) {
@@ -236,49 +195,6 @@ export const ScheduleService = {
             .from('schedules')
             .update(updates)
             .eq('id', id)
-            .select()
-            .single();
-
-        if (error) {
-            throw error;
-        }
-
-        return mapScheduleFromSupabase(data);
-    },
-
-    /**
-     * Ativa um cronograma específico e desativa todos os outros do mesmo usuário.
-     */
-    async setActiveSchedule(id: string, userId: string, callerId: string, supabaseInput?: any) {
-        const supabase = supabaseInput || createClient();
-
-        if (callerId !== userId) {
-            // Check for trainer connection
-            const { data: connection } = await supabase
-                .from('connections')
-                .select('status, permissions')
-                .eq('trainer_id', callerId)
-                .eq('student_id', userId)
-                .eq('status', 'active')
-                .maybeSingle();
-
-            if (!connection || !connection.permissions?.manage_schedules) {
-                throw new Error("Unauthorized to manage this student's schedule");
-            }
-        }
-
-        // Desativa todos
-        await supabase
-            .from('schedules')
-            .update({ active: false })
-            .eq('user_id', userId);
-
-        // Ativa o selecionado
-        const { data, error } = await supabase
-            .from('schedules')
-            .update({ active: true })
-            .eq('id', id)
-            .eq('user_id', userId)
             .select()
             .single();
 
