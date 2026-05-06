@@ -50,7 +50,6 @@ export function SortableGroupItem({
     const te = useTranslations('Exercises');
     const groupType = watch(`exercises.${groupIndex}.groupType`);
     const isStraight = groupType === 'straight';
-    const isFixedType = groupType === 'bi_set' || groupType === 'tri_set';
     const rounds = watch(`exercises.${groupIndex}.rounds`) || 1;
 
     const handleRoundsChange = (val: number) => {
@@ -101,6 +100,8 @@ export function SortableGroupItem({
     });
 
     const isCompound = !isStraight;
+    const maxExercises = isStraight ? 1 : (groupType === 'bi_set' ? 2 : (groupType === 'tri_set' ? 3 : 10));
+    const canAddMore = exerciseFields.length < maxExercises;
 
     return (
         <motion.div
@@ -252,7 +253,7 @@ export function SortableGroupItem({
                 ))}
             </div>
 
-            {!isFixedType && !isMinimized && (
+            {!isMinimized && canAddMore && (
                 <button
                     type="button"
                     onClick={() => openSelectorFor(groupIndex, null)}
