@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import {
     Save,
     Dumbbell,
@@ -16,7 +16,7 @@ import { Workout } from '@/config/types';
 export const ScheduleForm = ({ initialData, onSubmit, isLoading, userId }: { initialData?: any; onSubmit: (data: any) => void; isLoading?: boolean; userId?: string; }) => {
     const t = useTranslations('ScheduleForm');
 
-    const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm({
+    const { register, handleSubmit, setValue, control, formState: { errors } } = useForm({
         defaultValues: initialData || {
             name: '',
             workouts: [null, null, null, null, null, null, null],
@@ -27,7 +27,8 @@ export const ScheduleForm = ({ initialData, onSubmit, isLoading, userId }: { ini
 
     // Obtém o array de dias traduzido
     const daysOfWeek = t.raw('daysOfWeek') as string[];
-    const currentWorkouts = watch('workouts');
+    const currentWorkouts = useWatch({ control, name: 'workouts' }) || [null, null, null, null, null, null, null];
+    const isActive = useWatch({ control, name: 'active' });
 
     const handleWorkoutChange = (dayIndex: number, workoutId: string | null) => {
         const newWorkouts = [...currentWorkouts];
@@ -43,7 +44,7 @@ export const ScheduleForm = ({ initialData, onSubmit, isLoading, userId }: { ini
             const targetId = userId || activeUser?.id;
             if (!targetId) return;
             const list = await WorkoutService.getWorkoutsByUserId(targetId);
-            setWorkouts(list);
+            setWorkouts(list as any);
         };
         fetchWorkouts();
     }, [userId, activeUser?.id]);
@@ -90,7 +91,7 @@ export const ScheduleForm = ({ initialData, onSubmit, isLoading, userId }: { ini
 
                     <div className="flex items-center justify-between p-4 bg-zinc-50 dark:bg-zinc-950/50 rounded-2xl border border-zinc-100 dark:border-zinc-800/50">
                         <div className="flex items-center gap-3">
-                            <div className={`p-2 rounded-xl transition-colors ${watch('active') ? 'bg-lime-400/10 text-lime-500' : 'bg-zinc-200 dark:bg-zinc-800 text-zinc-400'}`}>
+                            <div className={`p-2 rounded-xl transition-colors ${isActive ? 'bg-lime-400/10 text-lime-500' : 'bg-zinc-200 dark:bg-zinc-800 text-zinc-400'}`}>
                                 <CheckCircle2 size={20} />
                             </div>
                             <div>

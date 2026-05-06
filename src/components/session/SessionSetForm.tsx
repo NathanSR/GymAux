@@ -5,7 +5,7 @@ import { Dumbbell, Check, Plus, Minus, SkipForward, FastForward, ArrowRight, X }
 import { useTranslations } from 'next-intl';
 import { numberInputUtils } from '../../utils/numberUtil';
 import { RPE_EMOJIS, RPE_OPTIONS } from './SessionConstants';
-import { Controller } from 'react-hook-form';
+import { Controller, useWatch } from 'react-hook-form';
 
 interface SessionSetFormProps {
     currentPlannedSet: any;
@@ -34,7 +34,7 @@ export function SessionSetForm({
 }: SessionSetFormProps) {
     const t = useTranslations('Session');
 
-    const { register, handleSubmit, watch, setValue, control } = useForm({
+    const { register, handleSubmit, setValue, control } = useForm({
         defaultValues: {
             weight: 0,
             reps: currentPlannedSet?.reps || 0,
@@ -42,8 +42,9 @@ export function SessionSetForm({
         }
     });
 
-    const weight = watch("weight");
-    const rpeValue = watch("rpe");
+    const weight = useWatch({ control, name: "weight" });
+    const rpeValue = useWatch({ control, name: "rpe" });
+    const repsValue = useWatch({ control, name: "reps" });
 
     useEffect(() => {
         setValue("weight", currentPlannedSet?.weight || weight || 0);
@@ -53,19 +54,19 @@ export function SessionSetForm({
 
     useEffect(() => {
         setWatchValues(() => ({
-            weight: watch("weight"),
-            reps: watch("reps"),
-            rpe: watch("rpe")
+            weight,
+            reps: repsValue,
+            rpe: rpeValue
         }));
-    }, [watch, setWatchValues]);
+    }, [weight, repsValue, rpeValue, setWatchValues]);
 
     const adjustWeight = (amount: number) => {
-        const currentWeight = Number(watch("weight") || 0);
+        const currentWeight = Number(weight || 0);
         setValue("weight", Math.max(0, currentWeight + amount));
     };
 
     const adjustReps = (amount: number) => {
-        const currentReps = Number(watch("reps") || 0);
+        const currentReps = Number(repsValue || 0);
         setValue("reps", Math.max(0, currentReps + amount));
     };
 

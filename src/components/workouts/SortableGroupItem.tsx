@@ -1,23 +1,20 @@
 "use client";
 
+import { memo } from 'react';
 import { useTranslations } from 'next-intl';
 import { useSortable } from '@dnd-kit/sortable';
-import { useFieldArray } from 'react-hook-form';
+import { useFieldArray, useFormContext, useWatch } from 'react-hook-form';
 import { CSS } from '@dnd-kit/utilities';
 import { motion } from 'framer-motion';
 import { Activity, ChevronDown, Dumbbell, GripVertical, HelpCircle, Trash2 } from 'lucide-react';
 import { numberInputUtils } from '../../utils/numberUtil';
-import { SetsList } from './SetsList';
+import SetsList from './SetsList';
 
 interface SortableGroupItemProps {
     group: any;
     groupIndex: number;
-    control: any;
-    register: any;
     removeGroup: (index: number) => void;
     openSelectorFor: (groupIndex: number | null, exerciseIndex: number | null) => void;
-    setValue: any;
-    watch: any;
     onShowHelp: () => void;
     onGroupTypeChange: (index: number, type: string) => void;
     isAnyItemDragging?: boolean;
@@ -25,33 +22,46 @@ interface SortableGroupItemProps {
     isOverlay?: boolean;
 }
 
-export function SortableGroupItem({
+export const SortableGroupItem = memo(({
     group,
     groupIndex,
-    control,
-    register,
     removeGroup,
     openSelectorFor,
-    setValue,
-    watch,
     onShowHelp,
     onGroupTypeChange,
     isAnyItemDragging = false,
     isReorderMode = false,
     isOverlay = false
-}: SortableGroupItemProps) {
+}: SortableGroupItemProps) => {
+    const { control, register, setValue, getValues } = useFormContext();
     const t = useTranslations('WorkoutForm');
     const te = useTranslations('Exercises');
-    const groupType = watch(`exercises.${groupIndex}.groupType`);
+    
+    // Use useWatch for isolated re-renders
+    const groupType = useWatch({
+        control,
+        name: `exercises.${groupIndex}.groupType`
+    });
+    
+    const rounds = useWatch({
+        control,
+        name: `exercises.${groupIndex}.rounds`
+    }) || 1;
+
+    const exercisesInGroup = useWatch({
+        control,
+        name: `exercises.${groupIndex}.exercises`
+    });
+
     const isStraight = groupType === 'straight';
-    const rounds = watch(`exercises.${groupIndex}.rounds`) || 1;
 
     const handleRoundsChange = (val: number) => {
         const newVal = Math.max(1, val);
         setValue(`exercises.${groupIndex}.rounds`, newVal);
 
         // Sync all exercises in group to have exactly newVal sets
-        const currentExs = watch(`exercises.${groupIndex}.exercises`);
+        // Using getValues here instead of watch to avoid re-renders during the handler
+        const currentExs = getValues(`exercises.${groupIndex}.exercises`);
         if (currentExs) {
             currentExs.forEach((ex: any, exIdx: number) => {
                 const currentSets = ex.sets || [];
@@ -222,11 +232,11 @@ export function SortableGroupItem({
                                         type="number"
                                         className="w-full bg-transparent text-center font-black text-xs outline-none text-lime-500"
                                         onFocus={numberInputUtils.onFocus}
-                                        value={numberInputUtils.formatValue(watch(`exercises.${groupIndex}.exercises.${exIndex}.sets.0.reps`))}
+                                        value={numberInputUtils.formatValue(exercisesInGroup[exIndex]?.sets[0]?.reps)}
                                         onChange={(e) => {
                                             numberInputUtils.onChange(e, (newVal) => {
                                                 const finalVal = newVal;
-                                                const currentSets = watch(`exercises.${groupIndex}.exercises.${exIndex}.sets`) || [];
+                                                const currentSets = exercisesInGroup[exIndex]?.sets || [];
                                                 setValue(`exercises.${groupIndex}.exercises.${exIndex}.sets`, currentSets.map((s: any) => ({ ...s, reps: finalVal })));
                                             });
                                         }}
@@ -239,11 +249,7 @@ export function SortableGroupItem({
                             <SetsList 
                                 groupIndex={groupIndex} 
                                 exerciseIndex={exIndex} 
-                                control={control} 
-                                register={register} 
                                 isStraight={isStraight} 
-                                watch={watch}
-                                setValue={setValue}
                             />
                         )}
                     </div>
@@ -269,7 +275,7 @@ export function SortableGroupItem({
                         <div className='flex items-center gap-2'>
                             <input 
                                 type="number" 
-                                value={numberInputUtils.formatValue(watch(`exercises.${groupIndex}.restAfterGroup`))}
+                                value={numberInputUtils.formatValue(useWatch({ control, name: `exercises.${groupIndex}.restAfterGroup` }))}
                                 onFocus={numberInputUtils.onFocus}
                                 onChange={(e) => numberInputUtils.onChange(e, (val) => setValue(`exercises.${groupIndex}.restAfterGroup`, val))}
                                 className="w-full bg-transparent font-black text-sm outline-none text-zinc-800 dark:text-zinc-200" 
@@ -293,4 +299,6 @@ export function SortableGroupItem({
             )}
         </motion.div>
     );
-}
+});
+
+export default SortableGroupItem;

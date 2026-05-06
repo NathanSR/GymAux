@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef } from 'react';
-import { useForm, useFieldArray, Controller } from 'react-hook-form';
+import { useForm, useFieldArray, Controller, FormProvider } from 'react-hook-form';
 import { Save, Plus, GripVertical, Check } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Exercise } from '@/config/types';
@@ -13,7 +13,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, TouchSensor, DragOverlay, defaultDropAnimationSideEffects } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from '@dnd-kit/sortable';
 
-import { SortableGroupItem } from './SortableGroupItem';
+import SortableGroupItem from './SortableGroupItem';
 
 interface WorkoutFormProps {
     initialData?: any;
@@ -31,8 +31,8 @@ function InsertionPoint({ onClick, isVisible = true }: { onClick: () => void, is
                 type="button"
                 initial={{ opacity: 0.25, scale: 0.9 }}
                 animate={{ opacity: 0.25, scale: 1 }}
-                whileHover={{ 
-                    opacity: 1, 
+                whileHover={{
+                    opacity: 1,
                     scale: 1.1,
                     backgroundColor: "rgba(132, 204, 22, 0.15)",
                     borderColor: "rgba(132, 204, 22, 0.4)",
@@ -53,13 +53,16 @@ function InsertionPoint({ onClick, isVisible = true }: { onClick: () => void, is
 export default function WorkoutForm({ initialData, availableExercises = [], onSubmit, isLoading }: WorkoutFormProps) {
     const t = useTranslations('WorkoutForm');
 
-    const { register, control, handleSubmit, setValue, watch, formState: { errors } } = useForm({
+    const methods = useForm({
         defaultValues: initialData || {
             name: '',
             description: '',
             exercises: []
         }
     });
+
+    const { register, control, handleSubmit, setValue, getValues, watch } = methods;
+    const { errors } = methods.formState;
 
     const { fields: groupFields, append: appendGroup, remove: removeGroup, update, move, insert } = useFieldArray({
         control,
@@ -113,7 +116,7 @@ export default function WorkoutForm({ initialData, availableExercises = [], onSu
         if (over && active.id !== over.id) {
             const oldIndex = groupFields.findIndex((f: any) => f.id === active.id);
             const newIndex = groupFields.findIndex((f: any) => f.id === over.id);
-            
+
             if (oldIndex !== -1 && newIndex !== -1) {
                 move(oldIndex, newIndex);
             }
@@ -125,7 +128,7 @@ export default function WorkoutForm({ initialData, availableExercises = [], onSu
     };
 
     const handleGroupTypeChange = (groupIndex: number, newType: string) => {
-        const group = watch(`exercises.${groupIndex}`);
+        const group = getValues(`exercises.${groupIndex}`);
         const currentExercises = group.exercises || [];
 
         let requiredCount = currentExercises.length;
@@ -278,7 +281,7 @@ export default function WorkoutForm({ initialData, availableExercises = [], onSu
     };
 
     return (
-        <>
+        <FormProvider {...methods}>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 pb-40">
                 <section className="bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 rounded-3xl p-5 shadow-sm">
                     <div className="mb-4">
@@ -318,11 +321,10 @@ export default function WorkoutForm({ initialData, availableExercises = [], onSu
                         <button
                             type="button"
                             onClick={() => setIsReorderMode(!isReorderMode)}
-                            className={`flex items-center gap-2 px-4 py-2 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${
-                                isReorderMode 
-                                ? 'bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 shadow-lg shadow-black/10' 
-                                : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100'
-                            }`}
+                            className={`flex items-center gap-2 px-4 py-2 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${isReorderMode
+                                    ? 'bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 shadow-lg shadow-black/10'
+                                    : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100'
+                                }`}
                         >
                             {isReorderMode ? (
                                 <>
@@ -338,9 +340,9 @@ export default function WorkoutForm({ initialData, availableExercises = [], onSu
                         </button>
                     </div>
 
-                    <DndContext 
-                        sensors={sensors} 
-                        collisionDetection={closestCenter} 
+                    <DndContext
+                        sensors={sensors}
+                        collisionDetection={closestCenter}
                         onDragStart={handleDragStart}
                         onDragOver={handleDragOver}
                         onDragEnd={handleDragEnd}
@@ -351,21 +353,17 @@ export default function WorkoutForm({ initialData, availableExercises = [], onSu
                                     <div key={field.id} className={`relative ${isReorderMode ? 'mb-3' : ''}`}>
                                         {/* Insert before first item */}
                                         {index === 0 && (
-                                            <InsertionPoint 
-                                                isVisible={!isReorderMode && !activeId} 
-                                                onClick={() => openSelectorForInsertion(0)} 
+                                            <InsertionPoint
+                                                isVisible={!isReorderMode && !activeId}
+                                                onClick={() => openSelectorForInsertion(0)}
                                             />
                                         )}
 
                                         <SortableGroupItem
                                             group={field}
                                             groupIndex={index}
-                                            control={control}
-                                            register={register}
                                             removeGroup={removeGroup}
                                             openSelectorFor={openSelectorFor}
-                                            setValue={setValue}
-                                            watch={watch}
                                             onShowHelp={() => setIsHelpOpen(true)}
                                             onGroupTypeChange={handleGroupTypeChange}
                                             isAnyItemDragging={!!activeId}
@@ -373,15 +371,15 @@ export default function WorkoutForm({ initialData, availableExercises = [], onSu
                                         />
 
                                         {/* Insert between or after items */}
-                                        <InsertionPoint 
-                                            isVisible={!isReorderMode && !activeId} 
-                                            onClick={() => openSelectorForInsertion(index + 1)} 
+                                        <InsertionPoint
+                                            isVisible={!isReorderMode && !activeId}
+                                            onClick={() => openSelectorForInsertion(index + 1)}
                                         />
                                     </div>
                                 ))}
                             </AnimatePresence>
                         </SortableContext>
-                        
+
                         <DragOverlay dropAnimation={{
                             sideEffects: defaultDropAnimationSideEffects({
                                 styles: {
@@ -396,14 +394,10 @@ export default function WorkoutForm({ initialData, availableExercises = [], onSu
                                     <SortableGroupItem
                                         group={groupFields.find(f => f.id === activeId)}
                                         groupIndex={groupFields.findIndex(f => f.id === activeId)}
-                                        control={control}
-                                        register={register}
-                                        removeGroup={() => {}}
-                                        openSelectorFor={() => {}}
-                                        setValue={setValue}
-                                        watch={watch}
-                                        onShowHelp={() => {}}
-                                        onGroupTypeChange={() => {}}
+                                        removeGroup={() => { }}
+                                        openSelectorFor={() => { }}
+                                        onShowHelp={() => { }}
+                                        onGroupTypeChange={() => { }}
                                         isAnyItemDragging={true}
                                         isOverlay
                                     />
@@ -467,6 +461,6 @@ export default function WorkoutForm({ initialData, availableExercises = [], onSu
                 cancelText={t('cancelChange')}
                 variant="warning"
             />
-        </>
+        </FormProvider>
     );
 }

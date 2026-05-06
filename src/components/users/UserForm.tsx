@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useRef, useEffect } from "react";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller, useWatch } from "react-hook-form";
 import { useTranslations } from 'next-intl'; // Importação adicionada
 import {
     Camera,
@@ -32,7 +32,6 @@ export default function UserForm({ initialData, onSubmit, isLoading, submitLabel
         register,
         handleSubmit,
         setValue,
-        watch,
         reset,
         formState: { errors },
         control
@@ -45,6 +44,8 @@ export default function UserForm({ initialData, onSubmit, isLoading, submitLabel
             avatar: ""
         }
     });
+    
+    const watchedAvatar = useWatch({ control, name: 'avatar' });
 
     useEffect(() => {
         if (initialData) {
@@ -75,10 +76,10 @@ export default function UserForm({ initialData, onSubmit, isLoading, submitLabel
                         onClick={() => fileInputRef.current?.click()}
                         className="w-32 h-32 rounded-[40px] bg-zinc-200 dark:bg-zinc-800 overflow-hidden border-4 border-white dark:border-zinc-900 shadow-xl cursor-pointer transition-transform active:scale-95"
                     >
-                        {avatarPreview || watch('avatar') ? (
+                        {avatarPreview || watchedAvatar ? (
                             <img
                                 // @ts-ignore
-                                src={avatarPreview || watch('avatar')}
+                                src={avatarPreview || watchedAvatar}
                                 alt="Avatar"
                                 className="w-full h-full object-cover"
                             />

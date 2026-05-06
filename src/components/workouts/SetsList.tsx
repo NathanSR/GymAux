@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from 'react';
-import { useFieldArray } from 'react-hook-form';
+import { useState, memo } from 'react';
+import { useFieldArray, useFormContext, useWatch } from 'react-hook-form';
 import { Trash2, Plus, Copy, Settings2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -10,31 +10,27 @@ import { numberInputUtils } from '../../utils/numberUtil';
 interface SetsListProps {
     groupIndex: number;
     exerciseIndex: number;
-    control: any;
-    register: any;
     isStraight: boolean;
-    watch: any;
-    setValue: any;
 }
 
-export function SetsList({
+export const SetsList = memo(({
     groupIndex,
     exerciseIndex,
-    control,
-    register,
-    isStraight,
-    watch,
-    setValue
-}: SetsListProps) {
+    isStraight
+}: SetsListProps) => {
+    const { control, register, setValue, getValues } = useFormContext();
     const t = useTranslations('WorkoutForm');
     const [isDetailed, setIsDetailed] = useState(false);
 
-    const { fields: setFields, append: appendSet, remove: removeSet, insert } = useFieldArray({
+    const { fields: setFields, append: appendSet, remove: removeSet } = useFieldArray({
         control,
         name: `exercises.${groupIndex}.exercises.${exerciseIndex}.sets`
     });
 
-    const sets = watch(`exercises.${groupIndex}.exercises.${exerciseIndex}.sets`) || [];
+    const sets = useWatch({
+        control,
+        name: `exercises.${groupIndex}.exercises.${exerciseIndex}.sets`
+    }) || [];
 
     // Quick edit handlers
     const handleSetsCountChange = (val: number) => {
@@ -116,4 +112,8 @@ export function SetsList({
             </div>
         );
     }
-}
+
+    return null; // Add default return for non-straight or detailed (not shown in snippet but good practice)
+});
+
+export default SetsList;
