@@ -118,7 +118,7 @@ export function SortableGroupItem({
             ref={setNodeRef}
             style={style}
             className={`
-                relative flex flex-col gap-3 rounded-3xl p-4 mb-4 transition-all overflow-hidden border
+                relative flex flex-col gap-3 rounded-3xl p-4 transition-all overflow-hidden border
                 ${isOverlay ? 'border-lime-400 bg-white dark:bg-zinc-900 ring-2 ring-lime-400/20 z-[100]' : ''}
                 ${isDragging && !isOverlay ? 'border-dashed border-lime-400/50 bg-lime-400/5' : ''}
                 ${!isMinimized && (isStraight

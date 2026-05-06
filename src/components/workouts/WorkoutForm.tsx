@@ -22,6 +22,34 @@ interface WorkoutFormProps {
     isLoading?: boolean;
 }
 
+function InsertionPoint({ onClick, isVisible = true }: { onClick: () => void, isVisible?: boolean }) {
+    if (!isVisible) return null;
+
+    return (
+        <div className="h-8 flex items-center justify-center group pointer-events-none">
+            <motion.button
+                type="button"
+                initial={{ opacity: 0.25, scale: 0.9 }}
+                animate={{ opacity: 0.25, scale: 1 }}
+                whileHover={{ 
+                    opacity: 1, 
+                    scale: 1.1,
+                    backgroundColor: "rgba(132, 204, 22, 0.15)",
+                    borderColor: "rgba(132, 204, 22, 0.4)",
+                }}
+                whileTap={{ scale: 0.95 }}
+                onClick={(e) => {
+                    e.stopPropagation();
+                    onClick();
+                }}
+                className="pointer-events-auto w-7 h-7 rounded-full bg-zinc-100/50 dark:bg-zinc-800/30 border border-zinc-200 dark:border-zinc-700 flex items-center justify-center text-zinc-400 dark:text-zinc-500 hover:text-lime-500 transition-all duration-300 shadow-sm"
+            >
+                <Plus size={16} strokeWidth={2} />
+            </motion.button>
+        </div>
+    );
+}
+
 export default function WorkoutForm({ initialData, availableExercises = [], onSubmit, isLoading }: WorkoutFormProps) {
     const t = useTranslations('WorkoutForm');
 
@@ -33,7 +61,7 @@ export default function WorkoutForm({ initialData, availableExercises = [], onSu
         }
     });
 
-    const { fields: groupFields, append: appendGroup, remove: removeGroup, update, move } = useFieldArray({
+    const { fields: groupFields, append: appendGroup, remove: removeGroup, update, move, insert } = useFieldArray({
         control,
         name: "exercises"
     });
@@ -54,6 +82,7 @@ export default function WorkoutForm({ initialData, availableExercises = [], onSu
     });
     const [activeId, setActiveId] = useState<string | null>(null);
     const [isReorderMode, setIsReorderMode] = useState(false);
+    const [insertionIndex, setInsertionIndex] = useState<number | null>(null);
 
     const sensors = useSensors(
         useSensor(PointerSensor, { activationConstraint: { distance: 10 } }),
@@ -64,6 +93,14 @@ export default function WorkoutForm({ initialData, availableExercises = [], onSu
     const openSelectorFor = (grpIdx: number | null, exIdx: number | null = null) => {
         setTargetGroupIndex(grpIdx);
         setTargetExerciseIndex(exIdx);
+        setInsertionIndex(null);
+        setIsModalOpen(true);
+    };
+
+    const openSelectorForInsertion = (index: number) => {
+        setTargetGroupIndex(null);
+        setTargetExerciseIndex(null);
+        setInsertionIndex(index);
         setIsModalOpen(true);
     };
 
@@ -156,8 +193,26 @@ export default function WorkoutForm({ initialData, availableExercises = [], onSu
         if (processingSelection.current) return;
         processingSelection.current = true;
 
-        if (targetGroupIndex === null) {
-            // Criar novo grupo com 1 exercício (Straight)
+        if (insertionIndex !== null) {
+            // Criar novo grupo em uma posição específica
+            insert(insertionIndex, {
+                groupType: 'straight',
+                rounds: 3,
+                restBetweenRounds: 0,
+                restAfterGroup: 60,
+                exercises: [{
+                    exerciseId: exercise.id,
+                    exerciseName: exercise.name,
+                    restAfterExercise: 0,
+                    sets: [
+                        { reps: 10, restTime: 60, technique: 'normal' },
+                        { reps: 10, restTime: 60, technique: 'normal' },
+                        { reps: 10, restTime: 60, technique: 'normal' },
+                    ]
+                }]
+            });
+        } else if (targetGroupIndex === null) {
+            // Criar novo grupo com 1 exercício (Straight) no final
             appendGroup({
                 groupType: 'straight',
                 rounds: 3,
@@ -215,6 +270,7 @@ export default function WorkoutForm({ initialData, availableExercises = [], onSu
         setIsModalOpen(false);
         setTargetGroupIndex(null);
         setTargetExerciseIndex(null);
+        setInsertionIndex(null);
 
         setTimeout(() => {
             processingSelection.current = false;
@@ -292,21 +348,36 @@ export default function WorkoutForm({ initialData, availableExercises = [], onSu
                         <SortableContext items={groupFields.map((f: any) => f.id)} strategy={verticalListSortingStrategy}>
                             <AnimatePresence>
                                 {groupFields.map((field: any, index) => (
-                                    <SortableGroupItem
-                                        key={field.id}
-                                        group={field}
-                                        groupIndex={index}
-                                        control={control}
-                                        register={register}
-                                        removeGroup={removeGroup}
-                                        openSelectorFor={openSelectorFor}
-                                        setValue={setValue}
-                                        watch={watch}
-                                        onShowHelp={() => setIsHelpOpen(true)}
-                                        onGroupTypeChange={handleGroupTypeChange}
-                                        isAnyItemDragging={!!activeId}
-                                        isReorderMode={isReorderMode}
-                                    />
+                                    <div key={field.id} className={`relative ${isReorderMode ? 'mb-3' : ''}`}>
+                                        {/* Insert before first item */}
+                                        {index === 0 && (
+                                            <InsertionPoint 
+                                                isVisible={!isReorderMode && !activeId} 
+                                                onClick={() => openSelectorForInsertion(0)} 
+                                            />
+                                        )}
+
+                                        <SortableGroupItem
+                                            group={field}
+                                            groupIndex={index}
+                                            control={control}
+                                            register={register}
+                                            removeGroup={removeGroup}
+                                            openSelectorFor={openSelectorFor}
+                                            setValue={setValue}
+                                            watch={watch}
+                                            onShowHelp={() => setIsHelpOpen(true)}
+                                            onGroupTypeChange={handleGroupTypeChange}
+                                            isAnyItemDragging={!!activeId}
+                                            isReorderMode={isReorderMode}
+                                        />
+
+                                        {/* Insert between or after items */}
+                                        <InsertionPoint 
+                                            isVisible={!isReorderMode && !activeId} 
+                                            onClick={() => openSelectorForInsertion(index + 1)} 
+                                        />
+                                    </div>
                                 ))}
                             </AnimatePresence>
                         </SortableContext>
