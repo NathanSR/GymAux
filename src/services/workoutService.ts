@@ -2,6 +2,8 @@ import { createClient } from '@/lib/supabase/client';
 import { Workout, ExerciseGroup } from '@/config/types';
 import { db } from '@/config/db';
 import { SyncManager } from './syncManager';
+import { connectionService } from './connectionService';
+import { withTimeout } from '@/lib/utils/timeout';
 
 const mapGroupFromSupabase = (g: any): ExerciseGroup => ({
     groupType: g.groupType || 'straight',
@@ -59,48 +61,98 @@ const serializeGroups = (groups: ExerciseGroup[]) =>
 
 export const WorkoutService = {
     async getAllWorkouts(supabaseInput?: any) {
-        const supabase = supabaseInput || createClient();
-        const { data, error } = await supabase
-            .from('workouts')
-            .select('*');
+        let workouts: Workout[] = [];
+        try {
+            const supabase = supabaseInput || createClient();
+            const { data, error } = await withTimeout(
+                supabase
+                    .from('workouts')
+                    .select('*'),
+                3000
+            );
 
-        if (error) return [];
-        return (data || []).map(mapWorkoutFromSupabase);
+            if (error) throw error;
+            workouts = (data || []).map(mapWorkoutFromSupabase);
+
+            if (typeof window !== 'undefined' && workouts.length > 0) {
+                await db.workouts.bulkPut(workouts);
+            }
+        } catch (error) {
+            console.warn('[WorkoutService] getAllWorkouts failed, falling back to local DB:', error);
+            if (typeof window !== 'undefined') {
+                workouts = await db.workouts.toArray();
+            }
+        }
+        return workouts;
     },
 
     async getWorkoutsByUserId(userId: string, searchQuery = '', pagination?: { page: number; limit: number }, supabaseInput?: any) {
-        const supabase = supabaseInput || createClient();
-        let query = supabase
-            .from('workouts')
-            .select('*', { count: 'exact' })
-            .eq('user_id', userId)
-            .order('created_at', { ascending: false });
+        let workouts: Workout[] = [];
+        let totalCount = 0;
 
-        if (searchQuery.trim()) {
-            query = query.ilike('name', `%${searchQuery.trim()}%`);
-        }
+        try {
+            const supabase = supabaseInput || createClient();
+            let query = supabase
+                .from('workouts')
+                .select('*', { count: 'exact' })
+                .eq('user_id', userId)
+                .order('created_at', { ascending: false });
 
-        if (pagination) {
-            const from = (pagination.page - 1) * pagination.limit;
-            const to = from + pagination.limit - 1;
-            query = query.range(from, to);
-        }
+            if (searchQuery.trim()) {
+                query = query.ilike('name', `%${searchQuery.trim()}%`);
+            }
 
-        const { data, count, error } = await query;
+            if (pagination) {
+                const from = (pagination.page - 1) * pagination.limit;
+                const to = from + pagination.limit - 1;
+                query = query.range(from, to);
+            }
 
-        if (error) {
-            if (pagination) return { workouts: [], totalCount: 0 };
-            return [];
+            const { data, count, error } = await withTimeout(query, 3000);
+
+            if (error) throw error;
+
+            workouts = (data || []).map(mapWorkoutFromSupabase);
+            totalCount = count || 0;
+
+            if (typeof window !== 'undefined' && workouts.length > 0) {
+                await db.workouts.bulkPut(workouts);
+            }
+        } catch (error) {
+            console.warn('[WorkoutService] getWorkoutsByUserId failed, falling back to local DB:', error);
+            if (typeof window !== 'undefined') {
+                let localQuery = db.workouts.where('userId').equals(userId);
+                
+                const allLocal = await localQuery.toArray();
+                let filtered = allLocal;
+
+                if (searchQuery.trim()) {
+                    const q = searchQuery.toLowerCase().trim();
+                    filtered = allLocal.filter(w => w.name.toLowerCase().includes(q));
+                }
+
+                filtered.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+                
+                totalCount = filtered.length;
+
+                if (pagination) {
+                    const from = (pagination.page - 1) * pagination.limit;
+                    const to = from + pagination.limit;
+                    workouts = filtered.slice(from, to);
+                } else {
+                    workouts = filtered;
+                }
+            }
         }
 
         if (pagination) {
             return {
-                workouts: (data || []).map(mapWorkoutFromSupabase),
-                totalCount: count || 0
+                workouts,
+                totalCount
             };
         }
 
-        return (data || []).map(mapWorkoutFromSupabase);
+        return workouts;
     },
 
     async getWorkoutById(id: string, supabaseInput?: any) {
@@ -110,11 +162,14 @@ export const WorkoutService = {
         }
 
         const supabase = supabaseInput || createClient();
-        const { data, error } = await supabase
-            .from('workouts')
-            .select('*')
-            .eq('id', id)
-            .maybeSingle();
+        const { data, error } = await withTimeout(
+            supabase
+                .from('workouts')
+                .select('*')
+                .eq('id', id)
+                .maybeSingle(),
+            3000
+        );
 
         if (error) return null;
         return data ? mapWorkoutFromSupabase(data) : null;
@@ -146,15 +201,14 @@ export const WorkoutService = {
         const supabase = supabaseInput || createClient();
 
         if (workoutData.userId !== workoutData.callerId) {
-            const { data: connection } = await supabase
-                .from('connections')
-                .select('status, permissions')
-                .eq('trainer_id', workoutData.callerId)
-                .eq('student_id', workoutData.userId)
-                .eq('status', 'active')
-                .maybeSingle();
+            const hasPermission = await connectionService.checkPermission(
+                workoutData.callerId,
+                workoutData.userId,
+                'manage_workouts',
+                supabase
+            );
 
-            if (!connection || !connection.permissions?.manage_workouts) {
+            if (!hasPermission) {
                 throw new Error("Unauthorized to create workouts for this student");
             }
         }
@@ -175,7 +229,10 @@ export const WorkoutService = {
             return mapWorkoutFromSupabase(apiPayload);
         }
 
-        const { data, error } = await supabase.from('workouts').insert(apiPayload).select().single();
+        const { data, error } = await withTimeout(
+            supabase.from('workouts').insert(apiPayload).select().single(),
+            3000
+        );
         if (error) throw error;
         return mapWorkoutFromSupabase(data);
     },
@@ -201,34 +258,39 @@ export const WorkoutService = {
 
         const supabase = supabaseInput || createClient();
 
-        const { data: existingWorkout, error: fetchError } = await supabase
-            .from('workouts')
-            .select('user_id')
-            .eq('id', id)
-            .single();
+        const { data: existingWorkout, error: fetchError } = await withTimeout(
+            supabase
+                .from('workouts')
+                .select('user_id')
+                .eq('id', id)
+                .single(),
+            3000
+        );
 
         if (fetchError || !existingWorkout) throw new Error("Workout not found");
 
         if (existingWorkout.user_id !== workoutData.callerId) {
-            const { data: connection } = await supabase
-                .from('connections')
-                .select('status, permissions')
-                .eq('trainer_id', workoutData.callerId)
-                .eq('student_id', existingWorkout.user_id)
-                .eq('status', 'active')
-                .maybeSingle();
+            const hasPermission = await connectionService.checkPermission(
+                workoutData.callerId,
+                existingWorkout.user_id,
+                'manage_workouts',
+                supabase
+            );
 
-            if (!connection || !connection.permissions?.manage_workouts) {
+            if (!hasPermission) {
                 throw new Error("Unauthorized to manage this student's workouts");
             }
         }
 
-        const { data, error } = await supabase
-            .from('workouts')
-            .update(updates)
-            .eq('id', id)
-            .select()
-            .single();
+        const { data, error } = await withTimeout(
+            supabase
+                .from('workouts')
+                .update(updates)
+                .eq('id', id)
+                .select()
+                .single(),
+            3000
+        );
 
         if (error) throw error;
         return mapWorkoutFromSupabase(data);
@@ -254,29 +316,34 @@ export const WorkoutService = {
 
         const supabase = supabaseInput || createClient();
 
-        const { data: existingWorkout, error: fetchError } = await supabase
-            .from('workouts')
-            .select('user_id')
-            .eq('id', id)
-            .single();
+        const { data: existingWorkout, error: fetchError } = await withTimeout(
+            supabase
+                .from('workouts')
+                .select('user_id')
+                .eq('id', id)
+                .single(),
+            3000
+        );
 
         if (fetchError || !existingWorkout) throw new Error("Workout not found");
 
         if (existingWorkout.user_id !== callerId) {
-            const { data: connection } = await supabase
-                .from('connections')
-                .select('status, permissions')
-                .eq('trainer_id', callerId)
-                .eq('student_id', existingWorkout.user_id)
-                .eq('status', 'active')
-                .maybeSingle();
+            const hasPermission = await connectionService.checkPermission(
+                callerId,
+                existingWorkout.user_id,
+                'manage_workouts',
+                supabase
+            );
 
-            if (!connection || !connection.permissions?.manage_workouts) {
+            if (!hasPermission) {
                 throw new Error("Unauthorized to manage this student's workouts");
             }
         }
 
-        const { error } = await supabase.from('workouts').delete().eq('id', id);
+        const { error } = await withTimeout(
+            supabase.from('workouts').delete().eq('id', id),
+            3000
+        );
         if (error) throw error;
     }
 };

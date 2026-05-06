@@ -1,6 +1,7 @@
 import { db } from '../config/db';
 import { SyncOperation } from '../config/types';
 import { createClient } from '../lib/supabase/client';
+import { withTimeout } from '@/lib/utils/timeout';
 
 export class SyncManager {
     private static isSyncing = false;
@@ -51,6 +52,7 @@ export class SyncManager {
                 return;
             }
 
+            console.log(`[SyncManager] Processing ${pendingOps.length} pending operations...`);
             const supabase = createClient();
 
             for (const op of pendingOps) {
@@ -100,6 +102,28 @@ export class SyncManager {
         }
     }
 
+    /**
+     * Initialize listeners for connectivity changes.
+     */
+    static init() {
+        if (typeof window === 'undefined') return;
+
+        window.addEventListener('online', () => {
+            console.log('[SyncManager] App is online. Processing queue...');
+            this.processQueue();
+        });
+
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') {
+                console.log('[SyncManager] App is visible. Processing queue...');
+                this.processQueue();
+            }
+        });
+        
+        // Initial check
+        this.processQueue();
+    }
+
     // --- Private Sync Implementations per Entity ---
 
     // Note: To be fully implemented based on Supabase tables. 
@@ -107,14 +131,14 @@ export class SyncManager {
 
     private static async syncHistory(op: SyncOperation, supabase: any): Promise<boolean> {
         if (op.action === 'CREATE') {
-            const { error } = await supabase.from('history').insert(op.payload);
+            const { error } = await withTimeout(supabase.from('history').insert(op.payload), 5000);
             // Ignore duplicate key error if it already exists (409 / 23505 usually)
             if (error && error.code !== '23505') throw error;
         } else if (op.action === 'UPDATE') {
-            const { error } = await supabase.from('history').update(op.payload).eq('id', op.entityId);
+            const { error } = await withTimeout(supabase.from('history').update(op.payload).eq('id', op.entityId), 5000);
             if (error) throw error;
         } else if (op.action === 'DELETE') {
-            const { error } = await supabase.from('history').delete().eq('id', op.entityId);
+            const { error } = await withTimeout(supabase.from('history').delete().eq('id', op.entityId), 5000);
             if (error) throw error;
         }
         return true;
@@ -122,13 +146,13 @@ export class SyncManager {
 
     private static async syncSession(op: SyncOperation, supabase: any): Promise<boolean> {
         if (op.action === 'CREATE') {
-            const { error } = await supabase.from('sessions').insert(op.payload);
+            const { error } = await withTimeout(supabase.from('sessions').insert(op.payload), 5000);
             if (error && error.code !== '23505') throw error;
         } else if (op.action === 'UPDATE') {
-            const { error } = await supabase.from('sessions').update(op.payload).eq('id', op.entityId);
+            const { error } = await withTimeout(supabase.from('sessions').update(op.payload).eq('id', op.entityId), 5000);
             if (error) throw error;
         } else if (op.action === 'DELETE') {
-            const { error } = await supabase.from('sessions').delete().eq('id', op.entityId);
+            const { error } = await withTimeout(supabase.from('sessions').delete().eq('id', op.entityId), 5000);
             if (error) throw error;
         }
         return true;
@@ -136,13 +160,13 @@ export class SyncManager {
 
     private static async syncWorkout(op: SyncOperation, supabase: any): Promise<boolean> {
         if (op.action === 'CREATE') {
-            const { error } = await supabase.from('workouts').insert(op.payload);
+            const { error } = await withTimeout(supabase.from('workouts').insert(op.payload), 5000);
             if (error && error.code !== '23505') throw error;
         } else if (op.action === 'UPDATE') {
-            const { error } = await supabase.from('workouts').update(op.payload).eq('id', op.entityId);
+            const { error } = await withTimeout(supabase.from('workouts').update(op.payload).eq('id', op.entityId), 5000);
             if (error) throw error;
         } else if (op.action === 'DELETE') {
-            const { error } = await supabase.from('workouts').delete().eq('id', op.entityId);
+            const { error } = await withTimeout(supabase.from('workouts').delete().eq('id', op.entityId), 5000);
             if (error) throw error;
         }
         return true;
@@ -150,13 +174,13 @@ export class SyncManager {
 
     private static async syncSchedule(op: SyncOperation, supabase: any): Promise<boolean> {
         if (op.action === 'CREATE') {
-            const { error } = await supabase.from('schedules').insert(op.payload);
+            const { error } = await withTimeout(supabase.from('schedules').insert(op.payload), 5000);
             if (error && error.code !== '23505') throw error;
         } else if (op.action === 'UPDATE') {
-            const { error } = await supabase.from('schedules').update(op.payload).eq('id', op.entityId);
+            const { error } = await withTimeout(supabase.from('schedules').update(op.payload).eq('id', op.entityId), 5000);
             if (error) throw error;
         } else if (op.action === 'DELETE') {
-            const { error } = await supabase.from('schedules').delete().eq('id', op.entityId);
+            const { error } = await withTimeout(supabase.from('schedules').delete().eq('id', op.entityId), 5000);
             if (error) throw error;
         }
         return true;
@@ -164,13 +188,13 @@ export class SyncManager {
 
     private static async syncExercise(op: SyncOperation, supabase: any): Promise<boolean> {
         if (op.action === 'CREATE') {
-            const { error } = await supabase.from('exercises').insert(op.payload);
+            const { error } = await withTimeout(supabase.from('exercises').insert(op.payload), 5000);
             if (error && error.code !== '23505') throw error;
         } else if (op.action === 'UPDATE') {
-            const { error } = await supabase.from('exercises').update(op.payload).eq('id', op.entityId);
+            const { error } = await withTimeout(supabase.from('exercises').update(op.payload).eq('id', op.entityId), 5000);
             if (error) throw error;
         } else if (op.action === 'DELETE') {
-            const { error } = await supabase.from('exercises').delete().eq('id', op.entityId);
+            const { error } = await withTimeout(supabase.from('exercises').delete().eq('id', op.entityId), 5000);
             if (error) throw error;
         }
         return true;

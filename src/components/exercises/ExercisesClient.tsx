@@ -64,6 +64,23 @@ export default function ExercisesClient({ initialExercises, initialTotalCount }:
     // Estados locais para controlar a data inicial que será passada para o hook
     const [initialData, setInitialData] = useState<Exercise[]>(initialExercises);
 
+    const fetchFirstPage = useCallback(async () => {
+        setLoading(true);
+        try {
+            const result = await ExerciseService.getAllExercises({
+                searchQuery: debouncedSearch,
+                category: selectedCategory,
+                pagination: { page: 1, limit: 20 },
+                translations: { te, tt }
+            });
+            setInitialData(result.exercises);
+        } catch (error: any) {
+            console.error("Error fetching exercises:", error?.message || error);
+        } finally {
+            setLoading(false);
+        }
+    }, [debouncedSearch, selectedCategory, te, tt]);
+
     // Efeito para lidar com filtros e resetar a lista
     useEffect(() => {
         // Se for o carregamento inicial (primeira página, sem filtros), não bucar de novo
@@ -71,25 +88,29 @@ export default function ExercisesClient({ initialExercises, initialTotalCount }:
             return;
         }
 
-        const fetchFirstPage = async () => {
-            setLoading(true);
-            try {
-                const result = await ExerciseService.getAllExercises({
-                    searchQuery: debouncedSearch,
-                    category: selectedCategory,
-                    pagination: { page: 1, limit: 20 },
-                    translations: { te, tt }
-                });
-                setInitialData(result.exercises);
-            } catch (error: any) {
-                console.error("Error fetching exercises:", error?.message || error);
-            } finally {
-                setLoading(false);
-            }
+        fetchFirstPage();
+    }, [debouncedSearch, selectedCategory, initialExercises, fetchFirstPage]);
+
+    // Handle online/visibility recovery
+    useEffect(() => {
+        const handleRecovery = () => {
+            console.log('[ExercisesClient] App recovered, refreshing exercises...');
+            fetchFirstPage();
         };
 
-        fetchFirstPage();
-    }, [debouncedSearch, selectedCategory, te, tt, initialExercises]);
+        window.addEventListener('online', handleRecovery);
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === 'visible') {
+                handleRecovery();
+            }
+        };
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+
+        return () => {
+            window.removeEventListener('online', handleRecovery);
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+        };
+    }, [fetchFirstPage]);
 
     // Hook de Scroll Infinito
     const { visibleData, isLoadingMore, lastItemRef } = useInfiniteScroll(initialData, {

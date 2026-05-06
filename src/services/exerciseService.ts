@@ -1,5 +1,8 @@
 import { createClient } from '@/lib/supabase/client';
 import { Exercise } from '@/config/types';
+import { db } from '@/config/db';
+import { SyncManager } from './syncManager';
+import { withTimeout } from '@/lib/utils/timeout';
 
 const mapExerciseFromSupabase = (ex: any): Exercise => ({
     id: ex.id,
@@ -34,22 +37,44 @@ export const ExerciseService = {
             supabase: supabaseInput
         } = params;
 
-        const supabase = supabaseInput || createClient();
-        let query = supabase.from('exercises').select('*', { count: 'exact' });
+        let exercises: Exercise[] = [];
+        let totalCount = 0;
 
-        // 1. Filtro por Categoria (SQL)
-        if (category !== 'all') {
-            query = query.eq('category', category);
+        try {
+            const supabase = supabaseInput || createClient();
+            let query = supabase.from('exercises').select('*', { count: 'exact' });
+
+            // 1. Filtro por Categoria (SQL)
+            if (category !== 'all') {
+                query = query.eq('category', category);
+            }
+
+            const { data, error } = await withTimeout(query, 3000);
+
+            if (error) throw error;
+
+            exercises = (data || []).map(mapExerciseFromSupabase);
+            
+            // Sync to local DB for cache (only user/trainer exercises, system ones are seeded)
+            if (typeof window !== 'undefined') {
+                const userExercises = exercises.filter(ex => ex.created_by_type !== 'system');
+                if (userExercises.length > 0) {
+                    await db.exercises.bulkPut(userExercises);
+                }
+            }
+        } catch (error) {
+            console.warn('[ExerciseService] Fetch failed, falling back to local DB:', error);
+            if (typeof window !== 'undefined') {
+                let localQuery = db.exercises.toCollection();
+                if (category !== 'all') {
+                    localQuery = db.exercises.where('category').equals(category);
+                }
+                exercises = await localQuery.toArray();
+                totalCount = exercises.length;
+            } else {
+                return { exercises: [], totalCount: 0 };
+            }
         }
-
-        const { data, error } = await query;
-
-        if (error) {
-            console.error('Error fetching exercises:', error?.message || error);
-            return { exercises: [], totalCount: 0 };
-        }
-
-        let exercises = (data || []).map(mapExerciseFromSupabase);
 
         // 2. Filtro de Texto (Nome ou Tag) - No JS para suportar traduções
         if (searchQuery.trim() && translations) {
@@ -85,14 +110,13 @@ export const ExerciseService = {
         exercises.sort((a: Exercise, b: Exercise) => {
             const pA = typePriority[a.created_by_type] || 4;
             const pB = typePriority[b.created_by_type] || 4;
-            // Se o tipo for o mesmo, ordena por ID (ascendente)
             if (pA === pB) {
                 return (a.id || 0) - (b.id || 0);
             }
             return pA - pB;
         });
 
-        const totalCount = exercises.length;
+        totalCount = exercises.length;
 
         // 3. Paginação (JS)
         const from = (pagination.page - 1) * pagination.limit;
@@ -107,24 +131,32 @@ export const ExerciseService = {
 
     // Buscar por ID
     async getExerciseById(id: number, supabaseInput?: any) {
-        const supabase = supabaseInput || createClient();
-        const { data, error } = await supabase
-            .from('exercises')
-            .select('*')
-            .eq('id', id)
-            .maybeSingle();
-
-        if (error) {
-            console.error('Error fetching exercise by ID:', error?.message || error);
-            return null;
+        if (typeof window !== 'undefined') {
+            const local = await db.exercises.get(id);
+            if (local) return local;
         }
 
-        return data ? mapExerciseFromSupabase(data) : null;
+        try {
+            const supabase = supabaseInput || createClient();
+            const { data, error } = await withTimeout(
+                supabase
+                    .from('exercises')
+                    .select('*')
+                    .eq('id', id)
+                    .maybeSingle(),
+                3000
+            );
+
+            if (error) throw error;
+            return data ? mapExerciseFromSupabase(data) : null;
+        } catch (error) {
+            console.error('Error fetching exercise by ID:', error);
+            return null;
+        }
     },
 
     // Criar novo
     async createExercise(exerciseData: Omit<Exercise, 'id'> & { userId: string }, supabaseInput?: any) {
-        const supabase = supabaseInput || createClient();
         const formattedName = exerciseData.name.trim();
 
         if (formattedName.length < 2) {
@@ -135,33 +167,42 @@ export const ExerciseService = {
             throw new Error("User not found");
         }
 
-        const { data, error } = await supabase
-            .from('exercises')
-            .insert({
-                name: formattedName,
-                description: exerciseData.description?.trim(),
-                how_to: exerciseData.howTo,
-                media_url: exerciseData.mediaUrl?.trim() || null,
-                category: exerciseData.category,
-                tags: exerciseData.tags,
-                level: exerciseData.level,
-                created_by: exerciseData.userId,
-                created_by_type: 'user',
-                is_public: exerciseData.isPublic ?? false,
-            })
-            .select()
-            .single();
+        const apiPayload = {
+            name: formattedName,
+            description: exerciseData.description?.trim(),
+            how_to: exerciseData.howTo,
+            media_url: exerciseData.mediaUrl?.trim() || null,
+            category: exerciseData.category,
+            tags: exerciseData.tags,
+            level: exerciseData.level,
+            created_by: exerciseData.userId,
+            created_by_type: 'user',
+            is_public: exerciseData.isPublic ?? false,
+        };
 
-        if (error) {
-            throw error;
+        if (typeof window !== 'undefined') {
+            const id = Date.now(); // Temporary numeric ID for local use
+            const localExercise = { id, ...apiPayload } as Exercise;
+            await db.exercises.add(localExercise);
+            SyncManager.enqueue('CREATE', 'EXERCISE', id, apiPayload);
+            return localExercise;
         }
 
+        const supabase = supabaseInput || createClient();
+        const { data, error } = await withTimeout(
+            supabase
+                .from('exercises')
+                .insert(apiPayload)
+                .select()
+                .single(),
+            3000
+        );
+
+        if (error) throw error;
         return mapExerciseFromSupabase(data);
     },
 
     async updateExercise(id: number, updateData: Partial<Omit<Exercise, 'id'>> & { userId: string }, supabaseInput?: any) {
-        const supabase = supabaseInput || createClient();
-
         // Business rule: system exercises (id < 1000) cannot be updated by users
         if (id < 1000) {
             throw new Error("Cannot update system exercises");
@@ -183,37 +224,54 @@ export const ExerciseService = {
         if (updateData.level !== undefined) updates.level = updateData.level;
         if (updateData.isPublic !== undefined) updates.is_public = updateData.isPublic;
 
-        const { data, error } = await supabase
-            .from('exercises')
-            .update(updates)
-            .eq('id', id)
-            .eq('created_by', updateData.userId)
-            .select()
-            .single();
-
-        if (error) {
-            throw error;
+        if (typeof window !== 'undefined') {
+            const local = await db.exercises.get(id);
+            if (local) {
+                const updated = { ...local, ...updateData };
+                await db.exercises.put(updated);
+                SyncManager.enqueue('UPDATE', 'EXERCISE', id, updates);
+                return updated as Exercise;
+            }
         }
 
+        const supabase = supabaseInput || createClient();
+        const { data, error } = await withTimeout(
+            supabase
+                .from('exercises')
+                .update(updates)
+                .eq('id', id)
+                .eq('created_by', updateData.userId)
+                .select()
+                .single(),
+            3000
+        );
+
+        if (error) throw error;
         return mapExerciseFromSupabase(data);
     },
 
     // Deletar exercicio
     async deleteExercise(id: number, userId: string, supabaseInput?: any) {
-        const supabase = supabaseInput || createClient();
-
         if (id < 1000) {
             throw new Error("Cannot delete system exercises");
         }
 
-        const { error } = await supabase
-            .from('exercises')
-            .delete()
-            .eq('id', id)
-            .eq('created_by', userId);
-
-        if (error) {
-            throw error;
+        if (typeof window !== 'undefined') {
+            await db.exercises.delete(id);
+            SyncManager.enqueue('DELETE', 'EXERCISE', id, { id });
+            return;
         }
+
+        const supabase = supabaseInput || createClient();
+        const { error } = await withTimeout(
+            supabase
+                .from('exercises')
+                .delete()
+                .eq('id', id)
+                .eq('created_by', userId),
+            3000
+        );
+
+        if (error) throw error;
     }
 };

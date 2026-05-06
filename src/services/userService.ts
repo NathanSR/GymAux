@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/client';
 import { User } from '@/config/types';
+import { withTimeout } from '@/lib/utils/timeout';
 
 const mapProfileToUser = (profile: any): User => ({
     id: profile.id,
@@ -19,11 +20,14 @@ export const userService = {
     // Buscar por ID
     async getUserById(id: string, supabaseInput?: any) {
         const supabase = supabaseInput || createClient();
-        const { data, error } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', id)
-            .maybeSingle();
+        const { data, error } = await withTimeout(
+            supabase
+                .from('profiles')
+                .select('*')
+                .eq('id', id)
+                .maybeSingle(),
+            3000
+        );
 
         if (error) {
             console.error('Error fetching user by ID:', error?.message || error);
@@ -36,11 +40,14 @@ export const userService = {
     // Buscar por GymAux ID
     async getUserByGymauxId(gymauxId: string, supabaseInput?: any) {
         const supabase = supabaseInput || createClient();
-        const { data, error } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('gymaux_id', gymauxId)
-            .maybeSingle();
+        const { data, error } = await withTimeout(
+            supabase
+                .from('profiles')
+                .select('*')
+                .eq('gymaux_id', gymauxId)
+                .maybeSingle(),
+            3000
+        );
 
         if (error) {
             console.error('Error fetching user by GymAux ID:', error?.message || error);
@@ -53,11 +60,14 @@ export const userService = {
     // Buscar por Email
     async getUserByEmail(email: string, supabaseInput?: any) {
         const supabase = supabaseInput || createClient();
-        const { data, error } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('email', email.toLowerCase().trim())
-            .maybeSingle();
+        const { data, error } = await withTimeout(
+            supabase
+                .from('profiles')
+                .select('*')
+                .eq('email', email.toLowerCase().trim())
+                .maybeSingle(),
+            3000
+        );
 
         if (error) {
             console.error('Error fetching user by Email:', error?.message || error);
@@ -78,12 +88,15 @@ export const userService = {
             updateData.name = formattedName;
         }
 
-        const { data, error } = await supabase
-            .from('profiles')
-            .update(updateData)
-            .eq('id', id)
-            .select()
-            .single();
+        const { data, error } = await withTimeout(
+            supabase
+                .from('profiles')
+                .update(updateData)
+                .eq('id', id)
+                .select()
+                .single(),
+            3000
+        );
 
         if (error) {
             throw error;

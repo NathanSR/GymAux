@@ -57,30 +57,51 @@ export default function SchedulesClient({ initialSchedules, initialTotalCount, u
 
     const [initialData, setInitialData] = useState<Schedule[]>(initialSchedules);
 
+    const fetchFirstPage = useCallback(async () => {
+        setLoading(true);
+        try {
+            const result = await ScheduleService.getSchedulesByUserId(
+                userId,
+                debouncedSearch,
+                { page: 1, limit: 20 }
+            );
+            setInitialData(result.schedules);
+        } catch (error: any) {
+            console.error("Error fetching schedules:", error?.message || error);
+        } finally {
+            setLoading(false);
+        }
+    }, [userId, debouncedSearch]);
+
     useEffect(() => {
         // Skip initial load
         if (debouncedSearch === '' && initialData === initialSchedules) {
             return;
         }
 
-        const fetchFirstPage = async () => {
-            setLoading(true);
-            try {
-                const result = await ScheduleService.getSchedulesByUserId(
-                    userId,
-                    debouncedSearch,
-                    { page: 1, limit: 20 }
-                );
-                setInitialData(result.schedules);
-            } catch (error: any) {
-                console.error("Error fetching schedules:", error?.message || error);
-            } finally {
-                setLoading(false);
-            }
+        fetchFirstPage();
+    }, [debouncedSearch, initialSchedules, fetchFirstPage]);
+
+    // Handle online/visibility recovery
+    useEffect(() => {
+        const handleRecovery = () => {
+            console.log('[SchedulesClient] App recovered, refreshing schedules...');
+            fetchFirstPage();
         };
 
-        fetchFirstPage();
-    }, [userId, debouncedSearch, initialSchedules]);
+        window.addEventListener('online', handleRecovery);
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === 'visible') {
+                handleRecovery();
+            }
+        };
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+
+        return () => {
+            window.removeEventListener('online', handleRecovery);
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+        };
+    }, [fetchFirstPage]);
 
     const { visibleData, isLoadingMore, lastItemRef } = useInfiniteScroll(initialData, {
         pageSize: 20,

@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { motion, AnimatePresence } from 'framer-motion';
 import { createClient } from '@/lib/supabase/client';
-import { connectionService, Connection } from '@/services/connectionService';
+import { connectionService, ConnectionLocal } from '@/services/connectionService';
 import { toast } from 'react-toastify';
 import {
     UserPlus,
@@ -21,7 +21,7 @@ interface ConnectionConfirmationModalProps {
 export default function ConnectionConfirmationModal({ userId }: ConnectionConfirmationModalProps) {
     const t = useTranslations('Connection');
     const supabase = createClient();
-    const [pendingConnection, setPendingConnection] = useState<(Connection & { trainer: { name: string } }) | null>(null);
+    const [pendingConnection, setPendingConnection] = useState<(ConnectionLocal & { trainer: { name: string } }) | null>(null);
     const [isResponding, setIsResponding] = useState(false);
 
     useEffect(() => {

@@ -3,6 +3,7 @@ import { History, ExecutedGroup } from '@/config/types';
 import { userService } from './userService';
 import { db } from '@/config/db';
 import { SyncManager } from './syncManager';
+import { withTimeout } from '@/lib/utils/timeout';
 
 const mapExecutedGroupFromSupabase = (g: any): ExecutedGroup => ({
     groupType: g.groupType || 'straight',
@@ -40,12 +41,15 @@ export const HistoryService = {
         const from = (page - 1) * limit;
         const to = from + limit - 1;
 
-        const { data, error } = await supabase
-            .from('history')
-            .select('*')
-            .eq('user_id', userId)
-            .order('date', { ascending: false })
-            .range(from, to);
+        const { data, error } = await withTimeout(
+            supabase
+                .from('history')
+                .select('*')
+                .eq('user_id', userId)
+                .order('date', { ascending: false })
+                .range(from, to),
+            3000
+        );
 
         if (error) {
             console.error('Error fetching user history:', error?.message || error);
@@ -57,12 +61,15 @@ export const HistoryService = {
 
     async getHistoryByRange(userId: string, startDate: Date, endDate: Date, supabaseInput?: any) {
         const supabase = supabaseInput || createClient();
-        const { data, error } = await supabase
-            .from('history')
-            .select('*')
-            .eq('user_id', userId)
-            .gte('date', startDate.toISOString())
-            .lte('date', endDate.toISOString());
+        const { data, error } = await withTimeout(
+            supabase
+                .from('history')
+                .select('*')
+                .eq('user_id', userId)
+                .gte('date', startDate.toISOString())
+                .lte('date', endDate.toISOString()),
+            3000
+        );
 
         if (error) return [];
         return (data || []).map(mapHistoryFromSupabase);
@@ -75,11 +82,14 @@ export const HistoryService = {
         }
 
         const supabase = supabaseInput || createClient();
-        const { data, error } = await supabase
-            .from('history')
-            .select('*')
-            .eq('id', id)
-            .maybeSingle();
+        const { data, error } = await withTimeout(
+            supabase
+                .from('history')
+                .select('*')
+                .eq('id', id)
+                .maybeSingle(),
+            3000
+        );
 
         if (error) return null;
         return data ? mapHistoryFromSupabase(data) : null;

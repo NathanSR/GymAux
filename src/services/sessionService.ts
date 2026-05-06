@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/client';
 import { Session, Workout, ExerciseGroup, ExecutedGroup } from '@/config/types';
 import { db } from '@/config/db';
 import { SyncManager } from './syncManager';
+import { withTimeout } from '@/lib/utils/timeout';
 
 const mapGroupFromSupabase = (g: any): ExerciseGroup => ({
     groupType: g.groupType || 'straight',
@@ -108,7 +109,7 @@ export const SessionService = {
 
         const supabase = supabaseInput || createClient();
         const dbPayload = mapSessionToSupabase(sessionPayload);
-        const { error } = await supabase.from('sessions').insert(dbPayload);
+        const { error } = await withTimeout(supabase.from('sessions').insert(dbPayload), 3000);
         if (error) throw error;
         return sessionPayload;
     },
@@ -130,10 +131,13 @@ export const SessionService = {
         }
 
         const supabase = supabaseInput || createClient();
-        const { error } = await supabase.from('sessions').update({
-            paused_at: null,
-            resumed_at: new Date().toISOString()
-        }).eq('id', sessionId);
+        const { error } = await withTimeout(
+            supabase.from('sessions').update({
+                paused_at: null,
+                resumed_at: new Date().toISOString()
+            }).eq('id', sessionId),
+            3000
+        );
         if (error) throw error;
     },
 
@@ -162,10 +166,13 @@ export const SessionService = {
         const now = new Date();
         const additionalDuration = now.getTime() - session.resumedAt.getTime();
 
-        const { error } = await supabase.from('sessions').update({
-            paused_at: now.toISOString(),
-            duration: session.duration + additionalDuration
-        }).eq('id', sessionId);
+        const { error } = await withTimeout(
+            supabase.from('sessions').update({
+                paused_at: now.toISOString(),
+                duration: session.duration + additionalDuration
+            }).eq('id', sessionId),
+            3000
+        );
 
         if (error) throw error;
     },
@@ -181,11 +188,14 @@ export const SessionService = {
         }
 
         const supabase = supabaseInput || createClient();
-        const { data, error } = await supabase
-            .from('sessions')
-            .select('*')
-            .eq('user_id', userId)
-            .maybeSingle();
+        const { data, error } = await withTimeout(
+            supabase
+                .from('sessions')
+                .select('*')
+                .eq('user_id', userId)
+                .maybeSingle(),
+            3000
+        );
 
         if (error) {
             console.error('Error fetching active session:', error?.message || error);
@@ -197,11 +207,14 @@ export const SessionService = {
 
     async getSessionsByUserId(userId: string, supabaseInput?: any) {
         const supabase = supabaseInput || createClient();
-        const { data, error } = await supabase
-            .from('sessions')
-            .select('*')
-            .eq('user_id', userId)
-            .order('created_at', { ascending: false });
+        const { data, error } = await withTimeout(
+            supabase
+                .from('sessions')
+                .select('*')
+                .eq('user_id', userId)
+                .order('created_at', { ascending: false }),
+            3000
+        );
 
         if (error) {
             console.error('Error fetching sessions:', error?.message || error);
@@ -218,11 +231,14 @@ export const SessionService = {
         }
 
         const supabase = supabaseInput || createClient();
-        const { data, error } = await supabase
-            .from('sessions')
-            .select('*')
-            .eq('id', sessionId)
-            .maybeSingle();
+        const { data, error } = await withTimeout(
+            supabase
+                .from('sessions')
+                .select('*')
+                .eq('id', sessionId)
+                .maybeSingle(),
+            3000
+        );
 
         if (error) return null;
         return data ? mapSessionFromSupabase(data) : null;
@@ -257,7 +273,10 @@ export const SessionService = {
         if (updates.pausedAt !== undefined) dbUpdates.paused_at = updates.pausedAt?.toISOString() || null;
         if (updates.resumedAt !== undefined) dbUpdates.resumed_at = updates.resumedAt?.toISOString() || null;
 
-        const { error } = await supabase.from('sessions').update(dbUpdates).eq('id', sessionId);
+        const { error } = await withTimeout(
+            supabase.from('sessions').update(dbUpdates).eq('id', sessionId),
+            3000
+        );
         if (error) throw error;
     },
 
@@ -304,7 +323,10 @@ export const SessionService = {
         }
 
         const supabase = supabaseInput || createClient();
-        const { error } = await supabase.from('sessions').delete().eq('id', sessionId);
+        const { error } = await withTimeout(
+            supabase.from('sessions').delete().eq('id', sessionId),
+            3000
+        );
         if (error) throw error;
     }
 };

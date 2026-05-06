@@ -55,31 +55,52 @@ export default function WorkoutsClient({ initialWorkouts, initialTotalCount, use
 
     const [initialData, setInitialData] = useState<Workout[]>(initialWorkouts);
 
+    const fetchFirstPage = useCallback(async () => {
+        setLoading(true);
+        try {
+            const result = await WorkoutService.getWorkoutsByUserId(
+                userId,
+                debouncedSearch,
+                { page: 1, limit: 20 }
+            );
+            // @ts-ignore
+            setInitialData(result.workouts);
+        } catch (error: any) {
+            console.error("Error fetching workouts:", error?.message || error);
+        } finally {
+            setLoading(false);
+        }
+    }, [userId, debouncedSearch]);
+
     useEffect(() => {
-        // Skip initial load
+        // Skip initial load if it matches initial state
         if (debouncedSearch === '' && initialData === initialWorkouts) {
             return;
         }
 
-        const fetchFirstPage = async () => {
-            setLoading(true);
-            try {
-                const result = await WorkoutService.getWorkoutsByUserId(
-                    userId,
-                    debouncedSearch,
-                    { page: 1, limit: 20 }
-                );
-                // @ts-ignore
-                setInitialData(result.workouts);
-            } catch (error: any) {
-                console.error("Error fetching workouts:", error?.message || error);
-            } finally {
-                setLoading(false);
-            }
+        fetchFirstPage();
+    }, [debouncedSearch, initialWorkouts, fetchFirstPage]);
+
+    // Handle online/visibility recovery
+    useEffect(() => {
+        const handleRecovery = () => {
+            console.log('[WorkoutsClient] App recovered, refreshing workouts...');
+            fetchFirstPage();
         };
 
-        fetchFirstPage();
-    }, [userId, debouncedSearch, initialWorkouts]);
+        window.addEventListener('online', handleRecovery);
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === 'visible') {
+                handleRecovery();
+            }
+        };
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+
+        return () => {
+            window.removeEventListener('online', handleRecovery);
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+        };
+    }, [fetchFirstPage]);
 
     const { visibleData, isLoadingMore, lastItemRef } = useInfiniteScroll(initialData, {
         pageSize: 20,

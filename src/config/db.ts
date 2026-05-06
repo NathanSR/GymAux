@@ -1,5 +1,5 @@
 import Dexie, { type Table } from 'dexie';
-import { Exercise, History, User, Workout, Schedule, Session, SyncOperation } from './types';
+import { Exercise, History, User, Workout, Schedule, Session, SyncOperation, Connection } from './types';
 import { DEFAULT_EXERCISES } from "./seedExercises";
 
 // --- Configuração do Banco ---
@@ -11,19 +11,21 @@ export class GymDatabase extends Dexie {
     history!: Table<History>;
     schedules!: Table<Schedule>;
     sessions!: Table<Session>;
+    connections!: Table<Connection>;
     syncQueue!: Table<SyncOperation>;
 
     constructor() {
         super('GymAppDB');
 
         // Definimos os índices (campos que usaremos no .where() ou .orderBy())
-        this.version(2).stores({
+        this.version(3).stores({
             users: '++id, name',
             exercises: '++id, name, category, *tags', 
             workouts: '++id, userId, name',
             history: '++id, userId, date, workoutId',
             schedules: '++id, name, userId, active',
             sessions: '++id, userId, date, workoutId',
+            connections: '++id, trainer_id, student_id, status',
             syncQueue: '++id, status, entityType, createdAt'
         });
 

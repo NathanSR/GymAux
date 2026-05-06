@@ -34,12 +34,21 @@ export function OfflineSyncProvider({ children }: { children: React.ReactNode })
             });
         };
 
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === 'visible') {
+                console.log('[OfflineSyncProvider] App visible, processing sync queue...');
+                SyncManager.processQueue();
+            }
+        };
+
         window.addEventListener('online', handleOnline);
         window.addEventListener('offline', handleOffline);
+        document.addEventListener('visibilitychange', handleVisibilityChange);
 
         return () => {
             window.removeEventListener('online', handleOnline);
             window.removeEventListener('offline', handleOffline);
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
         };
     }, []);
 

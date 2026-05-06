@@ -49,27 +49,50 @@ export const ExerciseSelector = ({ isOpen, onClose, onSelect }: {
         }
     }, [debouncedSearchTerm, selectedCategory, te]);
 
+    const fetchFirstPage = useCallback(async () => {
+        setIsLoading(true);
+        try {
+            const res = await ExerciseService.getAllExercises({
+                searchQuery: debouncedSearchTerm,
+                category: selectedCategory,
+                pagination: { page: 1, limit: 10 },
+                translations: { te, tt: te }
+            });
+            setInitialData(res.exercises);
+        } catch (error: any) {
+            console.error('Error fetching exercises:', error?.message || error);
+        } finally {
+            setIsLoading(false);
+        }
+    }, [debouncedSearchTerm, selectedCategory, te]);
+
     useEffect(() => {
         if (isOpen) {
-            const fetchFirstPage = async () => {
-                setIsLoading(true);
-                try {
-                    const res = await ExerciseService.getAllExercises({
-                        searchQuery: debouncedSearchTerm,
-                        category: selectedCategory,
-                        pagination: { page: 1, limit: 10 },
-                        translations: { te, tt: te }
-                    });
-                    setInitialData(res.exercises);
-                } catch (error: any) {
-                    console.error('Error fetching exercises:', error?.message || error);
-                } finally {
-                    setIsLoading(false);
-                }
-            };
             fetchFirstPage();
         }
-    }, [isOpen, debouncedSearchTerm, selectedCategory, te]);
+    }, [isOpen, fetchFirstPage]);
+
+    useEffect(() => {
+        if (!isOpen) return;
+
+        const onReconnect = () => {
+            fetchFirstPage();
+        };
+
+        const onVisibilityChange = () => {
+            if (document.visibilityState === 'visible') {
+                fetchFirstPage();
+            }
+        };
+
+        window.addEventListener('online', onReconnect);
+        document.addEventListener('visibilitychange', onVisibilityChange);
+
+        return () => {
+            window.removeEventListener('online', onReconnect);
+            document.removeEventListener('visibilitychange', onVisibilityChange);
+        };
+    }, [isOpen, fetchFirstPage]);
 
     const { visibleData: exercises, isLoadingMore, lastItemRef } = useInfiniteScroll(initialData, {
         pageSize: 10,
