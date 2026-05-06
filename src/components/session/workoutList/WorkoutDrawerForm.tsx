@@ -4,6 +4,7 @@ import { X, Save, Dumbbell, ChevronDown, Activity } from "lucide-react";
 import { ExerciseGroup, Exercise, Session } from '@/config/types';
 import { ExerciseSelector } from '../../exercises/ExerciseSelector';
 import { ConfirmDialog } from '../../ui/ConfirmDialog';
+import { numberInputUtils } from '@/utils/numberUtil';
 
 interface WorkoutDrawerFormProps {
     session: Session;
@@ -248,8 +249,9 @@ export const WorkoutDrawerForm = ({
                                         <input
                                             type="number"
                                             className="w-full bg-transparent text-center font-black text-xs outline-none text-lime-400"
-                                            value={watch(`exerciseReps.${idx}`) || watch('reps') || 10}
-                                            onChange={(e) => setValue(`exerciseReps.${idx}`, parseInt(e.target.value) || 0)}
+                                            value={numberInputUtils.formatValue(watch(`exerciseReps.${idx}`) || watch('reps') || 10)}
+                                            onFocus={numberInputUtils.onFocus}
+                                            onChange={(e) => numberInputUtils.onChange(e, (val) => setValue(`exerciseReps.${idx}`, val))}
                                         />
                                     </div>
                                 )}
@@ -284,7 +286,9 @@ export const WorkoutDrawerForm = ({
                             </span>
                             <input
                                 type="number"
-                                {...register('sets')}
+                                value={numberInputUtils.formatValue(watch('sets'))}
+                                onFocus={numberInputUtils.onFocus}
+                                onChange={(e) => numberInputUtils.onChange(e, (val) => setValue('sets', val))}
                                 className="w-full bg-transparent font-black outline-none text-white text-lg"
                             />
                         </div>
@@ -296,7 +300,9 @@ export const WorkoutDrawerForm = ({
                                 </span>
                                 <input
                                     type="number"
-                                    {...register('reps')}
+                                    value={numberInputUtils.formatValue(watch('reps'))}
+                                    onFocus={numberInputUtils.onFocus}
+                                    onChange={(e) => numberInputUtils.onChange(e, (val) => setValue('reps', val))}
                                     className="w-full bg-transparent font-black outline-none text-white text-lg"
                                 />
                             </div>
@@ -309,7 +315,9 @@ export const WorkoutDrawerForm = ({
                             <div className="flex items-center gap-2">
                                 <input
                                     type="number"
-                                    {...register('restTime')}
+                                    value={numberInputUtils.formatValue(watch('restTime'))}
+                                    onFocus={numberInputUtils.onFocus}
+                                    onChange={(e) => numberInputUtils.onChange(e, (val) => setValue('restTime', val))}
                                     className="flex-1 bg-transparent font-black outline-none text-white text-lg"
                                 />
                                 <span className="text-[10px] font-black text-zinc-600">S</span>

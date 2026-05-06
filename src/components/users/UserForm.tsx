@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useRef, useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { useTranslations } from 'next-intl'; // Importação adicionada
 import {
     Camera,
@@ -14,6 +14,7 @@ import {
     Loader2,
 } from "lucide-react";
 import { User } from "@/config/types";
+import { numberInputUtils } from "../../utils/numberUtil";
 
 interface UserFormProps {
     initialData?: User;
@@ -33,7 +34,8 @@ export default function UserForm({ initialData, onSubmit, isLoading, submitLabel
         setValue,
         watch,
         reset,
-        formState: { errors }
+        formState: { errors },
+        control
     } = useForm<User>({
         defaultValues: initialData || {
             name: "",
@@ -120,10 +122,21 @@ export default function UserForm({ initialData, onSubmit, isLoading, submitLabel
                         <label className="text-[10px] font-black uppercase text-zinc-400 tracking-widest ml-4 italic">{t('weight')}</label>
                         <div className="relative">
                             <Scale className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400" size={18} />
-                            <input
-                                type="number" step="0.1"
-                                {...register("weight", { required: true, min: 20, valueAsNumber: true })}
-                                className="w-full bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 rounded-3xl py-4 pl-12 pr-4 text-sm font-bold outline-none focus:ring-2 focus:ring-lime-400 transition-all"
+                            <Controller
+                                name="weight"
+                                control={control}
+                                rules={{ required: true, min: 20 }}
+                                render={({ field }) => (
+                                    <input
+                                        {...field}
+                                        type="number"
+                                        step="0.1"
+                                        value={numberInputUtils.formatValue(field.value)}
+                                        onFocus={numberInputUtils.onFocus}
+                                        onChange={(e) => numberInputUtils.onChange(e, field.onChange)}
+                                        className="w-full bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 rounded-3xl py-4 pl-12 pr-4 text-sm font-bold outline-none focus:ring-2 focus:ring-lime-400 transition-all"
+                                    />
+                                )}
                             />
                         </div>
                     </div>
@@ -132,10 +145,20 @@ export default function UserForm({ initialData, onSubmit, isLoading, submitLabel
                         <label className="text-[10px] font-black uppercase text-zinc-400 tracking-widest ml-4 italic">{t('height')}</label>
                         <div className="relative">
                             <Ruler className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400" size={18} />
-                            <input
-                                type="number"
-                                {...register("height", { required: true, min: 50, valueAsNumber: true })}
-                                className="w-full bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 rounded-3xl py-4 pl-12 pr-4 text-sm font-bold outline-none focus:ring-2 focus:ring-lime-400 transition-all"
+                            <Controller
+                                name="height"
+                                control={control}
+                                rules={{ required: true, min: 50 }}
+                                render={({ field }) => (
+                                    <input
+                                        {...field}
+                                        type="number"
+                                        value={numberInputUtils.formatValue(field.value)}
+                                        onFocus={numberInputUtils.onFocus}
+                                        onChange={(e) => numberInputUtils.onChange(e, field.onChange)}
+                                        className="w-full bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 rounded-3xl py-4 pl-12 pr-4 text-sm font-bold outline-none focus:ring-2 focus:ring-lime-400 transition-all"
+                                    />
+                                )}
                             />
                         </div>
                     </div>

@@ -5,6 +5,7 @@ import { useFieldArray } from 'react-hook-form';
 import { Trash2, Plus, Copy, Settings2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { motion, AnimatePresence } from 'framer-motion';
+import { numberInputUtils } from '../../utils/numberUtil';
 
 interface SetsListProps {
     groupIndex: number;
@@ -84,8 +85,9 @@ export function SetsList({
                             <span className="text-[8px] font-black text-zinc-400 uppercase tracking-widest ml-1">{t('sets')}</span>
                             <input
                                 type="number"
-                                value={setFields.length}
-                                onChange={(e) => handleSetsCountChange(parseInt(e.target.value) || 1)}
+                                onFocus={numberInputUtils.onFocus}
+                                value={numberInputUtils.formatValue(setFields.length)}
+                                onChange={(e) => numberInputUtils.onChange(e, (val) => handleSetsCountChange(val === "" ? 0 : val))}
                                 className="w-full bg-zinc-50 dark:bg-zinc-900 border border-transparent focus:border-lime-500/30 rounded-xl p-2.5 text-sm font-black outline-none text-center text-zinc-800 dark:text-zinc-200 transition-all shadow-inner"
                             />
                         </div>
@@ -93,8 +95,9 @@ export function SetsList({
                             <span className="text-[8px] font-black text-zinc-400 uppercase tracking-widest ml-1">{t('reps')}</span>
                             <input
                                 type="number"
-                                value={sets[0]?.reps || 0}
-                                onChange={(e) => handleRepsChange(parseInt(e.target.value) || 0)}
+                                onFocus={numberInputUtils.onFocus}
+                                value={numberInputUtils.formatValue(sets[0]?.reps)}
+                                onChange={(e) => numberInputUtils.onChange(e, (val) => handleRepsChange(val as number))}
                                 className="w-full bg-zinc-50 dark:bg-zinc-900 border border-transparent focus:border-lime-500/30 rounded-xl p-2.5 text-sm font-black outline-none text-center text-zinc-800 dark:text-zinc-200 transition-all shadow-inner"
                             />
                         </div>
@@ -102,8 +105,9 @@ export function SetsList({
                             <span className="text-[8px] font-black text-zinc-400 uppercase tracking-widest ml-1">{t('rest')}</span>
                             <input
                                 type="number"
-                                value={sets[0]?.restTime || 0}
-                                onChange={(e) => handleRestChange(parseInt(e.target.value) || 0)}
+                                onFocus={numberInputUtils.onFocus}
+                                value={numberInputUtils.formatValue(sets[0]?.restTime)}
+                                onChange={(e) => numberInputUtils.onChange(e, (val) => handleRestChange(val as number))}
                                 className="w-full bg-zinc-50 dark:bg-zinc-900 border border-transparent focus:border-lime-500/30 rounded-xl p-2.5 text-sm font-black outline-none text-center text-zinc-800 dark:text-zinc-200 transition-all shadow-inner"
                             />
                         </div>

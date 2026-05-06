@@ -5,14 +5,8 @@ import { useSortable } from '@dnd-kit/sortable';
 import { useFieldArray } from 'react-hook-form';
 import { CSS } from '@dnd-kit/utilities';
 import { motion } from 'framer-motion';
-import { 
-    GripVertical, 
-    HelpCircle, 
-    Trash2, 
-    Dumbbell, 
-    ChevronDown, 
-    Activity 
-} from 'lucide-react';
+import { Activity, ChevronDown, Dumbbell, GripVertical, HelpCircle, Trash2 } from 'lucide-react';
+import { numberInputUtils } from '../../utils/numberUtil';
 import { SetsList } from './SetsList';
 
 interface SortableGroupItemProps {
@@ -227,11 +221,14 @@ export function SortableGroupItem({
                                     <input
                                         type="number"
                                         className="w-full bg-transparent text-center font-black text-xs outline-none text-lime-500"
-                                        value={watch(`exercises.${groupIndex}.exercises.${exIndex}.sets.0.reps`) || 0}
+                                        onFocus={numberInputUtils.onFocus}
+                                        value={numberInputUtils.formatValue(watch(`exercises.${groupIndex}.exercises.${exIndex}.sets.0.reps`))}
                                         onChange={(e) => {
-                                            const newVal = parseInt(e.target.value) || 0;
-                                            const currentSets = watch(`exercises.${groupIndex}.exercises.${exIndex}.sets`) || [];
-                                            setValue(`exercises.${groupIndex}.exercises.${exIndex}.sets`, currentSets.map((s: any) => ({ ...s, reps: newVal })));
+                                            numberInputUtils.onChange(e, (newVal) => {
+                                                const finalVal = newVal;
+                                                const currentSets = watch(`exercises.${groupIndex}.exercises.${exIndex}.sets`) || [];
+                                                setValue(`exercises.${groupIndex}.exercises.${exIndex}.sets`, currentSets.map((s: any) => ({ ...s, reps: finalVal })));
+                                            });
                                         }}
                                     />
                                 </div>
@@ -270,7 +267,13 @@ export function SortableGroupItem({
                             {isStraight ? t('restAfterGroup') : t('restBetweenRounds')}
                         </span>
                         <div className='flex items-center gap-2'>
-                            <input type="number" {...register(`exercises.${groupIndex}.restAfterGroup`)} className="w-full bg-transparent font-black text-sm outline-none text-zinc-800 dark:text-zinc-200" />
+                            <input 
+                                type="number" 
+                                value={numberInputUtils.formatValue(watch(`exercises.${groupIndex}.restAfterGroup`))}
+                                onFocus={numberInputUtils.onFocus}
+                                onChange={(e) => numberInputUtils.onChange(e, (val) => setValue(`exercises.${groupIndex}.restAfterGroup`, val))}
+                                className="w-full bg-transparent font-black text-sm outline-none text-zinc-800 dark:text-zinc-200" 
+                            />
                             <span className='text-[10px] text-zinc-500 font-bold'>s</span>
                         </div>
                     </div>
@@ -279,8 +282,9 @@ export function SortableGroupItem({
                             <span className="block text-[8px] font-black text-zinc-400 uppercase tracking-widest mb-1">{t('rounds')}</span>
                             <input
                                 type="number"
-                                value={rounds}
-                                onChange={(e) => handleRoundsChange(parseInt(e.target.value) || 1)}
+                                onFocus={numberInputUtils.onFocus}
+                                value={numberInputUtils.formatValue(rounds)}
+                                onChange={(e) => numberInputUtils.onChange(e, (val) => handleRoundsChange(val === "" ? 0 : val))}
                                 className="w-full bg-transparent font-black text-sm outline-none text-zinc-800 dark:text-zinc-200"
                             />
                         </div>

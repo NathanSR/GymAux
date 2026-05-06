@@ -18,6 +18,7 @@ import { useSession } from "@/hooks/useSession";
 import { WorkoutService } from "@/services/workoutService";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/routing";
+import { numberInputUtils } from "@/utils/numberUtil";
 
 interface DrawerProps {
     isOpen: boolean;
@@ -269,7 +270,9 @@ export default function DrawerWorkoutExerciseAdd({
                                                 type="number"
                                                 placeholder="+"
                                                 {...field}
-                                                onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
+                                                value={numberInputUtils.formatValue(field.value)}
+                                                onFocus={numberInputUtils.onFocus}
+                                                onChange={(e) => numberInputUtils.onChange(e, field.onChange)}
                                                 className="w-full py-4 bg-zinc-100 dark:bg-zinc-800 rounded-2xl text-center text-xs font-black outline-none focus:ring-2 ring-lime-400 placeholder:text-zinc-400"
                                             />
                                         )}
@@ -302,7 +305,9 @@ export default function DrawerWorkoutExerciseAdd({
                                                 <input
                                                     type="number"
                                                     {...field}
-                                                    onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
+                                                    value={numberInputUtils.formatValue(field.value)}
+                                                    onFocus={numberInputUtils.onFocus}
+                                                    onChange={(e) => numberInputUtils.onChange(e, field.onChange)}
                                                     className="w-full py-4 bg-zinc-100 dark:bg-zinc-800 rounded-2xl text-center text-xs font-black outline-none focus:ring-2 ring-lime-400"
                                                 />
                                             )}

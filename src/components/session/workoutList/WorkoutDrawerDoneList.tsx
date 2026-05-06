@@ -1,5 +1,6 @@
 import { History, RefreshCw, CheckCircle2 } from "lucide-react";
 import { ExecutedGroup } from '@/config/types';
+import { numberInputUtils } from "@/utils/numberUtil";
 
 interface WorkoutDrawerDoneListProps {
     doneGroups: ExecutedGroup[];
@@ -72,6 +73,7 @@ export const WorkoutDrawerDoneList = ({
                                                             min={0}
                                                             max={field === "rpe" ? 10 : undefined}
                                                             defaultValue={(set as any)[field]}
+                                                            onFocus={numberInputUtils.onFocus}
                                                             onBlur={(e) => handleUpdateHistorySet(groupIdx, exIdx, setIdx, field, e.target.value)}
                                                             className="w-full bg-zinc-900/50 border border-zinc-800 rounded-lg py-2 px-2 text-xs font-bold outline-none text-zinc-200 focus:border-lime-400/50 focus:ring-1 focus:ring-lime-400/20 transition-all text-center"
                                                         />

@@ -9,6 +9,7 @@ import {
     ChevronDown,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { numberInputUtils } from '../../utils/numberUtil';
 
 interface SortableExerciseItemProps {
     field: any;
@@ -109,6 +110,7 @@ export function SortableExerciseItem({
                         <input
                             type="number"
                             {...register(`exercises.${index}.${input.key}`)}
+                            onFocus={numberInputUtils.onFocus}
                             className="w-full bg-transparent font-black outline-none text-zinc-900 dark:text-white text-base"
                         />
                     </div>

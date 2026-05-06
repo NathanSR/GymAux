@@ -1,8 +1,9 @@
 'use client';
 
 import { Trophy, Scale, MessageSquare, Zap, Save } from 'lucide-react';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { Session } from '@/config/types';
+import { numberInputUtils } from '../../utils/numberUtil';
 import { SessionService } from '@/services/sessionService';
 import { useRouter } from '@/i18n/routing';
 import { useTranslations } from 'next-intl';
@@ -24,7 +25,7 @@ export function CompletedSession({ session }: CompletedSessionProps) {
 
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const { register, handleSubmit, watch, setValue } = useForm<CompletionFormData>({
+    const { register, handleSubmit, watch, setValue, control } = useForm<CompletionFormData>({
         defaultValues: {
             userWeight: 0,
             description: '',
@@ -71,12 +72,21 @@ export function CompletedSession({ session }: CompletedSessionProps) {
                             <Scale size={14} className="text-lime-400" />
                             <label className="text-[10px] font-black uppercase text-zinc-500 tracking-widest">{t('bodyWeight')}</label>
                         </div>
-                        <input
-                            {...register("userWeight")}
-                            type="number"
-                            step="0.1"
-                            className="w-full bg-transparent border-none p-0 font-bold text-2xl text-white outline-none"
-                            placeholder="0.0"
+                        <Controller
+                            name="userWeight"
+                            control={control}
+                            render={({ field }) => (
+                                <input
+                                    {...field}
+                                    type="number"
+                                    step="0.1"
+                                    value={numberInputUtils.formatValue(field.value)}
+                                    onFocus={numberInputUtils.onFocus}
+                                    onChange={(e) => numberInputUtils.onChange(e, field.onChange)}
+                                    className="w-full bg-transparent border-none p-0 font-bold text-2xl text-white outline-none"
+                                    placeholder="0.0"
+                                />
+                            )}
                         />
                     </div>
 

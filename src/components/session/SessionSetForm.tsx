@@ -1,9 +1,11 @@
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { motion, LayoutGroup } from 'framer-motion';
-import { Dumbbell, Check, Plus, Minus, SkipForward, FastForward, ArrowRight } from 'lucide-react';
+import { motion, LayoutGroup, AnimatePresence } from 'framer-motion';
+import { Dumbbell, Check, Plus, Minus, SkipForward, FastForward, ArrowRight, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { numberInputUtils } from '../../utils/numberUtil';
 import { RPE_EMOJIS, RPE_OPTIONS } from './SessionConstants';
+import { Controller } from 'react-hook-form';
 
 interface SessionSetFormProps {
     currentPlannedSet: any;
@@ -32,7 +34,7 @@ export function SessionSetForm({
 }: SessionSetFormProps) {
     const t = useTranslations('Session');
 
-    const { register, handleSubmit, watch, setValue } = useForm({
+    const { register, handleSubmit, watch, setValue, control } = useForm({
         defaultValues: {
             weight: 0,
             reps: currentPlannedSet?.reps || 0,
@@ -81,11 +83,20 @@ export function SessionSetForm({
                         <div className="flex items-center justify-between gap-2">
                             <div className="flex items-center gap-2 flex-1 min-w-0">
                                 <Dumbbell size={18} className="text-lime-400 flex-shrink-0" />
-                                <input
-                                    {...register("weight")}
-                                    type="number"
-                                    inputMode="decimal"
-                                    className="bg-transparent border-none p-0 text-3xl font-black outline-none w-full text-white placeholder:text-zinc-800"
+                                <Controller
+                                    name="weight"
+                                    control={control}
+                                    render={({ field }) => (
+                                        <input
+                                            {...field}
+                                            type="number"
+                                            inputMode="decimal"
+                                            value={numberInputUtils.formatValue(field.value)}
+                                            onFocus={numberInputUtils.onFocus}
+                                            onChange={(e) => numberInputUtils.onChange(e, field.onChange)}
+                                            className="bg-transparent border-none p-0 text-3xl font-black outline-none w-full text-white placeholder:text-zinc-800"
+                                        />
+                                    )}
                                 />
                             </div>
                         </div>
@@ -109,11 +120,20 @@ export function SessionSetForm({
                         <div className="flex items-center justify-between gap-2">
                             <div className="flex items-center gap-2 flex-1 min-w-0">
                                 <Check size={18} className="text-lime-400 flex-shrink-0" />
-                                <input
-                                    {...register("reps")}
-                                    type="number"
-                                    inputMode="numeric"
-                                    className="bg-transparent border-none p-0 text-3xl font-black outline-none w-full text-white placeholder:text-zinc-800"
+                                <Controller
+                                    name="reps"
+                                    control={control}
+                                    render={({ field }) => (
+                                        <input
+                                            {...field}
+                                            type="number"
+                                            inputMode="numeric"
+                                            value={numberInputUtils.formatValue(field.value)}
+                                            onFocus={numberInputUtils.onFocus}
+                                            onChange={(e) => numberInputUtils.onChange(e, field.onChange)}
+                                            className="bg-transparent border-none p-0 text-3xl font-black outline-none w-full text-white placeholder:text-zinc-800"
+                                        />
+                                    )}
                                 />
                             </div>
                         </div>
