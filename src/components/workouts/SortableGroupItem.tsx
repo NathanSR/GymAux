@@ -53,6 +53,11 @@ export const SortableGroupItem = memo(({
         name: `exercises.${groupIndex}.exercises`
     });
 
+    const restAfterGroup = useWatch({
+        control,
+        name: `exercises.${groupIndex}.restAfterGroup`
+    });
+
     const isStraight = groupType === 'straight';
 
     const handleRoundsChange = (val: number | "") => {
@@ -235,11 +240,11 @@ export const SortableGroupItem = memo(({
                                         type="number"
                                         className="w-full bg-transparent text-center font-black text-xs outline-none text-lime-500"
                                         onFocus={numberInputUtils.onFocus}
-                                        value={numberInputUtils.formatValue(exercisesInGroup[exIndex]?.sets[0]?.reps)}
+                                        value={numberInputUtils.formatValue(exercisesInGroup?.[exIndex]?.sets?.[0]?.reps)}
                                         onChange={(e) => {
                                             numberInputUtils.onChange(e, (newVal) => {
                                                 const finalVal = newVal;
-                                                const currentSets = exercisesInGroup[exIndex]?.sets || [];
+                                                const currentSets = exercisesInGroup?.[exIndex]?.sets || [];
                                                 setValue(`exercises.${groupIndex}.exercises.${exIndex}.sets`, currentSets.map((s: any) => ({ ...s, reps: finalVal })));
                                             });
                                         }}
@@ -278,7 +283,7 @@ export const SortableGroupItem = memo(({
                         <div className='flex items-center gap-2'>
                             <input 
                                 type="number" 
-                                value={numberInputUtils.formatValue(useWatch({ control, name: `exercises.${groupIndex}.restAfterGroup` }))}
+                                value={numberInputUtils.formatValue(restAfterGroup)}
                                 onFocus={numberInputUtils.onFocus}
                                 onChange={(e) => numberInputUtils.onChange(e, (val) => setValue(`exercises.${groupIndex}.restAfterGroup`, val))}
                                 className="w-full bg-transparent font-black text-sm outline-none text-zinc-800 dark:text-zinc-200" 
