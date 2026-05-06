@@ -46,7 +46,7 @@ export const SortableGroupItem = memo(({
     const rounds = useWatch({
         control,
         name: `exercises.${groupIndex}.rounds`
-    }) || 1;
+    });
 
     const exercisesInGroup = useWatch({
         control,
@@ -55,9 +55,12 @@ export const SortableGroupItem = memo(({
 
     const isStraight = groupType === 'straight';
 
-    const handleRoundsChange = (val: number) => {
-        const newVal = Math.max(1, val);
-        setValue(`exercises.${groupIndex}.rounds`, newVal);
+    const handleRoundsChange = (val: number | "") => {
+        setValue(`exercises.${groupIndex}.rounds`, val);
+
+        if (val === "" || val < 1) return;
+
+        const newVal = val;
 
         // Sync all exercises in group to have exactly newVal sets
         // Using getValues here instead of watch to avoid re-renders during the handler
@@ -289,8 +292,13 @@ export const SortableGroupItem = memo(({
                             <input
                                 type="number"
                                 onFocus={numberInputUtils.onFocus}
-                                value={numberInputUtils.formatValue(rounds)}
-                                onChange={(e) => numberInputUtils.onChange(e, (val) => handleRoundsChange(val === "" ? 0 : val))}
+                                value={(rounds === 0 || rounds === "" || rounds === undefined) ? "" : numberInputUtils.formatValue(rounds)}
+                                onChange={(e) => numberInputUtils.onChange(e, (val) => handleRoundsChange(val === "" ? "" : val))}
+                                onBlur={() => {
+                                    if (rounds === "" || rounds < 1 || rounds === undefined) {
+                                        handleRoundsChange(1);
+                                    }
+                                }}
                                 className="w-full bg-transparent font-black text-sm outline-none text-zinc-800 dark:text-zinc-200"
                             />
                         </div>

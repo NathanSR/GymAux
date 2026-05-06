@@ -35,7 +35,7 @@ export const SetsList = memo(({
     // Quick edit handlers
     const handleSetsCountChange = (val: number) => {
         const currentCount = setFields.length;
-        const newCount = Math.max(1, val);
+        const newCount = val;
 
         if (newCount > currentCount) {
             const lastSet = setFields[currentCount - 1] || { reps: 10, restTime: 60, technique: 'normal' };
@@ -82,8 +82,13 @@ export const SetsList = memo(({
                             <input
                                 type="number"
                                 onFocus={numberInputUtils.onFocus}
-                                value={numberInputUtils.formatValue(setFields.length)}
+                                value={setFields.length === 0 ? "" : numberInputUtils.formatValue(setFields.length)}
                                 onChange={(e) => numberInputUtils.onChange(e, (val) => handleSetsCountChange(val === "" ? 0 : val))}
+                                onBlur={() => {
+                                    if (setFields.length < 1) {
+                                        handleSetsCountChange(1);
+                                    }
+                                }}
                                 className="w-full bg-zinc-50 dark:bg-zinc-900 border border-transparent focus:border-lime-500/30 rounded-xl p-2.5 text-sm font-black outline-none text-center text-zinc-800 dark:text-zinc-200 transition-all shadow-inner"
                             />
                         </div>
