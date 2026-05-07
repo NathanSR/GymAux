@@ -1449,6 +1449,8 @@
     "finalNotes": "Observações Finais",
     "notesPlaceholder": "Notas sobre o desempenho...",
     "saveAndFinish": "Salvar e Concluir",
+    "savingWorkout": "Salvando treino...",
+    "saveError": "Erro ao salvar treino. Tente novamente.",
     "exercise": "Exercício",
     "currentSet": "Série Atual",
     "of": "de",

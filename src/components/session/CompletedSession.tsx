@@ -1,6 +1,6 @@
 'use client';
 
-import { Trophy, Scale, MessageSquare, Zap, Save } from 'lucide-react';
+import { Trophy, Scale, MessageSquare, Zap, Save, Loader2 } from 'lucide-react';
 import { useForm, Controller } from 'react-hook-form';
 import { Session } from '@/config/types';
 import { numberInputUtils } from '../../utils/numberUtil';
@@ -8,6 +8,7 @@ import { SessionService } from '@/services/sessionService';
 import { useRouter } from '@/i18n/routing';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
+import { toast } from 'react-toastify';
 
 interface CompletedSessionProps {
     session: Session;
@@ -36,17 +37,27 @@ export function CompletedSession({ session }: CompletedSessionProps) {
     const isUsingCreatine = watch('usingCreatine');
 
     const onFinishWorkout = async (data: CompletionFormData) => {
-        if (!session.id) return;
+        if (!session.id || isSubmitting) return;
+
         try {
             setIsSubmitting(true);
+
             await SessionService.finishSession(session.id, {
                 weight: data.userWeight,
                 description: data.description,
                 usingCreatine: data.usingCreatine
             });
-            router.push('/home');
+
+            // Use replace so the session page is removed from the browser history stack.
+            // The user should never be able to go "back" to a finished session.
+            router.replace('/home');
         } catch (error: any) {
-            console.error("Error finishing workout:", error?.message || error);
+            console.error('[CompletedSession] Error finishing workout:', error?.message || error);
+            toast.error(t('saveError'), {
+                autoClose: 5000,
+                style: { background: '#27272a', color: '#fff', borderRadius: '16px', fontSize: '14px' }
+            });
+            // Re-enable the button so the user can retry
             setIsSubmitting(false);
         }
     };
@@ -126,10 +137,13 @@ export function CompletedSession({ session }: CompletedSessionProps) {
                     <button
                         type="submit"
                         disabled={isSubmitting}
-                        className="w-full bg-lime-400 hover:bg-lime-500 text-zinc-950 py-5 rounded-[28px] font-black flex items-center justify-center gap-3 shadow-xl shadow-lime-500/20 active:scale-95 transition-all disabled:opacity-50"
+                        className="w-full bg-lime-400 hover:bg-lime-500 text-zinc-950 py-5 rounded-[28px] font-black flex items-center justify-center gap-3 shadow-xl shadow-lime-500/20 active:scale-95 transition-all disabled:opacity-60 disabled:cursor-not-allowed disabled:active:scale-100"
                     >
                         {isSubmitting ? (
-                            <div className="w-6 h-6 border-4 border-zinc-950 border-t-transparent rounded-full animate-spin" />
+                            <>
+                                <Loader2 size={22} className="animate-spin" />
+                                {t('savingWorkout').toUpperCase()}
+                            </>
                         ) : (
                             <>
                                 <Save size={22} />

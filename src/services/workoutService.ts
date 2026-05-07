@@ -225,7 +225,7 @@ export const WorkoutService = {
 
         if (typeof window !== 'undefined') {
             await db.workouts.put(mapWorkoutFromSupabase(apiPayload));
-            SyncManager.enqueue('CREATE', 'WORKOUT', id, apiPayload);
+            await SyncManager.enqueue('CREATE', 'WORKOUT', id, apiPayload);
             return mapWorkoutFromSupabase(apiPayload);
         }
 
@@ -251,7 +251,7 @@ export const WorkoutService = {
             if (local) {
                 const updated = { ...local, ...workoutData };
                 await db.workouts.put(updated);
-                SyncManager.enqueue('UPDATE', 'WORKOUT', id, { id, ...updates });
+                await SyncManager.enqueue('UPDATE', 'WORKOUT', id, { id, ...updates });
                 return updated;
             }
         }
@@ -310,7 +310,7 @@ export const WorkoutService = {
     async deleteWorkout(id: string, callerId: string, supabaseInput?: any) {
         if (typeof window !== 'undefined') {
             await db.workouts.delete(id);
-            SyncManager.enqueue('DELETE', 'WORKOUT', id, { id });
+            await SyncManager.enqueue('DELETE', 'WORKOUT', id, { id });
             return;
         }
 

@@ -1449,6 +1449,8 @@
     "finalNotes": "Final Notes",
     "notesPlaceholder": "Performance notes...",
     "saveAndFinish": "Save and Finish",
+    "savingWorkout": "Saving workout...",
+    "saveError": "Failed to save workout. Please try again.",
     "exercise": "Exercise",
     "currentSet": "Current Set",
     "of": "of",

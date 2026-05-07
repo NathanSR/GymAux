@@ -5,9 +5,12 @@ import { withTimeout } from '@/lib/utils/timeout';
 
 export class SyncManager {
     private static isSyncing = false;
+    /** True when at least one enqueue happened while a sync was already running. */
+    private static pendingAfterSync = false;
 
     /**
      * Enqueue a new mutation for background syncing.
+     * Always awaited so callers know the item was persisted to Dexie before returning.
      */
     static async enqueue(
         action: SyncOperation['action'],
@@ -15,7 +18,6 @@ export class SyncManager {
         entityId: string | number,
         payload: any
     ): Promise<number> {
-        // Enqueue to Dexie
         const id = await db.syncQueue.add({
             action,
             entityType,
@@ -26,20 +28,29 @@ export class SyncManager {
             retryCount: 0
         });
 
-        // Trigger sync process asynchronously
-        this.processQueue();
+        // If a sync is already running, flag it so we re-trigger after it finishes.
+        if (this.isSyncing) {
+            this.pendingAfterSync = true;
+        } else {
+            // Fire-and-forget — caller doesn't need to wait for the remote sync.
+            this.processQueue().catch((err) => {
+                console.error('[SyncManager] processQueue error:', err);
+            });
+        }
 
         return id as number;
     }
 
     /**
      * Start processing the sync queue. Avoids overlapping syncs.
+     * After finishing, re-triggers itself once if new items were enqueued mid-run.
      */
     static async processQueue() {
         if (this.isSyncing) return;
         if (typeof window !== 'undefined' && !navigator.onLine) return;
 
         this.isSyncing = true;
+        this.pendingAfterSync = false;
 
         try {
             const pendingOps = await db.syncQueue
@@ -48,7 +59,6 @@ export class SyncManager {
                 .sortBy('createdAt');
 
             if (pendingOps.length === 0) {
-                this.isSyncing = false;
                 return;
             }
 
@@ -56,7 +66,7 @@ export class SyncManager {
             const supabase = createClient();
 
             for (const op of pendingOps) {
-                // If offline happens mid-sync, abort
+                // Abort mid-sync if connectivity drops
                 if (typeof window !== 'undefined' && !navigator.onLine) break;
 
                 let success = false;
@@ -80,59 +90,54 @@ export class SyncManager {
                             break;
                         default:
                             console.warn(`[SyncManager] Unknown entityType: ${op.entityType}`);
-                            success = true; // Mark done to drop it
+                            success = true; // Drop unknown ops
                     }
 
                     if (success) {
-                        // Mark as synced, or delete it
                         await db.syncQueue.delete(op.id!);
                     }
                 } catch (error: any) {
-                    console.error(`[SyncManager] Error syncing operation ${op.id}:`, error?.message || error);
-                    // increment retries, handle fails later
+                    console.error(`[SyncManager] Error syncing op ${op.id} (${op.action} ${op.entityType}):`, error?.message || error);
                     await db.syncQueue.update(op.id!, {
                         retryCount: op.retryCount + 1,
                         status: op.retryCount >= 5 ? 'FAILED' : 'PENDING',
-                        errorMessage: error.message
+                        errorMessage: error?.message || String(error)
                     });
                 }
             }
         } finally {
             this.isSyncing = false;
+
+            // If new items were enqueued while we were processing, run again immediately.
+            if (this.pendingAfterSync) {
+                this.pendingAfterSync = false;
+                this.processQueue().catch((err) => {
+                    console.error('[SyncManager] re-triggered processQueue error:', err);
+                });
+            }
         }
     }
 
     /**
      * Initialize listeners for connectivity changes.
+     * NOTE: If OfflineSyncProvider is mounted, it already registers these listeners.
+     * Call this only in environments without OfflineSyncProvider (e.g. Service Workers).
      */
     static init() {
         if (typeof window === 'undefined') return;
 
-        window.addEventListener('online', () => {
-            console.log('[SyncManager] App is online. Processing queue...');
-            this.processQueue();
+        // Initial drain of any leftover items from a previous session
+        this.processQueue().catch((err) => {
+            console.error('[SyncManager] init processQueue error:', err);
         });
-
-        document.addEventListener('visibilitychange', () => {
-            if (document.visibilityState === 'visible') {
-                console.log('[SyncManager] App is visible. Processing queue...');
-                this.processQueue();
-            }
-        });
-        
-        // Initial check
-        this.processQueue();
     }
 
     // --- Private Sync Implementations per Entity ---
 
-    // Note: To be fully implemented based on Supabase tables. 
-    // This provides the structural foundation for syncing offline data gracefully.
-
     private static async syncHistory(op: SyncOperation, supabase: any): Promise<boolean> {
         if (op.action === 'CREATE') {
             const { error } = await withTimeout(supabase.from('history').insert(op.payload), 5000);
-            // Ignore duplicate key error if it already exists (409 / 23505 usually)
+            // 23505 = unique_violation — already exists, safe to drop
             if (error && error.code !== '23505') throw error;
         } else if (op.action === 'UPDATE') {
             const { error } = await withTimeout(supabase.from('history').update(op.payload).eq('id', op.entityId), 5000);
@@ -150,10 +155,11 @@ export class SyncManager {
             if (error && error.code !== '23505') throw error;
         } else if (op.action === 'UPDATE') {
             const { error } = await withTimeout(supabase.from('sessions').update(op.payload).eq('id', op.entityId), 5000);
-            if (error) throw error;
+            // 404 / PGRST116 = row not found; session may have been deleted already — safe to drop
+            if (error && error.code !== 'PGRST116') throw error;
         } else if (op.action === 'DELETE') {
             const { error } = await withTimeout(supabase.from('sessions').delete().eq('id', op.entityId), 5000);
-            if (error) throw error;
+            if (error && error.code !== 'PGRST116') throw error;
         }
         return true;
     }

@@ -103,7 +103,7 @@ export const SessionService = {
 
         if (typeof window !== 'undefined') {
             await db.sessions.put(sessionPayload);
-            SyncManager.enqueue('CREATE', 'SESSION', sessionId, mapSessionToSupabase(sessionPayload));
+            await SyncManager.enqueue('CREATE', 'SESSION', sessionId, mapSessionToSupabase(sessionPayload));
             return sessionPayload;
         }
 
@@ -121,7 +121,7 @@ export const SessionService = {
                 localSession.pausedAt = null;
                 localSession.resumedAt = new Date();
                 await db.sessions.put(localSession);
-                SyncManager.enqueue('UPDATE', 'SESSION', sessionId, {
+                await SyncManager.enqueue('UPDATE', 'SESSION', sessionId, {
                     id: sessionId,
                     paused_at: null,
                     resumed_at: localSession.resumedAt.toISOString()
@@ -150,7 +150,7 @@ export const SessionService = {
                 localSession.pausedAt = now;
                 await db.sessions.put(localSession);
 
-                SyncManager.enqueue('UPDATE', 'SESSION', sessionId, {
+                await SyncManager.enqueue('UPDATE', 'SESSION', sessionId, {
                     id: sessionId,
                     paused_at: now.toISOString(),
                     duration: localSession.duration
@@ -259,7 +259,7 @@ export const SessionService = {
                 if (updates.pausedAt !== undefined) dbUpdates.paused_at = updates.pausedAt?.toISOString() || null;
                 if (updates.resumedAt !== undefined) dbUpdates.resumed_at = updates.resumedAt?.toISOString() || null;
 
-                SyncManager.enqueue('UPDATE', 'SESSION', sessionId, dbUpdates);
+                await SyncManager.enqueue('UPDATE', 'SESSION', sessionId, dbUpdates);
                 return;
             }
         }
@@ -301,9 +301,10 @@ export const SessionService = {
 
         if (typeof window !== 'undefined') {
             await db.sessions.delete(sessionId);
-            // Salva history no Dexie para manter offline (opcional, vamos confiar no syncQueue/Workbox)
-            SyncManager.enqueue('CREATE', 'HISTORY', historyId, newHistory);
-            SyncManager.enqueue('DELETE', 'SESSION', sessionId, { id: sessionId });
+            // Await both enqueue calls so that Dexie write failures surface to the caller
+            // instead of becoming silent unhandled rejections.
+            await SyncManager.enqueue('CREATE', 'HISTORY', historyId, newHistory);
+            await SyncManager.enqueue('DELETE', 'SESSION', sessionId, { id: sessionId });
             return historyId;
         }
 
@@ -318,7 +319,7 @@ export const SessionService = {
     async deleteSession(sessionId: string, supabaseInput?: any) {
         if (typeof window !== 'undefined') {
             await db.sessions.delete(sessionId);
-            SyncManager.enqueue('DELETE', 'SESSION', sessionId, { id: sessionId });
+            await SyncManager.enqueue('DELETE', 'SESSION', sessionId, { id: sessionId });
             return;
         }
 

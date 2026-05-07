@@ -184,7 +184,7 @@ export const ExerciseService = {
             const id = Date.now(); // Temporary numeric ID for local use
             const localExercise = { id, ...apiPayload } as Exercise;
             await db.exercises.add(localExercise);
-            SyncManager.enqueue('CREATE', 'EXERCISE', id, apiPayload);
+            await SyncManager.enqueue('CREATE', 'EXERCISE', id, apiPayload);
             return localExercise;
         }
 
@@ -229,7 +229,7 @@ export const ExerciseService = {
             if (local) {
                 const updated = { ...local, ...updateData };
                 await db.exercises.put(updated);
-                SyncManager.enqueue('UPDATE', 'EXERCISE', id, updates);
+                await SyncManager.enqueue('UPDATE', 'EXERCISE', id, updates);
                 return updated as Exercise;
             }
         }
@@ -258,7 +258,7 @@ export const ExerciseService = {
 
         if (typeof window !== 'undefined') {
             await db.exercises.delete(id);
-            SyncManager.enqueue('DELETE', 'EXERCISE', id, { id });
+            await SyncManager.enqueue('DELETE', 'EXERCISE', id, { id });
             return;
         }
 
