@@ -101,6 +101,7 @@ export const SessionService = {
             resumedAt: now
         };
 
+        // Always save locally first
         if (typeof window !== 'undefined') {
             await db.sessions.put(sessionPayload);
             await SyncManager.enqueue('CREATE', 'SESSION', sessionId, mapSessionToSupabase(sessionPayload));
@@ -178,70 +179,110 @@ export const SessionService = {
     },
 
     async getActiveSessionByUserId(userId: string, supabaseInput?: any) {
+        // Always check local first — sessions are critical for continuity
         if (typeof window !== 'undefined') {
             const sessions = await db.sessions.where('userId').equals(userId).toArray();
             if (sessions.length > 0) {
-                // Assuming the most recent one is active if we don't have a status field directly
-                // Though 'getActiveSessionByUserId' in this app typically implies 1 active session.
                 return sessions.reduce((a, b) => a.createdAt > b.createdAt ? a : b);
             }
         }
 
-        const supabase = supabaseInput || createClient();
-        const { data, error } = await withTimeout(
-            supabase
-                .from('sessions')
-                .select('*')
-                .eq('user_id', userId)
-                .maybeSingle(),
-            3000
-        );
+        try {
+            const supabase = supabaseInput || createClient();
+            const { data, error } = await withTimeout(
+                supabase
+                    .from('sessions')
+                    .select('*')
+                    .eq('user_id', userId)
+                    .maybeSingle(),
+                3000
+            );
 
-        if (error) {
-            console.error('Error fetching active session:', error?.message || error);
+            if (error) throw error;
+
+            if (data) {
+                const session = mapSessionFromSupabase(data);
+                // Cache to Dexie for offline access
+                if (typeof window !== 'undefined') {
+                    await db.sessions.put(session).catch(() => {});
+                }
+                return session;
+            }
+
+            return null;
+        } catch (error) {
+            console.warn('[SessionService] getActiveSessionByUserId failed:', error);
+            // Already checked local above, return null
             return null;
         }
-
-        return data ? mapSessionFromSupabase(data) : null;
     },
 
     async getSessionsByUserId(userId: string, supabaseInput?: any) {
-        const supabase = supabaseInput || createClient();
-        const { data, error } = await withTimeout(
-            supabase
-                .from('sessions')
-                .select('*')
-                .eq('user_id', userId)
-                .order('created_at', { ascending: false }),
-            3000
-        );
+        try {
+            const supabase = supabaseInput || createClient();
+            const { data, error } = await withTimeout(
+                supabase
+                    .from('sessions')
+                    .select('*')
+                    .eq('user_id', userId)
+                    .order('created_at', { ascending: false }),
+                3000
+            );
 
-        if (error) {
-            console.error('Error fetching sessions:', error?.message || error);
+            if (error) throw error;
+
+            const sessions = (data || []).map(mapSessionFromSupabase);
+
+            // Cache to Dexie
+            if (typeof window !== 'undefined' && sessions.length > 0) {
+                await db.sessions.bulkPut(sessions).catch(() => {});
+            }
+
+            return sessions;
+        } catch (error) {
+            console.warn('[SessionService] getSessionsByUserId failed, falling back to local DB:', error);
+            if (typeof window !== 'undefined') {
+                const localSessions = await db.sessions.where('userId').equals(userId).toArray();
+                localSessions.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+                return localSessions;
+            }
             return [];
         }
-
-        return (data || []).map(mapSessionFromSupabase);
     },
 
     async getSessionById(sessionId: string, supabaseInput?: any) {
+        // Local-first
         if (typeof window !== 'undefined') {
             const local = await db.sessions.get(sessionId);
             if (local) return local;
         }
 
-        const supabase = supabaseInput || createClient();
-        const { data, error } = await withTimeout(
-            supabase
-                .from('sessions')
-                .select('*')
-                .eq('id', sessionId)
-                .maybeSingle(),
-            3000
-        );
+        try {
+            const supabase = supabaseInput || createClient();
+            const { data, error } = await withTimeout(
+                supabase
+                    .from('sessions')
+                    .select('*')
+                    .eq('id', sessionId)
+                    .maybeSingle(),
+                3000
+            );
 
-        if (error) return null;
-        return data ? mapSessionFromSupabase(data) : null;
+            if (error) throw error;
+
+            if (data) {
+                const session = mapSessionFromSupabase(data);
+                // Cache for offline
+                if (typeof window !== 'undefined') {
+                    await db.sessions.put(session).catch(() => {});
+                }
+                return session;
+            }
+            return null;
+        } catch (error) {
+            console.warn('[SessionService] getSessionById failed:', error);
+            return null;
+        }
     },
 
     async syncSessionProgress(sessionId: string, updates: Partial<Session>, supabaseInput?: any): Promise<void> {
@@ -300,6 +341,21 @@ export const SessionService = {
         };
 
         if (typeof window !== 'undefined') {
+            // Save history locally for immediate access
+            await db.history.put({
+                id: historyId,
+                userId: session.userId,
+                workoutId: session.workoutId,
+                workoutName: session.workoutName,
+                date: session.createdAt,
+                endDate: new Date(),
+                duration: session.duration,
+                weight: additionalData?.weight,
+                description: additionalData?.description,
+                usingCreatine: additionalData?.usingCreatine,
+                executions: session.exercisesDone,
+            }).catch(() => {});
+
             await db.sessions.delete(sessionId);
             // Await both enqueue calls so that Dexie write failures surface to the caller
             // instead of becoming silent unhandled rejections.

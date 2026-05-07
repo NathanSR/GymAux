@@ -75,7 +75,7 @@ export const WorkoutService = {
             workouts = (data || []).map(mapWorkoutFromSupabase);
 
             if (typeof window !== 'undefined' && workouts.length > 0) {
-                await db.workouts.bulkPut(workouts);
+                await db.workouts.bulkPut(workouts).catch(() => {});
             }
         } catch (error) {
             console.warn('[WorkoutService] getAllWorkouts failed, falling back to local DB:', error);
@@ -116,7 +116,7 @@ export const WorkoutService = {
             totalCount = count || 0;
 
             if (typeof window !== 'undefined' && workouts.length > 0) {
-                await db.workouts.bulkPut(workouts);
+                await db.workouts.bulkPut(workouts).catch(() => {});
             }
         } catch (error) {
             console.warn('[WorkoutService] getWorkoutsByUserId failed, falling back to local DB:', error);
@@ -156,23 +156,38 @@ export const WorkoutService = {
     },
 
     async getWorkoutById(id: string, supabaseInput?: any) {
+        // Local-first
         if (typeof window !== 'undefined') {
             const local = await db.workouts.get(id);
             if (local) return local;
         }
 
-        const supabase = supabaseInput || createClient();
-        const { data, error } = await withTimeout(
-            supabase
-                .from('workouts')
-                .select('*')
-                .eq('id', id)
-                .maybeSingle(),
-            3000
-        );
+        try {
+            const supabase = supabaseInput || createClient();
+            const { data, error } = await withTimeout(
+                supabase
+                    .from('workouts')
+                    .select('*')
+                    .eq('id', id)
+                    .maybeSingle(),
+                3000
+            );
 
-        if (error) return null;
-        return data ? mapWorkoutFromSupabase(data) : null;
+            if (error) throw error;
+
+            if (data) {
+                const workout = mapWorkoutFromSupabase(data);
+                // Cache for offline
+                if (typeof window !== 'undefined') {
+                    await db.workouts.put(workout).catch(() => {});
+                }
+                return workout;
+            }
+            return null;
+        } catch (error) {
+            console.warn('[WorkoutService] getWorkoutById failed:', error);
+            return null;
+        }
     },
 
     async createWorkout(workoutData: Omit<Workout, 'id' | 'createdAt'> & { callerId: string }, supabaseInput?: any) {
@@ -200,16 +215,21 @@ export const WorkoutService = {
         const id = crypto.randomUUID();
         const supabase = supabaseInput || createClient();
 
+        // Permission check (non-blocking if offline)
         if (workoutData.userId !== workoutData.callerId) {
-            const hasPermission = await connectionService.checkPermission(
-                workoutData.callerId,
-                workoutData.userId,
-                'manage_workouts',
-                supabase
-            );
-
-            if (!hasPermission) {
-                throw new Error("Unauthorized to create workouts for this student");
+            try {
+                const hasPermission = await connectionService.checkPermission(
+                    workoutData.callerId,
+                    workoutData.userId,
+                    'manage_workouts',
+                    supabase
+                );
+                if (!hasPermission) {
+                    throw new Error("Unauthorized to create workouts for this student");
+                }
+            } catch (error: any) {
+                if (error?.message?.includes('Unauthorized')) throw error;
+                // Network failure — let RLS handle it on sync
             }
         }
 
@@ -223,6 +243,7 @@ export const WorkoutService = {
             exercises: serializeGroups(workoutData.exercises) as any,
         };
 
+        // Local-first
         if (typeof window !== 'undefined') {
             await db.workouts.put(mapWorkoutFromSupabase(apiPayload));
             await SyncManager.enqueue('CREATE', 'WORKOUT', id, apiPayload);
@@ -246,6 +267,7 @@ export const WorkoutService = {
             updates.exercises = serializeGroups(workoutData.exercises);
         }
 
+        // Local-first
         if (typeof window !== 'undefined') {
             const local = await db.workouts.get(id);
             if (local) {
@@ -254,8 +276,29 @@ export const WorkoutService = {
                 await SyncManager.enqueue('UPDATE', 'WORKOUT', id, { id, ...updates });
                 return updated;
             }
+
+            // Not in local cache — try to fetch and cache first, then update
+            try {
+                const supabase = supabaseInput || createClient();
+                const { data: fetchedData } = await withTimeout(
+                    supabase.from('workouts').select('*').eq('id', id).maybeSingle(),
+                    3000
+                );
+                if (fetchedData) {
+                    const workout = mapWorkoutFromSupabase(fetchedData);
+                    const updated = { ...workout, ...workoutData };
+                    await db.workouts.put(updated);
+                    await SyncManager.enqueue('UPDATE', 'WORKOUT', id, { id, ...updates });
+                    return updated;
+                }
+            } catch {
+                // Can't fetch — enqueue anyway with what we have
+                await SyncManager.enqueue('UPDATE', 'WORKOUT', id, { id, ...updates });
+                return { id, ...workoutData } as Workout;
+            }
         }
 
+        // Server-only path
         const supabase = supabaseInput || createClient();
 
         const { data: existingWorkout, error: fetchError } = await withTimeout(
@@ -308,12 +351,14 @@ export const WorkoutService = {
     },
 
     async deleteWorkout(id: string, callerId: string, supabaseInput?: any) {
+        // Local-first
         if (typeof window !== 'undefined') {
             await db.workouts.delete(id);
             await SyncManager.enqueue('DELETE', 'WORKOUT', id, { id });
             return;
         }
 
+        // Server-only path
         const supabase = supabaseInput || createClient();
 
         const { data: existingWorkout, error: fetchError } = await withTimeout(

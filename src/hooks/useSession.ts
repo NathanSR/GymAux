@@ -14,17 +14,19 @@ export function useSession() {
     useEffect(() => {
         const loadUser = async () => {
             try {
-                const { data: { user } } = await supabase.auth.getUser();
+                // Use resilient resolver instead of direct auth call
+                const userId = await userService.resolveCurrentUserId();
 
-                if (user) {
-                    const activeUser = await userService.getUserById(user?.id as string);
-                    setActiveUser(activeUser);
+                if (userId) {
+                    const profile = await userService.getUserById(userId);
+                    setActiveUser(profile);
                 } else {
                     setActiveUser(null);
                 }
             } catch (error: any) {
-                console.error("Error loading session:", error?.message || error);
-                setActiveUser(null);
+                console.warn('[useSession] Error loading session:', error?.message || error);
+                // Don't wipe user on transient errors
+                if (!activeUser) setActiveUser(null);
             } finally {
                 setLoading(false);
             }
@@ -33,9 +35,20 @@ export function useSession() {
         loadUser();
 
         const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+            if (event === 'SIGNED_OUT') {
+                setActiveUser(null);
+                setLoading(false);
+                return;
+            }
+
             if (session?.user) {
-                const user = await userService.getUserById(session.user.id);
-                setActiveUser(user);
+                try {
+                    const user = await userService.getUserById(session.user.id);
+                    setActiveUser(user);
+                } catch (err) {
+                    console.warn('[useSession] onAuthStateChange getUserById failed:', err);
+                    // Keep existing user — don't wipe on transient errors
+                }
             } else {
                 setActiveUser(null);
             }
@@ -49,4 +62,3 @@ export function useSession() {
 
     return { activeUser, loading };
 }
-

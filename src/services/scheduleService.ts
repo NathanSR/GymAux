@@ -63,7 +63,7 @@ export const ScheduleService = {
             totalCount = count || 0;
 
             if (typeof window !== 'undefined' && schedules.length > 0) {
-                await db.schedules.bulkPut(schedules);
+                await db.schedules.bulkPut(schedules).catch(() => {});
             }
         } catch (error) {
             console.warn('[ScheduleService] getSchedulesByUserId failed, falling back to local DB:', error);
@@ -108,19 +108,26 @@ export const ScheduleService = {
 
             const schedule = data ? mapScheduleFromSupabase(data) : null;
             if (typeof window !== 'undefined' && schedule) {
-                await db.schedules.put(schedule);
+                await db.schedules.put(schedule).catch(() => {});
             }
             return schedule;
         } catch (error) {
             console.warn('[ScheduleService] getActiveSchedule failed, falling back to local DB:', error);
             if (typeof window !== 'undefined') {
-                return await db.schedules.where({ userId, active: 1 }).first() || null;
+                // active is stored as boolean in Dexie — use filter
+                const local = await db.schedules
+                    .where('userId')
+                    .equals(userId)
+                    .filter(s => s.active === true)
+                    .first();
+                return local || null;
             }
             return null;
         }
     },
 
     async getScheduleById(id: string, supabaseInput?: any) {
+        // Local-first
         if (typeof window !== 'undefined') {
             const local = await db.schedules.get(id);
             if (local) return local;
@@ -140,213 +147,233 @@ export const ScheduleService = {
             if (error) throw error;
             const schedule = data ? mapScheduleFromSupabase(data) : null;
             if (typeof window !== 'undefined' && schedule) {
-                await db.schedules.put(schedule);
+                await db.schedules.put(schedule).catch(() => {});
             }
             return schedule;
         } catch (error) {
-            console.error('Error fetching schedule by ID:', error);
+            console.error('[ScheduleService] getScheduleById failed:', error);
             return null;
         }
     },
 
     /**
      * Cria um novo cronograma.
-     * Inclui regra para garantir que apenas um cronograma esteja ativo por vez.
+     * Offline-first: saves locally, enqueues sync, returns immediately.
      */
     async createSchedule(scheduleData: Omit<Schedule, 'id'>, callerId: string, supabaseInput?: any) {
+        const formattedName = scheduleData.name.trim();
+
+        if (formattedName.length < 2) {
+            throw new Error("O nome do cronograma é muito curto.");
+        }
+
+        if (scheduleData.workouts.length !== 7) {
+            throw new Error("O cronograma deve conter exatamente 7 dias (domingo a sábado).");
+        }
+
         const id = crypto.randomUUID();
         const newSchedule: Schedule = {
             ...scheduleData,
             id,
+            name: formattedName,
+            createdBy: callerId,
+            createdByType: scheduleData.userId === callerId ? 'user' : 'trainer',
             startDate: typeof scheduleData.startDate === 'string' ? new Date(scheduleData.startDate) : scheduleData.startDate,
             endDate: scheduleData.endDate ? (typeof scheduleData.endDate === 'string' ? new Date(scheduleData.endDate) : scheduleData.endDate) : undefined,
         } as Schedule;
 
-        if (typeof window !== 'undefined') {
-            await db.schedules.put(newSchedule);
-            await SyncManager.enqueue('CREATE', 'SCHEDULE', id, mapScheduleToSupabase(newSchedule));
-        }
-
-        try {
-            const supabase = supabaseInput || createClient();
-            const formattedName = scheduleData.name.trim();
-
-            if (formattedName.length < 2) {
-                throw new Error("O nome do cronograma é muito curto.");
-            }
-
-            if (scheduleData.workouts.length !== 7) {
-                throw new Error("O cronograma deve conter exatamente 7 dias (domingo a sábado).");
-            }
-
-            if (scheduleData.userId !== callerId) {
+        // Permission check (non-blocking if offline — will be enforced by RLS on sync)
+        if (scheduleData.userId !== callerId) {
+            try {
+                const supabase = supabaseInput || createClient();
                 const hasPermission = await connectionService.checkPermission(callerId, scheduleData.userId, 'manage_schedules', supabase);
-
                 if (!hasPermission) {
                     throw new Error("Unauthorized to create schedules for this student");
                 }
+            } catch (error: any) {
+                if (error?.message?.includes('Unauthorized')) throw error;
+                // Network failure — let RLS handle it on sync
             }
+        }
 
-            // Se for ativo, desativa os outros primeiro
-            if (scheduleData.active) {
-                await withTimeout(
-                    supabase
-                        .from('schedules')
-                        .update({ active: false })
-                        .eq('user_id', scheduleData.userId),
-                    3000
-                );
+        // If activating this schedule, deactivate others locally
+        if (scheduleData.active && typeof window !== 'undefined') {
+            const activeSchedules = await db.schedules
+                .where('userId')
+                .equals(scheduleData.userId)
+                .filter(s => s.active === true)
+                .toArray();
+
+            for (const s of activeSchedules) {
+                await db.schedules.update(s.id!, { active: false });
             }
+        }
 
-            const { data, error } = await withTimeout(
-                supabase
-                    .from('schedules')
-                    .insert({
-                        id,
-                        name: formattedName,
-                        user_id: scheduleData.userId,
-                        created_by: callerId,
-                        created_by_type: scheduleData.userId === callerId ? 'user' : 'trainer',
-                        workouts: scheduleData.workouts as any,
-                        start_date: typeof scheduleData.startDate === 'string' ? scheduleData.startDate : scheduleData.startDate.toISOString(),
-                        end_date: scheduleData.endDate ? (typeof scheduleData.endDate === 'string' ? scheduleData.endDate : scheduleData.endDate.toISOString()) : undefined,
-                        active: scheduleData.active,
-                        last_completed: scheduleData.lastCompleted ?? -1,
-                    })
-                    .select()
-                    .single(),
-                3000
-            );
-
-            if (error) throw error;
-            return mapScheduleFromSupabase(data);
-        } catch (error) {
-            console.warn('[ScheduleService] createSchedule failed online, will retry later:', error);
+        // Save locally first
+        if (typeof window !== 'undefined') {
+            await db.schedules.put(newSchedule);
+            await SyncManager.enqueue('CREATE', 'SCHEDULE', id, mapScheduleToSupabase(newSchedule));
             return newSchedule;
         }
+
+        // Server-only path (no window)
+        const supabase = supabaseInput || createClient();
+
+        if (scheduleData.active) {
+            await withTimeout(
+                supabase
+                    .from('schedules')
+                    .update({ active: false })
+                    .eq('user_id', scheduleData.userId),
+                3000
+            );
+        }
+
+        const { data, error } = await withTimeout(
+            supabase
+                .from('schedules')
+                .insert(mapScheduleToSupabase(newSchedule))
+                .select()
+                .single(),
+            3000
+        );
+
+        if (error) throw error;
+        return mapScheduleFromSupabase(data);
     },
 
     /**
      * Atualiza um cronograma existente.
+     * Offline-first: saves locally, enqueues sync.
      */
     async updateSchedule(id: string, scheduleData: Partial<Schedule>, callerId: string, supabaseInput?: any) {
+        // Build updates for Supabase format
+        const updates: any = {};
+        if (scheduleData.name) updates.name = scheduleData.name.trim();
+        if (scheduleData.userId) updates.user_id = scheduleData.userId;
+        if (scheduleData.workouts) updates.workouts = scheduleData.workouts;
+        if (scheduleData.startDate) updates.start_date = typeof scheduleData.startDate === 'string' ? scheduleData.startDate : (scheduleData.startDate as Date).toISOString();
+        if (scheduleData.endDate) updates.end_date = typeof scheduleData.endDate === 'string' ? scheduleData.endDate : (scheduleData.endDate as Date).toISOString();
+        if (scheduleData.active !== undefined) updates.active = scheduleData.active;
+        if (scheduleData.lastCompleted !== undefined) updates.last_completed = scheduleData.lastCompleted;
+
+        // Local-first write
         if (typeof window !== 'undefined') {
             const current = await db.schedules.get(id);
             if (current) {
+                // If activating, deactivate others locally
+                if (scheduleData.active === true) {
+                    const userId = scheduleData.userId || current.userId;
+                    const otherActive = await db.schedules
+                        .where('userId')
+                        .equals(userId)
+                        .filter(s => s.active === true && s.id !== id)
+                        .toArray();
+
+                    for (const s of otherActive) {
+                        await db.schedules.update(s.id!, { active: false });
+                        // Enqueue deactivation for sync
+                        await SyncManager.enqueue('UPDATE', 'SCHEDULE', s.id!, {
+                            id: s.id,
+                            active: false,
+                        });
+                    }
+                }
+
                 const updated = { ...current, ...scheduleData };
                 await db.schedules.put(updated);
-                await SyncManager.enqueue('UPDATE', 'SCHEDULE', id, mapScheduleToSupabase(updated));
+                await SyncManager.enqueue('UPDATE', 'SCHEDULE', id, { id, ...updates });
+                return updated;
             }
         }
 
-        try {
-            const supabase = supabaseInput || createClient();
+        // Fallback: direct Supabase (server-side or no local data)
+        const supabase = supabaseInput || createClient();
 
-            const updates: any = {};
-            if (scheduleData.name) updates.name = scheduleData.name.trim();
-            if (scheduleData.userId) updates.user_id = scheduleData.userId;
-            if (scheduleData.workouts) updates.workouts = scheduleData.workouts;
-            if (scheduleData.startDate) updates.start_date = typeof scheduleData.startDate === 'string' ? scheduleData.startDate : (scheduleData.startDate as Date).toISOString();
-            if (scheduleData.endDate) updates.end_date = typeof scheduleData.endDate === 'string' ? scheduleData.endDate : (scheduleData.endDate as Date).toISOString();
-            if (scheduleData.active !== undefined) updates.active = scheduleData.active;
-            if (scheduleData.lastCompleted !== undefined) updates.last_completed = scheduleData.lastCompleted;
+        const { data: existingSchedule, error: fetchError } = await withTimeout(
+            supabase
+                .from('schedules')
+                .select('user_id')
+                .eq('id', id)
+                .single(),
+            3000
+        );
 
-            // Fetch to check ownership vs trainer
-            const { data: existingSchedule, error: fetchError } = await withTimeout(
-                supabase
-                    .from('schedules')
-                    .select('user_id')
-                    .eq('id', id)
-                    .single(),
-                3000
-            );
+        if (fetchError || !existingSchedule) throw new Error("Schedule not found");
 
-            if (fetchError || !existingSchedule) throw new Error("Schedule not found");
-
-            if (existingSchedule.user_id !== callerId) {
-                const hasPermission = await connectionService.checkPermission(callerId, existingSchedule.user_id, 'manage_schedules', supabase);
-
-                if (!hasPermission) {
-                    throw new Error("Unauthorized to manage this student's schedule");
-                }
+        if (existingSchedule.user_id !== callerId) {
+            const hasPermission = await connectionService.checkPermission(callerId, existingSchedule.user_id, 'manage_schedules', supabase);
+            if (!hasPermission) {
+                throw new Error("Unauthorized to manage this student's schedule");
             }
-
-            // Se estiver ativando este cronograma, desativa os outros primeiro
-            if (updates.active === true) {
-                await withTimeout(
-                    supabase
-                        .from('schedules')
-                        .update({ active: false })
-                        .eq('user_id', existingSchedule.user_id)
-                        .neq('id', id),
-                    3000
-                );
-            }
-
-            const { data, error } = await withTimeout(
-                supabase
-                    .from('schedules')
-                    .update(updates)
-                    .eq('id', id)
-                    .select()
-                    .single(),
-                3000
-            );
-
-            if (error) throw error;
-            return mapScheduleFromSupabase(data);
-        } catch (error) {
-            console.warn('[ScheduleService] updateSchedule failed online, will retry later:', error);
-            if (typeof window !== 'undefined') {
-                return await db.schedules.get(id);
-            }
-            return null;
         }
+
+        if (updates.active === true) {
+            await withTimeout(
+                supabase
+                    .from('schedules')
+                    .update({ active: false })
+                    .eq('user_id', existingSchedule.user_id)
+                    .neq('id', id),
+                3000
+            );
+        }
+
+        const { data, error } = await withTimeout(
+            supabase
+                .from('schedules')
+                .update(updates)
+                .eq('id', id)
+                .select()
+                .single(),
+            3000
+        );
+
+        if (error) throw error;
+        return mapScheduleFromSupabase(data);
     },
 
     /**
      * Remove um cronograma.
+     * Offline-first: deletes locally, enqueues sync.
      */
     async deleteSchedule(id: string, callerId: string, supabaseInput?: any) {
+        // Local-first delete
         if (typeof window !== 'undefined') {
             await db.schedules.delete(id);
             await SyncManager.enqueue('DELETE', 'SCHEDULE', id, { id });
+            return;
         }
 
-        try {
-            const supabase = supabaseInput || createClient();
+        // Server-only path
+        const supabase = supabaseInput || createClient();
 
-            // Fetch to check ownership vs trainer
-            const { data: existingSchedule, error: fetchError } = await withTimeout(
-                supabase
-                    .from('schedules')
-                    .select('user_id')
-                    .eq('id', id)
-                    .single(),
-                3000
-            );
+        const { data: existingSchedule, error: fetchError } = await withTimeout(
+            supabase
+                .from('schedules')
+                .select('user_id')
+                .eq('id', id)
+                .single(),
+            3000
+        );
 
-            if (fetchError || !existingSchedule) throw new Error("Schedule not found");
+        if (fetchError || !existingSchedule) throw new Error("Schedule not found");
 
-            if (existingSchedule.user_id !== callerId) {
-                const hasPermission = await connectionService.checkPermission(callerId, existingSchedule.user_id, 'manage_schedules', supabase);
-
-                if (!hasPermission) {
-                    throw new Error("Unauthorized to manage this student's schedule");
-                }
+        if (existingSchedule.user_id !== callerId) {
+            const hasPermission = await connectionService.checkPermission(callerId, existingSchedule.user_id, 'manage_schedules', supabase);
+            if (!hasPermission) {
+                throw new Error("Unauthorized to manage this student's schedule");
             }
-
-            const { error } = await withTimeout(
-                supabase
-                    .from('schedules')
-                    .delete()
-                    .eq('id', id),
-                3000
-            );
-
-            if (error) throw error;
-        } catch (error) {
-            console.warn('[ScheduleService] deleteSchedule failed online, will retry later:', error);
         }
+
+        const { error } = await withTimeout(
+            supabase
+                .from('schedules')
+                .delete()
+                .eq('id', id),
+            3000
+        );
+
+        if (error) throw error;
     }
 };

@@ -115,7 +115,7 @@ export const connectionService = {
             if (error) throw error;
 
             if (typeof window !== 'undefined' && data) {
-                // Sync to local DB
+                // Sync connections to local DB
                 const connections = data.map((conn: any) => ({
                     id: conn.id,
                     trainer_id: conn.trainer_id,
@@ -125,7 +125,23 @@ export const connectionService = {
                     created_at: conn.created_at,
                     updated_at: conn.updated_at
                 }));
-                await db.connections.bulkPut(connections);
+                await db.connections.bulkPut(connections).catch(() => {});
+
+                // Also cache the student profiles for offline access
+                const studentProfiles = data
+                    .filter((conn: any) => conn.student)
+                    .map((conn: any) => ({
+                        id: conn.student.id,
+                        name: conn.student.name,
+                        avatar: conn.student.avatar,
+                        weight: 0,
+                        height: 0,
+                        role: 'user' as const,
+                        createdAt: new Date(),
+                    }));
+                if (studentProfiles.length > 0) {
+                    await db.users.bulkPut(studentProfiles).catch(() => {});
+                }
             }
 
             return {
@@ -145,11 +161,21 @@ export const connectionService = {
                     .and(c => c.status === 'active')
                     .toArray();
 
-                // We don't have the student profile names here unless we cache them too.
-                // For now, return what we have or empty. 
-                // In a real scenario, we should cache students/profiles too.
+                // Resolve student profiles from local user cache
+                const students: Student[] = [];
+                for (const conn of localConnections) {
+                    const cached = await db.users.get(conn.student_id);
+                    if (cached) {
+                        students.push({
+                            id: cached.id!,
+                            name: cached.name,
+                            avatar: cached.avatar || null,
+                        });
+                    }
+                }
+
                 return {
-                    students: [], // Fallback for student listing is harder without profile cache
+                    students,
                     totalCount: localConnections.length
                 };
             }

@@ -18,6 +18,9 @@ export class GymDatabase extends Dexie {
         super('GymAppDB');
 
         // Definimos os índices (campos que usaremos no .where() ou .orderBy())
+        // NOTE: ++id works with both auto-increment AND explicit string/UUID keys.
+        // When you provide an id (e.g. UUID), it uses your value.
+        // When you omit id, it auto-generates a numeric one.
         this.version(3).stores({
             users: '++id, name',
             exercises: '++id, name, category, *tags', 
@@ -25,6 +28,19 @@ export class GymDatabase extends Dexie {
             history: '++id, userId, date, workoutId',
             schedules: '++id, name, userId, active',
             sessions: '++id, userId, date, workoutId',
+            connections: '++id, trainer_id, student_id, status',
+            syncQueue: '++id, status, entityType, createdAt'
+        });
+
+        // v4: No-op upgrade (reverts the broken PK change attempt).
+        // Keeps ++id which already supports UUID string keys.
+        this.version(4).stores({
+            users: '++id, name',
+            exercises: '++id, name, category, *tags', 
+            workouts: '++id, userId, name',
+            history: '++id, userId, date, workoutId',
+            schedules: '++id, name, userId, active',
+            sessions: '++id, userId, workoutId',
             connections: '++id, trainer_id, student_id, status',
             syncQueue: '++id, status, entityType, createdAt'
         });
@@ -66,4 +82,32 @@ export class GymDatabase extends Dexie {
     }
 }
 
-export const db = new GymDatabase();
+// Create instance with automatic recovery from corrupt state
+function createDatabaseWithRecovery(): GymDatabase {
+    const database = new GymDatabase();
+
+    if (typeof window !== 'undefined') {
+        // Pre-emptive recovery: if the DB open fails due to a previous
+        // bad upgrade, delete and recreate it. Dexie is a cache layer —
+        // no user data is lost (source of truth is Supabase).
+        database.open().catch(async (err) => {
+            if (
+                err.name === 'UpgradeError' ||
+                err.message?.includes('UpgradeError') ||
+                err.message?.includes('primary key')
+            ) {
+                console.warn('[DB] Database corrupted from failed upgrade. Deleting and recreating...', err.message);
+                database.close();
+                await Dexie.delete('GymAppDB');
+                // Reloading the page is the safest way to get a clean Dexie instance
+                window.location.reload();
+            } else {
+                console.error('[DB] Failed to open database:', err);
+            }
+        });
+    }
+
+    return database;
+}
+
+export const db = createDatabaseWithRecovery();

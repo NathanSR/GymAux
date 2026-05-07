@@ -24,15 +24,24 @@ export const UserProvider: React.FC<{ children: React.ReactNode; initialUser?: U
         setLoading(true);
         setError(null);
         try {
-            const { data: { user: authUser } } = await supabase.auth.getUser();
-            if (authUser) {
-                const profile = await userService.getUserById(authUser.id);
-                setUser(profile);
+            // Use resolveCurrentUserId which handles offline gracefully
+            const userId = await userService.resolveCurrentUserId();
+            if (userId) {
+                const profile = await userService.getUserById(userId);
+                if (profile) {
+                    setUser(profile);
+                } else {
+                    // Auth exists but no profile yet (e.g., new signup or offline first load)
+                    // Don't wipe user if we already have one from initialUser
+                    if (!user) setUser(null);
+                }
             } else {
                 setUser(null);
             }
         } catch (err: any) {
+            console.warn('[UserContext] fetchUser error:', err?.message || err);
             setError(err.message || 'Failed to fetch user profile');
+            // Don't wipe user on transient errors — keep stale data
         } finally {
             setLoading(false);
         }

@@ -59,7 +59,7 @@ export const ExerciseService = {
             if (typeof window !== 'undefined') {
                 const userExercises = exercises.filter(ex => ex.created_by_type !== 'system');
                 if (userExercises.length > 0) {
-                    await db.exercises.bulkPut(userExercises);
+                    await db.exercises.bulkPut(userExercises).catch(() => {});
                 }
             }
         } catch (error) {
@@ -131,6 +131,7 @@ export const ExerciseService = {
 
     // Buscar por ID
     async getExerciseById(id: number, supabaseInput?: any) {
+        // Local-first
         if (typeof window !== 'undefined') {
             const local = await db.exercises.get(id);
             if (local) return local;
@@ -148,9 +149,18 @@ export const ExerciseService = {
             );
 
             if (error) throw error;
-            return data ? mapExerciseFromSupabase(data) : null;
+
+            if (data) {
+                const exercise = mapExerciseFromSupabase(data);
+                // Cache for offline
+                if (typeof window !== 'undefined') {
+                    await db.exercises.put(exercise).catch(() => {});
+                }
+                return exercise;
+            }
+            return null;
         } catch (error) {
-            console.error('Error fetching exercise by ID:', error);
+            console.warn('[ExerciseService] getExerciseById failed:', error);
             return null;
         }
     },
@@ -224,6 +234,7 @@ export const ExerciseService = {
         if (updateData.level !== undefined) updates.level = updateData.level;
         if (updateData.isPublic !== undefined) updates.is_public = updateData.isPublic;
 
+        // Local-first
         if (typeof window !== 'undefined') {
             const local = await db.exercises.get(id);
             if (local) {
@@ -232,8 +243,29 @@ export const ExerciseService = {
                 await SyncManager.enqueue('UPDATE', 'EXERCISE', id, updates);
                 return updated as Exercise;
             }
+
+            // Not in local cache — try to fetch and cache first
+            try {
+                const supabase = supabaseInput || createClient();
+                const { data: fetchedData } = await withTimeout(
+                    supabase.from('exercises').select('*').eq('id', id).maybeSingle(),
+                    3000
+                );
+                if (fetchedData) {
+                    const exercise = mapExerciseFromSupabase(fetchedData);
+                    const updated = { ...exercise, ...updateData };
+                    await db.exercises.put(updated);
+                    await SyncManager.enqueue('UPDATE', 'EXERCISE', id, updates);
+                    return updated as Exercise;
+                }
+            } catch {
+                // Can't fetch — enqueue anyway
+                await SyncManager.enqueue('UPDATE', 'EXERCISE', id, updates);
+                return { id, ...updateData } as Exercise;
+            }
         }
 
+        // Server-only path
         const supabase = supabaseInput || createClient();
         const { data, error } = await withTimeout(
             supabase
@@ -256,12 +288,14 @@ export const ExerciseService = {
             throw new Error("Cannot delete system exercises");
         }
 
+        // Local-first
         if (typeof window !== 'undefined') {
             await db.exercises.delete(id);
             await SyncManager.enqueue('DELETE', 'EXERCISE', id, { id });
             return;
         }
 
+        // Server-only path
         const supabase = supabaseInput || createClient();
         const { error } = await withTimeout(
             supabase

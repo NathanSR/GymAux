@@ -1,8 +1,6 @@
 import { createClient } from '@/lib/supabase/client';
 import { History, ExecutedGroup } from '@/config/types';
-import { userService } from './userService';
 import { db } from '@/config/db';
-import { SyncManager } from './syncManager';
 import { withTimeout } from '@/lib/utils/timeout';
 
 const mapExecutedGroupFromSupabase = (g: any): ExecutedGroup => ({
@@ -37,61 +35,123 @@ const mapHistoryFromSupabase = (h: any): History => ({
 
 export const HistoryService = {
     async getUserHistory(userId: string, page: number = 1, limit: number = 12, supabaseInput?: any) {
-        const supabase = supabaseInput || createClient();
-        const from = (page - 1) * limit;
-        const to = from + limit - 1;
+        try {
+            const supabase = supabaseInput || createClient();
+            const from = (page - 1) * limit;
+            const to = from + limit - 1;
 
-        const { data, error } = await withTimeout(
-            supabase
-                .from('history')
-                .select('*')
-                .eq('user_id', userId)
-                .order('date', { ascending: false })
-                .range(from, to),
-            3000
-        );
+            const { data, error } = await withTimeout(
+                supabase
+                    .from('history')
+                    .select('*')
+                    .eq('user_id', userId)
+                    .order('date', { ascending: false })
+                    .range(from, to),
+                3000
+            );
 
-        if (error) {
-            console.error('Error fetching user history:', error?.message || error);
+            if (error) throw error;
+
+            const history = (data || []).map(mapHistoryFromSupabase);
+
+            // Cache to Dexie for offline access
+            if (typeof window !== 'undefined' && history.length > 0) {
+                await db.history.bulkPut(history).catch(() => {});
+            }
+
+            return history;
+        } catch (error) {
+            console.warn('[HistoryService] getUserHistory failed, falling back to local DB:', error);
+            if (typeof window !== 'undefined') {
+                const allLocal = await db.history
+                    .where('userId')
+                    .equals(userId)
+                    .toArray();
+
+                // Sort by date descending
+                allLocal.sort((a, b) => b.date.getTime() - a.date.getTime());
+
+                // Paginate
+                const from = (page - 1) * limit;
+                const to = from + limit;
+                return allLocal.slice(from, to);
+            }
             return [];
         }
-
-        return (data || []).map(mapHistoryFromSupabase);
     },
 
     async getHistoryByRange(userId: string, startDate: Date, endDate: Date, supabaseInput?: any) {
-        const supabase = supabaseInput || createClient();
-        const { data, error } = await withTimeout(
-            supabase
-                .from('history')
-                .select('*')
-                .eq('user_id', userId)
-                .gte('date', startDate.toISOString())
-                .lte('date', endDate.toISOString()),
-            3000
-        );
+        try {
+            const supabase = supabaseInput || createClient();
+            const { data, error } = await withTimeout(
+                supabase
+                    .from('history')
+                    .select('*')
+                    .eq('user_id', userId)
+                    .gte('date', startDate.toISOString())
+                    .lte('date', endDate.toISOString()),
+                3000
+            );
 
-        if (error) return [];
-        return (data || []).map(mapHistoryFromSupabase);
+            if (error) throw error;
+
+            const history = (data || []).map(mapHistoryFromSupabase);
+
+            // Cache to Dexie
+            if (typeof window !== 'undefined' && history.length > 0) {
+                await db.history.bulkPut(history).catch(() => {});
+            }
+
+            return history;
+        } catch (error) {
+            console.warn('[HistoryService] getHistoryByRange failed, falling back to local DB:', error);
+            if (typeof window !== 'undefined') {
+                const allLocal = await db.history
+                    .where('userId')
+                    .equals(userId)
+                    .toArray();
+
+                return allLocal.filter(h => {
+                    const d = h.date.getTime();
+                    return d >= startDate.getTime() && d <= endDate.getTime();
+                });
+            }
+            return [];
+        }
     },
 
     async getHistoryById(id: string, supabaseInput?: any) {
+        // Local-first
         if (typeof window !== 'undefined') {
             const local = await db.history.get(id);
             if (local) return local;
         }
 
-        const supabase = supabaseInput || createClient();
-        const { data, error } = await withTimeout(
-            supabase
-                .from('history')
-                .select('*')
-                .eq('id', id)
-                .maybeSingle(),
-            3000
-        );
+        try {
+            const supabase = supabaseInput || createClient();
+            const { data, error } = await withTimeout(
+                supabase
+                    .from('history')
+                    .select('*')
+                    .eq('id', id)
+                    .maybeSingle(),
+                3000
+            );
 
-        if (error) return null;
-        return data ? mapHistoryFromSupabase(data) : null;
+            if (error) throw error;
+
+            if (data) {
+                const history = mapHistoryFromSupabase(data);
+                // Cache for offline
+                if (typeof window !== 'undefined') {
+                    await db.history.put(history).catch(() => {});
+                }
+                return history;
+            }
+            return null;
+        } catch (error) {
+            console.warn('[HistoryService] getHistoryById failed:', error);
+            return null;
+        }
     }
 };

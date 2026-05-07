@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/client';
 import { User } from '@/config/types';
+import { db } from '@/config/db';
 import { withTimeout } from '@/lib/utils/timeout';
 
 const mapProfileToUser = (profile: any): User => ({
@@ -17,64 +18,123 @@ const mapProfileToUser = (profile: any): User => ({
 
 export const userService = {
 
-    // Buscar por ID
-    async getUserById(id: string, supabaseInput?: any) {
-        const supabase = supabaseInput || createClient();
-        const { data, error } = await withTimeout(
-            supabase
-                .from('profiles')
-                .select('*')
-                .eq('id', id)
-                .maybeSingle(),
-            3000
-        );
+    // Buscar por ID — com fallback local
+    async getUserById(id: string, supabaseInput?: any): Promise<User | null> {
+        try {
+            const supabase = supabaseInput || createClient();
+            const { data, error } = await withTimeout(
+                supabase
+                    .from('profiles')
+                    .select('*')
+                    .eq('id', id)
+                    .maybeSingle(),
+                3000
+            );
 
-        if (error) {
-            console.error('Error fetching user by ID:', error?.message || error);
+            if (error) throw error;
+
+            if (data) {
+                const user = mapProfileToUser(data);
+                // Cache to Dexie for offline access
+                if (typeof window !== 'undefined') {
+                    await db.users.put(user).catch(() => {/* ignore Dexie errors on cache */});
+                }
+                return user;
+            }
+
+            // Supabase returned null — try local cache before giving up
+            if (typeof window !== 'undefined') {
+                const local = await db.users.get(id);
+                if (local) return local;
+            }
+            return null;
+        } catch (error) {
+            console.warn('[userService] getUserById failed, falling back to local DB:', error);
+            // Offline or network failure — resolve from Dexie
+            if (typeof window !== 'undefined') {
+                const local = await db.users.get(id);
+                if (local) return local;
+            }
             return null;
         }
-
-        return data ? mapProfileToUser(data) : null;
     },
 
     // Buscar por GymAux ID
     async getUserByGymauxId(gymauxId: string, supabaseInput?: any) {
-        const supabase = supabaseInput || createClient();
-        const { data, error } = await withTimeout(
-            supabase
-                .from('profiles')
-                .select('*')
-                .eq('gymaux_id', gymauxId)
-                .maybeSingle(),
-            3000
-        );
+        try {
+            const supabase = supabaseInput || createClient();
+            const { data, error } = await withTimeout(
+                supabase
+                    .from('profiles')
+                    .select('*')
+                    .eq('gymaux_id', gymauxId)
+                    .maybeSingle(),
+                3000
+            );
 
-        if (error) {
-            console.error('Error fetching user by GymAux ID:', error?.message || error);
+            if (error) throw error;
+
+            if (data) {
+                const user = mapProfileToUser(data);
+                if (typeof window !== 'undefined') {
+                    await db.users.put(user).catch(() => {});
+                }
+                return user;
+            }
+
+            // Try local by scanning (gymauxId not indexed, but small table)
+            if (typeof window !== 'undefined') {
+                const local = await db.users.filter(u => u.gymauxId === gymauxId).first();
+                if (local) return local;
+            }
+            return null;
+        } catch (error) {
+            console.warn('[userService] getUserByGymauxId failed, falling back to local DB:', error);
+            if (typeof window !== 'undefined') {
+                const local = await db.users.filter(u => u.gymauxId === gymauxId).first();
+                if (local) return local;
+            }
             return null;
         }
-
-        return data ? mapProfileToUser(data) : null;
     },
 
     // Buscar por Email
     async getUserByEmail(email: string, supabaseInput?: any) {
-        const supabase = supabaseInput || createClient();
-        const { data, error } = await withTimeout(
-            supabase
-                .from('profiles')
-                .select('*')
-                .eq('email', email.toLowerCase().trim())
-                .maybeSingle(),
-            3000
-        );
+        const normalizedEmail = email.toLowerCase().trim();
+        try {
+            const supabase = supabaseInput || createClient();
+            const { data, error } = await withTimeout(
+                supabase
+                    .from('profiles')
+                    .select('*')
+                    .eq('email', normalizedEmail)
+                    .maybeSingle(),
+                3000
+            );
 
-        if (error) {
-            console.error('Error fetching user by Email:', error?.message || error);
+            if (error) throw error;
+
+            if (data) {
+                const user = mapProfileToUser(data);
+                if (typeof window !== 'undefined') {
+                    await db.users.put(user).catch(() => {});
+                }
+                return user;
+            }
+
+            if (typeof window !== 'undefined') {
+                const local = await db.users.filter(u => u.email === normalizedEmail).first();
+                if (local) return local;
+            }
+            return null;
+        } catch (error) {
+            console.warn('[userService] getUserByEmail failed, falling back to local DB:', error);
+            if (typeof window !== 'undefined') {
+                const local = await db.users.filter(u => u.email === normalizedEmail).first();
+                if (local) return local;
+            }
             return null;
         }
-
-        return data ? mapProfileToUser(data) : null;
     },
 
     // Atualizar com regras de negócio
@@ -102,7 +162,43 @@ export const userService = {
             throw error;
         }
 
-        return data ? mapProfileToUser(data) : null;
+        const user = data ? mapProfileToUser(data) : null;
+        // Update local cache
+        if (user && typeof window !== 'undefined') {
+            await db.users.put(user).catch(() => {});
+        }
+        return user;
     },
 
+    /**
+     * Resolve the current authenticated user ID.
+     * Returns the cached auth user ID even when offline.
+     * This is the SINGLE SOURCE OF TRUTH for "who is the current user".
+     */
+    async resolveCurrentUserId(): Promise<string | null> {
+        try {
+            const supabase = createClient();
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user?.id) return user.id;
+        } catch {
+            // Auth call failed (offline, token stale, etc.)
+        }
+
+        // Fallback: check Supabase session (works even if getUser() times out)
+        try {
+            const supabase = createClient();
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session?.user?.id) return session.user.id;
+        } catch {
+            // Session call also failed
+        }
+
+        // Last resort: return the first cached user from Dexie
+        if (typeof window !== 'undefined') {
+            const cached = await db.users.toCollection().first();
+            if (cached?.id) return cached.id;
+        }
+
+        return null;
+    },
 };
