@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Session, ExecutedSet } from '@/config/types';
 import { useSessionNavigation } from '@/hooks/useSessionNavigation';
 import { useSessionActions } from '@/hooks/useSessionActions';
@@ -188,6 +188,28 @@ export function useSessionClient({ initialSession, isReadOnly = false, watchValu
         forceFinishWorkout(session, (s) => setSession(s as Session), () => synchronizeProgress(session));
     }, [forceFinishWorkout, session, synchronizeProgress]);
 
+    const lastWeightUsed = useMemo(() => {
+        if (!currentExercise) return null;
+
+        // Find the most recent execution of this exerciseId in the current session
+        for (let i = session.exercisesDone.length - 1; i >= 0; i--) {
+            const group = session.exercisesDone[i];
+            if (!group) continue;
+
+            const ex = group.exercises.find(e => e.exerciseId === currentExercise.exerciseId);
+            if (ex && ex.sets.length > 0) {
+                // Get the last non-skipped set with a valid weight
+                for (let j = ex.sets.length - 1; j >= 0; j--) {
+                    const s = ex.sets[j];
+                    if (!s.skipped && s.weight !== undefined && s.weight !== null) {
+                        return s.weight;
+                    }
+                }
+            }
+        }
+        return null;
+    }, [session.exercisesDone, currentExercise?.exerciseId]);
+
     return {
         session,
         setSession,
@@ -209,6 +231,7 @@ export function useSessionClient({ initialSession, isReadOnly = false, watchValu
         handleSkipExercise,
         handleForceFinishWorkout,
         exitSession,
-        synchronizeProgress
+        synchronizeProgress,
+        lastWeightUsed
     };
 }

@@ -45,7 +45,8 @@ export default function SessionClient({ initialSession, isReadOnly = false }: Se
         handleSkipExercise,
         handleForceFinishWorkout,
         exitSession,
-        synchronizeProgress
+        synchronizeProgress,
+        lastWeightUsed
     } = useSessionClient({
         initialSession,
         isReadOnly,
@@ -126,6 +127,7 @@ export default function SessionClient({ initialSession, isReadOnly = false }: Se
                                 onSkipSet={handleSkipSet}
                                 onSkipExercise={handleSkipExercise}
                                 setWatchValues={(watchFn) => { watchValuesRef.current = watchFn; }}
+                                lastWeightUsed={lastWeightUsed}
                             />
                         </motion.div>
                     )}

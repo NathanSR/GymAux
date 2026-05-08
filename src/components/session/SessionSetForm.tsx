@@ -18,6 +18,7 @@ interface SessionSetFormProps {
     onSkipSet: () => void;
     onSkipExercise: () => void;
     setWatchValues: (watchFn: () => { weight: number; reps: number; rpe: number }) => void;
+    lastWeightUsed?: number | null;
 }
 
 export function SessionSetForm({
@@ -30,7 +31,8 @@ export function SessionSetForm({
     onCompleteSet,
     onSkipSet,
     onSkipExercise,
-    setWatchValues
+    setWatchValues,
+    lastWeightUsed
 }: SessionSetFormProps) {
     const t = useTranslations('Session');
 
@@ -47,10 +49,13 @@ export function SessionSetForm({
     const repsValue = useWatch({ control, name: "reps" });
 
     useEffect(() => {
-        setValue("weight", currentPlannedSet?.weight || weight || 0);
+        // Prioritize last weight used for this exercise, then plan, then 0
+        const initialWeight = lastWeightUsed ?? currentPlannedSet?.weight ?? 0;
+        
+        setValue("weight", initialWeight);
         setValue("reps", currentPlannedSet?.reps || 0);
         setValue("rpe", 7); // Reset RPE on every change
-    }, [currentGroupIndex, currentExerciseIndex, currentSetIndex, setValue, currentPlannedSet]);
+    }, [currentGroupIndex, currentExerciseIndex, currentSetIndex, setValue, currentPlannedSet, lastWeightUsed]);
 
     useEffect(() => {
         setWatchValues(() => ({
