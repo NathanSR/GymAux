@@ -30,6 +30,7 @@ import Link from 'next/link';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '@/config/db';
 import { ListSkeleton } from '../ui/Skeleton';
+import { useTodayWorkoutStatus } from '@/hooks/useTodayWorkoutStatus';
 
 // --- Sub-components for Suspense Support ---
 
@@ -78,21 +79,7 @@ export function HomeWorkoutBanner({ todayWorkout, todayHistory: initialTodayHist
     const t = useTranslations('Home');
     const { startWorkout } = useSessionActions();
 
-    // Reconcile with local history for offline-first responsiveness
-    const localHistory = useLiveQuery(async () => {
-        if (!todayWorkout?.id) return null;
-        const { start, end } = getBrazilDayRange();
-        return await db.history
-            .where('workoutId')
-            .equals(todayWorkout.id)
-            .and(h => {
-                const hDate = new Date(h.date);
-                return hDate >= start && hDate <= end;
-            })
-            .first();
-    }, [todayWorkout?.id]);
-
-    const todayHistory = localHistory || initialTodayHistory;
+    const { todayHistory } = useTodayWorkoutStatus(todayWorkout, initialTodayHistory);
 
     const estimatedTimeTodayWorkout = formatDuration(
         Math.round(
@@ -429,13 +416,15 @@ export default function HomeClient({
     const formattedDate = new Intl.DateTimeFormat(locale, { weekday: 'long', day: 'numeric', month: 'long' }).format(today);
     const { startWorkout } = useSessionActions();
 
+    const { isCompleted, isRestDay } = useTodayWorkoutStatus(initialTodayWorkout, initialTodayHistory);
+
     return (
         <div className="min-h-screen bg-white dark:bg-zinc-950 text-zinc-900 dark:text-white p-6 pb-32 transition-colors duration-300 font-sans">
             <HomeHeader activeUser={activeUser} formattedDate={formattedDate} />
             <HomeWorkoutBanner todayWorkout={initialTodayWorkout} todayHistory={initialTodayHistory} />
             <HomeLists historyList={initialHistoryList} sessionList={initialSessionList} activeUserId={activeUser?.id!} />
 
-            <MenuTab onPlay={() => startWorkout(initialTodayWorkout as Workout)} completed={!initialTodayWorkout || !!initialTodayHistory} />
+            <MenuTab onPlay={() => startWorkout(initialTodayWorkout as Workout)} completed={isRestDay || isCompleted} />
         </div>
     );
 }

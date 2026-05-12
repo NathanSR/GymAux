@@ -1,8 +1,8 @@
 "use client";
 
 import { useRouter, usePathname, Link } from "@/i18n/routing";
-import { BookCheck, Calendar, Dumbbell, History, Play } from "lucide-react";
-import { motion } from "framer-motion";
+import { BookCheck, Calendar, Check, Dumbbell, History, Play } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface MenuTabProps {
     onPlay: () => void;
@@ -52,18 +52,29 @@ export const MenuTab = ({ onPlay, completed }: MenuTabProps) => {
             <NavItem href="/exercises" icon={BookCheck} />
             <NavItem href="/workouts" icon={Dumbbell} />
 
-            {/* Botão de Ação Central (Play) */}
+            {/* Botão de Ação Central (Play/Check) */}
             <motion.button
                 whileHover={!completed ? { scale: 1.1, y: -5 } : {}}
                 whileTap={!completed ? { scale: 0.9 } : {}}
                 disabled={completed}
                 onClick={onPlay}
-                className={`relative p-4 rounded-2xl -mt-12 shadow-xl transition-colors duration-500 ${completed
-                    ? "bg-zinc-200 dark:bg-zinc-800 text-zinc-400 cursor-not-allowed"
+                className={`relative p-4 rounded-2xl -mt-12 shadow-xl transition-all duration-500 ${completed
+                    ? "bg-zinc-100 dark:bg-zinc-800 text-lime-500 cursor-not-allowed border border-zinc-200/50 dark:border-zinc-700/50 shadow-none"
                     : "bg-zinc-950 dark:bg-lime-500 text-white dark:text-zinc-950 shadow-lime-500/30 cursor-pointer"
                     }`}
             >
-                <Play size={28} fill="currentColor" />
+                <AnimatePresence mode="wait">
+                    <motion.div
+                        key={completed ? 'completed' : 'play'}
+                        initial={{ scale: 0.5, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        exit={{ scale: 0.5, opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                    >
+                        {completed ? <Check size={28} strokeWidth={3} /> : <Play size={28} fill="currentColor" />}
+                    </motion.div>
+                </AnimatePresence>
+                
                 {!completed && (
                     <motion.span
                         initial={{ scale: 0.8, opacity: 0 }}
