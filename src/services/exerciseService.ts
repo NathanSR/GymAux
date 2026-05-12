@@ -3,6 +3,7 @@ import { Exercise } from '@/config/types';
 import { db } from '@/config/db';
 import { SyncManager } from './syncManager';
 import { withTimeout } from '@/lib/utils/timeout';
+import { userService } from './userService';
 
 const mapExerciseFromSupabase = (ex: any): Exercise => ({
     id: ex.id,
@@ -166,14 +167,16 @@ export const ExerciseService = {
     },
 
     // Criar novo
-    async createExercise(exerciseData: Omit<Exercise, 'id'> & { userId: string }, supabaseInput?: any) {
+    async createExercise(exerciseData: Omit<Exercise, 'id'> & { userId?: string }, supabaseInput?: any) {
         const formattedName = exerciseData.name.trim();
 
         if (formattedName.length < 2) {
             throw new Error("Name too short");
         }
 
-        if (!exerciseData.userId) {
+        const userId = exerciseData.userId || await userService.resolveCurrentUserId();
+
+        if (!userId) {
             throw new Error("User not found");
         }
 
@@ -185,7 +188,7 @@ export const ExerciseService = {
             category: exerciseData.category,
             tags: exerciseData.tags,
             level: exerciseData.level,
-            created_by: exerciseData.userId,
+            created_by: userId,
             created_by_type: 'user',
             is_public: exerciseData.isPublic ?? false,
         };

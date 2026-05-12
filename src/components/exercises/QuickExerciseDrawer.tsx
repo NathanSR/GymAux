@@ -18,16 +18,11 @@ export default function QuickExerciseDrawer({ isOpen, onClose, onExerciseCreated
     const [showSuccess, setShowSuccess] = useState(false);
 
     const onSubmit = async (data: any) => {
-        if (!activeUser) {
-            toast.error(t('userNotFound'));
-            return;
-        }
-
         setIsSaving(true);
         try {
             const formattedData = {
                 ...data,
-                userId: activeUser.id,
+                userId: activeUser?.id, // Let the service resolve if this is undefined
                 tags: data.tags
                     ? data.tags.split(',').map((tag: string) => tag.trim()).filter(Boolean)
                     : []
