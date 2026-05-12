@@ -193,6 +193,7 @@ export interface Session {
     duration: number;
     pausedAt: Date | null;
     resumedAt: Date | null;
+    isFinishedLocally?: boolean;
 }
 
 // ========================

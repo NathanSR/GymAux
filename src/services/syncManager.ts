@@ -284,6 +284,12 @@ export class SyncManager {
         } else if (op.action === 'DELETE') {
             const { error } = await withTimeout(supabase.from('sessions').delete().eq('id', op.entityId), 5000);
             if (error && error.code !== 'PGRST116') throw error;
+
+            // Delete locally only after remote confirmation
+            if (typeof window !== 'undefined') {
+                const { db } = await import('../config/db');
+                await db.sessions.delete(op.entityId as string).catch(() => {});
+            }
         }
         return true;
     }

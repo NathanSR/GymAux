@@ -25,8 +25,11 @@ import { MenuTab } from '@/components/ui/MenuTab';
 import ProfileMenu from '@/components/home/ProfileMenu';
 import ConnectionConfirmationModal from '@/components/home/ConnectionConfirmationModal';
 import { Workout, History, Session, User as AppUser } from '@/config/types';
-import { formatDuration, getRelativeTime } from '@/utils/dateUtil';
+import { formatDuration, getRelativeTime, getBrazilDayRange } from '@/utils/dateUtil';
 import Link from 'next/link';
+import { useLiveQuery } from 'dexie-react-hooks';
+import { db } from '@/config/db';
+import { ListSkeleton } from '../ui/Skeleton';
 
 // --- Sub-components for Suspense Support ---
 
@@ -71,9 +74,25 @@ export function HomeHeader({ activeUser, formattedDate }: { activeUser: AppUser 
 /**
  * HomeWorkoutBanner Component
  */
-export function HomeWorkoutBanner({ todayWorkout, todayHistory }: { todayWorkout: Workout | null, todayHistory: History | null }) {
+export function HomeWorkoutBanner({ todayWorkout, todayHistory: initialTodayHistory }: { todayWorkout: Workout | null, todayHistory: History | null }) {
     const t = useTranslations('Home');
     const { startWorkout } = useSessionActions();
+
+    // Reconcile with local history for offline-first responsiveness
+    const localHistory = useLiveQuery(async () => {
+        if (!todayWorkout?.id) return null;
+        const { start, end } = getBrazilDayRange();
+        return await db.history
+            .where('workoutId')
+            .equals(todayWorkout.id)
+            .and(h => {
+                const hDate = new Date(h.date);
+                return hDate >= start && hDate <= end;
+            })
+            .first();
+    }, [todayWorkout?.id]);
+
+    const todayHistory = localHistory || initialTodayHistory;
 
     const estimatedTimeTodayWorkout = formatDuration(
         Math.round(
@@ -137,19 +156,87 @@ export function HomeWorkoutBanner({ todayWorkout, todayHistory }: { todayWorkout
 /**
  * HomeLists Component
  */
-export function HomeLists({ historyList, sessionList, activeUserId }: { historyList: History[], sessionList: Session[], activeUserId: string }) {
+export function HomeLists({ historyList: initialHistoryList, sessionList: initialSessionList, activeUserId }: { historyList: History[], sessionList: Session[], activeUserId: string }) {
     const t = useTranslations('Home');
     const te = useTranslations('Exercises');
     const locale = useLocale();
     const router = useRouter();
     const { resumeWorkout, cancelSession } = useSessionActions();
-    const [sessions, setSessions] = useState<Session[]>(sessionList);
+
+    // Live query for local history to merge with server history
+    const recentLocalHistory = useLiveQuery(async () => {
+        if (!activeUserId) return [];
+        return await db.history
+            .where('userId')
+            .equals(activeUserId)
+            .reverse()
+            .limit(10)
+            .toArray();
+    }, [activeUserId]);
+
+    // Live query for local sessions to filter out locally finished ones
+    const localSessions = useLiveQuery(async () => {
+        if (!activeUserId) return [];
+        return await db.sessions
+            .where('userId')
+            .equals(activeUserId)
+            .toArray();
+    }, [activeUserId]);
+
+    // 1. Reconciliation Logic for History FIRST:
+    // Merge local history with server history, removing duplicates (by ID)
+    const combinedHistory = [...(recentLocalHistory || [])];
+    initialHistoryList.forEach(serverItem => {
+        if (!combinedHistory.find(h => h.id === serverItem.id)) {
+            combinedHistory.push(serverItem);
+        }
+    });
+
+    // Sort combined history by date descending and limit to display count
+    const historyList = combinedHistory
+        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+        .slice(0, 4);
+
+    // 2. Reconciliation Logic for Sessions:
+    // We only proceed if localSessions is loaded to avoid flickering stale server data
+    const sessions: Session[] = [];
+
+    if (localSessions !== undefined) {
+        // Start with local sessions that aren't finished
+        const validLocalSessions = localSessions.filter(s => !s.isFinishedLocally);
+        sessions.push(...validLocalSessions);
+
+        // Add server sessions that aren't in local DB yet AND don't have a history item today
+        initialSessionList.forEach(serverSession => {
+            const alreadyInList = sessions.find(s => s.id === serverSession.id);
+            if (alreadyInList) return;
+
+            const isFinishedLocally = localSessions.find(s => s.id === serverSession.id && s.isFinishedLocally);
+            if (isFinishedLocally) return;
+
+            // CRITICAL: If there's already a history item for this workout TODAY, 
+            // the server session is definitely stale (already finished).
+            const hasHistoryToday = historyList.find(h => {
+                if (h.workoutId !== serverSession.workoutId) return false;
+                const hDate = new Date(h.date);
+                const today = new Date();
+                return hDate.getDate() === today.getDate() &&
+                    hDate.getMonth() === today.getMonth() &&
+                    hDate.getFullYear() === today.getFullYear();
+            });
+            if (hasHistoryToday) return;
+
+            sessions.push(serverSession);
+        });
+    } else {
+        // While loading local DB, we show nothing to prevent "ghost" sessions
+        // This will be very brief (milliseconds)
+        return <ListSkeleton count={2} />;
+    }
 
     const handleCancelSession = async (sessionId: string) => {
-        const cancelled = await cancelSession(sessionId);
-        if (cancelled) {
-            setSessions(prev => prev.filter(s => s.id !== sessionId));
-        }
+        await cancelSession(sessionId);
+        // useLiveQuery will automatically update the UI
     };
 
     return (

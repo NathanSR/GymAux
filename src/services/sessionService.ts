@@ -181,7 +181,11 @@ export const SessionService = {
     async getActiveSessionByUserId(userId: string, supabaseInput?: any) {
         // Always check local first — sessions are critical for continuity
         if (typeof window !== 'undefined') {
-            const sessions = await db.sessions.where('userId').equals(userId).toArray();
+            const sessions = await db.sessions
+                .where('userId')
+                .equals(userId)
+                .and(s => !s.isFinishedLocally) // Ignore locally finished sessions
+                .toArray();
             if (sessions.length > 0) {
                 return sessions.reduce((a, b) => a.createdAt > b.createdAt ? a : b);
             }
@@ -242,7 +246,11 @@ export const SessionService = {
         } catch (error) {
             console.warn('[SessionService] getSessionsByUserId failed, falling back to local DB:', error);
             if (typeof window !== 'undefined') {
-                const localSessions = await db.sessions.where('userId').equals(userId).toArray();
+                const localSessions = await db.sessions
+                    .where('userId')
+                    .equals(userId)
+                    .and(s => !s.isFinishedLocally) // Filter out locally finished
+                    .toArray();
                 localSessions.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
                 return localSessions;
             }
@@ -356,9 +364,12 @@ export const SessionService = {
                 executions: session.exercisesDone,
             }).catch(() => {});
 
-            await db.sessions.delete(sessionId);
+            // CRITICAL: Do NOT delete from sessions immediately.
+            // Mark as finished locally so it's ignored by lists, but remains
+            // available for the current session view until SyncManager deletes it.
+            await db.sessions.update(sessionId, { isFinishedLocally: true });
+
             // Await both enqueue calls so that Dexie write failures surface to the caller
-            // instead of becoming silent unhandled rejections.
             await SyncManager.enqueue('CREATE', 'HISTORY', historyId, newHistory);
             await SyncManager.enqueue('DELETE', 'SESSION', sessionId, { id: sessionId });
             return historyId;

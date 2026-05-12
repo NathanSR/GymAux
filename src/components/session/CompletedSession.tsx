@@ -9,6 +9,7 @@ import { useRouter } from '@/i18n/routing';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { toast } from 'react-toastify';
+import { useOnlineStatus } from '@/hooks/useOnlineStatus';
 
 interface CompletedSessionProps {
     session: Session;
@@ -23,8 +24,10 @@ interface CompletionFormData {
 export function CompletedSession({ session }: CompletedSessionProps) {
     const t = useTranslations('Session');
     const router = useRouter();
+    const isOnline = useOnlineStatus();
 
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isSuccess, setIsSuccess] = useState(false);
 
     const { register, handleSubmit, watch, setValue, control } = useForm<CompletionFormData>({
         defaultValues: {
@@ -48,23 +51,96 @@ export function CompletedSession({ session }: CompletedSessionProps) {
                 usingCreatine: data.usingCreatine
             });
 
-            // Use replace so the session page is removed from the browser history stack.
-            // The user should never be able to go "back" to a finished session.
-            router.replace('/home');
+            setIsSuccess(true);
+
+            // If offline, show a specific toast
+            if (!isOnline) {
+                toast.success(t('savedOfflineSuccess'), {
+                    autoClose: 5000,
+                    style: { background: '#27272a', color: '#fff', borderRadius: '16px' }
+                });
+            } else {
+                toast.success(t('completedSubtitle'), {
+                    autoClose: 3000,
+                    style: { background: '#27272a', color: '#fff', borderRadius: '16px' }
+                });
+            }
+
+            // Small delay to allow the user to see the success feedback
+            setTimeout(() => {
+                router.replace('/home');
+            }, 3000);
         } catch (error: any) {
             console.error('[CompletedSession] Error finishing workout:', error?.message || error);
             toast.error(t('saveError'), {
                 autoClose: 5000,
                 style: { background: '#27272a', color: '#fff', borderRadius: '16px', fontSize: '14px' }
             });
-            // Re-enable the button so the user can retry
             setIsSubmitting(false);
         }
     };
 
+    const isFinished = session.isFinishedLocally || isSuccess;
+
+    if (isFinished) {
+        return (
+            <div className="min-h-screen bg-zinc-950 text-white p-8 flex flex-col items-center justify-center max-w-md mx-auto text-center space-y-8 animate-in fade-in zoom-in-95 duration-700">
+                <div className={`p-8 rounded-full shadow-2xl transition-all duration-1000 ${isOnline ? 'bg-lime-400 shadow-lime-400/20' : 'bg-zinc-800 shadow-zinc-800/20'}`}>
+                    {isOnline ? (
+                        <Trophy size={64} className="text-zinc-950 animate-bounce" />
+                    ) : (
+                        <Save size={64} className="text-zinc-400" />
+                    )}
+                </div>
+
+                <div className="space-y-4">
+                    <h2 className="text-3xl font-black uppercase italic tracking-tighter">
+                        {isOnline ? t('completedTitle') : t('offlineSavedTitle')}
+                    </h2>
+                    <p className="text-zinc-400 text-sm font-medium leading-relaxed">
+                        {isOnline
+                            ? t('completedSubtitle')
+                            : t('offlineSavedText')
+                        }
+                    </p>
+                </div>
+
+                <div className="w-full space-y-3">
+                    <button
+                        onClick={() => router.replace('/home')}
+                        className="w-full py-5 bg-lime-400 text-zinc-950 rounded-[28px] font-black uppercase tracking-widest text-xs hover:bg-lime-500 transition-all shadow-lg shadow-lime-500/10 active:scale-95"
+                    >
+                        {t('goToDashboard')}
+                    </button>
+
+                    {!isOnline && (
+                        <div className="flex items-center justify-center gap-2 py-2 px-4 bg-zinc-900/50 rounded-full border border-zinc-800 animate-pulse">
+                            <div className="w-1.5 h-1.5 rounded-full bg-zinc-600" />
+                            <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-[0.2em]">
+                                {t('syncWhenOnline')}
+                            </p>
+                        </div>
+                    )}
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="min-h-screen bg-zinc-950 text-white p-8 flex flex-col items-center justify-center max-w-md mx-auto animate-in fade-in zoom-in-95 duration-500">
             <div className="w-full space-y-8">
+                {/* Offline Banner */}
+                {!isOnline && (
+                    <div className="bg-amber-500/10 border border-amber-500/20 p-4 rounded-[24px] flex items-center gap-3 animate-in slide-in-from-top-4 duration-500">
+                        <div className="bg-amber-500/20 p-2 rounded-xl text-amber-500">
+                            <Zap size={16} />
+                        </div>
+                        <p className="text-[10px] font-bold text-amber-200/80 uppercase tracking-wider leading-tight">
+                            {t('offlineModeInfo') || "Você está offline. O treino será salvo localmente e sincronizado depois."}
+                        </p>
+                    </div>
+                )}
+
                 {/* Header de Sucesso */}
                 <div className="text-center space-y-4">
                     <div className="inline-flex p-6 bg-lime-400 rounded-full shadow-2xl shadow-lime-400/20 mb-2">

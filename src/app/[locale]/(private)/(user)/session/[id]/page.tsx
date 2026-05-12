@@ -3,11 +3,7 @@ import { createClient } from '@/lib/supabase/server';
 import { SessionService } from '@/services/sessionService';
 import { redirect } from 'next/navigation';
 
-interface SessionPageProps {
-    params: Promise<{ id: string }>;
-}
-
-export default async function SessionPage({ params }: SessionPageProps) {
+export default async function SessionPage({ params }: { params: Promise<{ id: string, locale: string }> }) {
     const { id } = await params;
     const supabase = await createClient();
     
@@ -21,7 +17,9 @@ export default async function SessionPage({ params }: SessionPageProps) {
         redirect('/home');
     }
 
+    const isReadOnly = session.current.step === 'completion';
+
     return (
-        <SessionClient initialSession={session} />
+        <SessionClient initialSession={session!} isReadOnly={isReadOnly} />
     );
 }
