@@ -88,11 +88,11 @@ async function HomeMenuTab({ activeUser }: { activeUser: AppUser }) {
 async function HomeHeader({ activeUser }: { activeUser: AppUser }) {
   const locale = 'pt'; // can be fetched from context or params if needed
   const today = new Date();
-  const formattedDate = new Intl.DateTimeFormat(locale, { 
-    weekday: 'long', 
-    day: 'numeric', 
+  const formattedDate = new Intl.DateTimeFormat(locale, {
+    weekday: 'long',
+    day: 'numeric',
     month: 'long',
-    timeZone: 'America/Sao_Paulo' 
+    timeZone: 'America/Sao_Paulo'
   }).format(today);
 
   return (

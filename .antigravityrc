@@ -1,0 +1,42 @@
+{
+    "project": {
+        "name": "GymAux",
+        "architecture": "Next.js App Router (Fullstack)",
+        "styling": "Tailwind CSS",
+        "i18n": "next-intl (pt, en, es)",
+        "database": "Hybrid (Supabase Cloud + Local Offline Storage with Dexie/IndexedDB)"
+    },
+    "rules": {
+        "clean_code": [
+            "Sempre use TypeScript estrito. Evite o tipo 'any' a todo custo.",
+            "Mantenha componentes pequenos, puros e focados em uma única responsabilidade.",
+            "Separe a lógica de sincronização e banco de dados em Services dedicados.",
+            "Para buscas iniciais de páginas, prefira Server Components para evitar Layout Shift."
+        ],
+        "i18n_strict": [
+            "PROIBIDO hardcodar strings de texto na interface.",
+            "Todo texto visível deve usar o hook `useTranslations` do `next-intl`.",
+            "Novas chaves de tradução devem ser previstas para as estruturas em pt.json, en.json e es.json."
+        ],
+        "offline_first_sync": [
+            "Toda ação de escrita do usuário (ex: marcar série, criar treino) deve persistir IMEDIATAMENTE no banco local (Offline Storage) para resposta instantânea da UI (UX Nativo).",
+            "A sincronização com o Supabase deve ocorrer em segundo plano (background sync), de forma assíncrona, tratando falhas de conexão sem bloquear o usuário.",
+            "Sempre verifique o estado local antes de disparar loading spinners desnecessários."
+        ],
+        "premium_ux_ui": [
+            "Design focado em Mobile-First extremo (foco no uso dentro da academia).",
+            "Use transições suaves e animações de feedback com Framer Motion para ações críticas (concluir round, salvar treino).",
+            "Implemente 'Skeleton Screens' (loading.tsx) nas rotas para manter a percepção de velocidade instantânea.",
+            "Interações de botões e inputs devem ter estados ativos/focados muito claros para dedos suados ou mãos trêmulas pós-treino."
+        ],
+        "tailwind_standards": [
+            "Use a ordem padrão de classes do Tailwind (Layout -> Box Model -> Typography -> Visual).",
+            "Sempre garanta contraste acessível utilizando o tema Dark Mode como padrão de alta fidelidade.",
+            "Evite valores arbitrários (ex: h-[432px]); prefira a escala padrão do Tailwind ou variáveis de tema."
+        ]
+    },
+    "context_hints": {
+        "workout_logic": "Lembre-se: Grupos 'Straight' usam Séries/Descanso por exercício. Grupos complexos (Bi-set, Tri-set, Circuito) usam o conceito de 'Rounds', onde o descanso só ocorre ao final do bloco completo de exercícios.",
+        "supabase_client": "Para chamadas no cliente, use o cliente de rotas do browser. Para o servidor, use o helper injetado em `@/lib/supabase/server`."
+    }
+}

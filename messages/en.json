@@ -1824,5 +1824,17 @@
     "accepted": "Connection accepted!",
     "declined": "Connection declined.",
     "error": "Something went wrong. Please try again."
+  },
+  "Error": {
+    "title": "Oops! Something went wrong",
+    "description": "An unexpected error occurred while executing this workout route. Our monitoring system has been alerted.",
+    "retry": "Try Again",
+    "backToHome": "Back to Home",
+    "code": "Error Code:"
+  },
+  "NotFound": {
+    "title": "404 - Route Not Found",
+    "description": "This page or workout routine does not exist in your current planning. Please verify the path.",
+    "backToHome": "Back to Home"
   }
 }

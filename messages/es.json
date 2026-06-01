@@ -1824,5 +1824,17 @@
     "accepted": "¡Conexión aceptada!",
     "declined": "Conexión rechazada.",
     "error": "Algo salió mal. Inténtelo de nuevo."
+  },
+  "Error": {
+    "title": "¡Ups! Algo salió mal",
+    "description": "Ocurrió un error inesperado al procesar esta ruta de entrenamiento. Nuestro sistema de monitoreo de rendimiento ha sido notificado.",
+    "retry": "Intentar de Nuevo",
+    "backToHome": "Volver al Inicio",
+    "code": "Código de Error:"
+  },
+  "NotFound": {
+    "title": "404 - Ruta no Encontrada",
+    "description": "Esta página o ruta de entrenamiento no existe en tu plan actual. Por favor verifica la ruta.",
+    "backToHome": "Volver al Inicio"
   }
 }

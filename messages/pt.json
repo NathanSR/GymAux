@@ -1824,5 +1824,17 @@
     "accepted": "Conexão aceita!",
     "declined": "Conexão recusada.",
     "error": "Algo deu errado. Tente novamente."
+  },
+  "Error": {
+    "title": "Ops! Algo deu errado",
+    "description": "Ocorreu uma falha inesperada durante a execução deste circuito. Nosso sistema de inteligência física já foi alertado.",
+    "retry": "Tentar Novamente",
+    "backToHome": "Voltar para o Início",
+    "code": "Código do Erro:"
+  },
+  "NotFound": {
+    "title": "404 - Rota Não Encontrada",
+    "description": "Esta página ou treino não existe no seu planejamento atual. Verifique o caminho ou volte para a base.",
+    "backToHome": "Voltar para o Início"
   }
 }
