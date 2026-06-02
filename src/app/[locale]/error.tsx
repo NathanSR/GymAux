@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
 import { AlertOctagon, RefreshCw, Home, ChevronRight, ChevronDown, Activity } from 'lucide-react';
+import { useErrorRedirect } from '@/hooks/useErrorRedirect';
 
 interface ErrorProps {
   error: Error & { digest?: string };
@@ -13,17 +14,16 @@ interface ErrorProps {
 
 export default function ErrorPage({ error, reset }: ErrorProps) {
   const t = useTranslations('Error');
+  const safeHref = useErrorRedirect();
   const [showDetails, setShowDetails] = useState(false);
   const [isResetting, setIsResetting] = useState(false);
 
   useEffect(() => {
-    // Log the error to an error reporting service if needed
     console.error('Unhandled layout error:', error);
   }, [error]);
 
-  const handleReset = async () => {
+  const handleReset = () => {
     setIsResetting(true);
-    // Simulate minor transition delay for better feedback feeling
     setTimeout(() => {
       reset();
       setIsResetting(false);
@@ -32,7 +32,7 @@ export default function ErrorPage({ error, reset }: ErrorProps) {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-radial from-zinc-50 to-zinc-200 dark:from-zinc-900 dark:to-zinc-950 transition-colors duration-300">
-      
+
       {/* Decorative High-Tech Background Accents */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-20 dark:opacity-30">
         <div className="absolute -top-[40%] -left-[20%] w-[80%] h-[80%] rounded-full bg-lime-400/20 blur-[120px]" />
@@ -82,9 +82,9 @@ export default function ErrorPage({ error, reset }: ErrorProps) {
             className="flex items-center gap-1 text-[10px] font-black uppercase tracking-wider text-zinc-400 hover:text-zinc-600 dark:text-zinc-500 dark:hover:text-zinc-300 transition-colors mx-auto cursor-pointer"
           >
             {showDetails ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
-            {t('code')} {error.digest || 'FATAL_ROUTE_SEGMENT'}
+            {t('code')} {error.digest ?? 'FATAL_ROUTE_SEGMENT'}
           </button>
-          
+
           <AnimatePresence>
             {showDetails && (
               <motion.div
@@ -114,8 +114,8 @@ export default function ErrorPage({ error, reset }: ErrorProps) {
           </button>
 
           <Link
-            href="/"
-            className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl bg-zinc-100 hover:bg-zinc-200 text-zinc-700 dark:bg-zinc-800/80 dark:hover:bg-zinc-800 dark:text-zinc-300 font-bold text-sm tracking-wide border border-zinc-200/50 dark:border-zinc-750 transition-all active:scale-[0.98] cursor-pointer"
+            href={safeHref}
+            className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl bg-zinc-100 hover:bg-zinc-200 text-zinc-700 dark:bg-zinc-800/80 dark:hover:bg-zinc-800 dark:text-zinc-300 font-bold text-sm tracking-wide border border-zinc-200/50 dark:border-zinc-700/50 transition-all active:scale-[0.98] cursor-pointer"
           >
             <Home className="w-4 h-4" />
             {t('backToHome')}
