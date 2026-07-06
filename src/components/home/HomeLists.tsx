@@ -15,8 +15,8 @@ import { useSessionActions } from '@/hooks/useSessionActions';
 import { History, Session } from '@/config/types';
 import { formatDuration, getRelativeTime } from '@/utils/dateUtil';
 import Link from 'next/link';
-import { useLiveQuery } from 'dexie-react-hooks';
-import { db } from '@/config/db';
+import { useState, useEffect } from 'react';
+import { getDatabase } from '@/config/rxDatabase';
 import { ListSkeleton } from '../ui/Skeleton';
 import ConnectionConfirmationModal from '@/components/home/ConnectionConfirmationModal';
 
@@ -35,24 +35,67 @@ export function HomeLists({
     const router = useRouter();
     const { resumeWorkout, cancelSession } = useSessionActions();
 
-    // Live query for local history to merge with server history
-    const recentLocalHistory = useLiveQuery(async () => {
-        if (!activeUserId) return [];
-        return await db.history
-            .where('userId')
-            .equals(activeUserId)
-            .reverse()
-            .limit(10)
-            .toArray();
-    }, [activeUserId]);
+    const [recentLocalHistory, setRecentLocalHistory] = useState<History[]>([]);
+    const [localSessions, setLocalSessions] = useState<Session[] | undefined>(undefined);
 
-    // Live query for local sessions to filter out locally finished ones
-    const localSessions = useLiveQuery(async () => {
-        if (!activeUserId) return [];
-        return await db.sessions
-            .where('userId')
-            .equals(activeUserId)
-            .toArray();
+    useEffect(() => {
+        if (!activeUserId) {
+            setRecentLocalHistory([]);
+            setLocalSessions([]);
+            return;
+        }
+
+        let historySub: any;
+        let sessionsSub: any;
+
+        const setupSubs = async () => {
+            try {
+                const db = await getDatabase();
+                
+                const historyQuery = db.history.find({
+                    selector: { userId: activeUserId }
+                });
+                
+                historySub = historyQuery.$.subscribe((docs: any[]) => {
+                    const mapped = docs.map(doc => {
+                        const json = doc.toJSON();
+                        return {
+                            ...json,
+                            date: new Date(json.date),
+                            endDate: json.endDate ? new Date(json.endDate) : undefined
+                        } as History;
+                    });
+                    mapped.sort((a, b) => b.date.getTime() - a.date.getTime());
+                    setRecentLocalHistory(mapped.slice(0, 10));
+                });
+
+                const sessionsQuery = db.sessions.find({
+                    selector: { userId: activeUserId }
+                });
+
+                sessionsSub = sessionsQuery.$.subscribe((docs: any[]) => {
+                    const mapped = docs.map(doc => {
+                        const json = doc.toJSON();
+                        return {
+                            ...json,
+                            createdAt: new Date(json.createdAt),
+                            pausedAt: json.pausedAt ? new Date(json.pausedAt) : null,
+                            resumedAt: json.resumedAt ? new Date(json.resumedAt) : null
+                        } as Session;
+                    });
+                    setLocalSessions(mapped);
+                });
+            } catch (err) {
+                console.error('[HomeLists] Error initializing subscriptions:', err);
+            }
+        };
+
+        setupSubs();
+
+        return () => {
+            if (historySub) historySub.unsubscribe();
+            if (sessionsSub) sessionsSub.unsubscribe();
+        };
     }, [activeUserId]);
 
     // 1. Reconciliation Logic for History FIRST:

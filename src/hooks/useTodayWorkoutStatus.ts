@@ -1,35 +1,66 @@
-import { useLiveQuery } from 'dexie-react-hooks';
-import { db } from '@/config/db';
+import { useState, useEffect } from 'react';
+import { getDatabase } from '@/config/rxDatabase';
 import { getBrazilDayRange } from '@/utils/dateUtil';
 import { Workout, History } from '@/config/types';
 
 /**
- * Hook to track the status of today's workout.
- * Reactive to local IndexedDB changes (offline-first).
+ * Hook reativo para monitorar o status do treino de hoje no RxDB.
  */
 export function useTodayWorkoutStatus(
     todayWorkout: Workout | null, 
     initialTodayHistory: History | null
 ) {
-    const localHistory = useLiveQuery(async () => {
-        if (!todayWorkout?.id) return null;
-        
-        const { start, end } = getBrazilDayRange();
-        
-        // Find if there's a history record for this workout today
-        return await db.history
-            .where('workoutId')
-            .equals(todayWorkout.id)
-            .and(h => {
-                const hDate = new Date(h.date);
-                return hDate >= start && hDate <= end;
-            })
-            .first();
+    const [localHistory, setLocalHistory] = useState<History | null>(null);
+
+    useEffect(() => {
+        if (!todayWorkout?.id) {
+            setLocalHistory(null);
+            return;
+        }
+
+        let subscription: any;
+
+        const setupQuery = async () => {
+            try {
+                const db = await getDatabase();
+                const { start, end } = getBrazilDayRange();
+
+                // Busca se há registro de histórico para este treino na data de hoje
+                const query = db.history.find({
+                    selector: {
+                        workoutId: todayWorkout.id,
+                        date: {
+                            $gte: start.toISOString(),
+                            $lte: end.toISOString()
+                        }
+                    }
+                });
+
+                subscription = query.$.subscribe((docs: any[]) => {
+                    if (docs && docs.length > 0) {
+                        const json = docs[0].toJSON();
+                        setLocalHistory({
+                            ...json,
+                            date: new Date(json.date),
+                            endDate: json.endDate ? new Date(json.endDate) : undefined
+                        } as History);
+                    } else {
+                        setLocalHistory(null);
+                    }
+                });
+            } catch (err) {
+                console.error('[useTodayWorkoutStatus] Error setting up query:', err);
+            }
+        };
+
+        setupQuery();
+
+        return () => {
+            if (subscription) subscription.unsubscribe();
+        };
     }, [todayWorkout?.id]);
 
-    // Priority to local history for instant UI updates, fallback to server data
     const todayHistory = localHistory || initialTodayHistory;
-    
     const isCompleted = !!todayHistory;
     const isRestDay = !todayWorkout;
 

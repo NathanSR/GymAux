@@ -1,7 +1,6 @@
-import { createClient } from '@/lib/supabase/client';
+import { createClient } from '../lib/supabase/client';
 import { Session, Workout, ExerciseGroup, ExecutedGroup } from '@/config/types';
-import { db } from '@/config/db';
-import { SyncManager } from './syncManager';
+import { getDatabase } from '@/config/rxDatabase';
 import { withTimeout } from '@/lib/utils/timeout';
 
 const mapGroupFromSupabase = (g: any): ExerciseGroup => ({
@@ -72,11 +71,10 @@ const mapSessionToSupabase = (s: Session): any => ({
     current_step: s.current,
     duration: s.duration,
     paused_at: s.pausedAt?.toISOString() || null,
-    resumed_at: s.resumedAt?.toISOString() || null,
+    resumedAt: s.resumedAt?.toISOString() || null,
 });
 
 export const SessionService = {
-
     async startSession(workout: Workout, supabaseInput?: any): Promise<Session> {
         const sessionId = crypto.randomUUID();
         const now = new Date();
@@ -101,219 +99,222 @@ export const SessionService = {
             resumedAt: now
         };
 
-        // Always save locally first
-        if (typeof window !== 'undefined') {
-            await db.sessions.put(sessionPayload);
-            await SyncManager.enqueue('CREATE', 'SESSION', sessionId, mapSessionToSupabase(sessionPayload));
+        if (typeof window === 'undefined') {
+            const supabase = supabaseInput || createClient();
+            const dbPayload = mapSessionToSupabase(sessionPayload);
+            const { error } = await withTimeout(supabase.from('sessions').insert(dbPayload), 3000);
+            if (error) throw error;
             return sessionPayload;
         }
 
-        const supabase = supabaseInput || createClient();
-        const dbPayload = mapSessionToSupabase(sessionPayload);
-        const { error } = await withTimeout(supabase.from('sessions').insert(dbPayload), 3000);
-        if (error) throw error;
-        return sessionPayload;
+        const db = await getDatabase();
+        const inserted = await db.sessions.insert({
+            ...sessionPayload,
+            createdAt: sessionPayload.createdAt.toISOString(),
+            resumedAt: sessionPayload.resumedAt ? sessionPayload.resumedAt.toISOString() : null,
+            pausedAt: null,
+            isFinishedLocally: false,
+            updated_at: new Date().toISOString()
+        });
+        
+        const json = inserted.toJSON();
+        return {
+            ...json,
+            createdAt: new Date(json.createdAt),
+            pausedAt: json.pausedAt ? new Date(json.pausedAt) : null,
+            resumedAt: json.resumedAt ? new Date(json.resumedAt) : null
+        } as Session;
     },
 
     async resumeSession(sessionId: string, supabaseInput?: any) {
-        if (typeof window !== 'undefined') {
-            const localSession = await db.sessions.get(sessionId);
-            if (localSession) {
-                localSession.pausedAt = null;
-                localSession.resumedAt = new Date();
-                await db.sessions.put(localSession);
-                await SyncManager.enqueue('UPDATE', 'SESSION', sessionId, {
-                    id: sessionId,
+        if (typeof window === 'undefined') {
+            const supabase = supabaseInput || createClient();
+            const { error } = await withTimeout(
+                supabase.from('sessions').update({
                     paused_at: null,
-                    resumed_at: localSession.resumedAt.toISOString()
-                });
-                return;
-            }
+                    resumed_at: new Date().toISOString()
+                }).eq('id', sessionId),
+                3000
+            );
+            if (error) throw error;
+            return;
         }
 
-        const supabase = supabaseInput || createClient();
-        const { error } = await withTimeout(
-            supabase.from('sessions').update({
-                paused_at: null,
-                resumed_at: new Date().toISOString()
-            }).eq('id', sessionId),
-            3000
-        );
-        if (error) throw error;
+        const db = await getDatabase();
+        const doc = await db.sessions.findOne(sessionId).exec();
+        if (doc) {
+            await doc.incrementalPatch({
+                pausedAt: null,
+                resumedAt: new Date().toISOString(),
+                updated_at: new Date().toISOString()
+            });
+        }
     },
 
     async pauseSession(sessionId: string, supabaseInput?: any) {
-        if (typeof window !== 'undefined') {
-            const localSession = await db.sessions.get(sessionId);
-            if (localSession && localSession.resumedAt && !localSession.pausedAt) {
-                const now = new Date();
-                localSession.duration += now.getTime() - new Date(localSession.resumedAt).getTime();
-                localSession.pausedAt = now;
-                await db.sessions.put(localSession);
+        if (typeof window === 'undefined') {
+            const session = await this.getSessionById(sessionId, supabaseInput);
+            if (!session || !session.resumedAt || session.pausedAt) return;
 
-                await SyncManager.enqueue('UPDATE', 'SESSION', sessionId, {
-                    id: sessionId,
+            const supabase = supabaseInput || createClient();
+            const now = new Date();
+            const additionalDuration = now.getTime() - session.resumedAt.getTime();
+
+            const { error } = await withTimeout(
+                supabase.from('sessions').update({
                     paused_at: now.toISOString(),
-                    duration: localSession.duration
-                });
-                return;
-            }
+                    duration: session.duration + additionalDuration
+                }).eq('id', sessionId),
+                3000
+            );
+            if (error) throw error;
+            return;
         }
 
-        const session = await this.getSessionById(sessionId, supabaseInput);
-        if (!session || !session.resumedAt || session.pausedAt) return;
-
-        const supabase = supabaseInput || createClient();
-        const now = new Date();
-        const additionalDuration = now.getTime() - session.resumedAt.getTime();
-
-        const { error } = await withTimeout(
-            supabase.from('sessions').update({
-                paused_at: now.toISOString(),
-                duration: session.duration + additionalDuration
-            }).eq('id', sessionId),
-            3000
-        );
-
-        if (error) throw error;
+        const db = await getDatabase();
+        const doc = await db.sessions.findOne(sessionId).exec();
+        if (doc) {
+            const json = doc.toJSON();
+            if (json.resumedAt && !json.pausedAt) {
+                const now = new Date();
+                const additionalDuration = now.getTime() - new Date(json.resumedAt).getTime();
+                const newDuration = (json.duration || 0) + additionalDuration;
+                await doc.incrementalPatch({
+                    duration: newDuration,
+                    pausedAt: now.toISOString(),
+                    updated_at: new Date().toISOString()
+                });
+            }
+        }
     },
 
     async getActiveSessionByUserId(userId: string, supabaseInput?: any) {
-        // Always check local first — sessions are critical for continuity
-        if (typeof window !== 'undefined') {
-            const sessions = await db.sessions
-                .where('userId')
-                .equals(userId)
-                .and(s => !s.isFinishedLocally) // Ignore locally finished sessions
-                .toArray();
-            if (sessions.length > 0) {
-                return sessions.reduce((a, b) => a.createdAt > b.createdAt ? a : b);
+        if (typeof window === 'undefined') {
+            try {
+                const supabase = supabaseInput || createClient();
+                const { data, error } = await withTimeout(
+                    supabase.from('sessions').select('*').eq('user_id', userId).maybeSingle(),
+                    3000
+                );
+                if (error) throw error;
+                return data ? mapSessionFromSupabase(data) : null;
+            } catch (err) {
+                console.error('[SessionService] Server-side getActiveSessionByUserId failed:', err);
+                return null;
             }
         }
 
         try {
-            const supabase = supabaseInput || createClient();
-            const { data, error } = await withTimeout(
-                supabase
-                    .from('sessions')
-                    .select('*')
-                    .eq('user_id', userId)
-                    .maybeSingle(),
-                3000
-            );
-
-            if (error) throw error;
-
-            if (data) {
-                const session = mapSessionFromSupabase(data);
-                // Cache to Dexie for offline access
-                if (typeof window !== 'undefined') {
-                    await db.sessions.put(session).catch(() => {});
+            const db = await getDatabase();
+            const docs = await db.sessions.find({
+                selector: {
+                    userId,
+                    isFinishedLocally: { $ne: true }
                 }
-                return session;
-            }
+            }).exec();
 
+            if (docs.length > 0) {
+                const sorted = docs.map(doc => doc.toJSON()).sort((a, b) =>
+                    new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+                );
+                const session = sorted[0];
+                return {
+                    ...session,
+                    createdAt: new Date(session.createdAt),
+                    pausedAt: session.pausedAt ? new Date(session.pausedAt) : null,
+                    resumedAt: session.resumedAt ? new Date(session.resumedAt) : null
+                } as Session;
+            }
             return null;
         } catch (error) {
-            console.warn('[SessionService] getActiveSessionByUserId failed:', error);
-            // Already checked local above, return null
+            console.error('[SessionService] getActiveSessionByUserId failed:', error);
             return null;
         }
     },
 
     async getSessionsByUserId(userId: string, supabaseInput?: any) {
-        try {
-            const supabase = supabaseInput || createClient();
-            const { data, error } = await withTimeout(
-                supabase
-                    .from('sessions')
-                    .select('*')
-                    .eq('user_id', userId)
-                    .order('created_at', { ascending: false }),
-                3000
-            );
-
-            if (error) throw error;
-
-            const sessions = (data || []).map(mapSessionFromSupabase);
-
-            // Cache to Dexie
-            if (typeof window !== 'undefined' && sessions.length > 0) {
-                await db.sessions.bulkPut(sessions).catch(() => {});
+        if (typeof window === 'undefined') {
+            try {
+                const supabase = supabaseInput || createClient();
+                const { data, error } = await withTimeout(
+                    supabase
+                        .from('sessions')
+                        .select('*')
+                        .eq('user_id', userId)
+                        .order('created_at', { ascending: false }),
+                    3000
+                );
+                if (error) throw error;
+                return (data || []).map(mapSessionFromSupabase);
+            } catch (err) {
+                console.error('[SessionService] Server-side getSessionsByUserId failed:', err);
+                return [];
             }
+        }
 
+        try {
+            const db = await getDatabase();
+            const docs = await db.sessions.find({
+                selector: {
+                    userId,
+                    isFinishedLocally: { $ne: true }
+                }
+            }).exec();
+
+            const sessions = docs.map(doc => {
+                const session = doc.toJSON();
+                return {
+                    ...session,
+                    createdAt: new Date(session.createdAt),
+                    pausedAt: session.pausedAt ? new Date(session.pausedAt) : null,
+                    resumedAt: session.resumedAt ? new Date(session.resumedAt) : null
+                } as Session;
+            });
+
+            sessions.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
             return sessions;
         } catch (error) {
-            console.warn('[SessionService] getSessionsByUserId failed, falling back to local DB:', error);
-            if (typeof window !== 'undefined') {
-                const localSessions = await db.sessions
-                    .where('userId')
-                    .equals(userId)
-                    .and(s => !s.isFinishedLocally) // Filter out locally finished
-                    .toArray();
-                localSessions.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
-                return localSessions;
-            }
+            console.error('[SessionService] getSessionsByUserId failed:', error);
             return [];
         }
     },
 
     async getSessionById(sessionId: string, supabaseInput?: any) {
-        // Local-first
-        if (typeof window !== 'undefined') {
-            const local = await db.sessions.get(sessionId);
-            if (local) return local;
+        if (typeof window === 'undefined') {
+            try {
+                const supabase = supabaseInput || createClient();
+                const { data, error } = await withTimeout(
+                    supabase.from('sessions').select('*').eq('id', sessionId).maybeSingle(),
+                    3000
+                );
+                if (error) throw error;
+                return data ? mapSessionFromSupabase(data) : null;
+            } catch (err) {
+                console.error('[SessionService] Server-side getSessionById failed:', err);
+                return null;
+            }
         }
 
         try {
-            const supabase = supabaseInput || createClient();
-            const { data, error } = await withTimeout(
-                supabase
-                    .from('sessions')
-                    .select('*')
-                    .eq('id', sessionId)
-                    .maybeSingle(),
-                3000
-            );
-
-            if (error) throw error;
-
-            if (data) {
-                const session = mapSessionFromSupabase(data);
-                // Cache for offline
-                if (typeof window !== 'undefined') {
-                    await db.sessions.put(session).catch(() => {});
-                }
-                return session;
+            const db = await getDatabase();
+            const doc = await db.sessions.findOne(sessionId).exec();
+            if (doc) {
+                const session = doc.toJSON();
+                return {
+                    ...session,
+                    createdAt: new Date(session.createdAt),
+                    pausedAt: session.pausedAt ? new Date(session.pausedAt) : null,
+                    resumedAt: session.resumedAt ? new Date(session.resumedAt) : null
+                } as Session;
             }
             return null;
         } catch (error) {
-            console.warn('[SessionService] getSessionById failed:', error);
+            console.error('[SessionService] getSessionById failed:', error);
             return null;
         }
     },
 
     async syncSessionProgress(sessionId: string, updates: Partial<Session>, supabaseInput?: any): Promise<void> {
-        if (typeof window !== 'undefined') {
-            const localSession = await db.sessions.get(sessionId);
-            if (localSession) {
-                const updatedSession = { ...localSession, ...updates };
-                await db.sessions.put(updatedSession);
-
-                const dbUpdates: any = { id: sessionId };
-                if (updates.exercisesDone) dbUpdates.exercises_done = updates.exercisesDone;
-                if (updates.exercisesToDo) dbUpdates.exercises_to_do = updates.exercisesToDo;
-                if (updates.current) dbUpdates.current_step = updates.current;
-                if (updates.duration !== undefined) dbUpdates.duration = updates.duration;
-                if (updates.pausedAt !== undefined) dbUpdates.paused_at = updates.pausedAt?.toISOString() || null;
-                if (updates.resumedAt !== undefined) dbUpdates.resumed_at = updates.resumedAt?.toISOString() || null;
-
-                await SyncManager.enqueue('UPDATE', 'SESSION', sessionId, dbUpdates);
-                return;
-            }
-        }
-
-        const supabase = supabaseInput || createClient();
         const dbUpdates: any = {};
         if (updates.exercisesDone) dbUpdates.exercises_done = updates.exercisesDone;
         if (updates.exercisesToDo) dbUpdates.exercises_to_do = updates.exercisesToDo;
@@ -322,11 +323,32 @@ export const SessionService = {
         if (updates.pausedAt !== undefined) dbUpdates.paused_at = updates.pausedAt?.toISOString() || null;
         if (updates.resumedAt !== undefined) dbUpdates.resumed_at = updates.resumedAt?.toISOString() || null;
 
-        const { error } = await withTimeout(
-            supabase.from('sessions').update(dbUpdates).eq('id', sessionId),
-            3000
-        );
-        if (error) throw error;
+        if (typeof window === 'undefined') {
+            const supabase = supabaseInput || createClient();
+            const { error } = await withTimeout(
+                supabase.from('sessions').update(dbUpdates).eq('id', sessionId),
+                3000
+            );
+            if (error) throw error;
+            return;
+        }
+
+        const db = await getDatabase();
+        const doc = await db.sessions.findOne(sessionId).exec();
+        if (doc) {
+            const cleanUpdates: any = {
+                updated_at: new Date().toISOString()
+            };
+            if (updates.exercisesDone) cleanUpdates.exercisesDone = updates.exercisesDone;
+            if (updates.exercisesToDo) cleanUpdates.exercisesToDo = updates.exercisesToDo;
+            if (updates.current) cleanUpdates.current = updates.current;
+            if (updates.duration !== undefined) cleanUpdates.duration = updates.duration;
+            if (updates.pausedAt !== undefined) cleanUpdates.pausedAt = updates.pausedAt ? updates.pausedAt.toISOString() : null;
+            if (updates.resumedAt !== undefined) cleanUpdates.resumedAt = updates.resumedAt ? updates.resumedAt.toISOString() : null;
+            if (updates.isFinishedLocally !== undefined) cleanUpdates.isFinishedLocally = updates.isFinishedLocally;
+
+            await doc.incrementalPatch(cleanUpdates);
+        }
     },
 
     async finishSession(sessionId: string, additionalData?: { weight?: number, description?: string, usingCreatine?: boolean }, supabaseInput?: any) {
@@ -342,59 +364,67 @@ export const SessionService = {
             date: session.createdAt.toISOString(),
             end_date: new Date().toISOString(),
             duration: session.duration,
-            weight: additionalData?.weight,
-            description: additionalData?.description,
-            using_creatine: additionalData?.usingCreatine,
+            weight: additionalData?.weight || 0,
+            description: additionalData?.description || '',
+            using_creatine: additionalData?.usingCreatine || false,
             executions: session.exercisesDone as any
         };
 
-        if (typeof window !== 'undefined') {
-            // Save history locally for immediate access
-            await db.history.put({
-                id: historyId,
-                userId: session.userId,
-                workoutId: session.workoutId,
-                workoutName: session.workoutName,
-                date: session.createdAt,
-                endDate: new Date(),
-                duration: session.duration,
-                weight: additionalData?.weight,
-                description: additionalData?.description,
-                usingCreatine: additionalData?.usingCreatine,
-                executions: session.exercisesDone,
-            }).catch(() => {});
+        if (typeof window === 'undefined') {
+            const supabase = supabaseInput || createClient();
+            const { error: historyError } = await supabase.from('history').insert(newHistory).select().single();
+            if (historyError) throw historyError;
 
-            // CRITICAL: Do NOT delete from sessions immediately.
-            // Mark as finished locally so it's ignored by lists, but remains
-            // available for the current session view until SyncManager deletes it.
-            await db.sessions.update(sessionId, { isFinishedLocally: true });
-
-            // Await both enqueue calls so that Dexie write failures surface to the caller
-            await SyncManager.enqueue('CREATE', 'HISTORY', historyId, newHistory);
-            await SyncManager.enqueue('DELETE', 'SESSION', sessionId, { id: sessionId });
+            await this.deleteSession(sessionId, supabaseInput);
             return historyId;
         }
 
-        const supabase = supabaseInput || createClient();
-        const { error: historyError } = await supabase.from('history').insert(newHistory).select().single();
-        if (historyError) throw historyError;
+        const db = await getDatabase();
 
-        await this.deleteSession(sessionId, supabaseInput);
+        // 1. Inserir histórico
+        await db.history.insert({
+            id: historyId,
+            userId: session.userId,
+            workoutId: session.workoutId,
+            workoutName: session.workoutName,
+            date: session.createdAt.toISOString(),
+            endDate: new Date().toISOString(),
+            duration: session.duration,
+            weight: additionalData?.weight || 0,
+            description: additionalData?.description || '',
+            usingCreatine: additionalData?.usingCreatine || false,
+            executions: session.exercisesDone,
+            updated_at: new Date().toISOString()
+        });
+
+        // 2. Marcar e deletar a sessão
+        const sessionDoc = await db.sessions.findOne(sessionId).exec();
+        if (sessionDoc) {
+            await sessionDoc.incrementalPatch({
+                isFinishedLocally: true,
+                updated_at: new Date().toISOString()
+            });
+            await sessionDoc.remove();
+        }
+
         return historyId;
     },
 
     async deleteSession(sessionId: string, supabaseInput?: any) {
-        if (typeof window !== 'undefined') {
-            await db.sessions.delete(sessionId);
-            await SyncManager.enqueue('DELETE', 'SESSION', sessionId, { id: sessionId });
+        if (typeof window === 'undefined') {
+            const supabase = supabaseInput || createClient();
+            const { error } = await withTimeout(
+                supabase.from('sessions').delete().eq('id', sessionId),
+                3000
+            );
+            if (error) throw error;
             return;
         }
 
-        const supabase = supabaseInput || createClient();
-        const { error } = await withTimeout(
-            supabase.from('sessions').delete().eq('id', sessionId),
-            3000
-        );
-        if (error) throw error;
+        const db = await getDatabase();
+        const doc = await db.sessions.findOne(sessionId).exec();
+        if (doc) {
+            await doc.remove();
+        }
     }
 };

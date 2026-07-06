@@ -1,8 +1,6 @@
-import { createClient } from '@/lib/supabase/client';
+import { createClient } from '../lib/supabase/client';
 import { Workout, ExerciseGroup } from '@/config/types';
-import { db } from '@/config/db';
-import { SyncManager } from './syncManager';
-import { connectionService } from './connectionService';
+import { getDatabase } from '@/config/rxDatabase';
 import { withTimeout } from '@/lib/utils/timeout';
 
 const mapGroupFromSupabase = (g: any): ExerciseGroup => ({
@@ -61,131 +59,129 @@ const serializeGroups = (groups: ExerciseGroup[]) =>
 
 export const WorkoutService = {
     async getAllWorkouts(supabaseInput?: any) {
-        let workouts: Workout[] = [];
-        try {
-            const supabase = supabaseInput || createClient();
-            const { data, error } = await withTimeout(
-                supabase
-                    .from('workouts')
-                    .select('*'),
-                3000
-            );
-
-            if (error) throw error;
-            workouts = (data || []).map(mapWorkoutFromSupabase);
-
-            if (typeof window !== 'undefined' && workouts.length > 0) {
-                await db.workouts.bulkPut(workouts).catch(() => {});
-            }
-        } catch (error) {
-            console.warn('[WorkoutService] getAllWorkouts failed, falling back to local DB:', error);
-            if (typeof window !== 'undefined') {
-                workouts = await db.workouts.toArray();
+        if (typeof window === 'undefined') {
+            try {
+                const supabase = supabaseInput || createClient();
+                const { data, error } = await withTimeout(
+                    supabase.from('workouts').select('*'),
+                    3000
+                );
+                if (error) throw error;
+                return (data || []).map(mapWorkoutFromSupabase);
+            } catch (err) {
+                console.error('[WorkoutService] Server-side getAllWorkouts failed:', err);
+                return [];
             }
         }
-        return workouts;
+
+        try {
+            const db = await getDatabase();
+            const docs = await db.workouts.find().exec();
+            return docs.map(doc => doc.toJSON() as Workout);
+        } catch (error) {
+            console.error('[WorkoutService] getAllWorkouts failed:', error);
+            return [];
+        }
     },
 
     async getWorkoutsByUserId(userId: string, searchQuery = '', pagination?: { page: number; limit: number }, supabaseInput?: any) {
-        let workouts: Workout[] = [];
-        let totalCount = 0;
-
-        try {
-            const supabase = supabaseInput || createClient();
-            let query = supabase
-                .from('workouts')
-                .select('*', { count: 'exact' })
-                .eq('user_id', userId)
-                .order('created_at', { ascending: false });
-
-            if (searchQuery.trim()) {
-                query = query.ilike('name', `%${searchQuery.trim()}%`);
-            }
-
-            if (pagination) {
-                const from = (pagination.page - 1) * pagination.limit;
-                const to = from + pagination.limit - 1;
-                query = query.range(from, to);
-            }
-
-            const { data, count, error } = await withTimeout(query, 3000);
-
-            if (error) throw error;
-
-            workouts = (data || []).map(mapWorkoutFromSupabase);
-            totalCount = count || 0;
-
-            if (typeof window !== 'undefined' && workouts.length > 0) {
-                await db.workouts.bulkPut(workouts).catch(() => {});
-            }
-        } catch (error) {
-            console.warn('[WorkoutService] getWorkoutsByUserId failed, falling back to local DB:', error);
-            if (typeof window !== 'undefined') {
-                let localQuery = db.workouts.where('userId').equals(userId);
-                
-                const allLocal = await localQuery.toArray();
-                let filtered = allLocal;
+        if (typeof window === 'undefined') {
+            try {
+                const supabase = supabaseInput || createClient();
+                let query = supabase
+                    .from('workouts')
+                    .select('*', { count: 'exact' })
+                    .eq('user_id', userId)
+                    .order('created_at', { ascending: false });
 
                 if (searchQuery.trim()) {
-                    const q = searchQuery.toLowerCase().trim();
-                    filtered = allLocal.filter(w => w.name.toLowerCase().includes(q));
+                    query = query.ilike('name', `%${searchQuery.trim()}%`);
                 }
-
-                filtered.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
-                
-                totalCount = filtered.length;
 
                 if (pagination) {
                     const from = (pagination.page - 1) * pagination.limit;
-                    const to = from + pagination.limit;
-                    workouts = filtered.slice(from, to);
-                } else {
-                    workouts = filtered;
+                    const to = from + pagination.limit - 1;
+                    query = query.range(from, to);
                 }
+
+                const { data, count, error } = await withTimeout(query, 3000);
+
+                if (error) throw error;
+
+                const workouts = (data || []).map(mapWorkoutFromSupabase);
+                const totalCount = count || 0;
+
+                if (pagination) {
+                    return {
+                        workouts,
+                        totalCount
+                    };
+                }
+                return workouts;
+            } catch (err) {
+                console.error('[WorkoutService] Server-side getWorkoutsByUserId failed:', err);
+                return pagination ? { workouts: [], totalCount: 0 } : [];
             }
-        }
-
-        if (pagination) {
-            return {
-                workouts,
-                totalCount
-            };
-        }
-
-        return workouts;
-    },
-
-    async getWorkoutById(id: string, supabaseInput?: any) {
-        // Local-first
-        if (typeof window !== 'undefined') {
-            const local = await db.workouts.get(id);
-            if (local) return local;
         }
 
         try {
-            const supabase = supabaseInput || createClient();
-            const { data, error } = await withTimeout(
-                supabase
-                    .from('workouts')
-                    .select('*')
-                    .eq('id', id)
-                    .maybeSingle(),
-                3000
-            );
-
-            if (error) throw error;
-
-            if (data) {
-                const workout = mapWorkoutFromSupabase(data);
-                // Cache for offline
-                if (typeof window !== 'undefined') {
-                    await db.workouts.put(workout).catch(() => {});
-                }
-                return workout;
+            const db = await getDatabase();
+            
+            const selector: any = { userId };
+            if (searchQuery.trim()) {
+                selector.name = { $regex: new RegExp(searchQuery.trim(), 'i') };
             }
+
+            let query = db.workouts.find({ selector });
+            const docs = await query.exec();
+            
+            let workouts = docs.map(doc => doc.toJSON() as Workout);
+            
+            // Ordenar por data de criação decrescente
+            workouts.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+            const totalCount = workouts.length;
+
+            if (pagination) {
+                const from = (pagination.page - 1) * pagination.limit;
+                const to = from + pagination.limit;
+                workouts = workouts.slice(from, to);
+                return {
+                    workouts,
+                    totalCount
+                };
+            }
+
+            return workouts;
+        } catch (error) {
+            console.error('[WorkoutService] getWorkoutsByUserId failed:', error);
+            return pagination ? { workouts: [], totalCount: 0 } : [];
+        }
+    },
+
+    async getWorkoutById(id: string, supabaseInput?: any) {
+        if (typeof window === 'undefined') {
+            try {
+                const supabase = supabaseInput || createClient();
+                const { data, error } = await withTimeout(
+                    supabase.from('workouts').select('*').eq('id', id).maybeSingle(),
+                    3000
+                );
+                if (error) throw error;
+                return data ? mapWorkoutFromSupabase(data) : null;
+            } catch (err) {
+                console.error('[WorkoutService] Server-side getWorkoutById failed:', err);
+                return null;
+            }
+        }
+
+        try {
+            const db = await getDatabase();
+            const doc = await db.workouts.findOne(id).exec();
+            if (doc) return doc.toJSON() as Workout;
             return null;
         } catch (error) {
-            console.warn('[WorkoutService] getWorkoutById failed:', error);
+            console.error('[WorkoutService] getWorkoutById failed:', error);
             return null;
         }
     },
@@ -213,26 +209,6 @@ export const WorkoutService = {
         }
 
         const id = crypto.randomUUID();
-        const supabase = supabaseInput || createClient();
-
-        // Permission check (non-blocking if offline)
-        if (workoutData.userId !== workoutData.callerId) {
-            try {
-                const hasPermission = await connectionService.checkPermission(
-                    workoutData.callerId,
-                    workoutData.userId,
-                    'manage_workouts',
-                    supabase
-                );
-                if (!hasPermission) {
-                    throw new Error("Unauthorized to create workouts for this student");
-                }
-            } catch (error: any) {
-                if (error?.message?.includes('Unauthorized')) throw error;
-                // Network failure — let RLS handle it on sync
-            }
-        }
-
         const apiPayload = {
             id,
             user_id: workoutData.userId,
@@ -243,19 +219,32 @@ export const WorkoutService = {
             exercises: serializeGroups(workoutData.exercises) as any,
         };
 
-        // Local-first
-        if (typeof window !== 'undefined') {
-            await db.workouts.put(mapWorkoutFromSupabase(apiPayload));
-            await SyncManager.enqueue('CREATE', 'WORKOUT', id, apiPayload);
-            return mapWorkoutFromSupabase(apiPayload);
+        if (typeof window === 'undefined') {
+            const supabase = supabaseInput || createClient();
+            const { data, error } = await withTimeout(
+                supabase.from('workouts').insert(apiPayload).select().single(),
+                3000
+            );
+            if (error) throw error;
+            return mapWorkoutFromSupabase(data);
         }
 
-        const { data, error } = await withTimeout(
-            supabase.from('workouts').insert(apiPayload).select().single(),
-            3000
-        );
-        if (error) throw error;
-        return mapWorkoutFromSupabase(data);
+        const db = await getDatabase();
+
+        const localWorkout = {
+            id,
+            userId: workoutData.userId,
+            createdBy: workoutData.callerId,
+            createdByType: workoutData.userId === workoutData.callerId ? 'user' : 'trainer',
+            name: formattedName,
+            description: workoutData.description || '',
+            createdAt: new Date().toISOString(),
+            exercises: serializeGroups(workoutData.exercises),
+            updated_at: new Date().toISOString()
+        };
+
+        const inserted = await db.workouts.insert(localWorkout);
+        return inserted.toJSON() as Workout;
     },
 
     async updateWorkout(id: string, workoutData: Partial<Workout> & { callerId: string }, supabaseInput?: any) {
@@ -267,76 +256,33 @@ export const WorkoutService = {
             updates.exercises = serializeGroups(workoutData.exercises);
         }
 
-        // Local-first
-        if (typeof window !== 'undefined') {
-            const local = await db.workouts.get(id);
-            if (local) {
-                const updated = { ...local, ...workoutData };
-                await db.workouts.put(updated);
-                await SyncManager.enqueue('UPDATE', 'WORKOUT', id, { id, ...updates });
-                return updated;
-            }
-
-            // Not in local cache — try to fetch and cache first, then update
-            try {
-                const supabase = supabaseInput || createClient();
-                const { data: fetchedData } = await withTimeout(
-                    supabase.from('workouts').select('*').eq('id', id).maybeSingle(),
-                    3000
-                );
-                if (fetchedData) {
-                    const workout = mapWorkoutFromSupabase(fetchedData);
-                    const updated = { ...workout, ...workoutData };
-                    await db.workouts.put(updated);
-                    await SyncManager.enqueue('UPDATE', 'WORKOUT', id, { id, ...updates });
-                    return updated;
-                }
-            } catch {
-                // Can't fetch — enqueue anyway with what we have
-                await SyncManager.enqueue('UPDATE', 'WORKOUT', id, { id, ...updates });
-                return { id, ...workoutData } as Workout;
-            }
-        }
-
-        // Server-only path
-        const supabase = supabaseInput || createClient();
-
-        const { data: existingWorkout, error: fetchError } = await withTimeout(
-            supabase
-                .from('workouts')
-                .select('user_id')
-                .eq('id', id)
-                .single(),
-            3000
-        );
-
-        if (fetchError || !existingWorkout) throw new Error("Workout not found");
-
-        if (existingWorkout.user_id !== workoutData.callerId) {
-            const hasPermission = await connectionService.checkPermission(
-                workoutData.callerId,
-                existingWorkout.user_id,
-                'manage_workouts',
-                supabase
+        if (typeof window === 'undefined') {
+            const supabase = supabaseInput || createClient();
+            const { data, error } = await withTimeout(
+                supabase.from('workouts').update(updates).eq('id', id).select().single(),
+                3000
             );
-
-            if (!hasPermission) {
-                throw new Error("Unauthorized to manage this student's workouts");
-            }
+            if (error) throw error;
+            return mapWorkoutFromSupabase(data);
         }
 
-        const { data, error } = await withTimeout(
-            supabase
-                .from('workouts')
-                .update(updates)
-                .eq('id', id)
-                .select()
-                .single(),
-            3000
-        );
+        const db = await getDatabase();
+        const doc = await db.workouts.findOne(id).exec();
+        
+        if (!doc) throw new Error("Workout não encontrado.");
 
-        if (error) throw error;
-        return mapWorkoutFromSupabase(data);
+        const cleanUpdates: any = {
+            updated_at: new Date().toISOString()
+        };
+        if (workoutData.name) cleanUpdates.name = workoutData.name.trim();
+        if (workoutData.description !== undefined) cleanUpdates.description = workoutData.description;
+        if (workoutData.userId) cleanUpdates.userId = workoutData.userId;
+        if (workoutData.exercises) {
+            cleanUpdates.exercises = serializeGroups(workoutData.exercises);
+        }
+
+        const updated = await doc.incrementalPatch(cleanUpdates);
+        return updated.toJSON() as Workout;
     },
 
     async addExerciseToWorkout(workoutId: string, newExercise: ExerciseGroup, callerId: string, supabaseInput?: any) {
@@ -351,44 +297,20 @@ export const WorkoutService = {
     },
 
     async deleteWorkout(id: string, callerId: string, supabaseInput?: any) {
-        // Local-first
-        if (typeof window !== 'undefined') {
-            await db.workouts.delete(id);
-            await SyncManager.enqueue('DELETE', 'WORKOUT', id, { id });
+        if (typeof window === 'undefined') {
+            const supabase = supabaseInput || createClient();
+            const { error } = await withTimeout(
+                supabase.from('workouts').delete().eq('id', id),
+                3000
+            );
+            if (error) throw error;
             return;
         }
 
-        // Server-only path
-        const supabase = supabaseInput || createClient();
-
-        const { data: existingWorkout, error: fetchError } = await withTimeout(
-            supabase
-                .from('workouts')
-                .select('user_id')
-                .eq('id', id)
-                .single(),
-            3000
-        );
-
-        if (fetchError || !existingWorkout) throw new Error("Workout not found");
-
-        if (existingWorkout.user_id !== callerId) {
-            const hasPermission = await connectionService.checkPermission(
-                callerId,
-                existingWorkout.user_id,
-                'manage_workouts',
-                supabase
-            );
-
-            if (!hasPermission) {
-                throw new Error("Unauthorized to manage this student's workouts");
-            }
+        const db = await getDatabase();
+        const doc = await db.workouts.findOne(id).exec();
+        if (doc) {
+            await doc.remove();
         }
-
-        const { error } = await withTimeout(
-            supabase.from('workouts').delete().eq('id', id),
-            3000
-        );
-        if (error) throw error;
     }
 };

@@ -1,8 +1,13 @@
 import { SupabaseClient } from '@supabase/supabase-js';
-import { db } from '@/config/db';
 import { Connection } from '@/config/types';
-import { Student } from '@/components/trainers/StudentCard';
-import { withTimeout } from '@/lib/utils/timeout';
+import { getDatabase } from '@/config/rxDatabase';
+import { userService } from './userService';
+
+export interface Student {
+    id: string;
+    name: string;
+    avatar: string | null;
+}
 
 export type ConnectionStatus = 'pending' | 'active' | 'revoked';
 
@@ -29,61 +34,66 @@ export interface ConnectionLocal {
 
 export const connectionService = {
     async createConnection(trainerId: string, studentId: string, supabase: SupabaseClient) {
-        const { data, error } = await withTimeout(
-            supabase
-                .from('connections')
-                .insert({
-                    trainer_id: trainerId,
-                    student_id: studentId,
-                    status: 'pending',
-                    permissions: {
-                        view_history: true,
-                        view_sessions: false,
-                        manage_workouts: true,
-                        manage_schedules: true
-                    }
-                })
-                .select()
-                .single(),
-            3000
-        );
+        const id = crypto.randomUUID();
+        const connectionPayload: any = {
+            id,
+            trainer_id: trainerId,
+            student_id: studentId,
+            status: 'pending',
+            permissions: {
+                view_history: true,
+                view_sessions: false,
+                manage_workouts: true,
+                manage_schedules: true
+            },
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+        };
 
-        if (error) throw error;
-        return data as Connection;
+        const db = await getDatabase();
+        const inserted = await db.connections.insert(connectionPayload);
+        return inserted.toJSON() as Connection;
     },
 
     async getPendingConnectionForStudent(studentId: string, supabase: SupabaseClient) {
-        const { data, error } = await withTimeout(
-            supabase
-                .from('connections')
-                .select(`
-                    *,
-                    trainer:profiles!connections_trainer_id_fkey (
-                        name
-                    )
-                `)
-                .eq('student_id', studentId)
-                .eq('status', 'pending')
-                .order('created_at', { ascending: false })
-                .limit(1)
-                .maybeSingle(),
-            3000
-        );
+        // As conexões pendentes são melhores buscadas em tempo real na rede
+        const { data, error } = await supabase
+            .from('connections')
+            .select(`
+                *,
+                trainer:profiles!connections_trainer_id_fkey (
+                    name
+                )
+            `)
+            .eq('student_id', studentId)
+            .eq('status', 'pending')
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .maybeSingle();
 
         if (error) throw error;
         return data as (Connection & { trainer: { name: string } }) | null;
     },
 
     async respondToConnection(connectionId: string, status: 'active' | 'revoked', supabase: SupabaseClient) {
-        const { data, error } = await withTimeout(
-            supabase
-                .from('connections')
-                .update({ status, updated_at: new Date().toISOString() })
-                .eq('id', connectionId)
-                .select()
-                .single(),
-            3000
-        );
+        const db = await getDatabase();
+        const doc = await db.connections.findOne(connectionId).exec();
+        
+        if (doc) {
+            const updated = await doc.incrementalPatch({
+                status,
+                updated_at: new Date().toISOString()
+            });
+            return updated.toJSON() as Connection;
+        }
+
+        // Se não achar localmente (raro), faz o update na rede
+        const { data, error } = await supabase
+            .from('connections')
+            .update({ status, updated_at: new Date().toISOString() })
+            .eq('id', connectionId)
+            .select()
+            .single();
 
         if (error) throw error;
         return data as Connection;
@@ -91,139 +101,80 @@ export const connectionService = {
 
     async getActiveStudents(trainerId: string, supabase: SupabaseClient, pagination?: { page: number, limit: number }) {
         try {
-            let query = supabase
-                .from('connections')
-                .select(`
-                    *,
-                    student:profiles!connections_student_id_fkey (
-                        id,
-                        name,
-                        avatar
-                    )
-                `, { count: 'exact' })
-                .eq('trainer_id', trainerId)
-                .eq('status', 'active');
+            const db = await getDatabase();
+            const docs = await db.connections.find({
+                selector: {
+                    trainer_id: trainerId,
+                    status: 'active'
+                }
+            }).exec();
+
+            const connections = docs.map(doc => doc.toJSON());
+            const students: Student[] = [];
+
+            for (const conn of connections) {
+                const profile = await userService.getUserById(conn.student_id, supabase);
+                if (profile) {
+                    students.push({
+                        id: profile.id!,
+                        name: profile.name,
+                        avatar: profile.avatar || null
+                    });
+                }
+            }
+
+            const totalCount = students.length;
+            let paginatedStudents = students;
 
             if (pagination) {
                 const from = (pagination.page - 1) * pagination.limit;
-                const to = from + pagination.limit - 1;
-                query = query.range(from, to);
-            }
-
-            const { data, error, count } = await withTimeout(query, 3000);
-
-            if (error) throw error;
-
-            if (typeof window !== 'undefined' && data) {
-                // Sync connections to local DB
-                const connections = data.map((conn: any) => ({
-                    id: conn.id,
-                    trainer_id: conn.trainer_id,
-                    student_id: conn.student_id,
-                    status: conn.status,
-                    permissions: conn.permissions,
-                    created_at: conn.created_at,
-                    updated_at: conn.updated_at
-                }));
-                await db.connections.bulkPut(connections).catch(() => {});
-
-                // Also cache the student profiles for offline access
-                const studentProfiles = data
-                    .filter((conn: any) => conn.student)
-                    .map((conn: any) => ({
-                        id: conn.student.id,
-                        name: conn.student.name,
-                        avatar: conn.student.avatar,
-                        weight: 0,
-                        height: 0,
-                        role: 'user' as const,
-                        createdAt: new Date(),
-                    }));
-                if (studentProfiles.length > 0) {
-                    await db.users.bulkPut(studentProfiles).catch(() => {});
-                }
+                const to = from + pagination.limit;
+                paginatedStudents = students.slice(from, to);
             }
 
             return {
-                students: (data || []).map((conn: any) => ({
-                    id: conn.student.id,
-                    name: conn.student.name,
-                    avatar: conn.student.avatar
-                })) as Student[],
-                totalCount: count || 0
+                students: paginatedStudents,
+                totalCount
             };
         } catch (error) {
-            console.warn('[connectionService] getActiveStudents failed, falling back to local DB:', error);
-            if (typeof window !== 'undefined') {
-                const localConnections = await db.connections
-                    .where('trainer_id')
-                    .equals(trainerId)
-                    .and(c => c.status === 'active')
-                    .toArray();
-
-                // Resolve student profiles from local user cache
-                const students: Student[] = [];
-                for (const conn of localConnections) {
-                    const cached = await db.users.get(conn.student_id);
-                    if (cached) {
-                        students.push({
-                            id: cached.id!,
-                            name: cached.name,
-                            avatar: cached.avatar || null,
-                        });
-                    }
-                }
-
-                return {
-                    students,
-                    totalCount: localConnections.length
-                };
-            }
-            throw error;
+            console.error('[connectionService] getActiveStudents failed:', error);
+            return { students: [], totalCount: 0 };
         }
     },
 
     async checkPermission(trainerId: string, studentId: string, permission: keyof Connection['permissions'], supabase: SupabaseClient): Promise<boolean> {
         if (trainerId === studentId) return true;
 
-        if (typeof window !== 'undefined') {
-            const local = await db.connections
-                .where('trainer_id')
-                .equals(trainerId)
-                .filter(c => c.student_id === studentId && c.status === 'active')
-                .first();
-
-            if (local) {
-                return !!local.permissions[permission];
-            }
-        }
-
         try {
-            const { data, error } = await withTimeout(
-                supabase
-                    .from('connections')
-                    .select('status, permissions')
-                    .eq('trainer_id', trainerId)
-                    .eq('student_id', studentId)
-                    .eq('status', 'active')
-                    .maybeSingle(),
-                3000
-            );
+            const db = await getDatabase();
+            const doc = await db.connections.findOne({
+                selector: {
+                    trainer_id: trainerId,
+                    student_id: studentId,
+                    status: 'active'
+                }
+            }).exec();
+
+            if (doc) {
+                const json = doc.toJSON();
+                return !!json.permissions[permission];
+            }
+
+            // Fallback na rede caso não esteja replicado ainda
+            const { data, error } = await supabase
+                .from('connections')
+                .select('status, permissions')
+                .eq('trainer_id', trainerId)
+                .eq('student_id', studentId)
+                .eq('status', 'active')
+                .maybeSingle();
 
             if (error) throw error;
             if (!data) return false;
 
-            if (typeof window !== 'undefined') {
-                await db.connections.put({
-                    trainer_id: trainerId,
-                    student_id: studentId,
-                    ...data
-                } as any);
-            }
-
             return !!data.permissions[permission];
         } catch (error) {
-            console.warn('[connectionService] checkPermission failed, assuming false or relying on local:', error);
+            console.warn('[connectionService] checkPermission failed, assuming false:', error);
             return false;
         }
     }

@@ -1,6 +1,6 @@
-import { createClient } from '@/lib/supabase/client';
+import { createClient } from '../lib/supabase/client';
 import { User } from '@/config/types';
-import { db } from '@/config/db';
+import { getDatabase } from '@/config/rxDatabase';
 import { withTimeout } from '@/lib/utils/timeout';
 
 const mapProfileToUser = (profile: any): User => ({
@@ -16,18 +16,62 @@ const mapProfileToUser = (profile: any): User => ({
     createdAt: profile.created_at ? new Date(profile.created_at) : new Date(),
 });
 
+const mapUserToRxDB = (user: User) => ({
+    id: user.id,
+    gymauxId: user.gymauxId || '',
+    name: user.name,
+    avatar: user.avatar || '',
+    weight: user.weight,
+    height: user.height,
+    goal: user.goal || '',
+    role: user.role,
+    email: user.email || '',
+    createdAt: user.createdAt instanceof Date ? user.createdAt.toISOString() : String(user.createdAt),
+    updated_at: new Date().toISOString()
+});
+
+const mapRxDBToUser = (json: any): User => ({
+    id: json.id,
+    gymauxId: json.gymauxId || undefined,
+    name: json.name,
+    avatar: json.avatar || undefined,
+    weight: json.weight || 0,
+    height: json.height || 0,
+    goal: json.goal || undefined,
+    role: json.role || 'user',
+    email: json.email || undefined,
+    createdAt: new Date(json.createdAt)
+});
+
 export const userService = {
 
     // Buscar por ID — com fallback local
     async getUserById(id: string, supabaseInput?: any): Promise<User | null> {
+        if (typeof window === 'undefined') {
+            try {
+                const supabase = supabaseInput || createClient();
+                const { data, error } = await withTimeout(
+                    supabase.from('profiles').select('*').eq('id', id).maybeSingle(),
+                    3000
+                );
+                if (error) throw error;
+                return data ? mapProfileToUser(data) : null;
+            } catch (err) {
+                console.error('[userService] Server-side getUserById failed:', err);
+                return null;
+            }
+        }
+
         try {
+            const db = await getDatabase();
+            const localDoc = await db.users.findOne(id).exec();
+            if (localDoc) {
+                return mapRxDBToUser(localDoc.toJSON());
+            }
+
             const supabase = supabaseInput || createClient();
             const { data, error } = await withTimeout(
-                supabase
-                    .from('profiles')
-                    .select('*')
-                    .eq('id', id)
-                    .maybeSingle(),
+                supabase.from('profiles').select('*').eq('id', id).maybeSingle(),
                 3000
             );
 
@@ -35,40 +79,48 @@ export const userService = {
 
             if (data) {
                 const user = mapProfileToUser(data);
-                // Cache to Dexie for offline access
-                if (typeof window !== 'undefined') {
-                    await db.users.put(user).catch(() => {/* ignore Dexie errors on cache */});
-                }
+                await db.users.insert(mapUserToRxDB(user)).catch(() => {});
                 return user;
-            }
-
-            // Supabase returned null — try local cache before giving up
-            if (typeof window !== 'undefined') {
-                const local = await db.users.get(id);
-                if (local) return local;
             }
             return null;
         } catch (error) {
             console.warn('[userService] getUserById failed, falling back to local DB:', error);
-            // Offline or network failure — resolve from Dexie
-            if (typeof window !== 'undefined') {
-                const local = await db.users.get(id);
-                if (local) return local;
-            }
+            try {
+                const db = await getDatabase();
+                const localDoc = await db.users.findOne(id).exec();
+                if (localDoc) return mapRxDBToUser(localDoc.toJSON());
+            } catch {}
             return null;
         }
     },
 
     // Buscar por GymAux ID
     async getUserByGymauxId(gymauxId: string, supabaseInput?: any) {
+        if (typeof window === 'undefined') {
+            try {
+                const supabase = supabaseInput || createClient();
+                const { data, error } = await withTimeout(
+                    supabase.from('profiles').select('*').eq('gymaux_id', gymauxId).maybeSingle(),
+                    3000
+                );
+                if (error) throw error;
+                return data ? mapProfileToUser(data) : null;
+            } catch (err) {
+                console.error('[userService] Server-side getUserByGymauxId failed:', err);
+                return null;
+            }
+        }
+
         try {
+            const db = await getDatabase();
+            const localDoc = await db.users.findOne({ selector: { gymauxId } }).exec();
+            if (localDoc) {
+                return mapRxDBToUser(localDoc.toJSON());
+            }
+
             const supabase = supabaseInput || createClient();
             const { data, error } = await withTimeout(
-                supabase
-                    .from('profiles')
-                    .select('*')
-                    .eq('gymaux_id', gymauxId)
-                    .maybeSingle(),
+                supabase.from('profiles').select('*').eq('gymaux_id', gymauxId).maybeSingle(),
                 3000
             );
 
@@ -76,24 +128,17 @@ export const userService = {
 
             if (data) {
                 const user = mapProfileToUser(data);
-                if (typeof window !== 'undefined') {
-                    await db.users.put(user).catch(() => {});
-                }
+                await db.users.insert(mapUserToRxDB(user)).catch(() => {});
                 return user;
-            }
-
-            // Try local by scanning (gymauxId not indexed, but small table)
-            if (typeof window !== 'undefined') {
-                const local = await db.users.filter(u => u.gymauxId === gymauxId).first();
-                if (local) return local;
             }
             return null;
         } catch (error) {
             console.warn('[userService] getUserByGymauxId failed, falling back to local DB:', error);
-            if (typeof window !== 'undefined') {
-                const local = await db.users.filter(u => u.gymauxId === gymauxId).first();
-                if (local) return local;
-            }
+            try {
+                const db = await getDatabase();
+                const localDoc = await db.users.findOne({ selector: { gymauxId } }).exec();
+                if (localDoc) return mapRxDBToUser(localDoc.toJSON());
+            } catch {}
             return null;
         }
     },
@@ -101,14 +146,31 @@ export const userService = {
     // Buscar por Email
     async getUserByEmail(email: string, supabaseInput?: any) {
         const normalizedEmail = email.toLowerCase().trim();
+        if (typeof window === 'undefined') {
+            try {
+                const supabase = supabaseInput || createClient();
+                const { data, error } = await withTimeout(
+                    supabase.from('profiles').select('*').eq('email', normalizedEmail).maybeSingle(),
+                    3000
+                );
+                if (error) throw error;
+                return data ? mapProfileToUser(data) : null;
+            } catch (err) {
+                console.error('[userService] Server-side getUserByEmail failed:', err);
+                return null;
+            }
+        }
+
         try {
+            const db = await getDatabase();
+            const localDoc = await db.users.findOne({ selector: { email: normalizedEmail } }).exec();
+            if (localDoc) {
+                return mapRxDBToUser(localDoc.toJSON());
+            }
+
             const supabase = supabaseInput || createClient();
             const { data, error } = await withTimeout(
-                supabase
-                    .from('profiles')
-                    .select('*')
-                    .eq('email', normalizedEmail)
-                    .maybeSingle(),
+                supabase.from('profiles').select('*').eq('email', normalizedEmail).maybeSingle(),
                 3000
             );
 
@@ -116,23 +178,17 @@ export const userService = {
 
             if (data) {
                 const user = mapProfileToUser(data);
-                if (typeof window !== 'undefined') {
-                    await db.users.put(user).catch(() => {});
-                }
+                await db.users.insert(mapUserToRxDB(user)).catch(() => {});
                 return user;
-            }
-
-            if (typeof window !== 'undefined') {
-                const local = await db.users.filter(u => u.email === normalizedEmail).first();
-                if (local) return local;
             }
             return null;
         } catch (error) {
             console.warn('[userService] getUserByEmail failed, falling back to local DB:', error);
-            if (typeof window !== 'undefined') {
-                const local = await db.users.filter(u => u.email === normalizedEmail).first();
-                if (local) return local;
-            }
+            try {
+                const db = await getDatabase();
+                const localDoc = await db.users.findOne({ selector: { email: normalizedEmail } }).exec();
+                if (localDoc) return mapRxDBToUser(localDoc.toJSON());
+            } catch {}
             return null;
         }
     },
@@ -163,17 +219,25 @@ export const userService = {
         }
 
         const user = data ? mapProfileToUser(data) : null;
-        // Update local cache
+        
+        // Atualizar cache local se estiver no cliente
         if (user && typeof window !== 'undefined') {
-            await db.users.put(user).catch(() => {});
+            try {
+                const db = await getDatabase();
+                const localDoc = await db.users.findOne(id).exec();
+                if (localDoc) {
+                    await localDoc.incrementalPatch(mapUserToRxDB(user));
+                } else {
+                    await db.users.insert(mapUserToRxDB(user)).catch(() => {});
+                }
+            } catch {}
         }
         return user;
     },
 
     /**
-     * Resolve the current authenticated user ID.
-     * Returns the cached auth user ID even when offline.
-     * This is the SINGLE SOURCE OF TRUTH for "who is the current user".
+     * Resolve o ID do usuário autenticado atual.
+     * Retorna o ID mesmo se offline.
      */
     async resolveCurrentUserId(): Promise<string | null> {
         try {
@@ -181,22 +245,24 @@ export const userService = {
             const { data: { user } } = await supabase.auth.getUser();
             if (user?.id) return user.id;
         } catch {
-            // Auth call failed (offline, token stale, etc.)
+            // Falha na chamada (offline, token expirado, etc.)
         }
 
-        // Fallback: check Supabase session (works even if getUser() times out)
         try {
             const supabase = createClient();
             const { data: { session } } = await supabase.auth.getSession();
             if (session?.user?.id) return session.user.id;
         } catch {
-            // Session call also failed
+            // Falha também na sessão
         }
 
-        // Last resort: return the first cached user from Dexie
+        // Último recurso: retorna o primeiro usuário no cache RxDB
         if (typeof window !== 'undefined') {
-            const cached = await db.users.toCollection().first();
-            if (cached?.id) return cached.id;
+            try {
+                const db = await getDatabase();
+                const firstUserDoc = await db.users.findOne().exec();
+                if (firstUserDoc) return firstUserDoc.primary;
+            } catch {}
         }
 
         return null;

@@ -1,6 +1,6 @@
-import { createClient } from '@/lib/supabase/client';
+import { createClient } from '../lib/supabase/client';
 import { History, ExecutedGroup } from '@/config/types';
-import { db } from '@/config/db';
+import { getDatabase } from '@/config/rxDatabase';
 import { withTimeout } from '@/lib/utils/timeout';
 
 const mapExecutedGroupFromSupabase = (g: any): ExecutedGroup => ({
@@ -35,122 +35,131 @@ const mapHistoryFromSupabase = (h: any): History => ({
 
 export const HistoryService = {
     async getUserHistory(userId: string, page: number = 1, limit: number = 12, supabaseInput?: any) {
-        try {
-            const supabase = supabaseInput || createClient();
-            const from = (page - 1) * limit;
-            const to = from + limit - 1;
-
-            const { data, error } = await withTimeout(
-                supabase
-                    .from('history')
-                    .select('*')
-                    .eq('user_id', userId)
-                    .order('date', { ascending: false })
-                    .range(from, to),
-                3000
-            );
-
-            if (error) throw error;
-
-            const history = (data || []).map(mapHistoryFromSupabase);
-
-            // Cache to Dexie for offline access
-            if (typeof window !== 'undefined' && history.length > 0) {
-                await db.history.bulkPut(history).catch(() => {});
-            }
-
-            return history;
-        } catch (error) {
-            console.warn('[HistoryService] getUserHistory failed, falling back to local DB:', error);
-            if (typeof window !== 'undefined') {
-                const allLocal = await db.history
-                    .where('userId')
-                    .equals(userId)
-                    .toArray();
-
-                // Sort by date descending
-                allLocal.sort((a, b) => b.date.getTime() - a.date.getTime());
-
-                // Paginate
+        if (typeof window === 'undefined') {
+            try {
+                const supabase = supabaseInput || createClient();
                 const from = (page - 1) * limit;
-                const to = from + limit;
-                return allLocal.slice(from, to);
+                const to = from + limit - 1;
+
+                const { data, error } = await withTimeout(
+                    supabase
+                        .from('history')
+                        .select('*')
+                        .eq('user_id', userId)
+                        .order('date', { ascending: false })
+                        .range(from, to),
+                    3000
+                );
+
+                if (error) throw error;
+                return (data || []).map(mapHistoryFromSupabase);
+            } catch (err) {
+                console.error('[HistoryService] Server-side getUserHistory failed:', err);
+                return [];
             }
+        }
+
+        try {
+            const db = await getDatabase();
+            const docs = await db.history.find({ selector: { userId } }).exec();
+            
+            const history = docs.map(doc => {
+                const json = doc.toJSON();
+                return {
+                    ...json,
+                    date: new Date(json.date),
+                    endDate: json.endDate ? new Date(json.endDate) : undefined
+                } as History;
+            });
+
+            // Ordenar por data decrescente
+            history.sort((a, b) => b.date.getTime() - a.date.getTime());
+
+            // Paginação
+            const from = (page - 1) * limit;
+            const to = from + limit;
+            return history.slice(from, to);
+        } catch (error) {
+            console.error('[HistoryService] getUserHistory failed:', error);
             return [];
         }
     },
 
     async getHistoryByRange(userId: string, startDate: Date, endDate: Date, supabaseInput?: any) {
+        if (typeof window === 'undefined') {
+            try {
+                const supabase = supabaseInput || createClient();
+                const { data, error } = await withTimeout(
+                    supabase
+                        .from('history')
+                        .select('*')
+                        .eq('user_id', userId)
+                        .gte('date', startDate.toISOString())
+                        .lte('date', endDate.toISOString()),
+                    3000
+                );
+
+                if (error) throw error;
+                return (data || []).map(mapHistoryFromSupabase);
+            } catch (err) {
+                console.error('[HistoryService] Server-side getHistoryByRange failed:', err);
+                return [];
+            }
+        }
+
         try {
-            const supabase = supabaseInput || createClient();
-            const { data, error } = await withTimeout(
-                supabase
-                    .from('history')
-                    .select('*')
-                    .eq('user_id', userId)
-                    .gte('date', startDate.toISOString())
-                    .lte('date', endDate.toISOString()),
-                3000
-            );
+            const db = await getDatabase();
+            const docs = await db.history.find({ selector: { userId } }).exec();
 
-            if (error) throw error;
+            const history = docs.map(doc => {
+                const json = doc.toJSON();
+                return {
+                    ...json,
+                    date: new Date(json.date),
+                    endDate: json.endDate ? new Date(json.endDate) : undefined
+                } as History;
+            });
 
-            const history = (data || []).map(mapHistoryFromSupabase);
-
-            // Cache to Dexie
-            if (typeof window !== 'undefined' && history.length > 0) {
-                await db.history.bulkPut(history).catch(() => {});
-            }
-
-            return history;
+            return history.filter(h => {
+                const time = h.date.getTime();
+                return time >= startDate.getTime() && time <= endDate.getTime();
+            });
         } catch (error) {
-            console.warn('[HistoryService] getHistoryByRange failed, falling back to local DB:', error);
-            if (typeof window !== 'undefined') {
-                const allLocal = await db.history
-                    .where('userId')
-                    .equals(userId)
-                    .toArray();
-
-                return allLocal.filter(h => {
-                    const d = h.date.getTime();
-                    return d >= startDate.getTime() && d <= endDate.getTime();
-                });
-            }
+            console.error('[HistoryService] getHistoryByRange failed:', error);
             return [];
         }
     },
 
     async getHistoryById(id: string, supabaseInput?: any) {
-        // Local-first
-        if (typeof window !== 'undefined') {
-            const local = await db.history.get(id);
-            if (local) return local;
+        if (typeof window === 'undefined') {
+            try {
+                const supabase = supabaseInput || createClient();
+                const { data, error } = await withTimeout(
+                    supabase.from('history').select('*').eq('id', id).maybeSingle(),
+                    3000
+                );
+                if (error) throw error;
+                return data ? mapHistoryFromSupabase(data) : null;
+            } catch (err) {
+                console.error('[HistoryService] Server-side getHistoryById failed:', err);
+                return null;
+            }
         }
 
         try {
-            const supabase = supabaseInput || createClient();
-            const { data, error } = await withTimeout(
-                supabase
-                    .from('history')
-                    .select('*')
-                    .eq('id', id)
-                    .maybeSingle(),
-                3000
-            );
-
-            if (error) throw error;
-
-            if (data) {
-                const history = mapHistoryFromSupabase(data);
-                // Cache for offline
-                if (typeof window !== 'undefined') {
-                    await db.history.put(history).catch(() => {});
-                }
-                return history;
+            const db = await getDatabase();
+            const doc = await db.history.findOne(id).exec();
+            if (doc) {
+                const json = doc.toJSON();
+                return {
+                    ...json,
+                    date: new Date(json.date),
+                    endDate: json.endDate ? new Date(json.endDate) : undefined
+                } as History;
             }
             return null;
         } catch (error) {
-            console.warn('[HistoryService] getHistoryById failed:', error);
+            console.error('[HistoryService] getHistoryById failed:', error);
             return null;
         }
     }

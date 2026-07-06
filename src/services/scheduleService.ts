@@ -1,8 +1,6 @@
-import { createClient } from '@/lib/supabase/client';
+import { createClient } from '../lib/supabase/client';
 import { Schedule } from '@/config/types';
-import { db } from '@/config/db';
-import { SyncManager } from './syncManager';
-import { connectionService } from './connectionService';
+import { getDatabase } from '@/config/rxDatabase';
 import { withTimeout } from '@/lib/utils/timeout';
 
 const mapScheduleFromSupabase = (s: any): Schedule => ({
@@ -37,119 +35,153 @@ export const ScheduleService = {
      * Busca cronogramas de um usuário específico de forma paginada e com busca.
      */
     async getSchedulesByUserId(userId: string, searchQuery = '', pagination: { page: number; limit: number }, supabaseInput?: any) {
-        let schedules: Schedule[] = [];
-        let totalCount = 0;
+        if (typeof window === 'undefined') {
+            try {
+                const supabase = supabaseInput || createClient();
+                let query = supabase
+                    .from('schedules')
+                    .select('*', { count: 'exact' })
+                    .eq('user_id', userId)
+                    .order('created_at', { ascending: false });
 
-        try {
-            const supabase = supabaseInput || createClient();
-            let query = supabase
-                .from('schedules')
-                .select('*', { count: 'exact' })
-                .eq('user_id', userId)
-                .order('created_at', { ascending: false });
-
-            if (searchQuery.trim()) {
-                query = query.ilike('name', `%${searchQuery.trim()}%`);
-            }
-
-            const from = (pagination.page - 1) * pagination.limit;
-            const to = from + pagination.limit - 1;
-
-            const { data, count, error } = await withTimeout(query.range(from, to), 3000);
-
-            if (error) throw error;
-
-            schedules = (data || []).map(mapScheduleFromSupabase);
-            totalCount = count || 0;
-
-            if (typeof window !== 'undefined' && schedules.length > 0) {
-                await db.schedules.bulkPut(schedules).catch(() => {});
-            }
-        } catch (error) {
-            console.warn('[ScheduleService] getSchedulesByUserId failed, falling back to local DB:', error);
-            if (typeof window !== 'undefined') {
-                const allLocal = await db.schedules.where('userId').equals(userId).toArray();
-                let filtered = allLocal;
                 if (searchQuery.trim()) {
-                    const q = searchQuery.toLowerCase().trim();
-                    filtered = allLocal.filter(s => s.name.toLowerCase().includes(q));
+                    query = query.ilike('name', `%${searchQuery.trim()}%`);
                 }
-                filtered.sort((a, b) => b.startDate.getTime() - a.startDate.getTime());
-                totalCount = filtered.length;
+
                 const from = (pagination.page - 1) * pagination.limit;
-                const to = from + pagination.limit;
-                schedules = filtered.slice(from, to);
+                const to = from + pagination.limit - 1;
+
+                const { data, count, error } = await withTimeout(query.range(from, to), 3000);
+
+                if (error) throw error;
+
+                return {
+                    schedules: (data || []).map(mapScheduleFromSupabase),
+                    totalCount: count || 0
+                };
+            } catch (err) {
+                console.error('[ScheduleService] Server-side getSchedulesByUserId failed:', err);
+                return { schedules: [], totalCount: 0 };
             }
         }
 
-        return {
-            schedules,
-            totalCount
-        };
+        try {
+            const db = await getDatabase();
+            
+            const selector: any = { userId };
+            if (searchQuery.trim()) {
+                selector.name = { $regex: new RegExp(searchQuery.trim(), 'i') };
+            }
+
+            const docs = await db.schedules.find({ selector }).exec();
+            
+            let schedules = docs.map(doc => {
+                const json = doc.toJSON();
+                return {
+                    ...json,
+                    startDate: new Date(json.startDate),
+                    endDate: json.endDate ? new Date(json.endDate) : undefined
+                } as Schedule;
+            });
+
+            // Ordenar por data de início decrescente
+            schedules.sort((a, b) => b.startDate.getTime() - a.startDate.getTime());
+
+            const totalCount = schedules.length;
+
+            const from = (pagination.page - 1) * pagination.limit;
+            const to = from + pagination.limit;
+            const paginatedSchedules = schedules.slice(from, to);
+
+            return {
+                schedules: paginatedSchedules,
+                totalCount
+            };
+        } catch (error) {
+            console.error('[ScheduleService] getSchedulesByUserId failed:', error);
+            return { schedules: [], totalCount: 0 };
+        }
     },
 
     /**
      * Busca o cronograma que está marcado como ativo para o usuário.
      */
     async getActiveSchedule(userId: string, supabaseInput?: any) {
+        if (typeof window === 'undefined') {
+            try {
+                const supabase = supabaseInput || createClient();
+                const { data, error } = await withTimeout(
+                    supabase
+                        .from('schedules')
+                        .select('*')
+                        .eq('user_id', userId)
+                        .eq('active', true)
+                        .maybeSingle(),
+                    3000
+                );
+
+                if (error) throw error;
+                return data ? mapScheduleFromSupabase(data) : null;
+            } catch (err) {
+                console.error('[ScheduleService] Server-side getActiveSchedule failed:', err);
+                return null;
+            }
+        }
+
         try {
-            const supabase = supabaseInput || createClient();
-            const { data, error } = await withTimeout(
-                supabase
-                    .from('schedules')
-                    .select('*')
-                    .eq('user_id', userId)
-                    .eq('active', true)
-                    .maybeSingle(),
-                3000
-            );
+            const db = await getDatabase();
+            const doc = await db.schedules.findOne({
+                selector: { userId, active: true }
+            }).exec();
 
-            if (error) throw error;
-
-            const schedule = data ? mapScheduleFromSupabase(data) : null;
-            if (typeof window !== 'undefined' && schedule) {
-                await db.schedules.put(schedule).catch(() => {});
+            if (doc) {
+                const json = doc.toJSON();
+                return {
+                    ...json,
+                    startDate: new Date(json.startDate),
+                    endDate: json.endDate ? new Date(json.endDate) : undefined
+                } as Schedule;
             }
-            return schedule;
+            return null;
         } catch (error) {
-            console.warn('[ScheduleService] getActiveSchedule failed, falling back to local DB:', error);
-            if (typeof window !== 'undefined') {
-                // active is stored as boolean in Dexie — use filter
-                const local = await db.schedules
-                    .where('userId')
-                    .equals(userId)
-                    .filter(s => s.active === true)
-                    .first();
-                return local || null;
-            }
+            console.error('[ScheduleService] getActiveSchedule failed:', error);
             return null;
         }
     },
 
     async getScheduleById(id: string, supabaseInput?: any) {
-        // Local-first
-        if (typeof window !== 'undefined') {
-            const local = await db.schedules.get(id);
-            if (local) return local;
+        if (typeof window === 'undefined') {
+            try {
+                const supabase = supabaseInput || createClient();
+                const { data, error } = await withTimeout(
+                    supabase
+                        .from('schedules')
+                        .select('*')
+                        .eq('id', id)
+                        .maybeSingle(),
+                    3000
+                );
+
+                if (error) throw error;
+                return data ? mapScheduleFromSupabase(data) : null;
+            } catch (err) {
+                console.error('[ScheduleService] Server-side getScheduleById failed:', err);
+                return null;
+            }
         }
 
         try {
-            const supabase = supabaseInput || createClient();
-            const { data, error } = await withTimeout(
-                supabase
-                    .from('schedules')
-                    .select('*')
-                    .eq('id', id)
-                    .maybeSingle(),
-                3000
-            );
-
-            if (error) throw error;
-            const schedule = data ? mapScheduleFromSupabase(data) : null;
-            if (typeof window !== 'undefined' && schedule) {
-                await db.schedules.put(schedule).catch(() => {});
+            const db = await getDatabase();
+            const doc = await db.schedules.findOne(id).exec();
+            if (doc) {
+                const json = doc.toJSON();
+                return {
+                    ...json,
+                    startDate: new Date(json.startDate),
+                    endDate: json.endDate ? new Date(json.endDate) : undefined
+                } as Schedule;
             }
-            return schedule;
+            return null;
         } catch (error) {
             console.error('[ScheduleService] getScheduleById failed:', error);
             return null;
@@ -158,7 +190,6 @@ export const ScheduleService = {
 
     /**
      * Cria um novo cronograma.
-     * Offline-first: saves locally, enqueues sync, returns immediately.
      */
     async createSchedule(scheduleData: Omit<Schedule, 'id'>, callerId: string, supabaseInput?: any) {
         const formattedName = scheduleData.name.trim();
@@ -171,7 +202,9 @@ export const ScheduleService = {
             throw new Error("O cronograma deve conter exatamente 7 dias (domingo a sábado).");
         }
 
+        const supabase = supabaseInput || createClient();
         const id = crypto.randomUUID();
+
         const newSchedule: Schedule = {
             ...scheduleData,
             id,
@@ -182,198 +215,183 @@ export const ScheduleService = {
             endDate: scheduleData.endDate ? (typeof scheduleData.endDate === 'string' ? new Date(scheduleData.endDate) : scheduleData.endDate) : undefined,
         } as Schedule;
 
-        // Permission check (non-blocking if offline — will be enforced by RLS on sync)
-        if (scheduleData.userId !== callerId) {
-            try {
-                const supabase = supabaseInput || createClient();
-                const hasPermission = await connectionService.checkPermission(callerId, scheduleData.userId, 'manage_schedules', supabase);
-                if (!hasPermission) {
-                    throw new Error("Unauthorized to create schedules for this student");
-                }
-            } catch (error: any) {
-                if (error?.message?.includes('Unauthorized')) throw error;
-                // Network failure — let RLS handle it on sync
+        if (typeof window === 'undefined') {
+            if (scheduleData.active) {
+                await withTimeout(
+                    supabase
+                        .from('schedules')
+                        .update({ active: false })
+                        .eq('user_id', scheduleData.userId),
+                    3000
+                );
             }
-        }
-
-        // If activating this schedule, deactivate others locally
-        if (scheduleData.active && typeof window !== 'undefined') {
-            const activeSchedules = await db.schedules
-                .where('userId')
-                .equals(scheduleData.userId)
-                .filter(s => s.active === true)
-                .toArray();
-
-            for (const s of activeSchedules) {
-                await db.schedules.update(s.id!, { active: false });
-            }
-        }
-
-        // Save locally first
-        if (typeof window !== 'undefined') {
-            await db.schedules.put(newSchedule);
-            await SyncManager.enqueue('CREATE', 'SCHEDULE', id, mapScheduleToSupabase(newSchedule));
-            return newSchedule;
-        }
-
-        // Server-only path (no window)
-        const supabase = supabaseInput || createClient();
-
-        if (scheduleData.active) {
-            await withTimeout(
+            const { data, error } = await withTimeout(
                 supabase
                     .from('schedules')
-                    .update({ active: false })
-                    .eq('user_id', scheduleData.userId),
+                    .insert(mapScheduleToSupabase(newSchedule))
+                    .select()
+                    .single(),
                 3000
             );
+
+            if (error) throw error;
+            return mapScheduleFromSupabase(data);
         }
 
-        const { data, error } = await withTimeout(
-            supabase
-                .from('schedules')
-                .insert(mapScheduleToSupabase(newSchedule))
-                .select()
-                .single(),
-            3000
-        );
+        const db = await getDatabase();
 
-        if (error) throw error;
-        return mapScheduleFromSupabase(data);
+        // Se estiver ativando este cronograma, desativar os outros ativos localmente
+        if (scheduleData.active) {
+            const activeSchedules = await db.schedules.find({
+                selector: { userId: scheduleData.userId, active: true }
+            }).exec();
+
+            for (const s of activeSchedules) {
+                await s.incrementalPatch({
+                    active: false,
+                    updated_at: new Date().toISOString()
+                });
+            }
+        }
+
+        const localSchedule = {
+            id,
+            name: formattedName,
+            userId: scheduleData.userId,
+            createdBy: callerId,
+            createdByType: scheduleData.userId === callerId ? 'user' : 'trainer',
+            workouts: scheduleData.workouts,
+            startDate: scheduleData.startDate instanceof Date ? scheduleData.startDate.toISOString() : String(scheduleData.startDate),
+            endDate: scheduleData.endDate ? (scheduleData.endDate instanceof Date ? scheduleData.endDate.toISOString() : String(scheduleData.endDate)) : null,
+            active: scheduleData.active,
+            lastCompleted: scheduleData.lastCompleted || null,
+            updated_at: new Date().toISOString()
+        };
+
+        const inserted = await db.schedules.insert(localSchedule);
+        const json = inserted.toJSON();
+
+        return {
+            ...json,
+            startDate: new Date(json.startDate),
+            endDate: json.endDate ? new Date(json.endDate) : undefined
+        } as Schedule;
     },
 
     /**
      * Atualiza um cronograma existente.
-     * Offline-first: saves locally, enqueues sync.
      */
     async updateSchedule(id: string, scheduleData: Partial<Schedule>, callerId: string, supabaseInput?: any) {
-        // Build updates for Supabase format
+        const supabase = supabaseInput || createClient();
+
         const updates: any = {};
         if (scheduleData.name) updates.name = scheduleData.name.trim();
         if (scheduleData.userId) updates.user_id = scheduleData.userId;
         if (scheduleData.workouts) updates.workouts = scheduleData.workouts;
-        if (scheduleData.startDate) updates.start_date = typeof scheduleData.startDate === 'string' ? scheduleData.startDate : (scheduleData.startDate as Date).toISOString();
-        if (scheduleData.endDate) updates.end_date = typeof scheduleData.endDate === 'string' ? scheduleData.endDate : (scheduleData.endDate as Date).toISOString();
+        if (scheduleData.startDate) {
+            updates.start_date = scheduleData.startDate instanceof Date ? scheduleData.startDate.toISOString() : String(scheduleData.startDate);
+        }
+        if (scheduleData.endDate !== undefined) {
+            updates.end_date = scheduleData.endDate instanceof Date ? scheduleData.endDate.toISOString() : (scheduleData.endDate ? String(scheduleData.endDate) : null);
+        }
         if (scheduleData.active !== undefined) updates.active = scheduleData.active;
         if (scheduleData.lastCompleted !== undefined) updates.last_completed = scheduleData.lastCompleted;
 
-        // Local-first write
-        if (typeof window !== 'undefined') {
-            const current = await db.schedules.get(id);
-            if (current) {
-                // If activating, deactivate others locally
-                if (scheduleData.active === true) {
-                    const userId = scheduleData.userId || current.userId;
-                    const otherActive = await db.schedules
-                        .where('userId')
-                        .equals(userId)
-                        .filter(s => s.active === true && s.id !== id)
-                        .toArray();
-
-                    for (const s of otherActive) {
-                        await db.schedules.update(s.id!, { active: false });
-                        // Enqueue deactivation for sync
-                        await SyncManager.enqueue('UPDATE', 'SCHEDULE', s.id!, {
-                            id: s.id,
-                            active: false,
-                        });
-                    }
-                }
-
-                const updated = { ...current, ...scheduleData };
-                await db.schedules.put(updated);
-                await SyncManager.enqueue('UPDATE', 'SCHEDULE', id, { id, ...updates });
-                return updated;
+        if (typeof window === 'undefined') {
+            if (updates.active === true) {
+                const userId = scheduleData.userId || callerId;
+                await withTimeout(
+                    supabase
+                        .from('schedules')
+                        .update({ active: false })
+                        .eq('user_id', userId)
+                        .neq('id', id),
+                    3000
+                );
             }
-        }
-
-        // Fallback: direct Supabase (server-side or no local data)
-        const supabase = supabaseInput || createClient();
-
-        const { data: existingSchedule, error: fetchError } = await withTimeout(
-            supabase
-                .from('schedules')
-                .select('user_id')
-                .eq('id', id)
-                .single(),
-            3000
-        );
-
-        if (fetchError || !existingSchedule) throw new Error("Schedule not found");
-
-        if (existingSchedule.user_id !== callerId) {
-            const hasPermission = await connectionService.checkPermission(callerId, existingSchedule.user_id, 'manage_schedules', supabase);
-            if (!hasPermission) {
-                throw new Error("Unauthorized to manage this student's schedule");
-            }
-        }
-
-        if (updates.active === true) {
-            await withTimeout(
+            const { data, error } = await withTimeout(
                 supabase
                     .from('schedules')
-                    .update({ active: false })
-                    .eq('user_id', existingSchedule.user_id)
-                    .neq('id', id),
+                    .update(updates)
+                    .eq('id', id)
+                    .select()
+                    .single(),
                 3000
             );
+
+            if (error) throw error;
+            return mapScheduleFromSupabase(data);
         }
 
-        const { data, error } = await withTimeout(
-            supabase
-                .from('schedules')
-                .update(updates)
-                .eq('id', id)
-                .select()
-                .single(),
-            3000
-        );
+        const db = await getDatabase();
+        const doc = await db.schedules.findOne(id).exec();
+        
+        if (!doc) throw new Error("Schedule não encontrado.");
 
-        if (error) throw error;
-        return mapScheduleFromSupabase(data);
+        const current = doc.toJSON();
+
+        // Se estiver ativando este cronograma, desativar os outros
+        if (scheduleData.active === true) {
+            const userId = scheduleData.userId || current.userId;
+            const otherActive = await db.schedules.find({
+                selector: {
+                    userId,
+                    active: true,
+                    id: { $ne: id }
+                }
+            }).exec();
+
+            for (const s of otherActive) {
+                await s.incrementalPatch({
+                    active: false,
+                    updated_at: new Date().toISOString()
+                });
+            }
+        }
+
+        const cleanUpdates: any = {
+            updated_at: new Date().toISOString()
+        };
+        if (scheduleData.name) cleanUpdates.name = scheduleData.name.trim();
+        if (scheduleData.userId) cleanUpdates.userId = scheduleData.userId;
+        if (scheduleData.workouts) cleanUpdates.workouts = scheduleData.workouts;
+        if (scheduleData.startDate) {
+            cleanUpdates.startDate = scheduleData.startDate instanceof Date ? scheduleData.startDate.toISOString() : String(scheduleData.startDate);
+        }
+        if (scheduleData.endDate !== undefined) {
+            cleanUpdates.endDate = scheduleData.endDate instanceof Date ? scheduleData.endDate.toISOString() : (scheduleData.endDate ? String(scheduleData.endDate) : null);
+        }
+        if (scheduleData.active !== undefined) cleanUpdates.active = scheduleData.active;
+        if (scheduleData.lastCompleted !== undefined) cleanUpdates.lastCompleted = scheduleData.lastCompleted;
+
+        const updated = await doc.incrementalPatch(cleanUpdates);
+        const json = updated.toJSON();
+
+        return {
+            ...json,
+            startDate: new Date(json.startDate),
+            endDate: json.endDate ? new Date(json.endDate) : undefined
+        } as Schedule;
     },
 
     /**
      * Remove um cronograma.
-     * Offline-first: deletes locally, enqueues sync.
      */
     async deleteSchedule(id: string, callerId: string, supabaseInput?: any) {
-        // Local-first delete
-        if (typeof window !== 'undefined') {
-            await db.schedules.delete(id);
-            await SyncManager.enqueue('DELETE', 'SCHEDULE', id, { id });
+        if (typeof window === 'undefined') {
+            const supabase = supabaseInput || createClient();
+            const { error } = await withTimeout(
+                supabase.from('schedules').delete().eq('id', id),
+                3000
+            );
+            if (error) throw error;
             return;
         }
 
-        // Server-only path
-        const supabase = supabaseInput || createClient();
-
-        const { data: existingSchedule, error: fetchError } = await withTimeout(
-            supabase
-                .from('schedules')
-                .select('user_id')
-                .eq('id', id)
-                .single(),
-            3000
-        );
-
-        if (fetchError || !existingSchedule) throw new Error("Schedule not found");
-
-        if (existingSchedule.user_id !== callerId) {
-            const hasPermission = await connectionService.checkPermission(callerId, existingSchedule.user_id, 'manage_schedules', supabase);
-            if (!hasPermission) {
-                throw new Error("Unauthorized to manage this student's schedule");
-            }
+        const db = await getDatabase();
+        const doc = await db.schedules.findOne(id).exec();
+        if (doc) {
+            await doc.remove();
         }
-
-        const { error } = await withTimeout(
-            supabase
-                .from('schedules')
-                .delete()
-                .eq('id', id),
-            3000
-        );
-
-        if (error) throw error;
     }
 };

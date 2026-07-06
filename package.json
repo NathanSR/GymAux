@@ -15,6 +15,7 @@
     "@ducanh2912/next-pwa": "^10.2.9",
     "@supabase/ssr": "^0.9.0",
     "@supabase/supabase-js": "^2.100.0",
+    "ajv": "^8.20.0",
     "dexie": "^4.2.1",
     "dexie-react-hooks": "^4.2.0",
     "framer-motion": "^12.38.0",
@@ -29,6 +30,8 @@
     "react-dom": "19.2.3",
     "react-hook-form": "^7.69.0",
     "react-toastify": "^11.0.5",
+    "rxdb": "^17.3.0",
+    "rxjs": "^7.8.2",
     "sweetalert2": "^11.26.17",
     "tailwind-merge": "^3.5.0"
   },
