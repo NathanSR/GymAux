@@ -4,47 +4,53 @@ import { db } from '@/config/db';
 import { SyncManager } from './syncManager';
 import { withTimeout } from '@/lib/utils/timeout';
 
-const mapGroupFromSupabase = (g: any): ExerciseGroup => ({
-    groupType: g.groupType || 'straight',
-    rounds: g.rounds ?? 1,
-    restBetweenRounds: g.restBetweenRounds ?? 0,
-    restAfterGroup: g.restAfterGroup ?? 60,
-    exercises: (g.exercises || []).map((ex: any) => ({
-        exerciseId: ex.exerciseId,
-        exerciseName: ex.exerciseName,
-        sets: (ex.sets || []).map((s: any) => ({
-            reps: s.reps ?? 10,
-            weight: s.weight,
-            restTime: s.restTime ?? 60,
-            technique: s.technique || 'normal',
-            notes: s.notes,
+const mapGroupFromSupabase = (g: any): ExerciseGroup => {
+    if (!g) return null as any;
+    return {
+        groupType: g.groupType || 'straight',
+        rounds: g.rounds ?? 1,
+        restBetweenRounds: g.restBetweenRounds ?? 0,
+        restAfterGroup: g.restAfterGroup ?? 60,
+        exercises: (g.exercises || []).map((ex: any) => ({
+            exerciseId: ex.exerciseId,
+            exerciseName: ex.exerciseName,
+            sets: (ex.sets || []).map((s: any) => ({
+                reps: s.reps ?? 10,
+                weight: s.weight,
+                restTime: s.restTime ?? 60,
+                technique: s.technique || 'normal',
+                notes: s.notes,
+            })),
+            restAfterExercise: ex.restAfterExercise ?? 0,
+            notes: ex.notes,
+            variation: ex.variation || 'none',
+            executionMode: ex.executionMode || 'bilateral',
         })),
-        restAfterExercise: ex.restAfterExercise ?? 0,
-        notes: ex.notes,
-        variation: ex.variation || 'none',
-        executionMode: ex.executionMode || 'bilateral',
-    })),
-    notes: g.notes,
-});
+        notes: g.notes,
+    };
+};
 
-const mapExecutedGroupFromSupabase = (g: any): ExecutedGroup => ({
-    groupType: g.groupType || 'straight',
-    exercises: (g.exercises || []).map((ex: any) => ({
-        exerciseId: ex.exerciseId,
-        exerciseName: ex.exerciseName,
-        variation: ex.variation || 'none',
-        executionMode: ex.executionMode || 'bilateral',
-        sets: (ex.sets || []).map((s: any) => ({
-            reps: s.reps,
-            weight: s.weight,
-            rpe: s.rpe,
-            skipped: s.skipped,
-            technique: s.technique,
-            notes: s.notes,
-            dropset: s.dropset,
+const mapExecutedGroupFromSupabase = (g: any): ExecutedGroup => {
+    if (!g) return null as any;
+    return {
+        groupType: g.groupType || 'straight',
+        exercises: (g.exercises || []).map((ex: any) => ({
+            exerciseId: ex.exerciseId,
+            exerciseName: ex.exerciseName,
+            variation: ex.variation || 'none',
+            executionMode: ex.executionMode || 'bilateral',
+            sets: (ex.sets || []).map((s: any) => ({
+                reps: s.reps,
+                weight: s.weight,
+                rpe: s.rpe,
+                skipped: s.skipped,
+                technique: s.technique,
+                notes: s.notes,
+                dropset: s.dropset,
+            })),
         })),
-    })),
-});
+    };
+};
 
 const mapSessionFromSupabase = (s: any): Session => ({
     id: s.id,

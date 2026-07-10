@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { motion, LayoutGroup, AnimatePresence } from 'framer-motion';
-import { Dumbbell, Check, Plus, Minus, ArrowRight, X, SlidersHorizontal, Zap } from 'lucide-react';
+import { Dumbbell, Check, Plus, Minus, ArrowRight, X, SlidersHorizontal, Zap, Trash2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { numberInputUtils } from '../../utils/numberUtil';
 import { RPE_EMOJIS, RPE_OPTIONS } from './SessionConstants';
@@ -97,155 +97,190 @@ export function SessionSetForm({
             onSubmit={handleSubmit((data) => onCompleteSet({ ...data, dropset }, false))}
             className="space-y-4"
         >
-            {/* Weight and Reps Inputs */}
-            <div className="grid grid-cols-2 gap-3">
-                {/* Weight Input Card */}
+            {/* Weight and Reps Inputs / Dropset Sequence */}
+            <AnimatePresence mode="wait">
                 {isDropsetActive ? (
-                    <div 
-                        onClick={() => setIsDropsetOpen(true)}
-                        className="group flex bg-zinc-900 border border-lime-400/30 rounded-3xl px-4 py-3 cursor-pointer hover:border-lime-400/50 hover:ring-4 hover:ring-lime-400/5 transition-all flex-1 min-w-0"
+                    <motion.div
+                        key="dropset-active-sequence"
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        transition={{ duration: 0.2 }}
+                        className="flex flex-col gap-3 bg-zinc-950/40 border border-zinc-900 rounded-[28px] p-4"
                     >
-                        <div className="flex flex-col flex-1 min-w-0">
-                            <span className="text-[8px] font-black uppercase text-zinc-500 tracking-[0.2em] block mb-1.5 group-hover:text-lime-400 transition-colors">
-                                {t('weight')}
-                            </span>
+                        {/* Dropset Header */}
+                        <div className="flex items-center justify-between px-1">
                             <div className="flex items-center gap-2">
-                                <Dumbbell size={18} className="text-lime-400 flex-shrink-0" />
-                                <div className="flex flex-col leading-none">
-                                    <span className="text-3xl font-black text-white">{dropset[0].weight}kg</span>
-                                    <span className="text-[9px] font-black text-zinc-500 block mt-1">
-                                        Carga Inicial
-                                    </span>
+                                <div className="relative flex h-2 w-2">
+                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-lime-400 opacity-75"></span>
+                                    <span className="relative inline-flex rounded-full h-2 w-2 bg-lime-400"></span>
+                                </div>
+                                <span className="text-[10px] font-black uppercase text-lime-400 tracking-[0.15em]">
+                                    Dropset Ativo
+                                </span>
+                            </div>
+                            <div className="flex gap-1.5">
+                                <button
+                                    type="button"
+                                    onClick={() => setIsDropsetOpen(true)}
+                                    className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-zinc-900 border border-zinc-800 hover:border-lime-400/40 text-[9px] font-black uppercase tracking-wider text-zinc-400 hover:text-lime-400 transition-all cursor-pointer active:scale-95"
+                                >
+                                    <Zap size={10} className="fill-current text-lime-400" />
+                                    Editar
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setDropset(null)}
+                                    className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-zinc-900 border border-zinc-850 hover:border-rose-500/40 text-[9px] font-black uppercase tracking-wider text-zinc-400 hover:text-rose-400 transition-all cursor-pointer active:scale-95"
+                                >
+                                    <Trash2 size={10} className="text-rose-400" />
+                                    Remover
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Horizontal list of drops */}
+                        <div className="flex items-center gap-2.5 overflow-x-auto pb-2 pt-1 scrollbar-thin scrollbar-thumb-zinc-800 scrollbar-track-transparent">
+                            {dropset.map((drop, idx) => {
+                                const isFirst = idx === 0;
+                                const diff = idx > 0 ? drop.weight - dropset[idx - 1].weight : 0;
+                                return (
+                                    <div key={idx} className="flex items-center gap-2.5 flex-shrink-0">
+                                        {idx > 0 && (
+                                            <div className="text-zinc-700 flex-shrink-0">
+                                                <ArrowRight size={14} className="stroke-[3] text-zinc-800" />
+                                            </div>
+                                        )}
+                                        <div
+                                            onClick={() => setIsDropsetOpen(true)}
+                                            className={`group flex flex-col justify-between w-28 h-24 p-3.5 rounded-2xl cursor-pointer transition-all border ${
+                                                isFirst
+                                                    ? 'bg-gradient-to-br from-zinc-900 to-zinc-950 border-lime-400/30 hover:border-lime-400/60 shadow-[0_4px_16px_rgba(163,230,71,0.04)]'
+                                                    : 'bg-zinc-900/40 border-zinc-850/80 hover:border-zinc-700'
+                                            }`}
+                                        >
+                                            <div className="flex justify-between items-start">
+                                                <span className={`text-[8px] font-black uppercase tracking-widest ${
+                                                    isFirst ? 'text-lime-400' : 'text-zinc-500'
+                                                }`}>
+                                                    {isFirst ? 'Original' : `Drop ${idx}`}
+                                                </span>
+                                                {diff < 0 && (
+                                                    <span className="text-[8px] font-black text-rose-400 bg-rose-500/10 px-1 py-0.5 rounded-md leading-none">
+                                                        {diff}kg
+                                                    </span>
+                                                )}
+                                            </div>
+                                            
+                                            <div className="flex flex-col leading-none mt-1">
+                                                <span className="text-2xl font-black text-white tracking-tight group-hover:text-lime-400 transition-colors">
+                                                    {drop.weight}
+                                                    <span className="text-[10px] font-bold text-zinc-500 ml-0.5">kg</span>
+                                                </span>
+                                                <span className="text-[10px] font-black text-zinc-400 mt-1.5 flex items-baseline gap-0.5">
+                                                    {drop.reps}
+                                                    <span className="text-[8px] text-zinc-500 font-bold uppercase tracking-wider">{t('reps')}</span>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </motion.div>
+                ) : (
+                    <motion.div
+                        key="standard-inputs"
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        transition={{ duration: 0.2 }}
+                        className="flex flex-col gap-3"
+                    >
+                        <div className="grid grid-cols-2 gap-3">
+                            {/* Weight Input Card */}
+                            <div className="group flex bg-zinc-900 border border-zinc-800 rounded-3xl px-4 py-3 focus-within:border-lime-400/50 focus-within:ring-4 focus-within:ring-lime-400/5 transition-all">
+                                <div className='flex flex-col flex-1 min-w-0'>
+                                    <label className="text-[8px] font-black uppercase text-zinc-500 tracking-[0.2em] block mb-1.5 group-focus-within:text-lime-400 transition-colors">
+                                        {t('weight')}
+                                    </label>
+                                    <div className="flex items-center gap-2">
+                                        <Dumbbell size={18} className="text-lime-400 flex-shrink-0" />
+                                        <Controller
+                                            name="weight"
+                                            control={control}
+                                            render={({ field }) => (
+                                                <input
+                                                    {...field}
+                                                    type="number"
+                                                    inputMode="decimal"
+                                                    value={numberInputUtils.formatValue(field.value)}
+                                                    onFocus={numberInputUtils.onFocus}
+                                                    onChange={(e) => numberInputUtils.onChange(e, field.onChange)}
+                                                    className="bg-transparent border-none p-0 text-3xl font-black outline-none w-full text-white placeholder:text-zinc-800"
+                                                />
+                                            )}
+                                        />
+                                    </div>
+                                </div>
+                                <div className="flex flex-col gap-1.5 justify-center pl-1">
+                                    <button type="button" onClick={() => adjustWeight(5)} className="w-7 h-7 rounded-full bg-lime-400 hover:bg-lime-500 text-zinc-950 flex items-center justify-center transition-all active:scale-90 cursor-pointer shadow-[0_4px_10px_rgba(163,230,71,0.15)]">
+                                        <Plus size={12} strokeWidth={4} />
+                                    </button>
+                                    <button type="button" onClick={() => adjustWeight(-5)} className="w-7 h-7 rounded-full bg-lime-400 hover:bg-lime-500 text-zinc-950 flex items-center justify-center transition-all active:scale-90 cursor-pointer shadow-[0_4px_10px_rgba(163,230,71,0.15)]">
+                                        <Minus size={12} strokeWidth={4} />
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Reps Input Card */}
+                            <div className="group flex bg-zinc-900 border border-zinc-800 rounded-3xl px-4 py-3 focus-within:border-lime-400/50 focus-within:ring-4 focus-within:ring-lime-400/5 transition-all">
+                                <div className='flex flex-col flex-1 min-w-0'>
+                                    <label className="text-[8px] font-black uppercase text-zinc-500 tracking-[0.2em] block mb-1.5 group-focus-within:text-lime-400 transition-colors">
+                                        {t('performed')}
+                                    </label>
+                                    <div className="flex items-center gap-2">
+                                        <Check size={18} className="text-lime-400 flex-shrink-0" />
+                                        <Controller
+                                            name="reps"
+                                            control={control}
+                                            render={({ field }) => (
+                                                <input
+                                                    {...field}
+                                                    type="number"
+                                                    inputMode="numeric"
+                                                    value={numberInputUtils.formatValue(field.value)}
+                                                    onFocus={numberInputUtils.onFocus}
+                                                    onChange={(e) => numberInputUtils.onChange(e, field.onChange)}
+                                                    className="bg-transparent border-none p-0 text-3xl font-black outline-none w-full text-white placeholder:text-zinc-800"
+                                                />
+                                            )}
+                                        />
+                                    </div>
+                                </div>
+                                <div className="flex flex-col gap-1.5 justify-center pl-1">
+                                    <button type="button" onClick={() => adjustReps(1)} className="w-7 h-7 rounded-full bg-lime-400 hover:bg-lime-500 text-zinc-950 flex items-center justify-center transition-all active:scale-90 cursor-pointer shadow-[0_4px_10px_rgba(163,230,71,0.15)]">
+                                        <Plus size={12} strokeWidth={4} />
+                                    </button>
+                                    <button type="button" onClick={() => adjustReps(-1)} className="w-7 h-7 rounded-full bg-lime-400 hover:bg-lime-500 text-zinc-950 flex items-center justify-center transition-all active:scale-90 cursor-pointer shadow-[0_4px_10px_rgba(163,230,71,0.15)]">
+                                        <Minus size={12} strokeWidth={4} />
+                                    </button>
                                 </div>
                             </div>
                         </div>
-                        <div className="flex items-center justify-center pl-2">
-                            <div className="w-8 h-8 rounded-xl bg-lime-400/10 flex items-center justify-center text-lime-400">
-                                <Zap size={14} className="fill-current" />
-                            </div>
-                        </div>
-                    </div>
-                ) : (
-                    <div className="group flex bg-zinc-900 border border-zinc-800 rounded-3xl px-4 py-3 focus-within:border-lime-400/50 focus-within:ring-4 focus-within:ring-lime-400/5 transition-all">
-                        <div className='flex flex-col flex-1 min-w-0'>
-                            <label className="text-[8px] font-black uppercase text-zinc-500 tracking-[0.2em] block mb-1.5 group-focus-within:text-lime-400 transition-colors">
-                                {t('weight')}
-                            </label>
-                            <div className="flex items-center gap-2">
-                                <Dumbbell size={18} className="text-lime-400 flex-shrink-0" />
-                                <Controller
-                                    name="weight"
-                                    control={control}
-                                    render={({ field }) => (
-                                        <input
-                                            {...field}
-                                            type="number"
-                                            inputMode="decimal"
-                                            value={numberInputUtils.formatValue(field.value)}
-                                            onFocus={numberInputUtils.onFocus}
-                                            onChange={(e) => numberInputUtils.onChange(e, field.onChange)}
-                                            className="bg-transparent border-none p-0 text-3xl font-black outline-none w-full text-white placeholder:text-zinc-800"
-                                        />
-                                    )}
-                                />
-                            </div>
-                        </div>
-                        <div className="flex flex-col gap-1.5 justify-center pl-1">
-                            <button type="button" onClick={() => adjustWeight(5)} className="w-7 h-7 rounded-full bg-lime-400 hover:bg-lime-500 text-zinc-950 flex items-center justify-center transition-all active:scale-90 cursor-pointer shadow-[0_4px_10px_rgba(163,230,71,0.15)]">
-                                <Plus size={12} strokeWidth={4} />
-                            </button>
-                            <button type="button" onClick={() => adjustWeight(-5)} className="w-7 h-7 rounded-full bg-lime-400 hover:bg-lime-500 text-zinc-950 flex items-center justify-center transition-all active:scale-90 cursor-pointer shadow-[0_4px_10px_rgba(163,230,71,0.15)]">
-                                <Minus size={12} strokeWidth={4} />
-                            </button>
-                        </div>
-                    </div>
-                )}
 
-                {/* Reps Input Card */}
-                {isDropsetActive ? (
-                    <div 
-                        onClick={() => setIsDropsetOpen(true)}
-                        className="group flex bg-zinc-900 border border-lime-400/30 rounded-3xl px-4 py-3 cursor-pointer hover:border-lime-400/50 hover:ring-4 hover:ring-lime-400/5 transition-all flex-1 min-w-0"
-                    >
-                        <div className="flex flex-col flex-1 min-w-0">
-                            <span className="text-[8px] font-black uppercase text-zinc-500 tracking-[0.2em] block mb-1.5 group-hover:text-lime-400 transition-colors">
-                                {t('performed')}
-                            </span>
-                            <div className="flex items-center gap-2">
-                                <Check size={18} className="text-lime-400 flex-shrink-0" />
-                                <div className="flex flex-col leading-none">
-                                    <span className="text-3xl font-black text-white">
-                                        {dropset.reduce((acc, d) => acc + d.reps, 0)}
-                                    </span>
-                                    <span className="text-[9px] font-black text-zinc-500 block mt-1">
-                                        Reps Totais
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="flex items-center justify-center pl-2">
-                            <div className="w-8 h-8 rounded-xl bg-lime-400/10 flex items-center justify-center text-lime-400">
-                                <Zap size={14} className="fill-current" />
-                            </div>
-                        </div>
-                    </div>
-                ) : (
-                    <div className="group flex bg-zinc-900 border border-zinc-800 rounded-3xl px-4 py-3 focus-within:border-lime-400/50 focus-within:ring-4 focus-within:ring-lime-400/5 transition-all">
-                        <div className='flex flex-col flex-1 min-w-0'>
-                            <label className="text-[8px] font-black uppercase text-zinc-500 tracking-[0.2em] block mb-1.5 group-focus-within:text-lime-400 transition-colors">
-                                {t('performed')}
-                            </label>
-                            <div className="flex items-center gap-2">
-                                <Check size={18} className="text-lime-400 flex-shrink-0" />
-                                <Controller
-                                    name="reps"
-                                    control={control}
-                                    render={({ field }) => (
-                                        <input
-                                            {...field}
-                                            type="number"
-                                            inputMode="numeric"
-                                            value={numberInputUtils.formatValue(field.value)}
-                                            onFocus={numberInputUtils.onFocus}
-                                            onChange={(e) => numberInputUtils.onChange(e, field.onChange)}
-                                            className="bg-transparent border-none p-0 text-3xl font-black outline-none w-full text-white placeholder:text-zinc-800"
-                                        />
-                                    )}
-                                />
-                            </div>
-                        </div>
-                        <div className="flex flex-col gap-1.5 justify-center pl-1">
-                            <button type="button" onClick={() => adjustReps(1)} className="w-7 h-7 rounded-full bg-lime-400 hover:bg-lime-500 text-zinc-950 flex items-center justify-center transition-all active:scale-90 cursor-pointer shadow-[0_4px_10px_rgba(163,230,71,0.15)]">
-                                <Plus size={12} strokeWidth={4} />
-                            </button>
-                            <button type="button" onClick={() => adjustReps(-1)} className="w-7 h-7 rounded-full bg-lime-400 hover:bg-lime-500 text-zinc-950 flex items-center justify-center transition-all active:scale-90 cursor-pointer shadow-[0_4px_10px_rgba(163,230,71,0.15)]">
-                                <Minus size={12} strokeWidth={4} />
-                            </button>
-                        </div>
-                    </div>
+                        {/* Configurar Dropset Button */}
+                        <button
+                            type="button"
+                            onClick={() => setIsDropsetOpen(true)}
+                            className="w-full py-3 bg-zinc-900/50 hover:bg-zinc-900 border border-zinc-850 hover:border-lime-400/30 text-zinc-400 hover:text-lime-400 rounded-2xl flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-widest transition-all duration-300 active:scale-[0.99] cursor-pointer"
+                        >
+                            <Zap size={12} className="text-zinc-500 flex-shrink-0" />
+                            ⚡ Configurar Dropset
+                        </button>
+                    </motion.div>
                 )}
-            </div>
-
-            {/* Prominent Dropset Selector Button */}
-            {isDropsetActive ? (
-                <button
-                    type="button"
-                    onClick={() => setIsDropsetOpen(true)}
-                    className="w-full py-3 bg-lime-400/10 border border-lime-400/35 hover:bg-lime-400/20 text-lime-400 rounded-2xl flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-widest transition-all duration-300 active:scale-[0.99] shadow-[0_0_15px_rgba(163,230,71,0.03)] cursor-pointer"
-                >
-                    <Zap size={12} className="fill-current text-lime-400" />
-                    Dropset Ativo: {dropset.map(d => `${d.weight}kg`).join(' ➔ ')} (Editar)
-                </button>
-            ) : (
-                <button
-                    type="button"
-                    onClick={() => setIsDropsetOpen(true)}
-                    className="w-full py-3 bg-zinc-900/50 hover:bg-zinc-900 border border-zinc-850 hover:border-lime-400/30 text-zinc-400 hover:text-lime-400 rounded-2xl flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-widest transition-all duration-300 active:scale-[0.99] cursor-pointer"
-                >
-                    <Zap size={12} className="text-zinc-500 flex-shrink-0" />
-                    ⚡ Configurar Dropset
-                </button>
-            )}
+            </AnimatePresence>
 
             {/* RPE Selector with Rotary Dial Component */}
             <Controller

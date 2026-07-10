@@ -53,7 +53,7 @@ export const WorkoutDrawer = ({
 
     const groups = session.exercisesToDo || [];
     const doneGroups = session.exercisesDone || [];
-    const hasDoneExercises = doneGroups.some(g => g.exercises.length > 0);
+    const hasDoneExercises = doneGroups.some(g => g && g.exercises && g.exercises.length > 0);
     const currentGroupIndex = session.current?.groupIndex || 0;
 
     return (

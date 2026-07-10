@@ -30,9 +30,11 @@ export const WorkoutDrawerDoneList = ({
                     </p>
                 </div>
             ) : (
-                doneGroups.map((group, groupIdx) => (
-                    <div key={groupIdx} className="space-y-3">
-                        {group.groupType !== 'straight' && (
+                doneGroups.map((group, groupIdx) => {
+                    if (!group || !group.exercises || group.exercises.length === 0) return null;
+                    return (
+                        <div key={groupIdx} className="space-y-3">
+                            {group.groupType !== 'straight' && (
                             <div className="flex items-center gap-2 px-2">
                                 <span className="inline-flex items-center gap-1.5 text-[9px] font-black text-indigo-400 uppercase tracking-widest bg-indigo-400/10 px-2.5 py-1 rounded-full">
                                     <RefreshCw size={9} />
@@ -122,7 +124,8 @@ export const WorkoutDrawerDoneList = ({
                             </div>
                         ))}
                     </div>
-                ))
+                    );
+                })
             )}
         </div>
     );

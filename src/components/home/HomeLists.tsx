@@ -134,7 +134,7 @@ export function HomeLists({
                     <div className="grid gap-3 sm:gap-4 relative">
                         {sessions.map((session) => {
                             const total = session.exercisesToDo.length;
-                            const done = session.exercisesDone.filter(g => g.exercises.length > 0).length;
+                            const done = (session.exercisesDone || []).filter(g => g && g.exercises && g.exercises.length > 0).length;
                             const progressPercent = total > 0 ? Math.round((done / total) * 100) : 0;
 
                             return (

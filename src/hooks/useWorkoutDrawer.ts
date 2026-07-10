@@ -88,15 +88,20 @@ export const useWorkoutDrawer = (
 
     const handleUpdateHistorySet = (groupIdx: number, exIdx: number, setIdx: number, field: string, value: string) => {
         const updatedDone = [...(session.exercisesDone || [])];
-        const group = { ...updatedDone[groupIdx] };
-        const exercises = [...group.exercises];
-        const exercise = { ...exercises[exIdx] };
-        const sets = [...exercise.sets];
+        const group = updatedDone[groupIdx];
+        if (!group) return;
+        
+        const exercises = [...(group.exercises || [])];
+        const exercise = exercises[exIdx];
+        if (!exercise) return;
+        
+        const sets = [...(exercise.sets || [])];
         sets[setIdx] = { ...sets[setIdx], [field]: Number(value) };
         exercise.sets = sets;
         exercises[exIdx] = exercise;
-        group.exercises = exercises;
-        updatedDone[groupIdx] = group;
+        
+        const updatedGroup = { ...group, exercises };
+        updatedDone[groupIdx] = updatedGroup;
         setSession({ ...session, exercisesDone: updatedDone });
         syncSession();
     };

@@ -102,8 +102,42 @@ export function SessionExerciseInfo({
         );
     };
 
+    const getSolidBgClass = (type: string) => {
+        switch (type) {
+            case 'straight': return 'bg-lime-400';
+            case 'bi_set': return 'bg-indigo-400';
+            case 'tri_set': return 'bg-amber-400';
+            case 'giant_set': return 'bg-rose-400';
+            default: return 'bg-lime-400';
+        }
+    };
+
+    const activeBg = getSolidBgClass(currentGroup?.groupType);
+
     return (
         <section className="mb-6 mt-2 relative">
+            {/* Top Segmented Progress Bar for Alternating Groups (Biset/Triset) */}
+            {isGroupAlternating && currentGroup?.exercises && currentGroup.exercises.length > 1 && (
+                <div className="flex gap-1.5 w-full mb-4 px-0.5">
+                    {currentGroup.exercises.map((_: any, idx: number) => {
+                        const isActive = idx === currentExerciseIndex;
+                        const isCompleted = idx < currentExerciseIndex;
+                        return (
+                            <div
+                                key={idx}
+                                className={`h-1.5 flex-1 rounded-full transition-all duration-500 ${
+                                    isActive
+                                        ? `${activeBg} shadow-[0_0_10px_rgba(163,230,71,0.3)]`
+                                        : isCompleted
+                                        ? `${activeBg} opacity-30`
+                                        : 'bg-zinc-800'
+                                }`}
+                            />
+                        );
+                    })}
+                </div>
+            )}
+
             {/* Background Glow Identity */}
             <div className={`absolute -top-10 -left-10 w-40 h-40 rounded-full blur-[80px] opacity-15 -z-10 transition-colors duration-700 ${groupStyle.bg}`} />
 
@@ -145,25 +179,44 @@ export function SessionExerciseInfo({
                         {te.has(currentExercise?.exerciseName!) ? te(currentExercise?.exerciseName!) : currentExercise?.exerciseName}
                     </motion.h2>
 
-                    {/* Subtitle with Variation and Execution Mode */}
+                    {/* Subtitle with Variation, Execution Mode & Group Sequence */}
                     {currentExercise && (
                         <motion.div
                             key={`meta-${currentExercise.exerciseId}`}
                             initial={{ opacity: 0, y: 5 }}
                             animate={{ opacity: 1, y: 0 }}
-                            className="flex items-center gap-1.5 mt-2 text-xs font-black text-lime-500 uppercase tracking-widest"
+                            className="flex flex-col gap-1.5 mt-2"
                         >
-                            {(() => {
-                                const parts = [];
-                                const variation = currentExercise.variation || 'none';
-                                const isPredefined = ['none', 'barbell', 'dumbbell', 'cable', 'machine', 'smith'].includes(variation);
-                                parts.push(isPredefined ? tw(`variationOptions.${variation}`) : variation);
+                            <div className="flex items-center gap-1.5 text-xs font-black text-lime-500 uppercase tracking-widest leading-none">
+                                {(() => {
+                                    const parts = [];
+                                    const variation = currentExercise.variation || 'none';
+                                    const isPredefined = ['none', 'barbell', 'dumbbell', 'cable', 'machine', 'smith'].includes(variation);
+                                    parts.push(isPredefined ? tw(`variationOptions.${variation}`) : variation);
 
-                                const mode = currentExercise.executionMode || 'bilateral';
-                                parts.push(tw(`executionModes.${mode}`));
-                                
-                                return parts.join(' • ');
-                            })()}
+                                    const mode = currentExercise.executionMode || 'bilateral';
+                                    parts.push(tw(`executionModes.${mode}`));
+                                    
+                                    return parts.join(' • ');
+                                })()}
+                            </div>
+
+                            {isGroupAlternating && currentGroup?.exercises && currentGroup.exercises.length > 1 && (
+                                <div className="flex items-center gap-1.5 flex-wrap text-[9px] text-zinc-500 font-bold uppercase tracking-wider mt-0.5">
+                                    <span className="text-zinc-600 font-black">Sequência:</span>
+                                    {currentGroup.exercises.map((ex: any, idx: number) => {
+                                        const isActive = idx === currentExerciseIndex;
+                                        return (
+                                            <span key={idx} className="flex items-center gap-1.5">
+                                                {idx > 0 && <ArrowRight size={8} className="text-zinc-800" />}
+                                                <span className={isActive ? `${groupStyle.color} font-black` : "text-zinc-650 font-medium"}>
+                                                    {te.has(ex.exerciseName) ? te(ex.exerciseName) : ex.exerciseName}
+                                                </span>
+                                            </span>
+                                        );
+                                    })}
+                                </div>
+                            )}
                         </motion.div>
                     )}
                 </div>
@@ -180,36 +233,6 @@ export function SessionExerciseInfo({
                     </span>
                 </button>
             </div>
-
-            {/* Group Progression - visualizes all exercises in the current group */}
-            {isGroupAlternating && currentGroup?.exercises && currentGroup.exercises.length > 1 && (
-                <div className="mt-8">
-                    <p className="text-[9px] font-black uppercase text-zinc-600 tracking-[0.2em] mb-3 ml-1 flex items-center gap-2">
-                        <List size={10} />
-                        {t('groupComposition')}
-                    </p>
-                    <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide -mx-2 px-2">
-                        {currentGroup.exercises.map((ex: any, idx: number) => {
-                            const isActive = idx === currentExerciseIndex;
-                            return (
-                                <div key={idx} className="flex items-center gap-2 shrink-0">
-                                    <div className={`
-                                        px-3 py-2 rounded-xl border text-[10px] font-black uppercase tracking-tight transition-all duration-300
-                                        ${isActive
-                                            ? `${groupStyle.bg} ${groupStyle.color} ${groupStyle.border} shadow-lg ring-1 ${groupStyle.border}`
-                                            : 'bg-zinc-900/30 text-zinc-600 border-zinc-800/50 opacity-40'}
-                                    `}>
-                                        {te.has(ex.exerciseName) ? te(ex.exerciseName) : ex.exerciseName}
-                                    </div>
-                                    {idx < currentGroup.exercises.length - 1 && (
-                                        <ArrowRight size={12} className="text-zinc-800/50 shrink-0" />
-                                    )}
-                                </div>
-                            );
-                        })}
-                    </div>
-                </div>
-            )}
 
             <div className="grid grid-cols-2 gap-2 mt-5">
                 <div className="flex flex-col p-4 bg-zinc-900/40 rounded-3xl border border-white/5 relative overflow-hidden group">
