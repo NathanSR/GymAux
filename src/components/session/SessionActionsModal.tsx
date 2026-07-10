@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Plus, SkipForward, FastForward, CheckCircle, AlertCircle, Dumbbell } from 'lucide-react';
+import { X, Plus, SkipForward, FastForward, CheckCircle, AlertCircle, Dumbbell, RefreshCw } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 interface SessionActionsModalProps {
@@ -11,6 +11,7 @@ interface SessionActionsModalProps {
     onAddSet: () => void;
     onForceFinishWorkout: () => void;
     isGroupAlternating: boolean;
+    onSubstituteExercise: () => void;
 }
 
 export function SessionActionsModal({
@@ -20,7 +21,8 @@ export function SessionActionsModal({
     onSkipExercise,
     onAddSet,
     onForceFinishWorkout,
-    isGroupAlternating
+    isGroupAlternating,
+    onSubstituteExercise
 }: SessionActionsModalProps) {
     const t = useTranslations('Session');
 
@@ -83,6 +85,24 @@ export function SessionActionsModal({
                                 <span className="font-black text-left">Adicionar Série Extra</span>
                                 <span className="text-[9px] font-bold text-zinc-850 opacity-60 mt-0.5 text-left normal-case">
                                     Adiciona mais um set ao exercício atual
+                                </span>
+                            </div>
+                        </button>
+
+                        {/* Substituir Exercício */}
+                        <button
+                            type="button"
+                            onClick={() => {
+                                onSubstituteExercise();
+                                onClose();
+                            }}
+                            className="w-full py-4 px-4 bg-zinc-950 border border-zinc-800/80 hover:bg-zinc-800/30 text-lime-400 rounded-2xl flex items-center gap-3 text-xs font-black uppercase tracking-widest transition-all active:scale-[0.98]"
+                        >
+                            <RefreshCw size={16} className="text-lime-400 flex-shrink-0" />
+                            <div className="flex flex-col items-start leading-none">
+                                <span className="font-black text-left">Substituir Exercício</span>
+                                <span className="text-[9px] font-bold text-zinc-500 mt-0.5 text-left normal-case">
+                                    Troca o exercício atual por uma alternativa semelhante
                                 </span>
                             </div>
                         </button>

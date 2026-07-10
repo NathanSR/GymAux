@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { Session } from '@/config/types';
 import { RestTimer } from '@/components/session/RestTimer';
 import { WorkoutDrawer } from '@/components/session/workoutList/WorkoutDrawer';
@@ -8,6 +8,8 @@ import { useTranslations } from 'next-intl';
 import { CompletedSession } from '@/components/session/CompletedSession';
 import { ExerciseInstructionModal } from '@/components/session/ExerciseInstructionModal';
 import { motion, AnimatePresence } from 'framer-motion';
+import { SessionSubstituteModal } from './SessionSubstituteModal';
+import { ExerciseSelector } from '../exercises/ExerciseSelector';
 
 import { useSessionClient } from '../../hooks/useSessionClient';
 import { SessionHeader } from './SessionHeader';
@@ -23,6 +25,9 @@ export default function SessionClient({ initialSession, isReadOnly = false }: Se
     const t = useTranslations('Session');
 
     const watchValuesRef = useRef<(() => { weight: number; reps: number; rpe: number }) | null>(null);
+
+    const [showSubstitute, setShowSubstitute] = useState(false);
+    const [showFullSelector, setShowFullSelector] = useState(false);
 
     const {
         session,
@@ -47,7 +52,8 @@ export default function SessionClient({ initialSession, isReadOnly = false }: Se
         handleAddSet,
         exitSession,
         synchronizeProgress,
-        lastWeightUsed
+        lastWeightUsed,
+        handleSubstituteExercise
     } = useSessionClient({
         initialSession,
         isReadOnly,
@@ -148,23 +154,28 @@ export default function SessionClient({ initialSession, isReadOnly = false }: Se
                                             onForceFinishWorkout={handleForceFinishWorkout}
                                             setWatchValues={(watchFn) => { watchValuesRef.current = watchFn; }}
                                             lastWeightUsed={lastWeightUsed}
+                                            onSubstituteExercise={() => setShowSubstitute(true)}
                                         />
                                     </motion.div>
                                 )}
                             </AnimatePresence>
-
-                            <div className="pb-8 pt-4">
-                                <button
-                                    type="button"
-                                    onClick={handleForceFinishWorkout}
-                                    className="w-full py-4 text-zinc-600 hover:text-rose-500 transition-all font-black uppercase text-[9px] tracking-[0.3em] opacity-50 hover:opacity-100 flex items-center justify-center gap-2"
-                                >
-                                    <div className="w-8 h-[1px] bg-zinc-800" />
-                                    {t('finishNow')}
-                                    <div className="w-8 h-[1px] bg-zinc-800" />
-                                </button>
-                            </div>
                         </main>
+
+                        {/* Modais de Substituição Dinâmica de Exercícios */}
+                        <SessionSubstituteModal
+                            isOpen={showSubstitute}
+                            onClose={() => setShowSubstitute(false)}
+                            exerciseId={currentExercise?.exerciseId || null}
+                            exerciseName={currentExercise?.exerciseName || null}
+                            onSelectSubstitute={handleSubstituteExercise}
+                            onOpenFullSelector={() => setShowFullSelector(true)}
+                        />
+
+                        <ExerciseSelector
+                            isOpen={showFullSelector}
+                            onClose={() => setShowFullSelector(false)}
+                            onSelect={handleSubstituteExercise}
+                        />
                     </motion.div>
                 )}
             </AnimatePresence>

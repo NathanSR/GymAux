@@ -5,19 +5,62 @@ import { SyncManager } from './syncManager';
 import { withTimeout } from '@/lib/utils/timeout';
 import { userService } from './userService';
 
-const mapExerciseFromSupabase = (ex: any): Exercise => ({
-    id: ex.id,
-    created_by: ex.created_by,
-    created_by_type: ex.created_by_type || "system",
-    name: ex.name,
-    description: ex.description || undefined,
-    category: ex.category as any,
-    tags: ex.tags || [],
-    howTo: ex.how_to || undefined,
-    mediaUrl: ex.media_url || undefined,
-    level: ex.level as any,
-    isPublic: ex.is_public,
-});
+const inferEquipmentFromTags = (tags: string[], name: string): 'barbell' | 'dumbbell' | 'machine' | 'cable' | 'bodyweight' | 'smith' | 'kettlebell' | 'none' => {
+    const t = tags.map(tag => tag.toLowerCase());
+    const n = name.toLowerCase();
+    if (t.includes('barbell') || n.includes('barbell') || n.includes('barra')) return 'barbell';
+    if (t.includes('dumbbell') || t.includes('dumbbells') || n.includes('dumbbell') || n.includes('halter')) return 'dumbbell';
+    if (t.includes('cable') || t.includes('cables') || n.includes('cable') || n.includes('cabo') || n.includes('polia') || n.includes('cross')) return 'cable';
+    if (t.includes('machine') || t.includes('machines') || n.includes('machine') || n.includes('maquina') || n.includes('máquina') || n.includes('articulado') || n.includes('press')) return 'machine';
+    if (t.includes('bodyweight') || t.includes('calisthenics') || n.includes('bodyweight') || n.includes('flexão') || n.includes('barra fixa') || n.includes('graviton') || n.includes('prancha')) return 'bodyweight';
+    if (t.includes('smith') || n.includes('smith') || n.includes('guiado')) return 'smith';
+    if (t.includes('kettlebell') || n.includes('kettlebell')) return 'kettlebell';
+    return 'none';
+};
+
+const inferMechanicsFromTags = (tags: string[], name: string): 'compound' | 'isolation' => {
+    const t = tags.map(tag => tag.toLowerCase());
+    const n = name.toLowerCase();
+    const isolationKeywords = [
+        'rosca', 'extensora', 'flexora', 'elevação lateral', 'crucifixo', 
+        'voador', 'pec deck', 'triceps testa', 'coice', 'panturrilha',
+        'isolation', 'isolated'
+    ];
+    if (t.includes('isolation') || t.includes('isolated') || isolationKeywords.some(kw => n.includes(kw))) {
+        return 'isolation';
+    }
+    return 'compound';
+};
+
+const inferExecutionModeFromTags = (tags: string[], name: string): 'bilateral' | 'unilateral' | 'alternating' => {
+    const t = tags.map(tag => tag.toLowerCase());
+    const n = name.toLowerCase();
+    if (t.includes('unilateral') || n.includes('unilateral')) return 'unilateral';
+    if (t.includes('alternating') || t.includes('alternate') || n.includes('alternado') || n.includes('alternada')) return 'alternating';
+    return 'bilateral';
+};
+
+const mapExerciseFromSupabase = (ex: any): Exercise => {
+    const tags = ex.tags || [];
+    const name = ex.name || '';
+    return {
+        id: ex.id,
+        created_by: ex.created_by,
+        created_by_type: ex.created_by_type || "system",
+        name: ex.name,
+        description: ex.description || undefined,
+        category: ex.category as any,
+        tags: tags,
+        howTo: ex.how_to || undefined,
+        mediaUrl: ex.media_url || undefined,
+        level: ex.level as any,
+        isPublic: ex.is_public,
+        equipment: ex.equipment || inferEquipmentFromTags(tags, name),
+        executionMode: ex.execution_mode || inferExecutionModeFromTags(tags, name),
+        mechanics: ex.mechanics || inferMechanicsFromTags(tags, name),
+        parentId: ex.parent_id || undefined,
+    };
+};
 
 export const ExerciseService = {
     // Buscar todos com Filtros e Paginação
@@ -310,5 +353,43 @@ export const ExerciseService = {
         );
 
         if (error) throw error;
+    },
+
+    // Buscar exercicios semelhantes (substitutos dinâmicos)
+    async getAlternativeExercises(exercise: Exercise, supabaseInput?: any): Promise<Exercise[]> {
+        if (!exercise.category || !exercise.id) return [];
+        const category = exercise.category;
+        const mechanics = exercise.mechanics || 'compound';
+        const id = exercise.id;
+
+        // Local-first
+        if (typeof window !== 'undefined') {
+            const localMatches = await db.exercises
+                .where('category')
+                .equals(category)
+                .toArray();
+            const mapped = localMatches.map(mapExerciseFromSupabase);
+            return mapped.filter(ex => ex.id !== id && ex.mechanics === mechanics).slice(0, 5);
+        }
+
+        // Server path
+        try {
+            const supabase = supabaseInput || createClient();
+            const { data, error } = await withTimeout(
+                supabase
+                    .from('exercises')
+                    .select('*')
+                    .eq('category', category)
+                    .eq('mechanics', mechanics)
+                    .neq('id', id)
+                    .limit(5),
+                3000
+            );
+            if (error) throw error;
+            return (data || []).map(mapExerciseFromSupabase);
+        } catch (error) {
+            console.error('[ExerciseService] Failed to fetch alternative exercises:', error);
+            return [];
+        }
     }
 };

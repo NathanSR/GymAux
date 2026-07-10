@@ -16,6 +16,43 @@ import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
 import { Modal } from '@/components/ui/Modal';
 import QuickExerciseDrawer from './QuickExerciseDrawer';
 
+const getLevelBadge = (level?: string) => {
+    if (!level) return null;
+    const colors: Record<string, string> = {
+        beginner: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20',
+        intermediate: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20',
+        advanced: 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20',
+    };
+    const labels: Record<string, string> = {
+        beginner: 'Iniciante',
+        intermediate: 'Intermediário',
+        advanced: 'Avançado',
+    };
+    return (
+        <span className={`px-2 py-0.5 text-[8px] font-black uppercase tracking-wider rounded-lg border ${colors[level] || ''}`}>
+            {labels[level] || level}
+        </span>
+    );
+};
+
+const getEquipmentBadge = (equipment?: string) => {
+    if (!equipment || equipment === 'none') return null;
+    const labels: Record<string, string> = {
+        barbell: 'Barra',
+        dumbbell: 'Halter',
+        machine: 'Máquina',
+        cable: 'Cabo',
+        bodyweight: 'Peso Corporal',
+        smith: 'Smith',
+        kettlebell: 'Kettlebell',
+    };
+    return (
+        <span className="px-2 py-0.5 text-[8px] font-black uppercase tracking-wider rounded-lg bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 border border-zinc-200/50 dark:border-zinc-700/50">
+            {labels[equipment] || equipment}
+        </span>
+    );
+};
+
 export const ExerciseSelector = ({ isOpen, onClose, onSelect }: {
     isOpen: boolean,
     onClose: () => void,
@@ -181,9 +218,13 @@ export const ExerciseSelector = ({ isOpen, onClose, onSelect }: {
                                             <p className="font-black text-zinc-900 dark:text-white uppercase text-[13px] leading-tight tracking-tight">
                                                 {te.has(ex.name) ? te(ex.name) : ex.name}
                                             </p>
-                                            <p className="text-[9px] text-zinc-400 font-bold uppercase tracking-widest mt-1">
-                                                {tc(ex.category)}
-                                            </p>
+                                            <div className="flex flex-wrap items-center gap-1.5 mt-1.5">
+                                                <span className="text-[9px] text-zinc-400 font-bold uppercase tracking-widest">
+                                                    {tc(ex.category)}
+                                                </span>
+                                                {getEquipmentBadge(ex.equipment)}
+                                                {getLevelBadge(ex.level)}
+                                            </div>
                                         </div>
                                         <div className="w-10 h-10 flex items-center justify-center rounded-full bg-zinc-100 dark:bg-zinc-800 opacity-0 group-hover:opacity-100 transition-all">
                                             <ArrowRight size={18} className="text-lime-500" />

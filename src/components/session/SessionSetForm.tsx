@@ -24,6 +24,7 @@ interface SessionSetFormProps {
     onForceFinishWorkout: () => void;
     setWatchValues: (watchFn: () => { weight: number; reps: number; rpe: number; dropset?: { reps: number; weight: number }[] }) => void;
     lastWeightUsed?: number | null;
+    onSubstituteExercise: () => void;
 }
 
 export function SessionSetForm({
@@ -39,7 +40,8 @@ export function SessionSetForm({
     onAddSet,
     onForceFinishWorkout,
     setWatchValues,
-    lastWeightUsed
+    lastWeightUsed,
+    onSubstituteExercise
 }: SessionSetFormProps) {
     const t = useTranslations('Session');
 
@@ -148,12 +150,12 @@ export function SessionSetForm({
                                 />
                             </div>
                         </div>
-                        <div className="flex flex-col gap-1 justify-center">
-                            <button type="button" onClick={() => adjustWeight(5)} className="w-8 h-8 rounded-xl bg-zinc-800 flex items-center justify-center hover:bg-zinc-700 active:scale-90 transition-all text-zinc-400 hover:text-white">
-                                <Plus size={14} />
+                        <div className="flex flex-col gap-1.5 justify-center pl-1">
+                            <button type="button" onClick={() => adjustWeight(5)} className="w-7 h-7 rounded-full bg-lime-400 hover:bg-lime-500 text-zinc-950 flex items-center justify-center transition-all active:scale-90 cursor-pointer shadow-[0_4px_10px_rgba(163,230,71,0.15)]">
+                                <Plus size={12} strokeWidth={4} />
                             </button>
-                            <button type="button" onClick={() => adjustWeight(-5)} className="w-8 h-8 rounded-xl bg-zinc-800 flex items-center justify-center hover:bg-zinc-700 active:scale-90 transition-all text-zinc-400 hover:text-white">
-                                <Minus size={14} />
+                            <button type="button" onClick={() => adjustWeight(-5)} className="w-7 h-7 rounded-full bg-lime-400 hover:bg-lime-500 text-zinc-950 flex items-center justify-center transition-all active:scale-90 cursor-pointer shadow-[0_4px_10px_rgba(163,230,71,0.15)]">
+                                <Minus size={12} strokeWidth={4} />
                             </button>
                         </div>
                     </div>
@@ -212,12 +214,12 @@ export function SessionSetForm({
                                 />
                             </div>
                         </div>
-                        <div className="flex flex-col gap-1 justify-center">
-                            <button type="button" onClick={() => adjustReps(1)} className="w-8 h-8 rounded-xl bg-zinc-800 flex items-center justify-center hover:bg-zinc-700 active:scale-90 transition-all text-zinc-400 hover:text-white">
-                                <Plus size={14} />
+                        <div className="flex flex-col gap-1.5 justify-center pl-1">
+                            <button type="button" onClick={() => adjustReps(1)} className="w-7 h-7 rounded-full bg-lime-400 hover:bg-lime-500 text-zinc-950 flex items-center justify-center transition-all active:scale-90 cursor-pointer shadow-[0_4px_10px_rgba(163,230,71,0.15)]">
+                                <Plus size={12} strokeWidth={4} />
                             </button>
-                            <button type="button" onClick={() => adjustReps(-1)} className="w-8 h-8 rounded-xl bg-zinc-800 flex items-center justify-center hover:bg-zinc-700 active:scale-90 transition-all text-zinc-400 hover:text-white">
-                                <Minus size={14} />
+                            <button type="button" onClick={() => adjustReps(-1)} className="w-7 h-7 rounded-full bg-lime-400 hover:bg-lime-500 text-zinc-950 flex items-center justify-center transition-all active:scale-90 cursor-pointer shadow-[0_4px_10px_rgba(163,230,71,0.15)]">
+                                <Minus size={12} strokeWidth={4} />
                             </button>
                         </div>
                     </div>
@@ -269,18 +271,6 @@ export function SessionSetForm({
                 defaultReps={Number(repsValue)}
             />
 
-            {/* Workout Actions (Single Options Button) */}
-            <div className="pb-2 pt-1">
-                <button
-                    type="button"
-                    onClick={() => setIsActionsOpen(true)}
-                    className="flex items-center justify-center gap-2 w-full py-4 bg-zinc-900 border border-zinc-800 rounded-2xl text-zinc-400 text-[10px] font-black uppercase tracking-widest hover:bg-zinc-800 hover:text-white active:scale-[0.98] transition-all cursor-pointer"
-                >
-                    <SlidersHorizontal size={14} />
-                    Opções da Série / Ações
-                </button>
-            </div>
-
             {/* Actions Dialog Modal */}
             <SessionActionsModal
                 isOpen={isActionsOpen}
@@ -290,17 +280,41 @@ export function SessionSetForm({
                 onAddSet={onAddSet}
                 onForceFinishWorkout={onForceFinishWorkout}
                 isGroupAlternating={isGroupAlternating}
+                onSubstituteExercise={onSubstituteExercise}
             />
 
-            {/* Submit Confirm Set Button */}
+            {/* Submit / Confirm & Actions side-by-side */}
             {!isReadOnly && (
-                <button
-                    type="submit"
-                    className="group w-full py-5 bg-lime-400 text-zinc-950 rounded-[24px] font-black uppercase text-[10px] tracking-[0.3em] flex items-center justify-center gap-3 shadow-[0_15px_40px_rgba(163,230,71,0.2)] hover:-translate-y-1 active:scale-[0.98] transition-all border-b-[6px] border-lime-600 cursor-pointer"
-                >
-                    {t('confirmSet')}
-                    <ArrowRight size={18} className="group-hover:translate-x-2 transition-transform" />
-                </button>
+                <div className="flex gap-2.5 items-stretch pb-2 pt-1">
+                    <button
+                        type="submit"
+                        className="group flex-1 py-5 bg-lime-400 text-zinc-950 rounded-[24px] font-black uppercase text-[10px] tracking-[0.3em] flex items-center justify-center gap-3 shadow-[0_15px_40px_rgba(163,230,71,0.2)] hover:-translate-y-0.5 active:scale-[0.98] transition-all border-b-[6px] border-lime-600 cursor-pointer"
+                    >
+                        {t('confirmSet')}
+                        <ArrowRight size={18} className="group-hover:translate-x-2 transition-transform" />
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => setIsActionsOpen(true)}
+                        className="aspect-square px-5 bg-zinc-900 border border-zinc-800 rounded-[24px] text-zinc-400 hover:text-white hover:bg-zinc-850 active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center border-b-[6px] border-zinc-950"
+                        title="Opções da Série / Ações"
+                    >
+                        <SlidersHorizontal size={18} />
+                    </button>
+                </div>
+            )}
+
+            {isReadOnly && (
+                <div className="pb-2 pt-1">
+                    <button
+                        type="button"
+                        onClick={() => setIsActionsOpen(true)}
+                        className="flex items-center justify-center gap-2 w-full py-4 bg-zinc-900 border border-zinc-800 rounded-2xl text-zinc-400 text-[10px] font-black uppercase tracking-widest hover:bg-zinc-800 hover:text-white active:scale-[0.98] transition-all cursor-pointer"
+                    >
+                        <SlidersHorizontal size={14} />
+                        Opções da Série / Ações
+                    </button>
+                </div>
             )}
         </form>
     );

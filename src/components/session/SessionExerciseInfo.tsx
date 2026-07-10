@@ -1,7 +1,9 @@
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Zap, CircleHelp, List, ArrowRight } from 'lucide-react';
 import { GROUP_CONFIG } from './SessionConstants';
 import { useTranslations } from 'next-intl';
+import { ExerciseService } from '@/services/exerciseService';
 
 interface SessionExerciseInfoProps {
     currentGroup: any;
@@ -29,8 +31,76 @@ export function SessionExerciseInfo({
     const t = useTranslations('Session');
     const te = useTranslations('Exercises');
     const tw = useTranslations('WorkoutForm');
+    const tc = useTranslations('Categories');
+
+    const [mediaUrl, setMediaUrl] = useState<string | undefined>(undefined);
+    const [category, setCategory] = useState<string | undefined>(undefined);
+
+    useEffect(() => {
+        if (!currentExercise?.exerciseId) return;
+        ExerciseService.getExerciseById(currentExercise.exerciseId).then(ex => {
+            if (ex) {
+                setMediaUrl(ex.mediaUrl);
+                setCategory(ex.category);
+            }
+        });
+    }, [currentExercise?.exerciseId]);
 
     const groupStyle = GROUP_CONFIG[currentGroup?.groupType || 'straight'] || GROUP_CONFIG.straight;
+
+    const renderExerciseMedia = () => {
+        if (mediaUrl) {
+            const isVideo = mediaUrl.endsWith('.mp4') || mediaUrl.endsWith('.webm');
+            return (
+                <div className="relative w-full aspect-video rounded-3xl overflow-hidden border border-zinc-800 shadow-2xl bg-zinc-950/50 flex items-center justify-center group mt-4">
+                    {isVideo ? (
+                        <video 
+                            src={mediaUrl} 
+                            autoPlay 
+                            loop 
+                            muted 
+                            playsInline 
+                            className="w-full h-full object-cover" 
+                        />
+                    ) : (
+                        <img 
+                            src={mediaUrl} 
+                            alt="Tutorial" 
+                            className="w-full h-full object-cover" 
+                        />
+                    )}
+                </div>
+            );
+        }
+
+        return (
+            <div className="relative w-full aspect-[16/10] rounded-[24px] overflow-hidden border border-lime-500/10 bg-zinc-950/40 flex flex-col items-center justify-center group shadow-[inset_0_4px_24px_rgba(163,230,71,0.02),0_15px_35px_rgba(0,0,0,0.6)] mt-4">
+                <div className="absolute inset-0 bg-[linear-gradient(to_right,#27272a_1px,transparent_1px),linear-gradient(to_bottom,#27272a_1px,transparent_1px)] bg-[size:24px_24px] opacity-[0.03]" />
+                <div className="absolute w-36 h-36 rounded-full bg-lime-500/5 blur-[40px] -z-10 group-hover:scale-110 transition-transform duration-700" />
+                <div className="relative z-10 flex flex-col items-center text-center p-6">
+                    <motion.div 
+                        animate={{ scale: [1, 1.04, 1] }} 
+                        transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
+                        className="w-16 h-16 rounded-full border border-lime-400/20 flex items-center justify-center bg-lime-400/5 text-lime-400 shadow-[0_0_15px_rgba(163,230,71,0.1)] mb-3"
+                    >
+                        <svg className="w-8 h-8 opacity-80" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="m6.5 6.5 11 11" />
+                            <path d="m21 21-1-1" />
+                            <path d="m3 3 1 1" />
+                            <path d="m18.5 5.5 3 3" />
+                            <path d="m2.5 15.5 3 3" />
+                            <path d="m16 16 2.5 2.5" />
+                            <path d="M5.5 5.5 8 8" />
+                        </svg>
+                    </motion.div>
+                    <span className="text-[7px] font-black uppercase text-zinc-500 tracking-[0.2em] mb-1">Visualização do Exercício</span>
+                    <span className="text-[9px] font-black text-lime-400 uppercase tracking-widest bg-lime-400/10 border border-lime-400/20 px-3 py-0.5 rounded-lg">
+                        {category ? (tc.has(category) ? tc(category) : category) : 'Geral'}
+                    </span>
+                </div>
+            </div>
+        );
+    };
 
     return (
         <section className="mb-6 mt-2 relative">
@@ -164,6 +234,9 @@ export function SessionExerciseInfo({
                     🔥 {t('techniques.' + currentPlannedSet.technique)}
                 </div>
             )}
+
+            {/* Espaço de Imagem ou Vídeo do Exercício */}
+            {renderExerciseMedia()}
         </section>
     );
 }

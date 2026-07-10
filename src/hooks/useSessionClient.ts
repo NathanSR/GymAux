@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { Session, ExecutedSet } from '@/config/types';
+import { Session, ExecutedSet, Exercise } from '@/config/types';
 import { useSessionNavigation } from '@/hooks/useSessionNavigation';
 import { useSessionActions } from '@/hooks/useSessionActions';
 import { useAlerts } from '@/hooks/useAlerts';
@@ -213,6 +213,34 @@ export function useSessionClient({ initialSession, isReadOnly = false, watchValu
         synchronizeProgress(newSession);
     }, [session, currentGroupIndex, currentExerciseIndex, synchronizeProgress]);
 
+    const handleSubstituteExercise = useCallback((newEx: Exercise) => {
+        if (!session || !currentExercise || !currentGroup) return;
+
+        const newSession = { ...session };
+        
+        // 1. Atualizar o exercício em exercisesToDo (planejados)
+        newSession.exercisesToDo[currentGroupIndex].exercises[currentExerciseIndex] = {
+            ...currentExercise,
+            exerciseId: newEx.id as number,
+            exerciseName: newEx.name,
+            variation: undefined,
+            executionMode: undefined
+        };
+
+        // 2. Se já tiver feito alguma execução desse exercício na sessão atual, atualiza também em exercisesDone
+        if (newSession.exercisesDone?.[currentGroupIndex]) {
+            const executedGroup = newSession.exercisesDone[currentGroupIndex];
+            const exIdx = executedGroup.exercises.findIndex(e => e.exerciseId === currentExercise.exerciseId);
+            if (exIdx !== -1) {
+                executedGroup.exercises[exIdx].exerciseId = newEx.id as number;
+                executedGroup.exercises[exIdx].exerciseName = newEx.name;
+            }
+        }
+
+        setSession(newSession);
+        synchronizeProgress(newSession);
+    }, [session, currentExercise, currentGroup, currentGroupIndex, currentExerciseIndex, synchronizeProgress]);
+
     const lastWeightUsed = useMemo(() => {
         if (!currentExercise) return null;
 
@@ -258,6 +286,7 @@ export function useSessionClient({ initialSession, isReadOnly = false, watchValu
         handleAddSet,
         exitSession,
         synchronizeProgress,
-        lastWeightUsed
+        lastWeightUsed,
+        handleSubstituteExercise
     };
 }

@@ -34,6 +34,10 @@ export interface Exercise {
     mediaUrl?: string;
     level?: "beginner" | "intermediate" | "advanced";
     isPublic?: boolean;
+    equipment?: 'barbell' | 'dumbbell' | 'machine' | 'cable' | 'bodyweight' | 'smith' | 'kettlebell' | 'none';
+    executionMode?: 'bilateral' | 'unilateral' | 'alternating';
+    mechanics?: 'compound' | 'isolation';
+    parentId?: number;
 }
 
 // ========================
