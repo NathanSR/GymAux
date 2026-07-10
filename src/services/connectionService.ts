@@ -226,5 +226,62 @@ export const connectionService = {
             console.warn('[connectionService] checkPermission failed, assuming false or relying on local:', error);
             return false;
         }
+    },
+
+    async getActiveConnections(userId: string, role: 'user' | 'trainer' | 'admin', supabase: any) {
+        if (role === 'trainer') {
+            const { students } = await this.getActiveStudents(userId, supabase);
+            return students.map(s => ({ id: s.id, name: s.name, avatar: s.avatar, type: 'student' as const }));
+        } else {
+            try {
+                const { data, error } = await withTimeout(
+                    supabase
+                        .from('connections')
+                        .select(`
+                            *,
+                            trainer:profiles!connections_trainer_id_fkey (
+                                id,
+                                name,
+                                avatar
+                            )
+                        `)
+                        .eq('student_id', userId)
+                        .eq('status', 'active'),
+                    3000
+                );
+
+                if (error) throw error;
+
+                return (data || []).map((conn: any) => ({
+                    id: conn.trainer.id,
+                    name: conn.trainer.name,
+                    avatar: conn.trainer.avatar,
+                    type: 'trainer' as const
+                }));
+            } catch (error) {
+                console.warn('[connectionService] getActiveConnections (trainers) failed, trying local:', error);
+                if (typeof window !== 'undefined') {
+                    const localConnections = await db.connections
+                        .where('student_id')
+                        .equals(userId)
+                        .and(c => c.status === 'active')
+                        .toArray();
+                    const trainers = [];
+                    for (const conn of localConnections) {
+                        const cached = await db.users.get(conn.trainer_id);
+                        if (cached) {
+                            trainers.push({
+                                id: cached.id!,
+                                name: cached.name,
+                                avatar: cached.avatar || null,
+                                type: 'trainer' as const
+                            });
+                        }
+                    }
+                    return trainers;
+                }
+                return [];
+            }
+        }
     }
 };

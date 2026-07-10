@@ -250,6 +250,17 @@ const ProfileMenu: React.FC<ProfileMenuProps> = ({
                                             showChevron
                                         />
 
+                                        {activeUser?.role === 'admin' && (
+                                            <ProfileMenuButton
+                                                icon={<ShieldCheck size={18} className="text-amber-500" />}
+                                                label="Painel Admin"
+                                                href="/admin"
+                                                onClick={() => setShowProfileMenu(false)}
+                                                variant="premium"
+                                                showChevron
+                                            />
+                                        )}
+
                                         <div className="my-2 h-px bg-zinc-100 dark:bg-zinc-800 mx-2" />
 
                                         <button

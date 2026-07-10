@@ -41,7 +41,7 @@ export default async function middleware(request: NextRequest) {
     const pathname = request.nextUrl.pathname;
 
     // Páginas que não requerem autenticação
-    const publicPages = ['/', '/login', '/register'];
+    const publicPages = ['/', '/login', '/register', '/admin/login'];
 
     const isPublicPage = publicPages.some((page) => {
         const locales = routing.locales.join('|');
@@ -57,8 +57,25 @@ export default async function middleware(request: NextRequest) {
     // 6. Redirecionamento se não estiver autenticado em rota privada
     if (!user && !isPublicPage) {
         const locale = pathname.split('/')[1] || routing.defaultLocale;
-        const loginUrl = new URL(`/${locale}/login`, request.url);
+        const isAdminRoute = pathname.includes('/admin');
+        const loginPath = isAdminRoute ? `/${locale}/admin/login` : `/${locale}/login`;
+        const loginUrl = new URL(loginPath, request.url);
         return NextResponse.redirect(loginUrl);
+    }
+
+    // 7. Se autenticado, garante que apenas admins acessam rotas do painel admin
+    if (user && pathname.includes('/admin') && !pathname.includes('/admin/login')) {
+        const { data: profile } = await supabase
+            .from('profiles')
+            .select('role')
+            .eq('id', user.id)
+            .maybeSingle();
+
+        if (!profile || profile.role !== 'admin') {
+            const locale = pathname.split('/')[1] || routing.defaultLocale;
+            const homeUrl = new URL(`/${locale}/home`, request.url);
+            return NextResponse.redirect(homeUrl);
+        }
     }
 
     return response;

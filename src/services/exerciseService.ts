@@ -54,7 +54,8 @@ const mapExerciseFromSupabase = (ex: any): Exercise => {
         howTo: ex.how_to || undefined,
         mediaUrl: ex.media_url || undefined,
         level: ex.level as any,
-        isPublic: ex.is_public,
+        visibility: ex.visibility || (ex.created_by_type === 'system' || (ex.id && ex.id < 1000) ? 'public' : (ex.is_public ? 'public' : 'private')),
+        shared_with: ex.shared_with || [],
         equipment: ex.equipment || inferEquipmentFromTags(tags, name),
         executionMode: ex.execution_mode || inferExecutionModeFromTags(tags, name),
         mechanics: ex.mechanics || inferMechanicsFromTags(tags, name),
@@ -233,7 +234,8 @@ export const ExerciseService = {
             level: exerciseData.level,
             created_by: userId,
             created_by_type: 'user',
-            is_public: exerciseData.isPublic ?? false,
+            visibility: exerciseData.visibility || 'private',
+            shared_with: exerciseData.shared_with || [],
         };
 
         if (typeof window !== 'undefined') {
@@ -278,7 +280,8 @@ export const ExerciseService = {
         if (updateData.category !== undefined) updates.category = updateData.category;
         if (updateData.tags !== undefined) updates.tags = updateData.tags;
         if (updateData.level !== undefined) updates.level = updateData.level;
-        if (updateData.isPublic !== undefined) updates.is_public = updateData.isPublic;
+        if (updateData.visibility !== undefined) updates.visibility = updateData.visibility;
+        if (updateData.shared_with !== undefined) updates.shared_with = updateData.shared_with;
 
         // Local-first
         if (typeof window !== 'undefined') {
