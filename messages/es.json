@@ -1338,7 +1338,26 @@
     "detailedView": "Vista Detallada",
     "quickSets": "Configuración Rápida",
     "reorderItems": "Reorganizar",
-    "doneReordering": "Hecho"
+    "doneReordering": "Hecho",
+    "executionModeLabel": "Modo de Ejecución",
+    "variationLabel": "Variación",
+    "customVariationPlaceholder": "Escribe la variación personalizada...",
+    "executionModes": {
+      "bilateral": "Bilateral",
+      "unilateral": "Unilateral",
+      "unilateral_right": "Unilateral Derecho",
+      "unilateral_left": "Unilateral Izquierdo",
+      "alternating": "Alternado"
+    },
+    "variationOptions": {
+      "none": "Por defecto",
+      "barbell": "Barra",
+      "dumbbell": "Mancuernas",
+      "cable": "Cable",
+      "machine": "Máquina",
+      "smith": "Smith",
+      "custom": "Personalizado"
+    }
   },
   "ScheduleList": {
     "title": "Cronogramas",

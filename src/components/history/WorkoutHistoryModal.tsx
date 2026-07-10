@@ -37,6 +37,7 @@ export function WorkoutHistoryModal({ selectedWorkouts, onClose, initialActiveWo
 
     const t = useTranslations('History');
     const te = useTranslations('Exercises');
+    const tw = useTranslations('WorkoutForm');
 
     const formattedDate = new Date(currentWorkout.date).toLocaleDateString(language, {
         day: '2-digit',
@@ -130,32 +131,72 @@ export function WorkoutHistoryModal({ selectedWorkouts, onClose, initialActiveWo
                                                     <Activity size={16} />
                                                 </div>
                                                 <span className="text-sm font-black uppercase italic tracking-tight">
-                                                    {te.has(ex.exerciseName) ? te(ex.exerciseName) : ex.exerciseName}
+                                                    {(() => {
+                                                        const baseName = te.has(ex.exerciseName) ? te(ex.exerciseName) : ex.exerciseName;
+                                                        const currentVar = ex.variation || 'none';
+                                                        const currentMode = ex.executionMode || 'bilateral';
+                                                        const parts = [];
+                                                        if (currentVar !== 'none') {
+                                                            const isPredefined = ['none', 'barbell', 'dumbbell', 'cable', 'machine', 'smith'].includes(currentVar);
+                                                            parts.push(isPredefined ? tw(`variationOptions.${currentVar}`) : currentVar);
+                                                        }
+                                                        if (currentMode !== 'bilateral') {
+                                                            parts.push(tw(`executionModes.${currentMode}`));
+                                                        }
+                                                        if (parts.length > 0) {
+                                                            return `${baseName} (${parts.join(' • ')})`;
+                                                        }
+                                                        return baseName;
+                                                    })()}
                                                 </span>
                                             </div>
                                             <div className="space-y-2">
                                                 {ex.sets.map((set, si) => (
-                                                    <div key={si} className="flex justify-between items-center text-[11px] font-bold bg-white dark:bg-zinc-900/50 px-4 py-3 rounded-2xl">
-                                                        <div className="flex items-center gap-2">
-                                                            <span className="text-zinc-400">{t('set')} {si + 1}</span>
-                                                            {set.skipped && (
-                                                                <span className="text-[8px] font-black text-rose-400 bg-rose-400/10 px-1.5 py-0.5 rounded-full uppercase">
-                                                                    {t('skipped')}
-                                                                </span>
-                                                            )}
-                                                            {set.technique && set.technique !== 'normal' && (
-                                                                <span className="text-[8px] font-black text-amber-400 bg-amber-400/10 px-1.5 py-0.5 rounded-full uppercase">
-                                                                    {t(`techniques.${set.technique}`)}
-                                                                </span>
-                                                            )}
+                                                    <div key={si} className="flex flex-col bg-white dark:bg-zinc-900/50 px-4 py-3 rounded-2xl gap-1.5">
+                                                        <div className="flex justify-between items-center text-[11px] font-bold">
+                                                            <div className="flex items-center gap-2">
+                                                                <span className="text-zinc-400">{t('set')} {si + 1}</span>
+                                                                {set.skipped && (
+                                                                    <span className="text-[8px] font-black text-rose-400 bg-rose-400/10 px-1.5 py-0.5 rounded-full uppercase">
+                                                                        {t('skipped')}
+                                                                    </span>
+                                                                )}
+                                                                {set.technique && set.technique !== 'normal' && (
+                                                                    <span className="text-[8px] font-black text-amber-400 bg-amber-400/10 px-1.5 py-0.5 rounded-full uppercase">
+                                                                        {t(`techniques.${set.technique}`)}
+                                                                    </span>
+                                                                )}
+                                                            </div>
+                                                            <div className="flex gap-4 text-zinc-900 dark:text-zinc-300 uppercase items-center">
+                                                                {set.dropset && set.dropset.length > 0 ? (
+                                                                    <span className="text-lime-500 font-black uppercase text-[9px] tracking-tight bg-lime-500/10 px-1.5 py-0.5 rounded">
+                                                                        Dropset ({set.dropset.length}x)
+                                                                    </span>
+                                                                ) : (
+                                                                    <>
+                                                                        <span>{set.weight ?? 0}kg</span>
+                                                                        <span>{set.reps} reps</span>
+                                                                    </>
+                                                                )}
+                                                                {set.rpe !== undefined && set.rpe !== null && (
+                                                                    <span className="font-black text-lime-500">RPE {set.rpe}</span>
+                                                                )}
+                                                            </div>
                                                         </div>
-                                                        <div className="flex gap-4 text-zinc-900 dark:text-zinc-300 uppercase">
-                                                            <span>{set.weight ?? 0}kg</span>
-                                                            <span>{set.reps} reps</span>
-                                                            {set.rpe !== undefined && set.rpe !== null && (
-                                                                <span className="font-black text-lime-500">RPE {set.rpe}</span>
-                                                            )}
-                                                        </div>
+                                                        {set.dropset && set.dropset.length > 0 && (
+                                                            <div className="flex flex-wrap gap-x-2.5 gap-y-1 justify-end text-[10px] text-zinc-500 dark:text-zinc-400 font-medium border-t border-zinc-150 dark:border-zinc-800/40 pt-1.5 mt-0.5">
+                                                                {set.dropset.map((drop, dropIdx) => (
+                                                                    <span key={dropIdx} className="flex items-center">
+                                                                        <span className="font-black text-zinc-700 dark:text-zinc-300">{drop.weight}kg</span>
+                                                                        <span className="mx-0.5 text-zinc-400">×</span>
+                                                                        <span>{drop.reps} reps</span>
+                                                                        {dropIdx < (set.dropset?.length || 0) - 1 && (
+                                                                            <span className="ml-2.5 text-zinc-400">➔</span>
+                                                                        )}
+                                                                    </span>
+                                                                ))}
+                                                            </div>
+                                                        )}
                                                     </div>
                                                 ))}
                                             </div>

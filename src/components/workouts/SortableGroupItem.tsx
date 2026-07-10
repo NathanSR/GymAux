@@ -228,7 +228,27 @@ export const SortableGroupItem = memo(({
                             >
                                 <Dumbbell size={14} className="text-lime-500 shrink-0" />
                                 <span className={`font-black flex-1 truncate uppercase tracking-tight ${isMinimized ? 'text-[10px] text-zinc-600 dark:text-zinc-400' : 'text-xs text-zinc-800 dark:text-zinc-200'}`}>
-                                    {exSubField.exerciseName ? (te.has(exSubField.exerciseName) ? te(exSubField.exerciseName) : exSubField.exerciseName) : t('selectExercise')}
+                                    {(() => {
+                                        const baseName = exSubField.exerciseName 
+                                            ? (te.has(exSubField.exerciseName) ? te(exSubField.exerciseName) : exSubField.exerciseName) 
+                                            : t('selectExercise');
+                                        if (isMinimized && exSubField.exerciseName) {
+                                            const currentVar = exercisesInGroup?.[exIndex]?.variation || 'none';
+                                            const currentMode = exercisesInGroup?.[exIndex]?.executionMode || 'bilateral';
+                                            const parts = [];
+                                            if (currentVar !== 'none') {
+                                                const isPredefined = ['none', 'barbell', 'dumbbell', 'cable', 'machine', 'smith'].includes(currentVar);
+                                                parts.push(isPredefined ? t(`variationOptions.${currentVar}`) : currentVar);
+                                            }
+                                            if (currentMode !== 'bilateral') {
+                                                parts.push(t(`executionModes.${currentMode}`));
+                                            }
+                                            if (parts.length > 0) {
+                                                return `${baseName} (${parts.join(' • ')})`;
+                                            }
+                                        }
+                                        return baseName;
+                                    })()}
                                 </span>
                                 {!isMinimized && <ChevronDown size={14} className="text-zinc-400 group-hover:text-lime-500 shrink-0" />}
                             </button>
@@ -252,6 +272,73 @@ export const SortableGroupItem = memo(({
                                 </div>
                             )}
                         </div>
+
+                        {!isMinimized && exSubField.exerciseName && (
+                            <div className="grid grid-cols-2 gap-2 mt-2 mb-3 bg-zinc-50/50 dark:bg-zinc-950/20 p-3 rounded-2xl border border-zinc-100 dark:border-zinc-800/40">
+                                <div>
+                                    <label className="block text-[8px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mb-1.5 ml-1">
+                                        {t('executionModeLabel')}
+                                    </label>
+                                    <select
+                                        value={exercisesInGroup?.[exIndex]?.executionMode || 'bilateral'}
+                                        onChange={(e) => setValue(`exercises.${groupIndex}.exercises.${exIndex}.executionMode`, e.target.value)}
+                                        className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-800 dark:text-zinc-200 text-xs font-black uppercase p-2 rounded-xl outline-none focus:border-lime-500 transition-all cursor-pointer"
+                                    >
+                                        <option className="bg-background text-foreground" value="bilateral">{t('executionModes.bilateral')}</option>
+                                        <option className="bg-background text-foreground" value="unilateral">{t('executionModes.unilateral')}</option>
+                                        <option className="bg-background text-foreground" value="unilateral_right">{t('executionModes.unilateral_right')}</option>
+                                        <option className="bg-background text-foreground" value="unilateral_left">{t('executionModes.unilateral_left')}</option>
+                                        <option className="bg-background text-foreground" value="alternating">{t('executionModes.alternating')}</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-[8px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mb-1.5 ml-1">
+                                        {t('variationLabel')}
+                                    </label>
+                                    <select
+                                        value={(() => {
+                                            const currentVar = exercisesInGroup?.[exIndex]?.variation || 'none';
+                                            return ['none', 'barbell', 'dumbbell', 'cable', 'machine', 'smith'].includes(currentVar) ? currentVar : 'custom';
+                                        })()}
+                                        onChange={(e) => {
+                                            const val = e.target.value;
+                                            if (val === 'custom') {
+                                                setValue(`exercises.${groupIndex}.exercises.${exIndex}.variation`, '');
+                                            } else {
+                                                setValue(`exercises.${groupIndex}.exercises.${exIndex}.variation`, val);
+                                            }
+                                        }}
+                                        className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-800 dark:text-zinc-200 text-xs font-black uppercase p-2 rounded-xl outline-none focus:border-lime-500 transition-all cursor-pointer"
+                                    >
+                                        <option className="bg-background text-foreground" value="none">{t('variationOptions.none')}</option>
+                                        <option className="bg-background text-foreground" value="barbell">{t('variationOptions.barbell')}</option>
+                                        <option className="bg-background text-foreground" value="dumbbell">{t('variationOptions.dumbbell')}</option>
+                                        <option className="bg-background text-foreground" value="cable">{t('variationOptions.cable')}</option>
+                                        <option className="bg-background text-foreground" value="machine">{t('variationOptions.machine')}</option>
+                                        <option className="bg-background text-foreground" value="smith">{t('variationOptions.smith')}</option>
+                                        <option className="bg-background text-foreground" value="custom">{t('variationOptions.custom')}</option>
+                                    </select>
+                                </div>
+                                {(() => {
+                                    const currentVar = exercisesInGroup?.[exIndex]?.variation || 'none';
+                                    const isCustom = !['none', 'barbell', 'dumbbell', 'cable', 'machine', 'smith'].includes(currentVar);
+                                    if (isCustom) {
+                                        return (
+                                            <div className="col-span-2 mt-2">
+                                                <input
+                                                    type="text"
+                                                    value={currentVar}
+                                                    onChange={(e) => setValue(`exercises.${groupIndex}.exercises.${exIndex}.variation`, e.target.value)}
+                                                    placeholder={t('customVariationPlaceholder')}
+                                                    className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-800 dark:text-zinc-200 text-xs font-bold p-2.5 rounded-xl outline-none focus:border-lime-500 transition-all"
+                                                />
+                                            </div>
+                                        );
+                                    }
+                                    return null;
+                                })()}
+                            </div>
+                        )}
 
                         {!isMinimized && (
                             <SetsList 

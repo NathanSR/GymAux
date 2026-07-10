@@ -8,6 +8,8 @@ const mapExecutedGroupFromSupabase = (g: any): ExecutedGroup => ({
     exercises: (g.exercises || []).map((ex: any) => ({
         exerciseId: ex.exerciseId,
         exerciseName: ex.exerciseName,
+        variation: ex.variation || 'none',
+        executionMode: ex.executionMode || 'bilateral',
         sets: (ex.sets || []).map((s: any) => ({
             reps: s.reps,
             weight: s.weight,
@@ -15,6 +17,7 @@ const mapExecutedGroupFromSupabase = (g: any): ExecutedGroup => ({
             skipped: s.skipped,
             technique: s.technique,
             notes: s.notes,
+            dropset: s.dropset,
         })),
     })),
 });

@@ -5,6 +5,7 @@ import { ExerciseGroup, Exercise, Session } from '@/config/types';
 import { ExerciseSelector } from '../../exercises/ExerciseSelector';
 import { ConfirmDialog } from '../../ui/ConfirmDialog';
 import { numberInputUtils } from '@/utils/numberUtil';
+import { useTranslations } from 'next-intl';
 
 interface WorkoutDrawerFormProps {
     session: Session;
@@ -40,8 +41,10 @@ export const WorkoutDrawerForm = ({
         newType: null
     });
 
+    const tw = useTranslations('WorkoutForm');
+
     const { register, handleSubmit, reset, setValue, watch } = useForm<any>({
-        defaultValues: { groupType: 'straight', sets: 3, reps: 12, restTime: 60, exerciseReps: {} }
+        defaultValues: { groupType: 'straight', sets: 3, reps: 12, restTime: 60, exerciseReps: {}, exerciseVariations: {}, exerciseModes: {} }
     });
 
     const groupType = watch('groupType');
@@ -59,9 +62,14 @@ export const WorkoutDrawerForm = ({
                 setValue('sets', firstEx?.sets.length || 3);
                 setValue('reps', firstEx?.sets[0]?.reps || 12);
                 setValue('restTime', group.restAfterGroup || 60);
+
+                group.exercises.forEach((ex: any, idx: number) => {
+                    setValue(`exerciseVariations.${idx}`, ex.variation || 'none');
+                    setValue(`exerciseModes.${idx}`, ex.executionMode || 'bilateral');
+                });
             } else {
                 setFormExercises([null]);
-                reset({ groupType: 'straight', sets: 3, reps: 12, restTime: 60, exerciseReps: {} });
+                reset({ groupType: 'straight', sets: 3, reps: 12, restTime: 60, exerciseReps: {}, exerciseVariations: {}, exerciseModes: {} });
             }
         }
     }, [isFormOpen, editingGroupIdx, groups, setValue, reset]);
@@ -71,6 +79,9 @@ export const WorkoutDrawerForm = ({
             const newExs = [...formExercises];
             newExs[selectingIndex] = { id: exercise.id, name: exercise.name } as any;
             setFormExercises(newExs);
+
+            setValue(`exerciseVariations.${selectingIndex}`, 'none');
+            setValue(`exerciseModes.${selectingIndex}`, 'bilateral');
         }
         setIsSelectorOpen(false);
         setSelectingIndex(null);
@@ -134,6 +145,8 @@ export const WorkoutDrawerForm = ({
         const reps = Number(data.reps);
         const restTime = Number(data.restTime);
         const exerciseReps = watch('exerciseReps') || {};
+        const exerciseVariations = watch('exerciseVariations') || {};
+        const exerciseModes = watch('exerciseModes') || {};
 
         const mappedExercises = formExercises.map((ex, idx) => {
             const exReps = Number(exerciseReps[idx] || reps);
@@ -147,7 +160,9 @@ export const WorkoutDrawerForm = ({
                 exerciseId: ex!.id!,
                 exerciseName: ex!.name,
                 sets: plannedSets,
-                restAfterExercise: 0
+                restAfterExercise: 0,
+                variation: exerciseVariations[idx] || 'none',
+                executionMode: exerciseModes[idx] || 'bilateral'
             };
         });
 
@@ -221,49 +236,118 @@ export const WorkoutDrawerForm = ({
                             <div className="absolute left-[7px] top-6 bottom-6 w-0.5 bg-lime-500/20 rounded-full" />
                         )}
                         {formExercises.map((ex, idx) => (
-                            <div key={idx} className={`relative flex items-center gap-3 group transition-all`}>
-                                {groupType !== 'straight' && (
-                                    <div className="absolute -left-[19px] top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-lime-500 ring-4 ring-lime-500/10 z-10" />
-                                )}
+                            <div key={idx} className={`relative flex flex-col gap-2 bg-zinc-900/20 p-3 rounded-2xl border border-zinc-900/60`}>
+                                <div className="flex items-center gap-3 w-full">
+                                    {groupType !== 'straight' && (
+                                        <div className="absolute -left-[19px] top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-lime-500 ring-4 ring-lime-500/10 z-10" />
+                                    )}
 
-                                <button
-                                    type="button"
-                                    onClick={() => {
-                                        setSelectingIndex(idx);
-                                        setIsSelectorOpen(true);
-                                    }}
-                                    className="flex-1 flex items-center justify-between bg-zinc-900/50 p-3 rounded-2xl border border-zinc-800/50 text-left group-hover:border-lime-400/20 transition-all overflow-hidden"
-                                >
-                                    <div className="flex items-center gap-3">
-                                        <Dumbbell size={14} className={`${ex ? 'text-lime-400' : 'text-zinc-700'} shrink-0`} />
-                                        <span className={`text-[10px] sm:text-xs font-black uppercase tracking-tight truncate ${ex ? 'text-white' : 'text-zinc-600'}`}>
-                                            {ex ? (te.has(ex.name) ? te(ex.name) : ex.name) : t('selectExercise')}
-                                        </span>
-                                    </div>
-                                    <ChevronDown size={14} className="text-zinc-700 shrink-0" />
-                                </button>
-
-                                {groupType !== 'straight' && (
-                                    <div className="w-16 shrink-0 bg-zinc-900/50 rounded-2xl border border-zinc-800/50 p-2 flex flex-col items-center justify-center">
-                                        <span className="text-[7px] font-black text-zinc-500 uppercase tracking-widest">{t('reps')}</span>
-                                        <input
-                                            type="number"
-                                            className="w-full bg-transparent text-center font-black text-xs outline-none text-lime-400"
-                                            value={numberInputUtils.formatValue(watch(`exerciseReps.${idx}`) || watch('reps') || 10)}
-                                            onFocus={numberInputUtils.onFocus}
-                                            onChange={(e) => numberInputUtils.onChange(e, (val) => setValue(`exerciseReps.${idx}`, val))}
-                                        />
-                                    </div>
-                                )}
-
-                                {formExercises.length > 1 && groupType !== 'bi_set' && groupType !== 'tri_set' && (
                                     <button
                                         type="button"
-                                        onClick={() => setFormExercises(formExercises.filter((_, i) => i !== idx))}
-                                        className="p-2 text-zinc-600 hover:text-red-500 transition-colors shrink-0"
+                                        onClick={() => {
+                                            setSelectingIndex(idx);
+                                            setIsSelectorOpen(true);
+                                        }}
+                                        className="flex-1 flex items-center justify-between bg-zinc-900/50 p-3 rounded-2xl border border-zinc-800/50 text-left hover:border-lime-400/20 transition-all overflow-hidden"
                                     >
-                                        <X size={18} />
+                                        <div className="flex items-center gap-3">
+                                            <Dumbbell size={14} className={`${ex ? 'text-lime-400' : 'text-zinc-700'} shrink-0`} />
+                                            <span className={`text-[10px] sm:text-xs font-black uppercase tracking-tight truncate ${ex ? 'text-white' : 'text-zinc-600'}`}>
+                                                {ex ? (te.has(ex.name) ? te(ex.name) : ex.name) : t('selectExercise')}
+                                            </span>
+                                        </div>
+                                        <ChevronDown size={14} className="text-zinc-700 shrink-0" />
                                     </button>
+
+                                    {groupType !== 'straight' && (
+                                        <div className="w-16 shrink-0 bg-zinc-900/50 rounded-2xl border border-zinc-800/50 p-2 flex flex-col items-center justify-center">
+                                            <span className="text-[7px] font-black text-zinc-500 uppercase tracking-widest">{t('reps')}</span>
+                                            <input
+                                                type="number"
+                                                className="w-full bg-transparent text-center font-black text-xs outline-none text-lime-400"
+                                                value={numberInputUtils.formatValue(watch(`exerciseReps.${idx}`) || watch('reps') || 10)}
+                                                onFocus={numberInputUtils.onFocus}
+                                                onChange={(e) => numberInputUtils.onChange(e, (val) => setValue(`exerciseReps.${idx}`, val))}
+                                            />
+                                        </div>
+                                    )}
+
+                                    {formExercises.length > 1 && groupType !== 'bi_set' && groupType !== 'tri_set' && (
+                                        <button
+                                            type="button"
+                                            onClick={() => setFormExercises(formExercises.filter((_, i) => i !== idx))}
+                                            className="p-2 text-zinc-600 hover:text-red-500 transition-colors shrink-0"
+                                        >
+                                            <X size={18} />
+                                        </button>
+                                    )}
+                                </div>
+
+                                {ex && (
+                                    <div className="grid grid-cols-2 gap-2 mt-1">
+                                        <div>
+                                            <label className="block text-[8px] font-black text-zinc-500 uppercase tracking-widest mb-1 ml-1">
+                                                {tw('executionModeLabel')}
+                                            </label>
+                                            <select
+                                                value={watch(`exerciseModes.${idx}`) || 'bilateral'}
+                                                onChange={(e) => setValue(`exerciseModes.${idx}`, e.target.value)}
+                                                className="w-full bg-zinc-950 border border-zinc-900 text-zinc-300 text-xs font-black uppercase p-2 rounded-xl outline-none focus:border-lime-500 transition-all cursor-pointer"
+                                            >
+                                                <option className="bg-zinc-950 text-white" value="bilateral">{tw('executionModes.bilateral')}</option>
+                                                <option className="bg-zinc-950 text-white" value="unilateral">{tw('executionModes.unilateral')}</option>
+                                                <option className="bg-zinc-950 text-white" value="unilateral_right">{tw('executionModes.unilateral_right')}</option>
+                                                <option className="bg-zinc-950 text-white" value="unilateral_left">{tw('executionModes.unilateral_left')}</option>
+                                                <option className="bg-zinc-950 text-white" value="alternating">{tw('executionModes.alternating')}</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label className="block text-[8px] font-black text-zinc-500 uppercase tracking-widest mb-1 ml-1">
+                                                {tw('variationLabel')}
+                                            </label>
+                                            <select
+                                                value={(() => {
+                                                    const currentVar = watch(`exerciseVariations.${idx}`) || 'none';
+                                                    return ['none', 'barbell', 'dumbbell', 'cable', 'machine', 'smith'].includes(currentVar) ? currentVar : 'custom';
+                                                })()}
+                                                onChange={(e) => {
+                                                    const val = e.target.value;
+                                                    if (val === 'custom') {
+                                                        setValue(`exerciseVariations.${idx}`, '');
+                                                    } else {
+                                                        setValue(`exerciseVariations.${idx}`, val);
+                                                    }
+                                                }}
+                                                className="w-full bg-zinc-950 border border-zinc-900 text-zinc-300 text-xs font-black uppercase p-2 rounded-xl outline-none focus:border-lime-500 transition-all cursor-pointer"
+                                            >
+                                                <option className="bg-zinc-950 text-white" value="none">{tw('variationOptions.none')}</option>
+                                                <option className="bg-zinc-950 text-white" value="barbell">{tw('variationOptions.barbell')}</option>
+                                                <option className="bg-zinc-950 text-white" value="dumbbell">{tw('variationOptions.dumbbell')}</option>
+                                                <option className="bg-zinc-950 text-white" value="cable">{tw('variationOptions.cable')}</option>
+                                                <option className="bg-zinc-950 text-white" value="machine">{tw('variationOptions.machine')}</option>
+                                                <option className="bg-zinc-950 text-white" value="smith">{tw('variationOptions.smith')}</option>
+                                                <option className="bg-zinc-950 text-white" value="custom">{tw('variationOptions.custom')}</option>
+                                            </select>
+                                        </div>
+                                        {(() => {
+                                            const currentVar = watch(`exerciseVariations.${idx}`) || 'none';
+                                            const isCustom = !['none', 'barbell', 'dumbbell', 'cable', 'machine', 'smith'].includes(currentVar);
+                                            if (isCustom) {
+                                                return (
+                                                    <div className="col-span-2 mt-1">
+                                                        <input
+                                                            type="text"
+                                                            value={currentVar}
+                                                            onChange={(e) => setValue(`exerciseVariations.${idx}`, e.target.value)}
+                                                            placeholder={tw('customVariationPlaceholder')}
+                                                            className="w-full bg-zinc-950 border border-zinc-900 text-zinc-200 text-xs font-bold p-2.5 rounded-xl outline-none focus:border-lime-500 transition-all"
+                                                        />
+                                                    </div>
+                                                );
+                                            }
+                                            return null;
+                                        })()}
+                                    </div>
                                 )}
                             </div>
                         ))}

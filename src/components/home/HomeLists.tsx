@@ -31,6 +31,7 @@ export function HomeLists({
 }) {
     const t = useTranslations('Home');
     const te = useTranslations('Exercises');
+    const tw = useTranslations('WorkoutForm');
     const locale = useLocale();
     const router = useRouter();
     const { resumeWorkout, cancelSession } = useSessionActions();
@@ -200,8 +201,24 @@ export function HomeLists({
                                                 {(() => {
                                                     const nextGroup = session.exercisesToDo[session.current?.groupIndex || 0];
                                                     const nextExercise = nextGroup?.exercises?.[session.current?.exerciseIndex || 0];
-                                                    const name = nextExercise?.exerciseName;
-                                                    return name && te.has(name) ? te(name) : name || t('next');
+                                                    if (!nextExercise) return t('next');
+                                                    const name = nextExercise.exerciseName;
+                                                    const baseName = name && te.has(name) ? te(name) : name || t('next');
+                                                    
+                                                    const currentVar = nextExercise.variation || 'none';
+                                                    const currentMode = nextExercise.executionMode || 'bilateral';
+                                                    const parts = [];
+                                                    if (currentVar !== 'none') {
+                                                        const isPredefined = ['none', 'barbell', 'dumbbell', 'cable', 'machine', 'smith'].includes(currentVar);
+                                                        parts.push(isPredefined ? tw(`variationOptions.${currentVar}`) : currentVar);
+                                                    }
+                                                    if (currentMode !== 'bilateral') {
+                                                        parts.push(tw(`executionModes.${currentMode}`));
+                                                    }
+                                                    if (parts.length > 0) {
+                                                        return `${baseName} (${parts.join(' • ')})`;
+                                                    }
+                                                    return baseName;
                                                 })()}
                                             </p>
                                         </div>

@@ -22,6 +22,8 @@ const mapGroupFromSupabase = (g: any): ExerciseGroup => ({
         })),
         restAfterExercise: ex.restAfterExercise ?? 0,
         notes: ex.notes,
+        variation: ex.variation || 'none',
+        executionMode: ex.executionMode || 'bilateral',
     })),
     notes: g.notes,
 });
@@ -49,6 +51,8 @@ const serializeGroups = (groups: ExerciseGroup[]) =>
             exerciseName: ex.exerciseName,
             restAfterExercise: ex.restAfterExercise,
             notes: ex.notes,
+            variation: ex.variation || 'none',
+            executionMode: ex.executionMode || 'bilateral',
             sets: ex.sets.map(s => ({
                 reps: Math.max(0, s.reps),
                 weight: s.weight,

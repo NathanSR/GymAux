@@ -81,6 +81,8 @@ export interface WorkoutExercise {
     sets: PlannedSet[];         // Cada série é configurada individualmente
     restAfterExercise: number;  // Descanso após este exercício dentro do grupo (seg)
     notes?: string;
+    variation?: string;         // ex: 'barbell', 'dumbbell', 'cable', 'machine', ou personalizado
+    executionMode?: 'bilateral' | 'unilateral' | 'unilateral_right' | 'unilateral_left' | 'alternating';
 }
 
 /** Grupo de exercícios — unidade de organização do treino */
@@ -121,6 +123,7 @@ export interface ExecutedSet {
     skipped?: boolean;
     technique?: SetTechnique;
     notes?: string;
+    dropset?: { reps: number; weight: number }[];
 }
 
 /** Exercício executado */
@@ -128,6 +131,8 @@ export interface ExecutedExercise {
     exerciseId: number;
     exerciseName: string;
     sets: ExecutedSet[];
+    variation?: string;
+    executionMode?: 'bilateral' | 'unilateral' | 'unilateral_right' | 'unilateral_left' | 'alternating';
 }
 
 /** Grupo executado */

@@ -1338,7 +1338,26 @@
     "detailedView": "Detailed View",
     "quickSets": "Quick Setup",
     "reorderItems": "Reorder",
-    "doneReordering": "Done"
+    "doneReordering": "Done",
+    "executionModeLabel": "Execution Mode",
+    "variationLabel": "Variation",
+    "customVariationPlaceholder": "Write a custom variation...",
+    "executionModes": {
+      "bilateral": "Bilateral",
+      "unilateral": "Unilateral",
+      "unilateral_right": "Unilateral Right",
+      "unilateral_left": "Unilateral Left",
+      "alternating": "Alternating"
+    },
+    "variationOptions": {
+      "none": "Default",
+      "barbell": "Barbell",
+      "dumbbell": "Dumbbell",
+      "cable": "Cable",
+      "machine": "Machine",
+      "smith": "Smith",
+      "custom": "Custom"
+    }
   },
   "ScheduleList": {
     "title": "Schedules",

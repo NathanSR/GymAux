@@ -1,11 +1,14 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { motion, LayoutGroup, AnimatePresence } from 'framer-motion';
-import { Dumbbell, Check, Plus, Minus, SkipForward, FastForward, ArrowRight, X } from 'lucide-react';
+import { Dumbbell, Check, Plus, Minus, ArrowRight, X, SlidersHorizontal, Zap } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { numberInputUtils } from '../../utils/numberUtil';
 import { RPE_EMOJIS, RPE_OPTIONS } from './SessionConstants';
 import { Controller, useWatch } from 'react-hook-form';
+import { RpeDial } from './RpeDial';
+import { DropsetModal } from './DropsetModal';
+import { SessionActionsModal } from './SessionActionsModal';
 
 interface SessionSetFormProps {
     currentPlannedSet: any;
@@ -17,7 +20,9 @@ interface SessionSetFormProps {
     onCompleteSet: (formData: any, skipped: boolean) => void;
     onSkipSet: () => void;
     onSkipExercise: () => void;
-    setWatchValues: (watchFn: () => { weight: number; reps: number; rpe: number }) => void;
+    onAddSet: () => void;
+    onForceFinishWorkout: () => void;
+    setWatchValues: (watchFn: () => { weight: number; reps: number; rpe: number; dropset?: { reps: number; weight: number }[] }) => void;
     lastWeightUsed?: number | null;
 }
 
@@ -31,10 +36,16 @@ export function SessionSetForm({
     onCompleteSet,
     onSkipSet,
     onSkipExercise,
+    onAddSet,
+    onForceFinishWorkout,
     setWatchValues,
     lastWeightUsed
 }: SessionSetFormProps) {
     const t = useTranslations('Session');
+
+    const [isDropsetOpen, setIsDropsetOpen] = useState(false);
+    const [isActionsOpen, setIsActionsOpen] = useState(false);
+    const [dropset, setDropset] = useState<{ reps: number; weight: number }[] | null>(null);
 
     const { register, handleSubmit, setValue, control } = useForm({
         defaultValues: {
@@ -55,15 +66,17 @@ export function SessionSetForm({
         setValue("weight", initialWeight);
         setValue("reps", currentPlannedSet?.reps || 0);
         setValue("rpe", 7); // Reset RPE on every change
+        setDropset(null); // Reset dropset state on set change
     }, [currentGroupIndex, currentExerciseIndex, currentSetIndex, setValue, currentPlannedSet, lastWeightUsed]);
 
     useEffect(() => {
         setWatchValues(() => ({
-            weight,
-            reps: repsValue,
-            rpe: rpeValue
+            weight: dropset && dropset.length > 0 ? dropset[0].weight : Number(weight),
+            reps: dropset && dropset.length > 0 ? dropset.reduce((acc, d) => acc + d.reps, 0) : Number(repsValue),
+            rpe: Number(rpeValue),
+            dropset: dropset || undefined
         }));
-    }, [weight, repsValue, rpeValue, setWatchValues]);
+    }, [weight, repsValue, rpeValue, dropset, setWatchValues]);
 
     const adjustWeight = (amount: number) => {
         const currentWeight = Number(weight || 0);
@@ -75,19 +88,48 @@ export function SessionSetForm({
         setValue("reps", Math.max(0, currentReps + amount));
     };
 
+    const isDropsetActive = dropset && dropset.length > 0;
+
     return (
         <form
-            onSubmit={handleSubmit((data) => onCompleteSet(data, false))}
-            className="space-y-3"
+            onSubmit={handleSubmit((data) => onCompleteSet({ ...data, dropset }, false))}
+            className="space-y-4"
         >
+            {/* Weight and Reps Inputs */}
             <div className="grid grid-cols-2 gap-3">
-                <div className="group flex bg-zinc-900 border border-zinc-800 rounded-3xl px-4 py-3 focus-within:border-lime-400/50 focus-within:ring-4 focus-within:ring-lime-400/5 transition-all">
-                    <div className='flex flex-col'>
-                        <label className="text-[8px] font-black uppercase text-zinc-500 tracking-[0.2em] block mb-1.5 group-focus-within:text-lime-400 transition-colors">
-                            {t('weight')}
-                        </label>
-                        <div className="flex items-center justify-between gap-2">
-                            <div className="flex items-center gap-2 flex-1 min-w-0">
+                {/* Weight Input Card */}
+                {isDropsetActive ? (
+                    <div 
+                        onClick={() => setIsDropsetOpen(true)}
+                        className="group flex bg-zinc-900 border border-lime-400/30 rounded-3xl px-4 py-3 cursor-pointer hover:border-lime-400/50 hover:ring-4 hover:ring-lime-400/5 transition-all flex-1 min-w-0"
+                    >
+                        <div className="flex flex-col flex-1 min-w-0">
+                            <span className="text-[8px] font-black uppercase text-zinc-500 tracking-[0.2em] block mb-1.5 group-hover:text-lime-400 transition-colors">
+                                {t('weight')}
+                            </span>
+                            <div className="flex items-center gap-2">
+                                <Dumbbell size={18} className="text-lime-400 flex-shrink-0" />
+                                <div className="flex flex-col leading-none">
+                                    <span className="text-3xl font-black text-white">{dropset[0].weight}kg</span>
+                                    <span className="text-[9px] font-black text-zinc-500 block mt-1">
+                                        Carga Inicial
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="flex items-center justify-center pl-2">
+                            <div className="w-8 h-8 rounded-xl bg-lime-400/10 flex items-center justify-center text-lime-400">
+                                <Zap size={14} className="fill-current" />
+                            </div>
+                        </div>
+                    </div>
+                ) : (
+                    <div className="group flex bg-zinc-900 border border-zinc-800 rounded-3xl px-4 py-3 focus-within:border-lime-400/50 focus-within:ring-4 focus-within:ring-lime-400/5 transition-all">
+                        <div className='flex flex-col flex-1 min-w-0'>
+                            <label className="text-[8px] font-black uppercase text-zinc-500 tracking-[0.2em] block mb-1.5 group-focus-within:text-lime-400 transition-colors">
+                                {t('weight')}
+                            </label>
+                            <div className="flex items-center gap-2">
                                 <Dumbbell size={18} className="text-lime-400 flex-shrink-0" />
                                 <Controller
                                     name="weight"
@@ -106,25 +148,52 @@ export function SessionSetForm({
                                 />
                             </div>
                         </div>
+                        <div className="flex flex-col gap-1 justify-center">
+                            <button type="button" onClick={() => adjustWeight(5)} className="w-8 h-8 rounded-xl bg-zinc-800 flex items-center justify-center hover:bg-zinc-700 active:scale-90 transition-all text-zinc-400 hover:text-white">
+                                <Plus size={14} />
+                            </button>
+                            <button type="button" onClick={() => adjustWeight(-5)} className="w-8 h-8 rounded-xl bg-zinc-800 flex items-center justify-center hover:bg-zinc-700 active:scale-90 transition-all text-zinc-400 hover:text-white">
+                                <Minus size={14} />
+                            </button>
+                        </div>
                     </div>
+                )}
 
-                    <div className="flex flex-col gap-1 justify-center">
-                        <button type="button" onClick={() => adjustWeight(5)} className="w-8 h-8 rounded-xl bg-zinc-800 flex items-center justify-center hover:bg-zinc-700 active:scale-90 transition-all text-zinc-400 hover:text-white">
-                            <Plus size={14} />
-                        </button>
-                        <button type="button" onClick={() => adjustWeight(-5)} className="w-8 h-8 rounded-xl bg-zinc-800 flex items-center justify-center hover:bg-zinc-700 active:scale-90 transition-all text-zinc-400 hover:text-white">
-                            <Minus size={14} />
-                        </button>
+                {/* Reps Input Card */}
+                {isDropsetActive ? (
+                    <div 
+                        onClick={() => setIsDropsetOpen(true)}
+                        className="group flex bg-zinc-900 border border-lime-400/30 rounded-3xl px-4 py-3 cursor-pointer hover:border-lime-400/50 hover:ring-4 hover:ring-lime-400/5 transition-all flex-1 min-w-0"
+                    >
+                        <div className="flex flex-col flex-1 min-w-0">
+                            <span className="text-[8px] font-black uppercase text-zinc-500 tracking-[0.2em] block mb-1.5 group-hover:text-lime-400 transition-colors">
+                                {t('performed')}
+                            </span>
+                            <div className="flex items-center gap-2">
+                                <Check size={18} className="text-lime-400 flex-shrink-0" />
+                                <div className="flex flex-col leading-none">
+                                    <span className="text-3xl font-black text-white">
+                                        {dropset.reduce((acc, d) => acc + d.reps, 0)}
+                                    </span>
+                                    <span className="text-[9px] font-black text-zinc-500 block mt-1">
+                                        Reps Totais
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="flex items-center justify-center pl-2">
+                            <div className="w-8 h-8 rounded-xl bg-lime-400/10 flex items-center justify-center text-lime-400">
+                                <Zap size={14} className="fill-current" />
+                            </div>
+                        </div>
                     </div>
-                </div>
-
-                <div className="group flex bg-zinc-900 border border-zinc-800 rounded-3xl px-4 py-3 focus-within:border-lime-400/50 focus-within:ring-4 focus-within:ring-lime-400/5 transition-all">
-                    <div className='flex flex-col'>
-                        <label className="text-[8px] font-black uppercase text-zinc-500 tracking-[0.2em] block mb-1.5 group-focus-within:text-lime-400 transition-colors">
-                            {t('performed')}
-                        </label>
-                        <div className="flex items-center justify-between gap-2">
-                            <div className="flex items-center gap-2 flex-1 min-w-0">
+                ) : (
+                    <div className="group flex bg-zinc-900 border border-zinc-800 rounded-3xl px-4 py-3 focus-within:border-lime-400/50 focus-within:ring-4 focus-within:ring-lime-400/5 transition-all">
+                        <div className='flex flex-col flex-1 min-w-0'>
+                            <label className="text-[8px] font-black uppercase text-zinc-500 tracking-[0.2em] block mb-1.5 group-focus-within:text-lime-400 transition-colors">
+                                {t('performed')}
+                            </label>
+                            <div className="flex items-center gap-2">
                                 <Check size={18} className="text-lime-400 flex-shrink-0" />
                                 <Controller
                                     name="reps"
@@ -143,84 +212,91 @@ export function SessionSetForm({
                                 />
                             </div>
                         </div>
+                        <div className="flex flex-col gap-1 justify-center">
+                            <button type="button" onClick={() => adjustReps(1)} className="w-8 h-8 rounded-xl bg-zinc-800 flex items-center justify-center hover:bg-zinc-700 active:scale-90 transition-all text-zinc-400 hover:text-white">
+                                <Plus size={14} />
+                            </button>
+                            <button type="button" onClick={() => adjustReps(-1)} className="w-8 h-8 rounded-xl bg-zinc-800 flex items-center justify-center hover:bg-zinc-700 active:scale-90 transition-all text-zinc-400 hover:text-white">
+                                <Minus size={14} />
+                            </button>
+                        </div>
                     </div>
-
-                    <div className="flex flex-col gap-1 justify-center">
-                        <button type="button" onClick={() => adjustReps(1)} className="w-8 h-8 rounded-xl bg-zinc-800 flex items-center justify-center hover:bg-zinc-700 active:scale-90 transition-all text-zinc-400 hover:text-white">
-                            <Plus size={14} />
-                        </button>
-                        <button type="button" onClick={() => adjustReps(-1)} className="w-8 h-8 rounded-xl bg-zinc-800 flex items-center justify-center hover:bg-zinc-700 active:scale-90 transition-all text-zinc-400 hover:text-white">
-                            <Minus size={14} />
-                        </button>
-                    </div>
-                </div>
+                )}
             </div>
 
-            {/* RPE Simplificado (Apenas Emojis) */}
-            <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-4 transition-colors duration-300">
-                <div className="flex justify-between items-center mb-3">
-                    <label className="text-[9px] font-black uppercase text-zinc-500 tracking-widest">{t('effort')}</label>
-                    <div className="flex items-center gap-2">
-                        <span className="text-[9px] text-lime-400 font-bold uppercase tracking-tight">{t(RPE_EMOJIS[Number(rpeValue)]?.labelKey)}</span>
-                        <span className="w-6 h-6 bg-lime-400 rounded-lg text-zinc-950 flex items-center justify-center font-black text-xs italic">
-                            {rpeValue}
-                        </span>
-                    </div>
-                </div>
-
-                <LayoutGroup>
-                    <div className="flex flex-wrap justify-center gap-1.5 p-1 bg-black/20 rounded-2xl">
-                        {RPE_OPTIONS.map((val) => (
-                            <motion.button
-                                key={val}
-                                type="button"
-                                onClick={() => setValue("rpe", val)}
-                                whileTap={{ scale: 0.9 }}
-                                className={`relative w-[11%] aspect-square rounded-xl flex items-center justify-center text-2xl sm:text-3xl transition-colors overflow-hidden ${Number(rpeValue) === val
-                                    ? 'bg-transparent text-zinc-950'
-                                    : 'bg-zinc-800/50 text-zinc-500'
-                                    }`}
-                            >
-                                {Number(rpeValue) === val && (
-                                    <motion.div
-                                        layoutId="activeRpe"
-                                        className="absolute inset-0 bg-lime-400"
-                                        transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                                    />
-                                )}
-                                <span className={`z-10 transition-transform ${Number(rpeValue) === val ? 'scale-110' : ''}`}>
-                                    {RPE_EMOJIS[val]?.emoji}
-                                </span>
-                                <span className={`absolute bottom-0 right-0 px-1 text-[10px] sm:text-xs font-black z-10 ${Number(rpeValue) === val ? 'text-lime-950/40' : 'text-lime-400'}`}>{val}</span>
-                            </motion.button>
-                        ))}
-                    </div>
-                </LayoutGroup>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3 pb-2 pt-1">
+            {/* Prominent Dropset Selector Button */}
+            {isDropsetActive ? (
                 <button
                     type="button"
-                    onClick={onSkipSet}
-                    className="flex items-center justify-center gap-1.5 py-4 px-3 bg-zinc-900 border border-zinc-800 rounded-2xl text-zinc-400 text-[9px] font-black uppercase tracking-widest hover:bg-zinc-800 active:scale-[0.98] transition-all"
+                    onClick={() => setIsDropsetOpen(true)}
+                    className="w-full py-3 bg-lime-400/10 border border-lime-400/35 hover:bg-lime-400/20 text-lime-400 rounded-2xl flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-widest transition-all duration-300 active:scale-[0.99] shadow-[0_0_15px_rgba(163,230,71,0.03)] cursor-pointer"
                 >
-                    <SkipForward size={14} />
-                    {t('skipSet')}
+                    <Zap size={12} className="fill-current text-lime-400" />
+                    Dropset Ativo: {dropset.map(d => `${d.weight}kg`).join(' ➔ ')} (Editar)
                 </button>
+            ) : (
                 <button
                     type="button"
-                    onClick={onSkipExercise}
-                    className="flex items-center justify-center gap-1.5 py-4 px-3 bg-rose-950/20 border border-rose-900/30 rounded-2xl text-rose-500 text-[9px] font-black uppercase tracking-widest hover:bg-rose-900/30 active:scale-[0.98] transition-all"
+                    onClick={() => setIsDropsetOpen(true)}
+                    className="w-full py-3 bg-zinc-900/50 hover:bg-zinc-900 border border-zinc-850 hover:border-lime-400/30 text-zinc-400 hover:text-lime-400 rounded-2xl flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-widest transition-all duration-300 active:scale-[0.99] cursor-pointer"
                 >
-                    <FastForward size={14} />
-                    {isGroupAlternating ? t('skipGroup') : t('skipExercise')}
+                    <Zap size={12} className="text-zinc-500 flex-shrink-0" />
+                    ⚡ Configurar Dropset
+                </button>
+            )}
+
+            {/* RPE Selector with Rotary Dial Component */}
+            <Controller
+                name="rpe"
+                control={control}
+                render={({ field }) => (
+                    <RpeDial
+                        value={field.value}
+                        onChange={field.onChange}
+                        label={t('effort')}
+                        subLabel={t(RPE_EMOJIS[Number(rpeValue)]?.labelKey)}
+                    />
+                )}
+            />
+
+            {/* Dropset Configuration Modal */}
+            <DropsetModal
+                isOpen={isDropsetOpen}
+                onClose={() => setIsDropsetOpen(false)}
+                onSave={(d) => setDropset(d)}
+                initialDropset={dropset}
+                defaultWeight={Number(weight)}
+                defaultReps={Number(repsValue)}
+            />
+
+            {/* Workout Actions (Single Options Button) */}
+            <div className="pb-2 pt-1">
+                <button
+                    type="button"
+                    onClick={() => setIsActionsOpen(true)}
+                    className="flex items-center justify-center gap-2 w-full py-4 bg-zinc-900 border border-zinc-800 rounded-2xl text-zinc-400 text-[10px] font-black uppercase tracking-widest hover:bg-zinc-800 hover:text-white active:scale-[0.98] transition-all cursor-pointer"
+                >
+                    <SlidersHorizontal size={14} />
+                    Opções da Série / Ações
                 </button>
             </div>
 
+            {/* Actions Dialog Modal */}
+            <SessionActionsModal
+                isOpen={isActionsOpen}
+                onClose={() => setIsActionsOpen(false)}
+                onSkipSet={onSkipSet}
+                onSkipExercise={onSkipExercise}
+                onAddSet={onAddSet}
+                onForceFinishWorkout={onForceFinishWorkout}
+                isGroupAlternating={isGroupAlternating}
+            />
+
+            {/* Submit Confirm Set Button */}
             {!isReadOnly && (
                 <button
                     type="submit"
-                    className="group w-full py-5 bg-lime-400 text-zinc-950 rounded-[24px] font-black uppercase text-[10px] tracking-[0.3em] flex items-center justify-center gap-3 shadow-[0_15px_40px_rgba(163,230,71,0.2)] hover:-translate-y-1 active:scale-[0.98] transition-all border-b-[6px] border-lime-600"
+                    className="group w-full py-5 bg-lime-400 text-zinc-950 rounded-[24px] font-black uppercase text-[10px] tracking-[0.3em] flex items-center justify-center gap-3 shadow-[0_15px_40px_rgba(163,230,71,0.2)] hover:-translate-y-1 active:scale-[0.98] transition-all border-b-[6px] border-lime-600 cursor-pointer"
                 >
                     {t('confirmSet')}
                     <ArrowRight size={18} className="group-hover:translate-x-2 transition-transform" />

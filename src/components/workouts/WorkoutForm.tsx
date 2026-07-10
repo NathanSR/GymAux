@@ -144,6 +144,8 @@ export default function WorkoutForm({ initialData, availableExercises = [], onSu
                     exerciseId: '',
                     exerciseName: '',
                     restAfterExercise: 0,
+                    variation: 'none',
+                    executionMode: 'bilateral',
                     sets: currentExercises[0]?.sets
                         ? JSON.parse(JSON.stringify(currentExercises[0].sets))
                         : [{ reps: 10, restTime: 60, technique: 'normal' }]
@@ -207,6 +209,8 @@ export default function WorkoutForm({ initialData, availableExercises = [], onSu
                     exerciseId: exercise.id,
                     exerciseName: exercise.name,
                     restAfterExercise: 0,
+                    variation: 'none',
+                    executionMode: 'bilateral',
                     sets: [
                         { reps: 10, restTime: 60, technique: 'normal' },
                         { reps: 10, restTime: 60, technique: 'normal' },
@@ -225,6 +229,8 @@ export default function WorkoutForm({ initialData, availableExercises = [], onSu
                     exerciseId: exercise.id,
                     exerciseName: exercise.name,
                     restAfterExercise: 0,
+                    variation: 'none',
+                    executionMode: 'bilateral',
                     sets: [
                         { reps: 10, restTime: 60, technique: 'normal' },
                         { reps: 10, restTime: 60, technique: 'normal' },
@@ -240,6 +246,8 @@ export default function WorkoutForm({ initialData, availableExercises = [], onSu
                     exerciseId: exercise.id,
                     exerciseName: exercise.name,
                     restAfterExercise: 0,
+                    variation: 'none',
+                    executionMode: 'bilateral',
                     sets: (group.exercises && group.exercises[0]?.sets)
                         ? JSON.parse(JSON.stringify(group.exercises[0].sets)) // Copiar estrutura do primeiro exercício
                         : [{ reps: 10, restTime: 60, technique: 'normal' }]

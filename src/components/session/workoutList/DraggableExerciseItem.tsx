@@ -27,6 +27,7 @@ export const DraggableExerciseItem = ({
 }: DraggableExerciseItemProps) => {
     const t = useTranslations('WorkoutDrawer');
     const te = useTranslations('Exercises');
+    const tw = useTranslations('WorkoutForm');
 
     const groupId = group.id || `group-${idx}`;
 
@@ -112,7 +113,23 @@ export const DraggableExerciseItem = ({
                                         <div className="absolute -left-[19px] top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-lime-500/40" />
                                     )}
                                     <p className={`font-black text-xs sm:text-sm uppercase italic tracking-tight truncate ${isCurrent ? 'text-white' : 'text-zinc-400'}`}>
-                                        {te.has(ex.exerciseName) ? te(ex.exerciseName) : ex.exerciseName}
+                                        {(() => {
+                                            const baseName = te.has(ex.exerciseName) ? te(ex.exerciseName) : ex.exerciseName;
+                                            const currentVar = ex.variation || 'none';
+                                            const currentMode = ex.executionMode || 'bilateral';
+                                            const parts = [];
+                                            if (currentVar !== 'none') {
+                                                const isPredefined = ['none', 'barbell', 'dumbbell', 'cable', 'machine', 'smith'].includes(currentVar);
+                                                parts.push(isPredefined ? tw(`variationOptions.${currentVar}`) : currentVar);
+                                            }
+                                            if (currentMode !== 'bilateral') {
+                                                parts.push(tw(`executionModes.${currentMode}`));
+                                            }
+                                            if (parts.length > 0) {
+                                                return `${baseName} (${parts.join(' • ')})`;
+                                            }
+                                            return baseName;
+                                        })()}
                                     </p>
                                 </div>
                             ))}

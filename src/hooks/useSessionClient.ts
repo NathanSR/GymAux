@@ -10,7 +10,7 @@ import { UseFormWatch } from 'react-hook-form';
 interface UseSessionClientProps {
     initialSession: Session;
     isReadOnly?: boolean;
-    watchValues?: () => { weight: number; reps: number; rpe: number };
+    watchValues?: () => { weight: number; reps: number; rpe: number; dropset?: { reps: number; weight: number }[] };
 }
 
 export function useSessionClient({ initialSession, isReadOnly = false, watchValues }: UseSessionClientProps) {
@@ -56,12 +56,14 @@ export function useSessionClient({ initialSession, isReadOnly = false, watchValu
     const handleSetCompletion = useCallback((formData: any, skipped: boolean = false) => {
         if (!session || !currentExercise || !currentGroup) return;
 
+        const isDropSet = formData.dropset && formData.dropset.length > 0;
         const newSet: ExecutedSet = {
-            weight: Number(formData.weight),
-            reps: Number(formData.reps),
+            weight: isDropSet ? Number(formData.dropset[0].weight) : Number(formData.weight),
+            reps: isDropSet ? formData.dropset.reduce((acc: number, d: any) => acc + Number(d.reps), 0) : Number(formData.reps),
             rpe: Number(formData.rpe),
             skipped,
-            technique: currentPlannedSet?.technique || 'normal'
+            technique: isDropSet ? 'drop_set' : (currentPlannedSet?.technique || 'normal'),
+            dropset: isDropSet ? formData.dropset : undefined
         };
 
         const newSession = { ...session };
@@ -188,6 +190,29 @@ export function useSessionClient({ initialSession, isReadOnly = false, watchValu
         forceFinishWorkout(session, (s) => setSession(s as Session), () => synchronizeProgress(session));
     }, [forceFinishWorkout, session, synchronizeProgress]);
 
+    const handleAddSet = useCallback(() => {
+        const newSession = { ...session };
+        const group = newSession.exercisesToDo[currentGroupIndex];
+        if (!group) return;
+
+        if (group.groupType === 'straight') {
+            const exercise = group.exercises[currentExerciseIndex];
+            if (exercise) {
+                const lastSet = exercise.sets[exercise.sets.length - 1] || { reps: 10, restTime: 60 };
+                exercise.sets.push({ ...lastSet });
+            }
+        } else {
+            group.rounds = (group.rounds || 1) + 1;
+            group.exercises.forEach((ex: any) => {
+                const lastSet = ex.sets[ex.sets.length - 1] || { reps: 10, restTime: 60 };
+                ex.sets.push({ ...lastSet });
+            });
+        }
+
+        setSession(newSession);
+        synchronizeProgress(newSession);
+    }, [session, currentGroupIndex, currentExerciseIndex, synchronizeProgress]);
+
     const lastWeightUsed = useMemo(() => {
         if (!currentExercise) return null;
 
@@ -230,6 +255,7 @@ export function useSessionClient({ initialSession, isReadOnly = false, watchValu
         handleSkipSet,
         handleSkipExercise,
         handleForceFinishWorkout,
+        handleAddSet,
         exitSession,
         synchronizeProgress,
         lastWeightUsed

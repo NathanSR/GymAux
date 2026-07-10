@@ -28,6 +28,7 @@ export function SessionExerciseInfo({
 }: SessionExerciseInfoProps) {
     const t = useTranslations('Session');
     const te = useTranslations('Exercises');
+    const tw = useTranslations('WorkoutForm');
 
     const groupStyle = GROUP_CONFIG[currentGroup?.groupType || 'straight'] || GROUP_CONFIG.straight;
 
@@ -73,6 +74,28 @@ export function SessionExerciseInfo({
                     >
                         {te.has(currentExercise?.exerciseName!) ? te(currentExercise?.exerciseName!) : currentExercise?.exerciseName}
                     </motion.h2>
+
+                    {/* Subtitle with Variation and Execution Mode */}
+                    {currentExercise && (
+                        <motion.div
+                            key={`meta-${currentExercise.exerciseId}`}
+                            initial={{ opacity: 0, y: 5 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="flex items-center gap-1.5 mt-2 text-xs font-black text-lime-500 uppercase tracking-widest"
+                        >
+                            {(() => {
+                                const parts = [];
+                                const variation = currentExercise.variation || 'none';
+                                const isPredefined = ['none', 'barbell', 'dumbbell', 'cable', 'machine', 'smith'].includes(variation);
+                                parts.push(isPredefined ? tw(`variationOptions.${variation}`) : variation);
+
+                                const mode = currentExercise.executionMode || 'bilateral';
+                                parts.push(tw(`executionModes.${mode}`));
+                                
+                                return parts.join(' • ');
+                            })()}
+                        </motion.div>
+                    )}
                 </div>
 
                 <button

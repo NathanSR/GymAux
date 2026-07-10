@@ -44,13 +44,14 @@ export default function SessionClient({ initialSession, isReadOnly = false }: Se
         handleSkipSet,
         handleSkipExercise,
         handleForceFinishWorkout,
+        handleAddSet,
         exitSession,
         synchronizeProgress,
         lastWeightUsed
     } = useSessionClient({
         initialSession,
         isReadOnly,
-        watchValues: () => watchValuesRef.current ? watchValuesRef.current() : { weight: 0, reps: 0, rpe: 7 }
+        watchValues: () => watchValuesRef.current ? watchValuesRef.current() : { weight: 0, reps: 0, rpe: 7, dropset: undefined }
     });
 
     const isCompletion = session.current.step === 'completion';
@@ -143,6 +144,8 @@ export default function SessionClient({ initialSession, isReadOnly = false }: Se
                                             onCompleteSet={handleSetCompletion}
                                             onSkipSet={handleSkipSet}
                                             onSkipExercise={handleSkipExercise}
+                                            onAddSet={handleAddSet}
+                                            onForceFinishWorkout={handleForceFinishWorkout}
                                             setWatchValues={(watchFn) => { watchValuesRef.current = watchFn; }}
                                             lastWeightUsed={lastWeightUsed}
                                         />
