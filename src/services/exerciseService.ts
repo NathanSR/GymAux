@@ -69,6 +69,7 @@ export const ExerciseService = {
         params: {
             searchQuery?: string,
             category?: string,
+            equipment?: string,
             pagination?: { page: number; limit: number },
             translations?: { te: any, tt: any },
             supabase?: any
@@ -77,6 +78,7 @@ export const ExerciseService = {
         const {
             searchQuery = '',
             category = 'all',
+            equipment = 'all',
             pagination = { page: 1, limit: 20 },
             translations,
             supabase: supabaseInput
@@ -119,6 +121,11 @@ export const ExerciseService = {
             } else {
                 return { exercises: [], totalCount: 0 };
             }
+        }
+
+        // Filtro por Equipamento (JS para suportar os mapeados/inferidos)
+        if (equipment !== 'all') {
+            exercises = exercises.filter(ex => ex.equipment === equipment);
         }
 
         // 2. Filtro de Texto (Nome ou Tag) - No JS para suportar traduções

@@ -3,6 +3,7 @@ import { ExerciseService } from "@/services/exerciseService";
 import { X, Play } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Exercise } from "@/config/types";
+import { CATEGORY_METADATA } from "@/config/constants";
 
 interface ExerciseInstructionModalProps {
     isOpen: boolean;
@@ -27,15 +28,16 @@ export const ExerciseInstructionModal = ({ isOpen, onClose, exerciseId }: Exerci
 
     if (!isOpen || !exerciseId) return null;
 
-    // URL de fallback com tema de academia/bodybuilding
     const fallbackImage = "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=1000&auto=format&fit=crop";
+    const categoryMeta = exercise?.category ? CATEGORY_METADATA[exercise.category] : null;
+    const hasMedia = !!exercise?.mediaUrl;
+    const mediaSrc = exercise?.mediaUrl || categoryMeta?.imagePath || fallbackImage;
 
-    // Processamento do texto: Limpa numerações (ex: "1.", "1 -", "1)") e filtra vazios
     const instructions = exercise?.howTo
         ? (te.has(exercise.howTo) ? te(exercise.howTo) : exercise.howTo)
             .split('\n')
             .filter(p => p.trim() !== "")
-            .map(p => p.replace(/^\d+[\s.\-)]+/, '').trim()) // Remove "1.", "1-", etc no início
+            .map(p => p.replace(/^\d+[\s.\-)]+/, '').trim())
         : [];
 
     return (
@@ -52,9 +54,9 @@ export const ExerciseInstructionModal = ({ isOpen, onClose, exerciseId }: Exerci
                 {/* Media Preview (Imagem Real ou Fallback) */}
                 <div className="w-full h-64 bg-zinc-900 relative flex-shrink-0 group overflow-hidden">
                     <img
-                        src={exercise?.mediaUrl || fallbackImage}
+                        src={mediaSrc}
                         alt={exercise?.name}
-                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                        className={`w-full h-full transition-transform duration-700 group-hover:scale-110 object-cover ${hasMedia ? '' : 'bg-zinc-950'}`}
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/20 to-transparent" />
 

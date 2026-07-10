@@ -15,6 +15,7 @@ import { useDebounce } from '@/hooks/useDebounce';
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
 import { Modal } from '@/components/ui/Modal';
 import QuickExerciseDrawer from './QuickExerciseDrawer';
+import { ExerciseFilterPanel } from './ExerciseFilterPanel';
 
 const getLevelBadge = (level?: string) => {
     if (!level) return null;
@@ -65,6 +66,7 @@ export const ExerciseSelector = ({ isOpen, onClose, onSelect }: {
 
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('all');
+    const [selectedEquipment, setSelectedEquipment] = useState('all');
     const [isLoading, setIsLoading] = useState(false);
     const [isQuickAddOpen, setIsQuickAddOpen] = useState(false);
 
@@ -76,6 +78,7 @@ export const ExerciseSelector = ({ isOpen, onClose, onSelect }: {
             const res = await ExerciseService.getAllExercises({
                 searchQuery: debouncedSearchTerm,
                 category: selectedCategory,
+                equipment: selectedEquipment,
                 pagination: { page, limit: pageSize },
                 translations: { te, tt: te }
             });
@@ -84,7 +87,7 @@ export const ExerciseSelector = ({ isOpen, onClose, onSelect }: {
             console.error('Error fetching more exercises:', error);
             return [];
         }
-    }, [debouncedSearchTerm, selectedCategory, te]);
+    }, [debouncedSearchTerm, selectedCategory, selectedEquipment, te]);
 
     const fetchFirstPage = useCallback(async () => {
         setIsLoading(true);
@@ -92,6 +95,7 @@ export const ExerciseSelector = ({ isOpen, onClose, onSelect }: {
             const res = await ExerciseService.getAllExercises({
                 searchQuery: debouncedSearchTerm,
                 category: selectedCategory,
+                equipment: selectedEquipment,
                 pagination: { page: 1, limit: 10 },
                 translations: { te, tt: te }
             });
@@ -101,7 +105,7 @@ export const ExerciseSelector = ({ isOpen, onClose, onSelect }: {
         } finally {
             setIsLoading(false);
         }
-    }, [debouncedSearchTerm, selectedCategory, te]);
+    }, [debouncedSearchTerm, selectedCategory, selectedEquipment, te]);
 
     useEffect(() => {
         if (isOpen) {
@@ -179,20 +183,12 @@ export const ExerciseSelector = ({ isOpen, onClose, onSelect }: {
                             </button>
                         </div>
 
-                        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-                            {categories.map(cat => (
-                                <button
-                                    key={cat}
-                                    onClick={() => setSelectedCategory(cat)}
-                                    className={`px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest whitespace-nowrap transition-all cursor-pointer border ${selectedCategory === cat
-                                        ? 'bg-lime-400 text-zinc-950 border-lime-400 shadow-lg shadow-lime-500/10'
-                                        : 'bg-zinc-100 dark:bg-zinc-900/50 text-zinc-500 dark:text-zinc-400 border-transparent hover:border-zinc-200 dark:hover:border-zinc-800'
-                                        }`}
-                                >
-                                    {tc(cat)}
-                                </button>
-                            ))}
-                        </div>
+                        <ExerciseFilterPanel 
+                            selectedCategory={selectedCategory}
+                            onCategoryChange={setSelectedCategory}
+                            selectedEquipment={selectedEquipment}
+                            onEquipmentChange={setSelectedEquipment}
+                        />
                     </div>
 
                     {/* Lista com Altura Fixa para evitar saltos */}

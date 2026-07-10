@@ -8,7 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { adminService } from '@/services/adminService';
 import { useAlerts } from '@/hooks/useAlerts';
 import { useTranslations } from 'next-intl';
-import { CATEGORIES } from '@/config/constants';
+import { CATEGORIES, EQUIPMENT } from '@/config/constants';
 
 interface AdminExercisesClientProps {
   initialExercises: (Exercise & { createdByName?: string })[];
@@ -19,10 +19,12 @@ export default function AdminExercisesClient({ initialExercises, initialTotalCou
   const router = useRouter();
   const alerts = useAlerts();
   const tc = useTranslations('Categories');
+  const te = useTranslations('Equipment');
   
   const [exercises, setExercises] = useState(initialExercises);
   const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
+  const [equipmentFilter, setEquipmentFilter] = useState('all');
   const [originFilter, setOriginFilter] = useState<'all' | 'system' | 'user'>('all');
 
   // Estados de scroll infinito e carregamento
@@ -36,6 +38,7 @@ export default function AdminExercisesClient({ initialExercises, initialTotalCou
     isReset = false,
     currentSearch = search,
     currentCategory = categoryFilter,
+    currentEquipment = equipmentFilter,
     currentOrigin = originFilter
   ) => {
     if (loading) return;
@@ -45,6 +48,7 @@ export default function AdminExercisesClient({ initialExercises, initialTotalCou
       const res = await adminService.getAllExercisesAdmin({
         search: currentSearch,
         category: currentCategory,
+        equipment: currentEquipment,
         origin: currentOrigin,
         page: pageNum,
         limit
@@ -72,17 +76,17 @@ export default function AdminExercisesClient({ initialExercises, initialTotalCou
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
       setPage(1);
-      fetchExercises(1, true, search, categoryFilter, originFilter);
+      fetchExercises(1, true, search, categoryFilter, equipmentFilter, originFilter);
     }, 450);
 
     return () => clearTimeout(delayDebounceFn);
   }, [search]);
 
-  // Filtros de mudança instantânea (Categoria e Origem)
+  // Filtros de mudança instantânea (Categoria, Equipamento e Origem)
   useEffect(() => {
     setPage(1);
-    fetchExercises(1, true, search, categoryFilter, originFilter);
-  }, [categoryFilter, originFilter]);
+    fetchExercises(1, true, search, categoryFilter, equipmentFilter, originFilter);
+  }, [categoryFilter, equipmentFilter, originFilter]);
 
   // Carrega mais quando o número da página aumenta
   useEffect(() => {
@@ -186,6 +190,20 @@ export default function AdminExercisesClient({ initialExercises, initialTotalCou
           {categories.map(cat => (
             <option key={cat} value={cat}>
               {tc(cat).toUpperCase()}
+            </option>
+          ))}
+        </select>
+
+        {/* Equipment Filter */}
+        <select
+          value={equipmentFilter}
+          onChange={(e) => setEquipmentFilter(e.target.value)}
+          className="bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-xs font-semibold text-zinc-350 outline-none focus:border-lime-500/50 transition-all appearance-none cursor-pointer min-w-[150px] text-zinc-300"
+        >
+          <option value="all">Todos Equipamentos</option>
+          {EQUIPMENT.map(eq => (
+            <option key={eq} value={eq}>
+              {te(eq).toUpperCase()}
             </option>
           ))}
         </select>

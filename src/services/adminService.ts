@@ -111,6 +111,7 @@ export const adminService = {
         params?: {
             search?: string;
             category?: string;
+            equipment?: string;
             origin?: 'all' | 'system' | 'user';
             page?: number;
             limit?: number;
@@ -120,6 +121,7 @@ export const adminService = {
         const {
             search = '',
             category = 'all',
+            equipment = 'all',
             origin = 'all',
             page = 1,
             limit = 20,
@@ -142,6 +144,11 @@ export const adminService = {
         // Filtro por categoria
         if (category !== 'all') {
             query = query.eq('category', category);
+        }
+
+        // Filtro por equipamento
+        if (equipment !== 'all') {
+            query = query.eq('equipment', equipment);
         }
 
         // Filtro por busca de texto (nome ou descrição)

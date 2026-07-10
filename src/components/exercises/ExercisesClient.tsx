@@ -11,6 +11,7 @@ import { Exercise } from '@/config/types';
 import { useSession } from '@/hooks/useSession';
 import PageHeader from '@/components/ui/PageHeader';
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
+import { ExerciseFilterPanel } from './ExerciseFilterPanel';
 
 interface ExercisesClientProps {
     initialExercises: Exercise[];
@@ -23,6 +24,7 @@ export default function ExercisesClient({ initialExercises, initialTotalCount }:
     // Estados de interface
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('all');
+    const [selectedEquipment, setSelectedEquipment] = useState('all');
     const [loading, setLoading] = useState(false);
 
     // Debounce de 300ms para a busca
@@ -41,16 +43,13 @@ export default function ExercisesClient({ initialExercises, initialTotalCount }:
         setSelectedCategory(cat);
     };
 
-    const categories = useMemo(() => {
-        return ['all', ...CATEGORIES];
-    }, []);
-
     // Função para buscar dados da próxima página
     const fetchMoreExercises = useCallback(async (page: number, pageSize: number) => {
         try {
             const result = await ExerciseService.getAllExercises({
                 searchQuery: debouncedSearch,
                 category: selectedCategory,
+                equipment: selectedEquipment,
                 pagination: { page, limit: pageSize },
                 translations: { te, tt }
             });
@@ -59,7 +58,7 @@ export default function ExercisesClient({ initialExercises, initialTotalCount }:
             console.error("Error fetching more exercises:", error);
             return [];
         }
-    }, [debouncedSearch, selectedCategory, te, tt]);
+    }, [debouncedSearch, selectedCategory, selectedEquipment, te, tt]);
 
     // Estados locais para controlar a data inicial que será passada para o hook
     const [initialData, setInitialData] = useState<Exercise[]>(initialExercises);
@@ -70,6 +69,7 @@ export default function ExercisesClient({ initialExercises, initialTotalCount }:
             const result = await ExerciseService.getAllExercises({
                 searchQuery: debouncedSearch,
                 category: selectedCategory,
+                equipment: selectedEquipment,
                 pagination: { page: 1, limit: 20 },
                 translations: { te, tt }
             });
@@ -79,17 +79,17 @@ export default function ExercisesClient({ initialExercises, initialTotalCount }:
         } finally {
             setLoading(false);
         }
-    }, [debouncedSearch, selectedCategory, te, tt]);
+    }, [debouncedSearch, selectedCategory, selectedEquipment, te, tt]);
 
     // Efeito para lidar com filtros e resetar a lista
     useEffect(() => {
         // Se for o carregamento inicial (primeira página, sem filtros), não bucar de novo
-        if (selectedCategory === 'all' && debouncedSearch === '' && initialData === initialExercises) {
+        if (selectedCategory === 'all' && selectedEquipment === 'all' && debouncedSearch === '' && initialData === initialExercises) {
             return;
         }
 
         fetchFirstPage();
-    }, [debouncedSearch, selectedCategory, initialExercises, fetchFirstPage]);
+    }, [debouncedSearch, selectedCategory, selectedEquipment, initialExercises, fetchFirstPage]);
 
     // Handle online/visibility recovery
     useEffect(() => {
@@ -149,21 +149,13 @@ export default function ExercisesClient({ initialExercises, initialTotalCount }:
             </PageHeader>
 
             <main className="p-6">
-                {/* Categorias */}
-                <section className="mb-8 overflow-x-auto no-scrollbar flex gap-2 pb-2">
-                    {categories.map(cat => (
-                        <button
-                            key={cat}
-                            onClick={() => handleCategoryChange(cat)}
-                            className={`px-5 py-2.5 rounded-full text-xs font-black uppercase tracking-widest whitespace-nowrap transition-all ${selectedCategory === cat
-                                ? 'bg-lime-400 text-zinc-950 shadow-lg shadow-lime-500/20'
-                                : 'bg-white dark:bg-zinc-900 text-zinc-400 border border-zinc-100 dark:border-zinc-800'
-                                }`}
-                        >
-                            {tc(cat)}
-                        </button>
-                    ))}
-                </section>
+                <ExerciseFilterPanel
+                    selectedCategory={selectedCategory}
+                    onCategoryChange={setSelectedCategory}
+                    selectedEquipment={selectedEquipment}
+                    onEquipmentChange={setSelectedEquipment}
+                    className="mb-6"
+                />
 
                 {/* Listagem */}
                 <div className="grid grid-cols-1 gap-4 mb-10">

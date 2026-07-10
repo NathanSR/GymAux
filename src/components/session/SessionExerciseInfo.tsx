@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Zap, CircleHelp, List, ArrowRight } from 'lucide-react';
+import { Zap, CircleHelp, List, ArrowRight, Target, Dumbbell } from 'lucide-react';
 import { GROUP_CONFIG } from './SessionConstants';
 import { useTranslations } from 'next-intl';
 import { ExerciseService } from '@/services/exerciseService';
+import { CATEGORY_METADATA, CategoryType } from '@/config/constants';
 
 interface SessionExerciseInfoProps {
     currentGroup: any;
@@ -54,21 +55,50 @@ export function SessionExerciseInfo({
             return (
                 <div className="relative w-full aspect-video rounded-3xl overflow-hidden border border-zinc-800 shadow-2xl bg-zinc-950/50 flex items-center justify-center group mt-4">
                     {isVideo ? (
-                        <video 
-                            src={mediaUrl} 
-                            autoPlay 
-                            loop 
-                            muted 
-                            playsInline 
-                            className="w-full h-full object-cover" 
+                        <video
+                            src={mediaUrl}
+                            autoPlay
+                            loop
+                            muted
+                            playsInline
+                            className="w-full h-full object-cover"
                         />
                     ) : (
-                        <img 
-                            src={mediaUrl} 
-                            alt="Tutorial" 
-                            className="w-full h-full object-cover" 
+                        <img
+                            src={mediaUrl}
+                            alt="Tutorial"
+                            className="w-full h-full object-cover"
                         />
                     )}
+                </div>
+            );
+        }
+
+        const categoryMeta = category ? CATEGORY_METADATA[category as CategoryType] : null;
+
+        if (categoryMeta) {
+            return (
+                <div className="relative w-full h-[320px] sm:h-[380px] flex flex-col items-center justify-center group mt-4 overflow-hidden">
+                    {/* Glowing radial background to emulate the neon feel */}
+                    <div className="absolute w-72 h-72 rounded-full bg-lime-400/5 blur-[60px] -z-10 group-hover:scale-110 transition-transform duration-700" />
+
+                    <div className="relative z-10 flex flex-col items-center justify-center w-full h-full">
+                        <motion.img
+                            src={categoryMeta.imagePath}
+                            alt={tc(category as CategoryType)}
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            // className="w-full h-full max-h-[300px] sm:max-h-[360px] object-contain drop-shadow-[0_0_35px_rgba(163,230,71,0.25)] group-hover:scale-105 transition-transform duration-700 select-none"
+                            onError={(e) => {
+                                e.currentTarget.style.display = 'none';
+                                const fallback = e.currentTarget.parentElement?.querySelector('.fallback-icon');
+                                if (fallback) fallback.classList.remove('hidden');
+                            }}
+                        />
+                        <div className="fallback-icon hidden w-16 h-16 rounded-full border border-lime-400/20 flex items-center justify-center bg-lime-400/5 text-lime-400 shadow-[0_0_15px_rgba(163,230,71,0.1)]">
+                            <Dumbbell size={28} />
+                        </div>
+                    </div>
                 </div>
             );
         }
@@ -78,8 +108,8 @@ export function SessionExerciseInfo({
                 <div className="absolute inset-0 bg-[linear-gradient(to_right,#27272a_1px,transparent_1px),linear-gradient(to_bottom,#27272a_1px,transparent_1px)] bg-[size:24px_24px] opacity-[0.03]" />
                 <div className="absolute w-36 h-36 rounded-full bg-lime-500/5 blur-[40px] -z-10 group-hover:scale-110 transition-transform duration-700" />
                 <div className="relative z-10 flex flex-col items-center text-center p-6">
-                    <motion.div 
-                        animate={{ scale: [1, 1.04, 1] }} 
+                    <motion.div
+                        animate={{ scale: [1, 1.04, 1] }}
                         transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
                         className="w-16 h-16 rounded-full border border-lime-400/20 flex items-center justify-center bg-lime-400/5 text-lime-400 shadow-[0_0_15px_rgba(163,230,71,0.1)] mb-3"
                     >
@@ -125,13 +155,12 @@ export function SessionExerciseInfo({
                         return (
                             <div
                                 key={idx}
-                                className={`h-1.5 flex-1 rounded-full transition-all duration-500 ${
-                                    isActive
-                                        ? `${activeBg} shadow-[0_0_10px_rgba(163,230,71,0.3)]`
-                                        : isCompleted
+                                className={`h-1.5 flex-1 rounded-full transition-all duration-500 ${isActive
+                                    ? `${activeBg} shadow-[0_0_10px_rgba(163,230,71,0.3)]`
+                                    : isCompleted
                                         ? `${activeBg} opacity-30`
                                         : 'bg-zinc-800'
-                                }`}
+                                    }`}
                             />
                         );
                     })}
@@ -196,7 +225,7 @@ export function SessionExerciseInfo({
 
                                     const mode = currentExercise.executionMode || 'bilateral';
                                     parts.push(tw(`executionModes.${mode}`));
-                                    
+
                                     return parts.join(' • ');
                                 })()}
                             </div>
