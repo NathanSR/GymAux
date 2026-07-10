@@ -6,7 +6,7 @@ import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
 import { ExerciseService } from '@/services/exerciseService';
 import { useDebounce } from '@/hooks/useDebounce';
-import { CATEGORIES } from '@/config/constants';
+import { CATEGORIES, CATEGORY_METADATA } from '@/config/constants';
 import { Exercise } from '@/config/types';
 import { useSession } from '@/hooks/useSession';
 import PageHeader from '@/components/ui/PageHeader';
@@ -180,11 +180,27 @@ export default function ExercisesClient({ initialExercises, initialTotalCount }:
                             >
                                 <div className="flex gap-4">
                                     {/* Thumbnail */}
-                                    <div className="w-16 h-16 rounded-2xl bg-zinc-100 dark:bg-zinc-950 flex items-center justify-center shrink-0 overflow-hidden relative">
-                                        <Dumbbell size={20} className="text-zinc-300 dark:text-zinc-800" />
+                                    <div className="w-16 h-16 rounded-2xl bg-zinc-50 dark:bg-zinc-950 border border-zinc-100 dark:border-zinc-900 flex items-center justify-center shrink-0 overflow-hidden relative p-1">
+                                        {exercise.category && CATEGORY_METADATA[exercise.category] ? (
+                                            <>
+                                                <img
+                                                    src={CATEGORY_METADATA[exercise.category].imagePath}
+                                                    alt={tc(exercise.category)}
+                                                    className="w-full h-full object-contain"
+                                                    onError={(e) => {
+                                                        e.currentTarget.style.display = 'none';
+                                                        const icon = e.currentTarget.nextElementSibling;
+                                                        if (icon) icon.classList.remove('hidden');
+                                                    }}
+                                                />
+                                                <Dumbbell size={24} className="text-zinc-300 dark:text-zinc-800 hidden" />
+                                            </>
+                                        ) : (
+                                            <Dumbbell size={24} className="text-zinc-300 dark:text-zinc-800" />
+                                        )}
                                         {exercise.mediaUrl && (
-                                            <div className="absolute inset-0 bg-lime-500/10 flex items-center justify-center">
-                                                <PlayCircle size={18} className="text-lime-600 dark:text-lime-400" />
+                                            <div className="absolute right-1 bottom-1 w-5 h-5 bg-lime-400 text-zinc-950 rounded-full flex items-center justify-center shadow-md">
+                                                <PlayCircle size={12} className="fill-current text-zinc-950" />
                                             </div>
                                         )}
                                     </div>

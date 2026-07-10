@@ -1071,6 +1071,21 @@
     "full_body": "Corpo Inteiro",
     "stretching": "Alongamento"
   },
+  "Equipment": {
+    "none": "Nenhum",
+    "barbell": "Barra",
+    "dumbbell": "Halter",
+    "machine": "Máquina",
+    "cable": "Polia / Cabo",
+    "bodyweight": "Peso Corporal",
+    "smith": "Smith / Guiado",
+    "kettlebell": "Kettlebell",
+    "band": "Elástico",
+    "plate": "Anilha",
+    "medicine_ball": "Bola",
+    "jump_rope": "Corda de Pular",
+    "ab_wheel": "Roda Abdominal"
+  },
   "Tags": {
     "abs": "Abdominais",
     "accessory": "Acessório",

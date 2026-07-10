@@ -19,7 +19,7 @@ import {
     User as UserIcon
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { CATEGORIES } from '@/config/constants';
+import { CATEGORIES, EQUIPMENT } from '@/config/constants';
 import { createClient } from '@/lib/supabase/client';
 import { toast } from 'react-toastify';
 import { User } from '@/config/types';
@@ -60,6 +60,7 @@ export default function ExerciseForm({
 }: ExerciseFormProps) {
     const t = useTranslations('ExerciseForm');
     const tc = useTranslations('Categories');
+    const teq = useTranslations('Equipment');
 
     // Estado da aba de mídia
     const [mediaType, setMediaType] = useState<'upload' | 'url'>(
@@ -473,14 +474,11 @@ export default function ExerciseForm({
                             {...register("equipment")}
                             className="w-full bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 rounded-2xl p-4 text-sm font-bold outline-none focus:ring-2 focus:ring-lime-400 shadow-sm text-zinc-900 dark:text-white"
                         >
-                            <option value="none">Nenhum</option>
-                            <option value="barbell">Barra</option>
-                            <option value="dumbbell">Halter</option>
-                            <option value="machine">Máquina</option>
-                            <option value="cable">Polia / Cabo</option>
-                            <option value="bodyweight">Peso Corporal</option>
-                            <option value="smith">Smith / Guiado</option>
-                            <option value="kettlebell">Kettlebell</option>
+                            {EQUIPMENT.map(eq => (
+                                <option key={eq} value={eq}>
+                                    {teq(eq).toUpperCase()}
+                                </option>
+                            ))}
                         </select>
                     </div>
 

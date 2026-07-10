@@ -17,6 +17,7 @@ import { useTranslations } from "next-intl";
 import DrawerWorkoutExerciseAdd from "@/components/workouts/DrawerWorkoutExerciseAdd";
 import { Exercise } from "@/config/types";
 import { motion, AnimatePresence } from "framer-motion";
+import { CATEGORY_METADATA, EQUIPMENT_METADATA } from "@/config/constants";
 
 interface ViewExerciseClientProps {
     exercise: Exercise;
@@ -27,6 +28,13 @@ export default function ViewExerciseClient({ exercise }: ViewExerciseClientProps
     const tc = useTranslations('Categories');
     const tt = useTranslations('Tags');
     const te = useTranslations('Exercises');
+    const teq = useTranslations('Equipment');
+
+    const levelTranslations: Record<string, string> = {
+        beginner: "Iniciante",
+        intermediate: "Intermediário",
+        advanced: "Avançado"
+    };
 
     const router = useRouter();
 
@@ -127,35 +135,93 @@ export default function ViewExerciseClient({ exercise }: ViewExerciseClientProps
             <main className="px-6 -mt-4 relative z-20 max-w-2xl mx-auto space-y-12">
 
                 {/* Visual Stats Row */}
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-3 gap-3 md:gap-4">
+                    {/* Categoria */}
                     <motion.div
                         initial={{ x: -20, opacity: 0 }}
                         animate={{ x: 0, opacity: 1 }}
                         transition={{ delay: 0.5 }}
-                        className="group bg-white dark:bg-zinc-900 p-5 rounded-[32px] border border-zinc-100 dark:border-zinc-800 shadow-sm hover:shadow-xl hover:border-lime-500/20 transition-all duration-300"
+                        className="group bg-white dark:bg-zinc-900 p-4 rounded-[28px] border border-zinc-100 dark:border-zinc-800 shadow-sm hover:shadow-xl hover:border-lime-500/20 transition-all duration-300 flex flex-col items-center text-center justify-between"
                     >
-                        <div className="flex items-center justify-between mb-3">
-                            <div className="p-2 bg-blue-500/10 rounded-xl text-blue-500 group-hover:bg-blue-500 group-hover:text-white transition-colors">
-                                <Target size={18} />
-                            </div>
+                        <div className="w-12 h-12 flex items-center justify-center bg-zinc-50 dark:bg-zinc-950 rounded-2xl p-1 mb-2 group-hover:scale-110 transition-transform relative">
+                            {exercise.category && CATEGORY_METADATA[exercise.category] ? (
+                                <>
+                                    <img
+                                        src={CATEGORY_METADATA[exercise.category].imagePath}
+                                        alt={tc(exercise.category)}
+                                        className="w-full h-full object-contain"
+                                        onError={(e) => {
+                                            e.currentTarget.style.display = 'none';
+                                            const icon = e.currentTarget.nextElementSibling;
+                                            if (icon) icon.classList.remove('hidden');
+                                        }}
+                                    />
+                                    <Target size={20} className="text-blue-500 hidden" />
+                                </>
+                            ) : (
+                                <Target size={20} className="text-blue-500" />
+                            )}
                         </div>
-                        <p className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.2em] mb-1">{t("target")}</p>
-                        <p className="text-sm font-bold text-zinc-900 dark:text-zinc-100">{tc(exercise.category)}</p>
+                        <div className="w-full">
+                            <p className="text-[9px] font-black uppercase text-zinc-400 tracking-[0.15em] mb-0.5">{t("target")}</p>
+                            <p className="text-xs font-bold text-zinc-900 dark:text-zinc-100 truncate w-full" title={tc(exercise.category)}>
+                                {tc(exercise.category)}
+                            </p>
+                        </div>
                     </motion.div>
 
+                    {/* Equipamento */}
+                    <motion.div
+                        initial={{ y: 20, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        transition={{ delay: 0.55 }}
+                        className="group bg-white dark:bg-zinc-900 p-4 rounded-[28px] border border-zinc-100 dark:border-zinc-800 shadow-sm hover:shadow-xl hover:border-lime-500/20 transition-all duration-300 flex flex-col items-center text-center justify-between"
+                    >
+                        <div className="w-12 h-12 flex items-center justify-center bg-zinc-50 dark:bg-zinc-950 rounded-2xl p-1 mb-2 group-hover:scale-110 transition-transform relative">
+                            {exercise.equipment && EQUIPMENT_METADATA[exercise.equipment] ? (
+                                <>
+                                    <img
+                                        src={EQUIPMENT_METADATA[exercise.equipment].imagePath}
+                                        alt={teq(exercise.equipment)}
+                                        className="w-full h-full object-contain"
+                                        onError={(e) => {
+                                            e.currentTarget.style.display = 'none';
+                                            const icon = e.currentTarget.nextElementSibling;
+                                            if (icon) icon.classList.remove('hidden');
+                                        }}
+                                    />
+                                    <Dumbbell size={20} className="text-lime-500 hidden" />
+                                </>
+                            ) : (
+                                <Dumbbell size={20} className="text-lime-500" />
+                            )}
+                        </div>
+                        <div className="w-full">
+                            <p className="text-[9px] font-black uppercase text-zinc-400 tracking-[0.15em] mb-0.5">Equipamento</p>
+                            <p className="text-xs font-bold text-zinc-900 dark:text-zinc-100 truncate w-full" title={exercise.equipment ? teq(exercise.equipment) : "---"}>
+                                {exercise.equipment ? teq(exercise.equipment) : "---"}
+                            </p>
+                        </div>
+                    </motion.div>
+
+                    {/* Nível */}
                     <motion.div
                         initial={{ x: 20, opacity: 0 }}
                         animate={{ x: 0, opacity: 1 }}
                         transition={{ delay: 0.6 }}
-                        className="group bg-white dark:bg-zinc-900 p-5 rounded-[32px] border border-zinc-100 dark:border-zinc-800 shadow-sm hover:shadow-xl hover:border-lime-500/20 transition-all duration-300"
+                        className="group bg-white dark:bg-zinc-900 p-4 rounded-[28px] border border-zinc-100 dark:border-zinc-800 shadow-sm hover:shadow-xl hover:border-lime-500/20 transition-all duration-300 flex flex-col items-center text-center justify-between"
                     >
-                        <div className="flex items-center justify-between mb-3">
-                            <div className="p-2 bg-lime-500/10 rounded-xl text-lime-500 group-hover:bg-lime-500 group-hover:text-zinc-950 transition-colors">
-                                <Clock size={18} />
+                        <div className="w-12 h-12 flex items-center justify-center bg-zinc-50 dark:bg-zinc-950 rounded-2xl p-1 mb-2 group-hover:scale-110 transition-transform">
+                            <div className="p-2 bg-amber-500/10 rounded-xl text-amber-500 group-hover:bg-amber-500 group-hover:text-white transition-colors">
+                                <Clock size={20} />
                             </div>
                         </div>
-                        <p className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.2em] mb-1">{t("level")}</p>
-                        <p className="text-sm font-bold text-zinc-900 dark:text-zinc-100 capitalize">{exercise.level || "---"}</p>
+                        <div className="w-full">
+                            <p className="text-[9px] font-black uppercase text-zinc-400 tracking-[0.15em] mb-0.5">{t("level")}</p>
+                            <p className="text-xs font-bold text-zinc-900 dark:text-zinc-100 truncate w-full">
+                                {exercise.level ? (levelTranslations[exercise.level] || exercise.level) : "---"}
+                            </p>
+                        </div>
                     </motion.div>
                 </div>
 

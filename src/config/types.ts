@@ -1,7 +1,7 @@
 // --- Interfaces para o TypeScript ---
 // --- Modelagem Profissional de Treinos com ExerciseGroups ---
 
-import { CATEGORIES } from "./constants";
+import { CATEGORIES, EQUIPMENT, CategoryType, EquipmentType } from "./constants";
 
 // ========================
 // BASE ENTITIES
@@ -20,7 +20,7 @@ export interface User {
     createdAt: Date;
 }
 
-export type CategoryType = (typeof CATEGORIES)[number];
+export type { CategoryType, EquipmentType };
 
 export interface Exercise {
     id?: number;
@@ -35,7 +35,7 @@ export interface Exercise {
     level?: "beginner" | "intermediate" | "advanced";
     visibility?: "public" | "private" | "students" | "restricted";
     shared_with?: string[];
-    equipment?: 'barbell' | 'dumbbell' | 'machine' | 'cable' | 'bodyweight' | 'smith' | 'kettlebell' | 'none';
+    equipment?: EquipmentType;
     executionMode?: 'bilateral' | 'unilateral' | 'alternating';
     mechanics?: 'compound' | 'isolation';
     parentId?: number;

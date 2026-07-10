@@ -12,19 +12,19 @@ export function RpeDial({ value, onChange, label, subLabel }: RpeDialProps) {
     const handleMouseDown = (e: React.MouseEvent<SVGSVGElement>) => {
         const svg = e.currentTarget;
         const rect = svg.getBoundingClientRect();
-        
+
         const updateValue = (clientX: number) => {
             const relativeX = clientX - rect.left;
             const scale = rect.width / 300;
             const startX = 25 * scale;
             const endX = 275 * scale;
             const t = Math.min(1, Math.max(0, (relativeX - startX) / (endX - startX)));
-            
+
             // Map t (0 to 1) to value (0 to 10)
             const newValue = Math.round(t * 10);
             onChange(newValue);
         };
-        
+
         updateValue(e.clientX);
 
         const handleMouseMove = (moveEvent: MouseEvent) => {
@@ -43,18 +43,18 @@ export function RpeDial({ value, onChange, label, subLabel }: RpeDialProps) {
     const handleTouchStart = (e: React.TouchEvent<SVGSVGElement>) => {
         const svg = e.currentTarget;
         const rect = svg.getBoundingClientRect();
-        
+
         const updateValue = (clientX: number) => {
             const relativeX = clientX - rect.left;
             const scale = rect.width / 300;
             const startX = 25 * scale;
             const endX = 275 * scale;
             const t = Math.min(1, Math.max(0, (relativeX - startX) / (endX - startX)));
-            
+
             const newValue = Math.round(t * 10);
             onChange(newValue);
         };
-        
+
         updateValue(e.touches[0].clientX);
 
         const handleTouchMove = (moveEvent: TouchEvent) => {
@@ -100,7 +100,7 @@ export function RpeDial({ value, onChange, label, subLabel }: RpeDialProps) {
     return (
         <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-4 flex flex-col w-full select-none shadow-sm">
             <label className="text-[9px] font-black uppercase text-zinc-500 tracking-[0.2em] mb-1 ml-1">{label}</label>
-            
+
             <div className="relative w-full flex flex-col items-center">
                 <svg
                     viewBox="0 0 300 68"

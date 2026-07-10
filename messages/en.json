@@ -1071,6 +1071,21 @@
     "full_body": "Full Body",
     "stretching": "Stretching"
   },
+  "Equipment": {
+    "none": "None",
+    "barbell": "Barbell",
+    "dumbbell": "Dumbbell",
+    "machine": "Machine",
+    "cable": "Cable",
+    "bodyweight": "Bodyweight",
+    "smith": "Smith Machine",
+    "kettlebell": "Kettlebell",
+    "band": "Resistance Band",
+    "plate": "Weight Plate",
+    "medicine_ball": "Medicine Ball",
+    "jump_rope": "Jump Rope",
+    "ab_wheel": "Ab Wheel"
+  },
   "Tags": {
     "abs": "Abs",
     "accessory": "Accessory",

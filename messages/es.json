@@ -1071,6 +1071,21 @@
     "full_body": "Cuerpo Completo",
     "stretching": "Estiramiento"
   },
+  "Equipment": {
+    "none": "Ninguno",
+    "barbell": "Barra",
+    "dumbbell": "Mancuerna",
+    "machine": "Máquina",
+    "cable": "Polea / Cable",
+    "bodyweight": "Peso Corporal",
+    "smith": "Smith / Guiado",
+    "kettlebell": "Pesa Rusa",
+    "band": "Banda de Resistencia",
+    "plate": "Disco",
+    "medicine_ball": "Balón Medicinal",
+    "jump_rope": "Cuerda de Saltar",
+    "ab_wheel": "Rueda Abdominal"
+  },
   "Tags": {
     "abs": "Abdominales",
     "accessory": "Accesorio",
