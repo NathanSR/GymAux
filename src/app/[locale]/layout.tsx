@@ -11,6 +11,8 @@ import { OfflineSyncProvider } from "@/context/OfflineSyncProvider";
 import { ToastContainer } from 'react-toastify';
 import NextTopLoader from 'nextjs-toploader';
 
+import { AppSplashScreen } from "@/components/ui/AppSplashScreen";
+
 const geistSans = Geist({
 	variable: "--font-geist-sans",
 	subsets: ["latin"],
@@ -52,6 +54,7 @@ export default async function RootLayout(props: {
 				<NextIntlClientProvider messages={messages}>
 					<ThemeProvider>
 						<OfflineSyncProvider>
+							<AppSplashScreen />
 							{children}
 						</OfflineSyncProvider>
 					</ThemeProvider>

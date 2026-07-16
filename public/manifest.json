@@ -1,11 +1,33 @@
 {
-    "name": "Meu Treino Diário",
+    "id": "com.gymaux.app",
+    "name": "GymAux - Meu Treino Diário",
     "short_name": "GymAux",
-    "description": "Meu app de academia offline",
-    "start_url": "/",
+    "description": "Meu aplicativo de academia 100% offline",
+    "start_url": "/pt/home",
+    "scope": "/",
     "display": "standalone",
-    "background_color": "#ffffff",
-    "theme_color": "#3b82f6",
+    "display_override": ["standalone", "minimal-ui", "window-controls-overlay"],
+    "launch_handler": {
+        "client_mode": "focus-existing"
+    },
+    "orientation": "any",
+    "background_color": "#09090b",
+    "theme_color": "#a3e635",
+    "categories": ["health", "fitness", "sports", "lifestyle"],
+    "shortcuts": [
+        {
+            "name": "Meus Treinos",
+            "short_name": "Treinos",
+            "description": "Abrir lista de treinos offline",
+            "url": "/pt/workouts"
+        },
+        {
+            "name": "Histórico de Treinos",
+            "short_name": "Histórico",
+            "description": "Ver histórico de sessões executadas",
+            "url": "/pt/history"
+        }
+    ],
     "icons": [
         {
             "src": "windows11/SmallTile.scale-100.png",

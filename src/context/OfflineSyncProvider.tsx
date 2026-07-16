@@ -3,6 +3,7 @@
 import { useEffect, useRef } from 'react';
 import { SyncManager } from '@/services/syncManager';
 import { toast } from 'react-toastify';
+import { InstallPromptBanner } from '@/components/pwa/InstallPromptBanner';
 
 export function OfflineSyncProvider({ children }: { children: React.ReactNode }) {
     const toastIdRef = useRef<string | number | null>(null);
@@ -104,5 +105,10 @@ export function OfflineSyncProvider({ children }: { children: React.ReactNode })
         };
     }, []);
 
-    return <>{children}</>;
+    return (
+        <>
+            {children}
+            <InstallPromptBanner />
+        </>
+    );
 }

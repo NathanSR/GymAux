@@ -91,3 +91,24 @@ html.dark,
   background-color: #4b5563;
   /* gray-600 */
 }
+
+/* ---------------------- NATIVE PWA UX ---------------------- */
+html, body {
+  overscroll-behavior-y: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+button, a, [role="button"] {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* Safe areas para notch em celulares e barras de tarefas no desktop */
+.safe-area-top {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}

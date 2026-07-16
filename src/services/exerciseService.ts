@@ -87,39 +87,48 @@ export const ExerciseService = {
         let exercises: Exercise[] = [];
         let totalCount = 0;
 
-        try {
-            const supabase = supabaseInput || createClient();
-            let query = supabase.from('exercises').select('*', { count: 'exact' });
-
-            // 1. Filtro por Categoria (SQL)
-            if (category !== 'all') {
-                query = query.eq('category', category);
-            }
-
-            const { data, error } = await withTimeout(query, 3000);
-
-            if (error) throw error;
-
-            exercises = (data || []).map(mapExerciseFromSupabase);
-            
-            // Sync to local DB for cache (only user/trainer exercises, system ones are seeded)
+        const fetchFromLocalDB = async () => {
             if (typeof window !== 'undefined') {
-                const userExercises = exercises.filter(ex => ex.created_by_type !== 'system');
-                if (userExercises.length > 0) {
-                    await db.exercises.bulkPut(userExercises).catch(() => {});
-                }
-            }
-        } catch (error) {
-            console.warn('[ExerciseService] Fetch failed, falling back to local DB:', error);
-            if (typeof window !== 'undefined') {
-                let localQuery = db.exercises.toCollection();
+                let localExercises: Exercise[] = [];
                 if (category !== 'all') {
-                    localQuery = db.exercises.where('category').equals(category);
+                    localExercises = await db.exercises.where('category').equals(category).toArray();
+                } else {
+                    localExercises = await db.exercises.toArray();
                 }
-                exercises = await localQuery.toArray();
-                totalCount = exercises.length;
-            } else {
-                return { exercises: [], totalCount: 0 };
+                return localExercises;
+            }
+            return [];
+        };
+
+        const isOffline = typeof window !== 'undefined' && !navigator.onLine;
+
+        if (isOffline) {
+            exercises = await fetchFromLocalDB();
+        } else {
+            try {
+                const supabase = supabaseInput || createClient();
+                let query = supabase.from('exercises').select('*', { count: 'exact' });
+
+                if (category !== 'all') {
+                    query = query.eq('category', category);
+                }
+
+                const { data, error } = await withTimeout(query, 1800);
+
+                if (error) throw error;
+
+                exercises = (data || []).map(mapExerciseFromSupabase);
+
+                // Sync to local DB for cache (only user/trainer exercises, system ones are seeded)
+                if (typeof window !== 'undefined') {
+                    const userExercises = exercises.filter(ex => ex.created_by_type !== 'system');
+                    if (userExercises.length > 0) {
+                        await db.exercises.bulkPut(userExercises).catch(() => {});
+                    }
+                }
+            } catch (error) {
+                console.warn('[ExerciseService] Fetch failed, falling back to local DB:', error);
+                exercises = await fetchFromLocalDB();
             }
         }
 
