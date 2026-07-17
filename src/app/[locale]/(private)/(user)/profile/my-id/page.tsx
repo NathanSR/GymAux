@@ -10,13 +10,13 @@ import {
     User,
     ArrowLeft
 } from 'lucide-react';
-import { useRouter } from '@/i18n/routing';
+import { useSmartNavigation } from '@/hooks/useSmartNavigation';
 import { useTranslations } from 'next-intl';
 import { createClient } from '@/lib/supabase/client';
 
 export default function MyIDPage() {
     const t = useTranslations('MyID');
-    const router = useRouter();
+    const { goBack } = useSmartNavigation({ fallbackUrl: '/home' });
     const supabase = createClient();
     const [uid, setUid] = useState<string | null>(null);
     const [copied, setCopied] = useState(false);
@@ -61,7 +61,7 @@ export default function MyIDPage() {
             {/* Header */}
             <header className="flex items-center justify-between mb-8">
                 <button
-                    onClick={() => router.back()}
+                    onClick={() => goBack('/home')}
                     className="w-12 h-12 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl flex items-center justify-center text-zinc-600 dark:text-zinc-400 active:scale-90 transition-all shadow-sm"
                 >
                     <ArrowLeft size={20} />

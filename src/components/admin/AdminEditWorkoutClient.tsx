@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from '@/i18n/routing';
+import { useSmartNavigation } from '@/hooks/useSmartNavigation';
 import AdminWorkoutForm from '@/components/admin/AdminWorkoutForm';
 import { WorkoutService } from '@/services/workoutService';
 import { toast } from 'react-toastify';
@@ -21,7 +21,7 @@ export default function AdminEditWorkoutClient({
   availableExercises,
   adminId
 }: AdminEditWorkoutClientProps) {
-  const router = useRouter();
+  const { navigateAfterAction } = useSmartNavigation({ fallbackUrl: '/admin/workouts' });
   const [isLoading, setIsLoading] = useState(false);
 
   const handleUpdate = async (data: any) => {
@@ -33,8 +33,7 @@ export default function AdminEditWorkoutClient({
       });
 
       toast.success('Treino atualizado com sucesso!');
-      router.refresh();
-      router.replace('/admin/workouts');
+      navigateAfterAction('/admin/workouts');
     } catch (error: any) {
       console.error('Erro ao editar treino:', error?.message || error);
       toast.error('Erro ao atualizar o treino.');

@@ -23,26 +23,61 @@ export function Modal({
   className = ''
 }: ModalProps) {
 
+  const modalIdRef = React.useRef<string>(`modal-${Math.random().toString(36).substring(2, 9)}`);
+  const isPushedRef = React.useRef(false);
+  const isPopStateTriggeredRef = React.useRef(false);
+  const onCloseRef = React.useRef(onClose);
+
   useEffect(() => {
+    onCloseRef.current = onClose;
+  }, [onClose]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    document.body.style.overflow = 'hidden';
+    const modalId = modalIdRef.current;
+    isPopStateTriggeredRef.current = false;
+
+    if (typeof window !== 'undefined' && !isPushedRef.current) {
+      window.history.pushState({ __modalId: modalId }, '');
+      isPushedRef.current = true;
+    }
+
     const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+        onCloseRef.current();
+      }
     };
 
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-      window.addEventListener('keydown', handleEscape);
-    }
+    const handlePopState = () => {
+      isPopStateTriggeredRef.current = true;
+      isPushedRef.current = false;
+      onCloseRef.current();
+    };
+
+    window.addEventListener('keydown', handleEscape, true);
+    window.addEventListener('popstate', handlePopState);
 
     return () => {
       document.body.style.overflow = 'unset';
-      window.removeEventListener('keydown', handleEscape);
+      window.removeEventListener('keydown', handleEscape, true);
+      window.removeEventListener('popstate', handlePopState);
+
+      if (typeof window !== 'undefined' && isPushedRef.current && !isPopStateTriggeredRef.current) {
+        isPushedRef.current = false;
+        window.history.back();
+      }
     };
-  }, [isOpen, onClose]);
+  }, [isOpen]);
 
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+        <div role="dialog" aria-modal="true" data-overlay="true" data-state={isOpen ? 'open' : 'closed'} className="fixed inset-0 z-[100] flex items-center justify-center p-4">
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}

@@ -73,6 +73,10 @@ export default function WorkoutsClient({ initialWorkouts, initialTotalCount, use
     }, [userId, debouncedSearch]);
 
     useEffect(() => {
+        setInitialData(initialWorkouts);
+    }, [initialWorkouts]);
+
+    useEffect(() => {
         // Skip initial load if it matches initial state
         if (debouncedSearch === '' && initialData === initialWorkouts) {
             return;

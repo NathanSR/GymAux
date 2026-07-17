@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from '@/i18n/routing';
+import { useSmartNavigation } from '@/hooks/useSmartNavigation';
 import AdminWorkoutForm from '@/components/admin/AdminWorkoutForm';
 import { WorkoutService } from '@/services/workoutService';
 import { toast } from 'react-toastify';
@@ -19,7 +19,7 @@ export default function AdminNewWorkoutClient({
   availableExercises,
   adminId
 }: AdminNewWorkoutClientProps) {
-  const router = useRouter();
+  const { navigateAfterAction } = useSmartNavigation({ fallbackUrl: '/admin/workouts' });
   const [isLoading, setIsLoading] = useState(false);
 
   const handleCreate = async (data: any) => {
@@ -32,8 +32,7 @@ export default function AdminNewWorkoutClient({
       });
 
       toast.success('Treino criado com sucesso!');
-      router.refresh();
-      router.replace('/admin/workouts');
+      navigateAfterAction('/admin/workouts');
     } catch (error: any) {
       console.error('Erro ao criar treino:', error?.message || error);
       toast.error('Erro ao criar o treino. Verifique os dados.');

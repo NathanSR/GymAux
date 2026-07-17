@@ -74,6 +74,10 @@ export default function SchedulesClient({ initialSchedules, initialTotalCount, u
     }, [userId, debouncedSearch]);
 
     useEffect(() => {
+        setInitialData(initialSchedules);
+    }, [initialSchedules]);
+
+    useEffect(() => {
         // Skip initial load
         if (debouncedSearch === '' && initialData === initialSchedules) {
             return;

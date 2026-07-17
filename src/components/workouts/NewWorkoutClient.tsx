@@ -1,13 +1,13 @@
 "use client";
 
 import { useState } from 'react';
-import { ChevronLeft } from 'lucide-react';
-import { useRouter } from '@/i18n/routing';
+import { useSmartNavigation } from '@/hooks/useSmartNavigation';
 import { useTranslations } from 'next-intl';
 import WorkoutForm from '@/components/workouts/WorkoutForm';
 import { WorkoutService } from '@/services/workoutService';
 import { toast } from 'react-toastify';
 import { Exercise } from '@/config/types';
+import PageHeader from '@/components/ui/PageHeader';
 
 interface NewWorkoutClientProps {
     availableExercises: Exercise[];
@@ -15,10 +15,8 @@ interface NewWorkoutClientProps {
     baseUrl?: string;
 }
 
-import PageHeader from '@/components/ui/PageHeader';
-
 export default function NewWorkoutClient({ availableExercises, userId, baseUrl = '/workouts' }: NewWorkoutClientProps) {
-    const router = useRouter();
+    const { navigateAfterAction } = useSmartNavigation({ fallbackUrl: baseUrl });
     const t = useTranslations('WorkoutRegister');
     const [isLoading, setIsLoading] = useState(false);
 
@@ -33,8 +31,7 @@ export default function NewWorkoutClient({ availableExercises, userId, baseUrl =
             });
 
             toast.success(t('createdWorkout'));
-            router.refresh();
-            router.replace(baseUrl);
+            navigateAfterAction(baseUrl);
         } catch (error: any) {
             console.error("Erro ao criar treino:", error?.message || error);
             toast.error(t('errorCreating'));

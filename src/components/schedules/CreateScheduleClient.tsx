@@ -1,12 +1,12 @@
 "use client";
 
 import { ScheduleForm } from "@/components/schedules/ScheduleForm";
-import { useRouter } from "@/i18n/routing";
+import { useSmartNavigation } from "@/hooks/useSmartNavigation";
 import { ScheduleService } from "@/services/scheduleService";
-import { ChevronLeft } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { toast } from "react-toastify";
+import PageHeader from "@/components/ui/PageHeader";
 
 interface CreateScheduleClientProps {
     userId: string;
@@ -14,10 +14,8 @@ interface CreateScheduleClientProps {
     baseUrl?: string;
 }
 
-import PageHeader from "@/components/ui/PageHeader";
-
 export default function CreateScheduleClient({ userId, callerId, baseUrl = '/schedules' }: CreateScheduleClientProps) {
-    const router = useRouter();
+    const { navigateAfterAction } = useSmartNavigation({ fallbackUrl: baseUrl });
     const t = useTranslations('ScheduleRegister');
     const [isLoading, setIsLoading] = useState(false);
     const effectiveCallerId = callerId ?? userId;
@@ -42,8 +40,7 @@ export default function CreateScheduleClient({ userId, callerId, baseUrl = '/sch
                 theme: "colored",
             });
 
-            router.refresh();
-            router.replace(baseUrl);
+            navigateAfterAction(baseUrl);
         } catch (error: any) {
             console.error("Erro ao criar cronograma de treino:", error?.message || error);
             toast.error(t('createError'));

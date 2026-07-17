@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Trash2 } from 'lucide-react';
-import { useRouter } from '@/i18n/routing';
+import { useSmartNavigation } from '@/hooks/useSmartNavigation';
 import { useTranslations } from 'next-intl';
 import ExerciseForm from '@/components/exercises/ExerciseForm';
 import { ExerciseService } from '@/services/exerciseService';
@@ -20,7 +20,7 @@ interface EditExerciseClientProps {
 
 export default function EditExerciseClient({ initialExercise, exerciseId }: EditExerciseClientProps) {
     const { isDark } = useTheme();
-    const router = useRouter();
+    const { navigateAfterAction } = useSmartNavigation({ fallbackUrl: '/exercises' });
     const t = useTranslations('ExerciseEdit');
     const { activeUser } = useSession();
     const alerts = useAlerts();
@@ -39,8 +39,7 @@ export default function EditExerciseClient({ initialExercise, exerciseId }: Edit
 
             await ExerciseService.updateExercise(exerciseId, { ...formattedData, userId: activeUser!.id as string });
             toast.success(t('updatedExercise'));
-            router.refresh();
-            router.replace('/exercises');
+            navigateAfterAction('/exercises');
         } catch (error: any) {
             console.error("Erro ao atualizar:", error?.message || error);
             toast.error("Error updating exercise");
@@ -61,8 +60,7 @@ export default function EditExerciseClient({ initialExercise, exerciseId }: Edit
         if (result.isConfirmed) {
             try {
                 await ExerciseService.deleteExercise(exerciseId, activeUser!.id as string);
-                router.refresh();
-                router.replace('/exercises');
+                navigateAfterAction('/exercises');
             } catch (error: any) {
                 console.error("Erro ao deletar:", error?.message || error);
             }

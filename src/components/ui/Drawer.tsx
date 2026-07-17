@@ -129,6 +129,16 @@ export function Drawer({
     }
   }, [isOpen]);
 
+  const onCloseRef = React.useRef(onClose);
+  const isExpandedRef = React.useRef(isExpanded);
+  const setIsExpandedRef = React.useRef(setIsExpanded);
+
+  useEffect(() => {
+    onCloseRef.current = onClose;
+    isExpandedRef.current = isExpanded;
+    setIsExpandedRef.current = setIsExpanded;
+  }, [onClose, isExpanded, setIsExpanded]);
+
   // Handle ESC key, mobile back button (popstate), and body scroll lock
   useEffect(() => {
     if (!isOpen) return;
@@ -145,10 +155,12 @@ export function Drawer({
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         e.preventDefault();
-        if (isExpanded) {
-          setIsExpanded(false);
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+        if (isExpandedRef.current) {
+          setIsExpandedRef.current(false);
         } else {
-          onClose();
+          onCloseRef.current();
         }
       }
     };
@@ -156,24 +168,24 @@ export function Drawer({
     const handlePopState = () => {
       isPopStateTriggeredRef.current = true;
       isPushedRef.current = false;
-      if (isExpanded) {
-        setIsExpanded(false);
+      if (isExpandedRef.current) {
+        setIsExpandedRef.current(false);
         // Push state back so next back press will close the drawer
         if (typeof window !== 'undefined') {
           window.history.pushState({ __drawerId: drawerId }, '');
           isPushedRef.current = true;
         }
       } else {
-        onClose();
+        onCloseRef.current();
       }
     };
 
-    window.addEventListener('keydown', handleEscape);
+    window.addEventListener('keydown', handleEscape, true);
     window.addEventListener('popstate', handlePopState);
 
     return () => {
       document.body.style.overflow = 'unset';
-      window.removeEventListener('keydown', handleEscape);
+      window.removeEventListener('keydown', handleEscape, true);
       window.removeEventListener('popstate', handlePopState);
 
       // Clean up pushed history entry if drawer closed via UI action (backdrop, close btn, ESC)
@@ -185,7 +197,7 @@ export function Drawer({
       }
       isPopStateTriggeredRef.current = false;
     };
-  }, [isOpen, isExpanded, onClose, setIsExpanded, drawerId]);
+  }, [isOpen, drawerId]);
 
   const handleDragEnd = (_: any, info: PanInfo) => {
     if (side !== 'bottom' || !enableDrag) return;
@@ -211,7 +223,7 @@ export function Drawer({
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center">
+        <div role="dialog" aria-modal="true" data-overlay="true" data-state={isOpen ? 'open' : 'closed'} className="fixed inset-0 z-[100] flex items-center justify-center">
           {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}

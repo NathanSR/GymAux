@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from '@/i18n/routing';
+import { useSmartNavigation } from '@/hooks/useSmartNavigation';
 import ExerciseForm from '@/components/exercises/ExerciseForm';
 import { adminService } from '@/services/adminService';
 import { toast } from 'react-toastify';
@@ -14,7 +14,7 @@ interface AdminEditExerciseClientProps {
 }
 
 export default function AdminEditExerciseClient({ exercise, users }: AdminEditExerciseClientProps) {
-  const router = useRouter();
+  const { navigateAfterAction } = useSmartNavigation({ fallbackUrl: '/admin/exercises' });
   const [isLoading, setIsLoading] = useState(false);
 
   const handleUpdate = async (data: any) => {
@@ -30,8 +30,7 @@ export default function AdminEditExerciseClient({ exercise, users }: AdminEditEx
 
       await adminService.updateExerciseAdmin(exercise.id, formattedData);
       toast.success('Exercício atualizado com sucesso!');
-      router.refresh();
-      router.replace('/admin/exercises');
+      navigateAfterAction('/admin/exercises');
     } catch (error: any) {
       console.error('Erro ao atualizar exercício:', error?.message || error);
       toast.error('Erro ao atualizar o exercício.');

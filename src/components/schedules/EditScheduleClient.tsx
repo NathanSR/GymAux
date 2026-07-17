@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from "react";
-import { ChevronLeft, Trash2 } from "lucide-react";
-import { useRouter } from "@/i18n/routing";
+import { Trash2 } from "lucide-react";
+import { useSmartNavigation } from "@/hooks/useSmartNavigation";
 import { useTranslations } from "next-intl";
 import { ScheduleForm } from "@/components/schedules/ScheduleForm";
 import { ScheduleService } from "@/services/scheduleService";
@@ -20,7 +20,7 @@ interface EditScheduleClientProps {
 
 export default function EditScheduleClient({ initialData, scheduleId, callerId, baseUrl = '/schedules' }: EditScheduleClientProps) {
     const { isDark } = useTheme();
-    const router = useRouter();
+    const { navigateAfterAction } = useSmartNavigation({ fallbackUrl: baseUrl });
     const t = useTranslations('ScheduleEdit');
     const alerts = useAlerts();
 
@@ -36,8 +36,7 @@ export default function EditScheduleClient({ initialData, scheduleId, callerId, 
                 updatedAt: new Date()
             }, callerId);
             toast.success(t('editSuccess'));
-            router.refresh();
-            router.replace(baseUrl);
+            navigateAfterAction(baseUrl);
         } catch (error: any) {
             console.error("Error updating schedule:", error?.message || error);
             setLoading(false);
@@ -57,8 +56,7 @@ export default function EditScheduleClient({ initialData, scheduleId, callerId, 
         if (result.isConfirmed) {
             try {
                 await ScheduleService.deleteSchedule(scheduleId, callerId);
-                router.refresh();
-                router.replace(baseUrl);
+                navigateAfterAction(baseUrl);
             } catch (error: any) {
                 console.error("Error deleting schedule:", error?.message || error);
             }

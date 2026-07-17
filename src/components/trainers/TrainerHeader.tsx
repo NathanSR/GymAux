@@ -1,15 +1,15 @@
 'use client'
 
-import { useRouter } from "@/i18n/routing";
+import { useSmartNavigation } from "@/hooks/useSmartNavigation";
 import { ArrowLeft, Users } from "lucide-react";
 import { memo } from "react";
 
 export const TrainerHeader = memo(({ t }: { t: any }) => {
-    const router = useRouter();
+    const { goBack } = useSmartNavigation({ fallbackUrl: '/home' });
     return (
         <header className="flex items-center gap-4 mb-10">
             <button
-                onClick={() => router.back()}
+                onClick={() => goBack('/home')}
                 className="group p-3 bg-white dark:bg-zinc-900/50 backdrop-blur-xl border border-zinc-200 dark:border-white/5 rounded-2xl hover:border-lime-400/50 transition-all duration-300 shadow-sm dark:shadow-none"
             >
                 <ArrowLeft className="w-5 h-5 text-zinc-500 dark:text-zinc-400 group-hover:text-lime-500 dark:group-hover:text-lime-400 transition-colors" />

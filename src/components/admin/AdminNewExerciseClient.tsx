@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from '@/i18n/routing';
+import { useSmartNavigation } from '@/hooks/useSmartNavigation';
 import ExerciseForm from '@/components/exercises/ExerciseForm';
 import { adminService } from '@/services/adminService';
 import { toast } from 'react-toastify';
@@ -13,7 +13,7 @@ interface AdminNewExerciseClientProps {
 }
 
 export default function AdminNewExerciseClient({ users }: AdminNewExerciseClientProps) {
-  const router = useRouter();
+  const { navigateAfterAction } = useSmartNavigation({ fallbackUrl: '/admin/exercises' });
   const [isLoading, setIsLoading] = useState(false);
 
   const handleCreate = async (data: any) => {
@@ -28,8 +28,7 @@ export default function AdminNewExerciseClient({ users }: AdminNewExerciseClient
 
       await adminService.createExerciseAdmin(formattedData);
       toast.success('Exercício criado com sucesso!');
-      router.refresh();
-      router.replace('/admin/exercises');
+      navigateAfterAction('/admin/exercises');
     } catch (error: any) {
       console.error('Erro ao criar exercício:', error?.message || error);
       toast.error('Erro ao criar exercício. Verifique os dados.');

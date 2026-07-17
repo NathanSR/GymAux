@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { ChevronLeft, Trash2 } from 'lucide-react';
-import { useRouter } from '@/i18n/routing';
+import { Trash2 } from 'lucide-react';
+import { useSmartNavigation } from '@/hooks/useSmartNavigation';
 import { useTranslations } from 'next-intl';
 import WorkoutForm from '@/components/workouts/WorkoutForm';
 import { WorkoutService } from '@/services/workoutService';
@@ -22,7 +22,7 @@ interface EditWorkoutClientProps {
 
 export default function EditWorkoutClient({ initialWorkout, availableExercises, workoutId, callerId, baseUrl = '/workouts' }: EditWorkoutClientProps) {
     const { isDark } = useTheme();
-    const router = useRouter();
+    const { navigateAfterAction } = useSmartNavigation({ fallbackUrl: baseUrl });
     const t = useTranslations('WorkoutEdit');
     const alerts = useAlerts();
 
@@ -37,8 +37,7 @@ export default function EditWorkoutClient({ initialWorkout, availableExercises, 
                 updatedAt: new Date()
             });
             toast.success(t('updatedWorkout'));
-            router.refresh();
-            router.replace(baseUrl);
+            navigateAfterAction(baseUrl);
         } catch (error: any) {
             console.error("Erro ao atualizar treino:", error?.message || error);
             toast.error("Error updating workout");
@@ -59,8 +58,7 @@ export default function EditWorkoutClient({ initialWorkout, availableExercises, 
         if (result.isConfirmed) {
             try {
                 await WorkoutService.deleteWorkout(workoutId, callerId);
-                router.refresh();
-                router.replace(baseUrl);
+                navigateAfterAction(baseUrl);
             } catch (error: any) {
                 console.error("Erro ao deletar:", error?.message || error);
             }

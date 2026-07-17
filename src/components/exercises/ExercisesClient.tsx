@@ -81,6 +81,10 @@ export default function ExercisesClient({ initialExercises, initialTotalCount }:
         }
     }, [debouncedSearch, selectedCategory, selectedEquipment, te, tt]);
 
+    useEffect(() => {
+        setInitialData(initialExercises);
+    }, [initialExercises]);
+
     // Efeito para lidar com filtros e resetar a lista
     useEffect(() => {
         // Se for o carregamento inicial (primeira página, sem filtros), não bucar de novo

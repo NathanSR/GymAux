@@ -13,6 +13,7 @@ import { ExerciseSelector } from '../exercises/ExerciseSelector';
 import { StandaloneTimerModal } from './StandaloneTimerModal';
 
 import { useSessionClient } from '../../hooks/useSessionClient';
+import { useSmartNavigation } from '@/hooks/useSmartNavigation';
 import { SessionHeader } from './SessionHeader';
 import { SessionExerciseInfo } from './SessionExerciseInfo';
 import { SessionSetForm } from './SessionSetForm';
@@ -62,6 +63,12 @@ export default function SessionClient({ initialSession, isReadOnly = false }: Se
         initialSession,
         isReadOnly,
         watchValues: () => watchValuesRef.current ? watchValuesRef.current() : { weight: 0, reps: 0, rpe: 7, dropset: undefined }
+    });
+
+    useSmartNavigation({
+        onBack: () => {
+            if (session.id) exitSession(session.id);
+        }
     });
 
     const isCompletion = session.current.step === 'completion';

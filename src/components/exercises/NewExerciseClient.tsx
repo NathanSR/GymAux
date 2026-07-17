@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from 'react';
-import { useRouter } from '@/i18n/routing';
+import { useSmartNavigation } from '@/hooks/useSmartNavigation';
 import { useTranslations } from 'next-intl';
 import { useSession } from '@/hooks/useSession';
 import ExerciseForm from '@/components/exercises/ExerciseForm';
@@ -10,7 +10,7 @@ import { toast } from 'react-toastify';
 import PageHeader from '@/components/ui/PageHeader';
 
 export default function NewExerciseClient() {
-    const router = useRouter();
+    const { navigateAfterAction } = useSmartNavigation({ fallbackUrl: '/exercises' });
     const t = useTranslations('ExerciseRegister');
     const { activeUser } = useSession();
     const [isLoading, setIsLoading] = useState(false);
@@ -28,8 +28,7 @@ export default function NewExerciseClient() {
 
             await ExerciseService.createExercise(formattedData);
             toast.success(t('createdExercise'));
-            router.refresh();
-            router.replace('/exercises');
+            navigateAfterAction('/exercises');
         } catch (error: any) {
             console.error("Erro ao criar exercício:", error?.message || error);
             toast.error(t('errorCreating'));

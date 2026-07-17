@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { ChevronLeft } from 'lucide-react';
-import { useRouter, Link } from '@/i18n/routing';
+import { useSmartNavigation } from '@/hooks/useSmartNavigation';
 
 interface PageHeaderProps {
     title: string;
@@ -14,6 +14,7 @@ interface PageHeaderProps {
     className?: string;
     titleClassName?: string;
     children?: React.ReactNode;
+    enableEsc?: boolean;
 }
 
 /**
@@ -32,17 +33,14 @@ export default function PageHeader({
     variant = 'default',
     className = '',
     titleClassName = '',
-    children
+    children,
+    enableEsc = true
 }: PageHeaderProps) {
-    const router = useRouter();
-
-    const handleBack = () => {
-        if (onBack) {
-            onBack();
-        } else {
-            router.back();
-        }
-    };
+    const { goBack } = useSmartNavigation({
+        onBack,
+        fallbackUrl: backHref,
+        enableEsc
+    });
 
     const isMinimal = variant === 'minimal';
 
@@ -60,19 +58,13 @@ export default function PageHeader({
         `}>
             <div className={`flex items-center justify-between ${children ? 'mb-4' : ''}`}>
                 {/* Left Action: Back Button */}
-                {/* {backHref ? (
-                    <Link href={backHref} aria-label="Voltar">
-                        {backButtonContent}
-                    </Link>
-                ) : ( */}
                 <button
-                    onClick={handleBack}
+                    onClick={() => goBack(backHref)}
                     type="button"
                     aria-label="Voltar"
                 >
                     {backButtonContent}
                 </button>
-                {/*)}*/}
 
                 {/* Center Content: Title */}
                 <h1 className={`
