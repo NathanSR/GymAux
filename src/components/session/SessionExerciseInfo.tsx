@@ -325,20 +325,20 @@ export function SessionExerciseInfo({
             )}
 
             {isResting && (
-                <div className="mt-2 flex items-center justify-between p-3.5 bg-white dark:bg-zinc-900/40 rounded-3xl border border-zinc-200/80 dark:border-zinc-800/80 shadow-xs">
-                    <div className="flex items-center gap-2">
-                        <div className="w-2.5 h-2.5 rounded-full bg-lime-400 animate-ping" />
-                        <span className="text-[9px] font-black uppercase text-lime-600 dark:text-lime-400 tracking-widest">
+                <div className="mt-2 flex items-center justify-between p-3.5 sm:p-5 bg-white dark:bg-zinc-900/40 rounded-3xl border border-zinc-200/80 dark:border-zinc-800/80 shadow-xs">
+                    <div className="flex items-center gap-2 sm:gap-3">
+                        <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-lime-400 animate-ping" />
+                        <span className="text-[9px] sm:text-xs font-black uppercase text-lime-600 dark:text-lime-400 tracking-widest">
                             {t('currentSet')} {currentSetIndex + 1}/{isGroupAlternating ? (currentGroup.rounds || 1) : currentExercise?.sets?.length}
                         </span>
                     </div>
                     <button
                         type="button"
                         onClick={onOpenInstructions}
-                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-lime-400/10 border border-lime-400/20 text-lime-600 dark:text-lime-400 hover:bg-lime-400/20 active:scale-95 transition-all cursor-pointer shrink-0"
+                        className="flex items-center gap-1.5 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full bg-lime-400/10 border border-lime-400/20 text-lime-600 dark:text-lime-400 hover:bg-lime-400/20 active:scale-95 transition-all cursor-pointer shrink-0"
                     >
-                        <CircleHelp size={14} />
-                        <span className="text-[9px] font-black uppercase tracking-wider">{t('howTo')}</span>
+                        <CircleHelp size={14} className="sm:w-4 sm:h-4" />
+                        <span className="text-[9px] sm:text-xs font-black uppercase tracking-wider">{t('howTo')}</span>
                     </button>
                 </div>
             )}

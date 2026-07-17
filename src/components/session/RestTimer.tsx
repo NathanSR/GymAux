@@ -67,10 +67,10 @@ export const RestTimer = ({
     const isEnding = timeLeft <= 3 && timeLeft > 0;
 
     return (
-        <div className="flex flex-col items-center justify-between h-full py-1 px-2 select-none overflow-hidden animate-in fade-in duration-500 gap-3">
+        <div className="flex flex-col items-center justify-between h-full py-1 sm:py-3 md:py-4 px-2 select-none overflow-hidden animate-in fade-in duration-500 gap-3 sm:gap-6">
             {/* Top Section: Compact Timer Ring & Quick Adjusters */}
             <div className="flex flex-col items-center flex-shrink-0">
-                <div className="relative flex items-center justify-center w-44 h-44">
+                <div className="relative flex items-center justify-center w-44 h-44 sm:w-56 sm:h-56 md:w-64 md:h-64 lg:w-72 lg:h-72 transition-all duration-300">
                     {isEnding && (
                         <div className="absolute inset-0 rounded-full border-4 border-lime-400/30 animate-ping" />
                     )}
@@ -104,43 +104,43 @@ export const RestTimer = ({
                     </svg>
 
                     <div key={timeLeft} className="absolute flex flex-col items-center animate-in zoom-in-90 duration-300">
-                        <span className={`text-5xl font-black tabular-nums tracking-tighter transition-colors ${isEnding ? 'text-lime-600 dark:text-lime-400 scale-110' : 'text-zinc-900 dark:text-white'}`}>
+                        <span className={`text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black tabular-nums tracking-tighter transition-colors ${isEnding ? 'text-lime-600 dark:text-lime-400 scale-110' : 'text-zinc-900 dark:text-white'}`}>
                             {timeLeft}
                         </span>
-                        <span className="text-zinc-500 font-black uppercase tracking-[0.2em] text-[9px] mt-0.5">
+                        <span className="text-zinc-500 font-black uppercase tracking-[0.2em] text-[9px] sm:text-xs md:text-sm mt-0.5 sm:mt-1">
                             {t('seconds')}
                         </span>
                     </div>
                 </div>
 
                 {/* Quick Adjust Buttons */}
-                <div className="flex items-center gap-1.5 mt-2">
+                <div className="flex items-center gap-1.5 sm:gap-3 mt-2 sm:mt-4">
                     <button
                         type="button"
                         onClick={() => handleAdjust(-15)}
-                        className="px-3 py-1.5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 text-zinc-700 dark:text-zinc-300 rounded-xl font-black text-[11px] flex items-center gap-1 active:scale-95 transition-all shadow-xs cursor-pointer"
+                        className="px-3 py-1.5 sm:px-4 sm:py-2.5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 text-zinc-700 dark:text-zinc-300 rounded-xl sm:rounded-2xl font-black text-[11px] sm:text-xs md:text-sm flex items-center gap-1 sm:gap-1.5 active:scale-95 transition-all shadow-xs cursor-pointer"
                     >
-                        <Minus size={11} /> 15s
+                        <Minus size={11} className="sm:w-3.5 sm:h-3.5" /> 15s
                     </button>
                     <button
                         type="button"
                         onClick={() => handleAdjust(15)}
-                        className="px-3 py-1.5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 hover:border-lime-500/40 text-lime-600 dark:text-lime-400 rounded-xl font-black text-[11px] flex items-center gap-1 active:scale-95 transition-all shadow-xs cursor-pointer"
+                        className="px-3 py-1.5 sm:px-4 sm:py-2.5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 hover:border-lime-500/40 text-lime-600 dark:text-lime-400 rounded-xl sm:rounded-2xl font-black text-[11px] sm:text-xs md:text-sm flex items-center gap-1 sm:gap-1.5 active:scale-95 transition-all shadow-xs cursor-pointer"
                     >
-                        <Plus size={11} /> 15s
+                        <Plus size={11} className="sm:w-3.5 sm:h-3.5" /> 15s
                     </button>
                     <button
                         type="button"
                         onClick={() => handleAdjust(30)}
-                        className="px-3 py-1.5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 hover:border-lime-500/40 text-lime-600 dark:text-lime-400 rounded-xl font-black text-[11px] flex items-center gap-1 active:scale-95 transition-all shadow-xs cursor-pointer"
+                        className="px-3 py-1.5 sm:px-4 sm:py-2.5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 hover:border-lime-500/40 text-lime-600 dark:text-lime-400 rounded-xl sm:rounded-2xl font-black text-[11px] sm:text-xs md:text-sm flex items-center gap-1 sm:gap-1.5 active:scale-95 transition-all shadow-xs cursor-pointer"
                     >
-                        <Plus size={11} /> 30s
+                        <Plus size={11} className="sm:w-3.5 sm:h-3.5" /> 30s
                     </button>
                 </div>
             </div>
 
             {/* Middle Section: Integrated RPE Dial */}
-            <div className="w-full max-w-sm flex-1 flex flex-col justify-center my-1">
+            <div className="w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl flex-1 flex flex-col justify-center my-1 sm:my-3 md:my-5">
                 <RpeDial
                     value={currentRpe}
                     onChange={(val) => onUpdateRpe?.(val)}
@@ -152,10 +152,10 @@ export const RestTimer = ({
             {/* Bottom Section: Skip Rest Button */}
             <button
                 onClick={onFinish}
-                className="group w-full max-w-xs py-3.5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-700 dark:text-zinc-300 rounded-[22px] font-black uppercase text-[10px] tracking-[0.25em] active:scale-95 transition-all hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-white relative shadow-xs flex items-center justify-center gap-2 cursor-pointer flex-shrink-0"
+                className="group w-full max-w-xs sm:max-w-sm md:max-w-md py-3.5 sm:py-4.5 md:py-5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-700 dark:text-zinc-300 rounded-[22px] sm:rounded-[28px] font-black uppercase text-[10px] sm:text-xs md:text-sm tracking-[0.25em] active:scale-95 transition-all hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-white relative shadow-xs flex items-center justify-center gap-2 cursor-pointer flex-shrink-0"
             >
                 <span>{t('skipRest')}</span>
-                <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+                <ArrowRight size={14} className="sm:w-4 sm:h-4 group-hover:translate-x-1 transition-transform" />
             </button>
         </div>
     );
