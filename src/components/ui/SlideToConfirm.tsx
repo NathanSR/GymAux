@@ -182,6 +182,12 @@ export function SlideToConfirm({
                 onDragEnd={handleDragEnd}
                 style={{ x: isConfirmed ? (isLeft ? -maxDrag : maxDrag) : x }}
                 whileTap={{ scale: disabled ? 1 : 0.96 }}
+                animate={!isDragging && !isConfirmed && !disabled ? { x: bounceKeyframes } : { x: 0 }}
+                transition={
+                    !isDragging && !isConfirmed && !disabled
+                        ? { repeat: Infinity, duration: 1.6, ease: "easeInOut", repeatDelay: 0.4 }
+                        : { duration: 0.1 }
+                }
                 className={cn(
                     "relative z-10 w-12 h-12 rounded-[18px] flex items-center justify-center cursor-grab active:cursor-grabbing transition-colors shadow-lg",
                     isConfirmed
@@ -190,17 +196,9 @@ export function SlideToConfirm({
                 )}
             >
                 {isConfirmed ? completedIcon : (
-                    <motion.div
-                        animate={!isDragging && !isConfirmed && !disabled ? { x: bounceKeyframes } : { x: 0 }}
-                        transition={
-                            !isDragging && !isConfirmed && !disabled
-                                ? { repeat: Infinity, duration: 1.6, ease: "easeInOut", repeatDelay: 0.4 }
-                                : { duration: 0.1 }
-                        }
-                        className="flex items-center justify-center"
-                    >
+                    <div className="flex items-center justify-center" >
                         {activeIcon}
-                    </motion.div>
+                    </div>
                 )}
             </motion.div>
         </div>
