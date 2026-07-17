@@ -89,6 +89,7 @@ export const useSessionActions = () => {
 
         if (result.isConfirmed) {
             await SessionService.deleteSession(sessionId);
+            router.refresh();
             return true;
         }
         return false;

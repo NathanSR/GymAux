@@ -394,11 +394,19 @@ export const SessionService = {
         return historyId;
     },
 
-    async deleteSession(sessionId: string, supabaseInput?: any) {
+    async deleteSession(sessionId: string, supabaseInput?: any, userIdInput?: string) {
         if (typeof window !== 'undefined') {
             const local = await db.sessions.get(sessionId);
-            const targetUserId = local?.userId;
-            await db.sessions.delete(sessionId);
+            const targetUserId = local?.userId || userIdInput || (await db.users.toCollection().first())?.id;
+            if (local) {
+                await db.sessions.update(sessionId, { isFinishedLocally: true });
+            } else {
+                await db.sessions.put({
+                    id: sessionId,
+                    userId: targetUserId || '',
+                    isFinishedLocally: true
+                } as any);
+            }
             await SyncManager.enqueue('DELETE', 'SESSION', sessionId, { id: sessionId }, targetUserId);
             return;
         }
