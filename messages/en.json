@@ -45,6 +45,12 @@
     "welcome": "Welcome to your workout",
     "selectUser": "Select a profile"
   },
+  "Drawer": {
+    "close": "Close",
+    "back": "Back",
+    "expand": "Expand to fullscreen",
+    "collapse": "Collapse drawer"
+  },
   "Index": {
     "title": "Who's training?",
     "subtitle": "Select your profile to work out",

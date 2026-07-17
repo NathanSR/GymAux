@@ -45,6 +45,12 @@
     "welcome": "Bem-vindo ao seu treino",
     "selectUser": "Selecione um perfil"
   },
+  "Drawer": {
+    "close": "Fechar",
+    "back": "Voltar",
+    "expand": "Expandir para tela cheia",
+    "collapse": "Recolher drawer"
+  },
   "Index": {
     "title": "Quem está treinando?",
     "subtitle": "Selecione seu perfil para treinar",
