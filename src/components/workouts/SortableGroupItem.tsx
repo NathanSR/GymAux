@@ -1,12 +1,11 @@
 "use client";
 
-import { memo } from 'react';
+import { useState, memo } from 'react';
 import { useTranslations } from 'next-intl';
 import { useSortable } from '@dnd-kit/sortable';
 import { useFieldArray, useFormContext, useWatch } from 'react-hook-form';
-import { CSS } from '@dnd-kit/utilities';
-import { motion } from 'framer-motion';
-import { Activity, ChevronDown, Dumbbell, GripVertical, HelpCircle, Trash2 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Activity, ChevronDown, Dumbbell, GripVertical, HelpCircle, NotebookPen, Trash2 } from 'lucide-react';
 import { numberInputUtils } from '../../utils/numberUtil';
 import SetsList from './SetsList';
 
@@ -33,16 +32,16 @@ export const SortableGroupItem = memo(({
     isReorderMode = false,
     isOverlay = false
 }: SortableGroupItemProps) => {
-    const { control, register, setValue, getValues } = useFormContext();
+    const { control, setValue, getValues } = useFormContext();
     const t = useTranslations('WorkoutForm');
     const te = useTranslations('Exercises');
-    
-    // Use useWatch for isolated re-renders
+    const [openNotes, setOpenNotes] = useState<Record<number, boolean>>({});
+
     const groupType = useWatch({
         control,
         name: `exercises.${groupIndex}.groupType`
     });
-    
+
     const rounds = useWatch({
         control,
         name: `exercises.${groupIndex}.rounds`
@@ -66,15 +65,12 @@ export const SortableGroupItem = memo(({
         if (val === "" || val < 1) return;
 
         const newVal = val;
-
-        // Sync all exercises in group to have exactly newVal sets
-        // Using getValues here instead of watch to avoid re-renders during the handler
         const currentExs = getValues(`exercises.${groupIndex}.exercises`);
         if (currentExs) {
             currentExs.forEach((ex: any, exIdx: number) => {
                 const currentSets = ex.sets || [];
                 if (currentSets.length < newVal) {
-                    const lastSet = currentSets[currentSets.length - 1] || { reps: 10, restTime: 60, technique: 'normal' };
+                    const lastSet = currentSets[currentSets.length - 1] || { reps: 10, weight: 0, restTime: 60, technique: 'normal' };
                     const toAdd = newVal - currentSets.length;
                     const newSets = [...currentSets];
                     for (let i = 0; i < toAdd; i++) {
@@ -92,12 +88,10 @@ export const SortableGroupItem = memo(({
         attributes,
         listeners,
         setNodeRef,
-        transform,
-        transition,
         isDragging
-    } = useSortable({ 
-        id: group.id, 
-        disabled: isOverlay || !isReorderMode 
+    } = useSortable({
+        id: group.id,
+        disabled: isOverlay || !isReorderMode
     });
 
     const style = {
@@ -118,75 +112,76 @@ export const SortableGroupItem = memo(({
     return (
         <motion.div
             layout
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ 
-                opacity: isOverlay ? 1 : (isDragging ? 0.3 : 1), 
+            initial={{ opacity: 0, y: 12 }}
+            animate={{
+                opacity: isOverlay ? 1 : (isDragging ? 0.3 : 1),
                 y: 0,
-                scale: isOverlay ? 1.02 : 1,
-                boxShadow: isOverlay 
-                    ? '0 25px 50px -12px rgba(132, 204, 22, 0.25)' 
-                    : (isDragging ? 'none' : '0 1px 2px 0 rgb(0 0 0 / 0.05)')
+                scale: isOverlay ? 1.01 : 1,
+                boxShadow: isOverlay
+                    ? '0 20px 40px -10px rgba(132, 204, 22, 0.2)'
+                    : (isDragging ? 'none' : '0 1px 3px 0 rgba(0, 0, 0, 0.05)')
             }}
-            exit={{ opacity: 0, scale: 0.95 }}
+            exit={{ opacity: 0, scale: 0.96 }}
             ref={setNodeRef}
             style={style}
             className={`
-                relative flex flex-col gap-3 rounded-3xl p-4 transition-all overflow-hidden border
+                relative flex flex-col gap-2.5 rounded-2xl p-3 sm:p-3.5 transition-all overflow-hidden border
                 ${isOverlay ? 'border-lime-400 bg-white dark:bg-zinc-900 ring-2 ring-lime-400/20 z-[100]' : ''}
                 ${isDragging && !isOverlay ? 'border-dashed border-lime-400/50 bg-lime-400/5' : ''}
                 ${!isMinimized && (isStraight
-                    ? 'bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 shadow-sm'
-                    : 'bg-gradient-to-br from-lime-50/50 to-white dark:from-lime-500/5 dark:to-zinc-900 border-lime-500/30 shadow-md shadow-lime-500/5')
+                    ? 'bg-white dark:bg-zinc-900 border-zinc-200/80 dark:border-zinc-800/80 shadow-2xs'
+                    : 'bg-gradient-to-br from-lime-500/[0.04] to-white dark:from-lime-500/[0.04] dark:to-zinc-900 border-lime-500/30 dark:border-lime-500/20 shadow-2xs')
                 }
                 ${isMinimized && !isDragging && !isOverlay ? 'bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 opacity-60' : ''}
             `}
         >
             {isCompound && (
-                <div className="absolute top-0 right-0 p-2 opacity-20 pointer-events-none">
-                    <Activity size={40} className="text-lime-500" />
+                <div className="absolute top-0 right-0 p-1.5 opacity-15 pointer-events-none">
+                    <Activity size={32} className="text-lime-500" />
                 </div>
             )}
 
-            <div className="flex items-center justify-between border-b border-zinc-100 dark:border-zinc-800 pb-2 relative z-10">
-                <div className="flex items-center gap-2">
+            {/* Header */}
+            <div className="flex items-center justify-between border-b border-zinc-100 dark:border-zinc-800/60 pb-2 relative z-10">
+                <div className="flex items-center gap-1.5">
                     <div
                         {...attributes}
                         {...listeners}
-                        className={`p-2 -ml-2 transition-all duration-300 ${
-                            isReorderMode 
-                            ? 'cursor-grab active:cursor-grabbing text-lime-500 opacity-100 scale-100' 
+                        className={`p-1 -ml-1 transition-all duration-300 ${
+                            isReorderMode
+                            ? 'cursor-grab active:cursor-grabbing text-lime-500 opacity-100 scale-100'
                             : 'cursor-default text-zinc-300 opacity-0 scale-50 pointer-events-none w-0 overflow-hidden'
                         }`}
                         style={{ touchAction: 'none' }}
                     >
-                        <GripVertical size={18} />
+                        <GripVertical size={16} />
                     </div>
                     {isMinimized ? (
-                        <span className="text-[10px] font-black uppercase tracking-widest text-lime-500 dark:text-lime-400 py-1 px-2 bg-lime-500/10 rounded-lg">
+                        <span className="text-[9px] font-black uppercase tracking-widest text-lime-600 dark:text-lime-400 py-0.5 px-2 bg-lime-500/10 rounded-md">
                             {t(`groupTypes.${groupType}`)}
                         </span>
                     ) : (
-                        <>
+                        <div className="flex items-center gap-1">
                             <select
                                 value={groupType}
                                 onChange={(e) => onGroupTypeChange(groupIndex, e.target.value)}
-                                className="bg-transparent text-[10px] font-black uppercase tracking-widest text-lime-500 dark:text-lime-400 outline-none cursor-pointer"
+                                className="bg-transparent text-[10px] font-black uppercase tracking-widest text-lime-600 dark:text-lime-400 outline-none cursor-pointer hover:opacity-80 transition-opacity"
                             >
-                                <option className='bg-background text-foreground' value="straight">{t('groupTypes.straight')}</option>
-                                <option className='bg-background text-foreground' value="bi_set">{t('groupTypes.bi_set')}</option>
-                                <option className='bg-background text-foreground' value="tri_set">{t('groupTypes.tri_set')}</option>
-                                <option className='bg-background text-foreground' value="giant_set">{t('groupTypes.giant_set')}</option>
-                                <option className='bg-background text-foreground' value="circuit">{t('groupTypes.circuit')}</option>
+                                <option className='bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100' value="straight">{t('groupTypes.straight')}</option>
+                                <option className='bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100' value="bi_set">{t('groupTypes.bi_set')}</option>
+                                <option className='bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100' value="tri_set">{t('groupTypes.tri_set')}</option>
+                                <option className='bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100' value="giant_set">{t('groupTypes.giant_set')}</option>
+                                <option className='bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100' value="circuit">{t('groupTypes.circuit')}</option>
                             </select>
                             <button
                                 type="button"
                                 onClick={onShowHelp}
-                                className="p-1 text-zinc-400 hover:text-lime-500 transition-colors"
+                                className="p-0.5 text-zinc-400 hover:text-lime-500 transition-colors cursor-pointer"
                                 title={t('groupTypesHelp.title')}
                             >
-                                <HelpCircle size={12} />
+                                <HelpCircle size={13} />
                             </button>
-                        </>
+                        </div>
                     )}
                 </div>
 
@@ -194,72 +189,119 @@ export const SortableGroupItem = memo(({
                     <button
                         type="button"
                         onClick={() => removeGroup(groupIndex)}
-                        className="text-zinc-300 hover:text-red-500 p-2 rounded-xl transition-all"
+                        className="text-zinc-400 hover:text-red-500 p-1 rounded-lg transition-all cursor-pointer"
                     >
-                        <Trash2 size={16} />
+                        <Trash2 size={15} />
                     </button>
                 )}
             </div>
-            <div className={`space-y-3 relative ${isCompound && !isMinimized ? 'pl-5' : ''}`}>
+
+            {/* Exercises List */}
+            <div className={`space-y-2 relative ${isCompound && !isMinimized ? 'pl-4' : ''}`}>
                 {exerciseFields.map((exSubField: any, exIndex: number) => (
-                    <div key={exSubField.id} className={`${isMinimized ? 'bg-transparent p-0 border-none' : (isCompound ? 'bg-transparent p-0 border-none' : 'bg-zinc-50 dark:bg-zinc-950/50 rounded-2xl p-3 border border-zinc-100 dark:border-zinc-800')} relative`}>
-                        <div className={`flex items-center gap-2 ${isMinimized ? 'mb-0' : (isCompound ? 'mb-0' : 'mb-3')}`}>
+                    <div key={exSubField.id} className="relative">
+                        <div className="flex items-center gap-1.5">
                             {isCompound && !isMinimized && (
                                 <>
-                                    {/* Vertical Connector Line - Segmented for perfect alignment */}
-                                    <div className={`absolute -left-4 w-0.5 bg-lime-500/30 ${
-                                        exIndex === 0 ? 'top-1/2 rounded-t-full' : 'top-[-12px]'
+                                    <div className={`absolute -left-3 w-0.5 bg-lime-500/40 ${
+                                        exIndex === 0 ? 'top-1/2 rounded-t-full' : 'top-[-8px]'
                                     } ${
-                                        exIndex === exerciseFields.length - 1 ? 'bottom-1/2 rounded-b-full' : 'bottom-[-12px]'
+                                        exIndex === exerciseFields.length - 1 ? 'bottom-1/2 rounded-b-full' : 'bottom-[-8px]'
                                     }`} />
-                                    
-                                    {/* Indicator Dot at the joint */}
-                                    <div className="absolute -left-[19px] top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-lime-500 ring-4 ring-lime-500/10 z-10 shadow-[0_0_8px_rgba(132,204,22,0.3)]" />
+                                    <div className="absolute -left-[14px] top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-lime-500 ring-2 ring-lime-500/20 z-10" />
                                 </>
                             )}
                             <button
                                 type="button"
                                 onClick={() => !isMinimized && openSelectorFor(groupIndex, exIndex)}
-                                className={`flex-1 flex items-center gap-2 p-2.5 rounded-xl border transition-all text-left group overflow-hidden ${
-                                    isMinimized 
-                                    ? 'bg-zinc-50 dark:bg-zinc-950 border-zinc-100 dark:border-zinc-800' 
-                                    : 'bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 hover:border-lime-400/50'
+                                className={`flex-1 flex items-center gap-2 p-2 rounded-xl border transition-all text-left group overflow-hidden ${
+                                    isMinimized
+                                    ? 'bg-zinc-50 dark:bg-zinc-950 border-zinc-100 dark:border-zinc-800/80'
+                                    : 'bg-white dark:bg-zinc-900/90 border-zinc-200/80 dark:border-zinc-800/80 hover:border-lime-500/40 cursor-pointer'
                                 }`}
                             >
                                 <Dumbbell size={14} className="text-lime-500 shrink-0" />
                                 <span className={`font-black flex-1 truncate uppercase tracking-tight ${isMinimized ? 'text-[10px] text-zinc-600 dark:text-zinc-400' : 'text-xs text-zinc-800 dark:text-zinc-200'}`}>
-                                    {exSubField.exerciseName 
-                                        ? (te.has(exSubField.exerciseName) ? te(exSubField.exerciseName) : exSubField.exerciseName) 
+                                    {exSubField.exerciseName
+                                        ? (te.has(exSubField.exerciseName) ? te(exSubField.exerciseName) : exSubField.exerciseName)
                                         : t('selectExercise')}
                                 </span>
-                                {!isMinimized && <ChevronDown size={14} className="text-zinc-400 group-hover:text-lime-500 shrink-0" />}
+                                {!isMinimized && <ChevronDown size={13} className="text-zinc-400 group-hover:text-lime-500 shrink-0" />}
                             </button>
 
+                            {!isMinimized && (
+                                <button
+                                    type="button"
+                                    onClick={() => setOpenNotes(prev => ({ ...prev, [exIndex]: !prev[exIndex] }))}
+                                    className={`p-2 rounded-xl border transition-all shrink-0 cursor-pointer ${
+                                        exercisesInGroup?.[exIndex]?.notes
+                                        ? 'bg-amber-500/15 border-amber-500/40 text-amber-600 dark:text-amber-400 shadow-2xs'
+                                        : 'bg-white dark:bg-zinc-900/90 border-zinc-200/80 dark:border-zinc-800/80 text-zinc-400 hover:text-amber-500 hover:border-amber-500/40'
+                                    }`}
+                                    title={t('exerciseNotes')}
+                                >
+                                    <NotebookPen size={14} />
+                                </button>
+                            )}
+
                             {isCompound && !isMinimized && (
-                                <div className="w-20 shrink-0 bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 px-2 py-1 flex flex-col justify-center items-center">
-                                    <span className="text-[7px] font-black text-zinc-400 uppercase tracking-widest">{t('reps')}</span>
-                                    <input
-                                        type="number"
-                                        className="w-full bg-transparent text-center font-black text-xs outline-none text-lime-500"
-                                        onFocus={numberInputUtils.onFocus}
-                                        value={numberInputUtils.formatValue(exercisesInGroup?.[exIndex]?.sets?.[0]?.reps)}
-                                        onChange={(e) => {
-                                            numberInputUtils.onChange(e, (newVal) => {
-                                                const finalVal = newVal;
-                                                const currentSets = exercisesInGroup?.[exIndex]?.sets || [];
-                                                setValue(`exercises.${groupIndex}.exercises.${exIndex}.sets`, currentSets.map((s: any) => ({ ...s, reps: finalVal })));
-                                            });
-                                        }}
-                                    />
+                                <div className="flex items-center gap-1 shrink-0">
+                                    <div className="w-16 bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200/80 dark:border-zinc-800/80 px-1.5 py-0.5 flex flex-col justify-center items-center">
+                                        <span className="text-[6.5px] font-black text-zinc-400 uppercase tracking-widest">{t('reps')}</span>
+                                        <input
+                                            type="number"
+                                            className="w-full bg-transparent text-center font-black text-xs outline-none text-zinc-900 dark:text-zinc-100"
+                                            onFocus={numberInputUtils.onFocus}
+                                            value={numberInputUtils.formatValue(exercisesInGroup?.[exIndex]?.sets?.[0]?.reps)}
+                                            onChange={(e) => {
+                                                numberInputUtils.onChange(e, (newVal) => {
+                                                    const finalVal = newVal;
+                                                    const currentSets = exercisesInGroup?.[exIndex]?.sets || [];
+                                                    setValue(`exercises.${groupIndex}.exercises.${exIndex}.sets`, currentSets.map((s: any) => ({ ...s, reps: finalVal })));
+                                                });
+                                            }}
+                                        />
+                                    </div>
+                                    <div className="w-16 bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200/80 dark:border-zinc-800/80 px-1.5 py-0.5 flex flex-col justify-center items-center">
+                                        <span className="text-[6.5px] font-black text-zinc-400 uppercase tracking-widest">{t('weight')}</span>
+                                        <input
+                                            type="number"
+                                            step="any"
+                                            className="w-full bg-transparent text-center font-black text-xs outline-none text-lime-600 dark:text-lime-400"
+                                            onFocus={numberInputUtils.onFocus}
+                                            value={numberInputUtils.formatValue(exercisesInGroup?.[exIndex]?.sets?.[0]?.weight)}
+                                            onChange={(e) => {
+                                                numberInputUtils.onChange(e, (newVal) => {
+                                                    const finalVal = newVal;
+                                                    const currentSets = exercisesInGroup?.[exIndex]?.sets || [];
+                                                    setValue(`exercises.${groupIndex}.exercises.${exIndex}.sets`, currentSets.map((s: any) => ({ ...s, weight: finalVal })));
+                                                });
+                                            }}
+                                        />
+                                    </div>
                                 </div>
                             )}
                         </div>
 
+                        {!isMinimized && (openNotes[exIndex] || exercisesInGroup?.[exIndex]?.notes) && (
+                            <div className="mt-1">
+                                <input
+                                    type="text"
+                                    placeholder={t('exerciseNotesPlaceholder')}
+                                    value={exercisesInGroup?.[exIndex]?.notes || ''}
+                                    onChange={(e) => {
+                                        setValue(`exercises.${groupIndex}.exercises.${exIndex}.notes`, e.target.value);
+                                    }}
+                                    className="w-full bg-amber-500/[0.04] dark:bg-amber-500/5 border border-amber-500/20 focus:border-amber-500/50 rounded-xl px-2.5 py-1.5 text-xs font-medium outline-none text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-600 transition-all"
+                                />
+                            </div>
+                        )}
+
                         {!isMinimized && (
-                            <SetsList 
-                                groupIndex={groupIndex} 
-                                exerciseIndex={exIndex} 
-                                isStraight={isStraight} 
+                            <SetsList
+                                groupIndex={groupIndex}
+                                exerciseIndex={exIndex}
+                                isStraight={isStraight}
                             />
                         )}
                     </div>
@@ -270,32 +312,32 @@ export const SortableGroupItem = memo(({
                 <button
                     type="button"
                     onClick={() => openSelectorFor(groupIndex, null)}
-                    className="w-full py-2.5 rounded-xl border-2 border-dashed border-zinc-100 dark:border-zinc-800 text-zinc-400 text-[9px] font-black uppercase tracking-widest hover:border-lime-400/50 hover:text-lime-500 transition-all"
+                    className="w-full py-2 rounded-xl border border-dashed border-zinc-200 dark:border-zinc-800/80 text-zinc-400 text-[9px] font-black uppercase tracking-widest hover:border-lime-500/40 hover:text-lime-500 transition-all cursor-pointer"
                 >
                     + {t('addExercise')}
                 </button>
             )}
 
             {!isMinimized && (
-                <div className="grid grid-cols-2 gap-2 pt-3 border-t border-zinc-100 dark:border-zinc-800">
-                    <div className={`${isStraight ? 'col-span-2' : ''} bg-zinc-50 dark:bg-zinc-950/50 p-2.5 rounded-xl border border-zinc-100 dark:border-zinc-800/50`}>
-                        <span className="block text-[8px] font-black text-zinc-400 uppercase tracking-widest mb-1">
+                <div className="grid grid-cols-2 gap-2 pt-2 border-t border-zinc-100 dark:border-zinc-800/60">
+                    <div className={`${isStraight ? 'col-span-2' : ''} bg-zinc-50/80 dark:bg-zinc-950/60 p-2 rounded-xl border border-zinc-100 dark:border-zinc-800/60`}>
+                        <span className="block text-[7.5px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mb-0.5">
                             {isStraight ? t('restAfterGroup') : t('restBetweenRounds')}
                         </span>
-                        <div className='flex items-center gap-2'>
-                            <input 
-                                type="number" 
+                        <div className='flex items-center gap-1.5'>
+                            <input
+                                type="number"
                                 value={numberInputUtils.formatValue(restAfterGroup)}
                                 onFocus={numberInputUtils.onFocus}
                                 onChange={(e) => numberInputUtils.onChange(e, (val) => setValue(`exercises.${groupIndex}.restAfterGroup`, val))}
-                                className="w-full bg-transparent font-black text-sm outline-none text-zinc-800 dark:text-zinc-200" 
+                                className="w-full bg-transparent font-black text-xs sm:text-sm outline-none text-zinc-800 dark:text-zinc-200"
                             />
                             <span className='text-[10px] text-zinc-500 font-bold'>s</span>
                         </div>
                     </div>
                     {!isStraight && (
-                        <div className="bg-zinc-50 dark:bg-zinc-950/50 p-2.5 rounded-xl border border-zinc-100 dark:border-zinc-800/50">
-                            <span className="block text-[8px] font-black text-zinc-400 uppercase tracking-widest mb-1">{t('rounds')}</span>
+                        <div className="bg-zinc-50/80 dark:bg-zinc-950/60 p-2 rounded-xl border border-zinc-100 dark:border-zinc-800/60">
+                            <span className="block text-[7.5px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mb-0.5">{t('rounds')}</span>
                             <input
                                 type="number"
                                 onFocus={numberInputUtils.onFocus}
@@ -306,7 +348,7 @@ export const SortableGroupItem = memo(({
                                         handleRoundsChange(1);
                                     }
                                 }}
-                                className="w-full bg-transparent font-black text-sm outline-none text-zinc-800 dark:text-zinc-200"
+                                className="w-full bg-transparent font-black text-xs sm:text-sm outline-none text-zinc-800 dark:text-zinc-200"
                             />
                         </div>
                     )}

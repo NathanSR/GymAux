@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Zap, CircleHelp, List, ArrowRight, Target, Dumbbell } from 'lucide-react';
+import { Zap, CircleHelp, List, ArrowRight, Target, Dumbbell, NotebookPen } from 'lucide-react';
 import { GROUP_CONFIG } from './SessionConstants';
 import { useTranslations } from 'next-intl';
 import { ExerciseService } from '@/services/exerciseService';
@@ -250,6 +250,24 @@ export function SessionExerciseInfo({
                                     })}
                                 </div>
                             )}
+                        </motion.div>
+                    )}
+
+                    {currentExercise?.notes && (
+                        <motion.div
+                            initial={{ opacity: 0, y: 5 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="mt-3 p-3 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-500 flex items-start gap-2.5 shadow-sm"
+                        >
+                            <NotebookPen size={16} className="shrink-0 mt-0.5" />
+                            <div className="space-y-0.5 min-w-0 flex-1">
+                                <span className="block text-[8px] font-black uppercase tracking-widest text-amber-500/80">
+                                    {t('trainerNote')}
+                                </span>
+                                <p className="text-xs font-bold leading-relaxed text-zinc-200 whitespace-pre-wrap">
+                                    {currentExercise.notes}
+                                </p>
+                            </div>
                         </motion.div>
                     )}
                 </div>

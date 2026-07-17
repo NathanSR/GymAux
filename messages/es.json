@@ -1312,7 +1312,10 @@
     "selectExercise": "Seleccionar Ejercicio",
     "sets": "Series",
     "reps": "Reps",
+    "weight": "Peso (kg)",
     "rest": "Descanso (s)",
+    "exerciseNotes": "Nota del Ejercicio",
+    "exerciseNotesPlaceholder": "Instrucciones u observaciones para este ejercicio...",
     "copySet": "Copiar Serie",
     "groupTypes": {
       "straight": "Serie Convencional",
@@ -1327,7 +1330,8 @@
       "bi_set": "Combina dos ejercicios. Haz el primero y, sin descansar, empieza el segundo. Descansa solo después de los dos.",
       "tri_set": "Tres ejercicios seguidos. Haz uno tras otro sin parar. El descanso viene sólo después del tercer ejercicio.",
       "giant_set": "Un maratón de 4 o más ejercicios para el mismo músculo. Ve rápido entre ellos y descansa al final.",
-      "circuit": "Una secuencia de varios ejercicios diferentes. ¡Ideal para quemar calorías y mantener el ritmo alto!"
+      "circuit": "Una secuencia de varios ejercicios diferentes. ¡Ideal para quemar calorías y mantener el ritmo alto!",
+      "gotIt": "Entendido"
     },
     "restAfterGroup": "Descanso tras Grupo (s)",
     "restBetweenRounds": "Descanso entre Rondas (s)",
@@ -1935,6 +1939,7 @@
     "customTimerDesc": "Ejecute un tiempo libre o actividad fuera de la rutina",
     "adjustRestTime": "Tiempo de Descanso",
     "adjustRestTimeDesc": "Ajuste la duración del descanso para las siguientes series de este ejercicio",
+    "trainerNote": "Nota del Entrenador",
     "stopwatch": "Cronómetro",
     "timer": "Temporizador",
     "laps": "Vueltas",

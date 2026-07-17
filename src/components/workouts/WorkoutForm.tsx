@@ -146,7 +146,7 @@ export default function WorkoutForm({ initialData, availableExercises = [], onSu
                     restAfterExercise: 0,
                     sets: currentExercises[0]?.sets
                         ? JSON.parse(JSON.stringify(currentExercises[0].sets))
-                        : [{ reps: 10, restTime: 60, technique: 'normal' }]
+                        : [{ reps: 10, weight: 0, restTime: 60, technique: 'normal' }]
                 });
             }
             update(groupIndex, { ...group, exercises: newExs, groupType: newType, rounds: newExs[0]?.sets.length || 0 });
@@ -208,9 +208,9 @@ export default function WorkoutForm({ initialData, availableExercises = [], onSu
                     exerciseName: exercise.name,
                     restAfterExercise: 0,
                     sets: [
-                        { reps: 10, restTime: 60, technique: 'normal' },
-                        { reps: 10, restTime: 60, technique: 'normal' },
-                        { reps: 10, restTime: 60, technique: 'normal' },
+                        { reps: 10, weight: 0, restTime: 60, technique: 'normal' },
+                        { reps: 10, weight: 0, restTime: 60, technique: 'normal' },
+                        { reps: 10, weight: 0, restTime: 60, technique: 'normal' },
                     ]
                 }]
             });
@@ -226,9 +226,9 @@ export default function WorkoutForm({ initialData, availableExercises = [], onSu
                     exerciseName: exercise.name,
                     restAfterExercise: 0,
                     sets: [
-                        { reps: 10, restTime: 60, technique: 'normal' },
-                        { reps: 10, restTime: 60, technique: 'normal' },
-                        { reps: 10, restTime: 60, technique: 'normal' },
+                        { reps: 10, weight: 0, restTime: 60, technique: 'normal' },
+                        { reps: 10, weight: 0, restTime: 60, technique: 'normal' },
+                        { reps: 10, weight: 0, restTime: 60, technique: 'normal' },
                     ]
                 }]
             });
@@ -242,7 +242,7 @@ export default function WorkoutForm({ initialData, availableExercises = [], onSu
                     restAfterExercise: 0,
                     sets: (group.exercises && group.exercises[0]?.sets)
                         ? JSON.parse(JSON.stringify(group.exercises[0].sets)) // Copiar estrutura do primeiro exercício
-                        : [{ reps: 10, restTime: 60, technique: 'normal' }]
+                        : [{ reps: 10, weight: 0, restTime: 60, technique: 'normal' }]
                 };
 
                 const newExercises = [...(group.exercises || []), newEx];
