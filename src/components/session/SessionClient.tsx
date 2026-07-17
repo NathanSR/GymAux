@@ -74,7 +74,7 @@ export default function SessionClient({ initialSession, isReadOnly = false }: Se
     const isCompletion = session.current.step === 'completion';
 
     return (
-        <div className="h-[100dvh] bg-zinc-950 text-white flex flex-col font-sans selection:bg-lime-400 selection:text-zinc-950 overflow-hidden">
+        <div className="h-[100dvh] bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white transition-colors duration-300 flex flex-col font-sans selection:bg-lime-400 selection:text-zinc-950 overflow-hidden">
             <AnimatePresence mode="wait">
                 {isCompletion ? (
                     <motion.div

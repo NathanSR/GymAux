@@ -212,13 +212,13 @@ export function SessionSetForm({
                     >
                         <div className="grid grid-cols-2 gap-3">
                             {/* Weight Input Card */}
-                            <div className="group flex bg-zinc-900 border border-zinc-800 rounded-3xl px-4 py-3 focus-within:border-lime-400/50 focus-within:ring-4 focus-within:ring-lime-400/5 transition-all">
+                            <div className="group flex bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl px-4 py-3 focus-within:border-lime-500/50 dark:focus-within:border-lime-400/50 focus-within:ring-4 focus-within:ring-lime-400/10 transition-all shadow-xs">
                                 <div className='flex flex-col flex-1 min-w-0'>
-                                    <label className="text-[8px] font-black uppercase text-zinc-500 tracking-[0.2em] block mb-1.5 group-focus-within:text-lime-400 transition-colors">
+                                    <label className="text-[8px] font-black uppercase text-zinc-500 dark:text-zinc-400 tracking-[0.2em] block mb-1.5 group-focus-within:text-lime-600 dark:group-focus-within:text-lime-400 transition-colors">
                                         {t('weight')}
                                     </label>
                                     <div className="flex items-center gap-2">
-                                        <Dumbbell size={18} className="text-lime-400 flex-shrink-0" />
+                                        <Dumbbell size={18} className="text-lime-600 dark:text-lime-400 flex-shrink-0" />
                                         <Controller
                                             name="weight"
                                             control={control}
@@ -230,7 +230,7 @@ export function SessionSetForm({
                                                     value={numberInputUtils.formatValue(field.value)}
                                                     onFocus={numberInputUtils.onFocus}
                                                     onChange={(e) => numberInputUtils.onChange(e, field.onChange)}
-                                                    className="bg-transparent border-none p-0 text-3xl font-black outline-none w-full text-white placeholder:text-zinc-800"
+                                                    className="bg-transparent border-none p-0 text-3xl font-black outline-none w-full text-zinc-900 dark:text-white placeholder:text-zinc-300 dark:placeholder:text-zinc-800"
                                                 />
                                             )}
                                         />
@@ -247,13 +247,13 @@ export function SessionSetForm({
                             </div>
 
                             {/* Reps Input Card */}
-                            <div className="group flex bg-zinc-900 border border-zinc-800 rounded-3xl px-4 py-3 focus-within:border-lime-400/50 focus-within:ring-4 focus-within:ring-lime-400/5 transition-all">
+                            <div className="group flex bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl px-4 py-3 focus-within:border-lime-500/50 dark:focus-within:border-lime-400/50 focus-within:ring-4 focus-within:ring-lime-400/10 transition-all shadow-xs">
                                 <div className='flex flex-col flex-1 min-w-0'>
-                                    <label className="text-[8px] font-black uppercase text-zinc-500 tracking-[0.2em] block mb-1.5 group-focus-within:text-lime-400 transition-colors">
+                                    <label className="text-[8px] font-black uppercase text-zinc-500 dark:text-zinc-400 tracking-[0.2em] block mb-1.5 group-focus-within:text-lime-600 dark:group-focus-within:text-lime-400 transition-colors">
                                         {t('performed')}
                                     </label>
                                     <div className="flex items-center gap-2">
-                                        <Check size={18} className="text-lime-400 flex-shrink-0" />
+                                        <Check size={18} className="text-lime-600 dark:text-lime-400 flex-shrink-0" />
                                         <Controller
                                             name="reps"
                                             control={control}
@@ -265,7 +265,7 @@ export function SessionSetForm({
                                                     value={numberInputUtils.formatValue(field.value)}
                                                     onFocus={numberInputUtils.onFocus}
                                                     onChange={(e) => numberInputUtils.onChange(e, field.onChange)}
-                                                    className="bg-transparent border-none p-0 text-3xl font-black outline-none w-full text-white placeholder:text-zinc-800"
+                                                    className="bg-transparent border-none p-0 text-3xl font-black outline-none w-full text-zinc-900 dark:text-white placeholder:text-zinc-300 dark:placeholder:text-zinc-800"
                                                 />
                                             )}
                                         />
@@ -347,7 +347,7 @@ export function SessionSetForm({
                     <button
                         type="button"
                         onClick={() => setIsActionsOpen(true)}
-                        className="aspect-square px-5 bg-zinc-900 border border-zinc-800 rounded-[24px] text-zinc-400 hover:text-white hover:bg-zinc-850 active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center border-b-[6px] border-zinc-950"
+                        className="aspect-square px-5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-[24px] text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-50 dark:hover:bg-zinc-850 active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center border-b-[6px] border-b-zinc-200 dark:border-b-zinc-950 shadow-xs"
                         title={t('setOptions')}
                     >
                         <SlidersHorizontal size={18} />
@@ -360,7 +360,7 @@ export function SessionSetForm({
                     <button
                         type="button"
                         onClick={() => setIsActionsOpen(true)}
-                        className="flex items-center justify-center gap-2 w-full py-4 bg-zinc-900 border border-zinc-800 rounded-2xl text-zinc-400 text-[10px] font-black uppercase tracking-widest hover:bg-zinc-800 hover:text-white active:scale-[0.98] transition-all cursor-pointer"
+                        className="flex items-center justify-center gap-2 w-full py-4 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl text-zinc-600 dark:text-zinc-400 text-[10px] font-black uppercase tracking-widest hover:bg-zinc-50 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-white active:scale-[0.98] transition-all cursor-pointer shadow-xs"
                     >
                         <SlidersHorizontal size={14} />
                         {t('setOptions')}

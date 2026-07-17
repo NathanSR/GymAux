@@ -64,10 +64,10 @@ export const DraggableExerciseItem = ({
             ref={setNodeRef}
             style={style}
             className={`relative rounded-[28px] border transition-all overflow-hidden 
-                ${isOverlay ? 'border-lime-400 bg-zinc-900 ring-2 ring-lime-400/20' : (isCurrent ? 'bg-lime-400/10 border-lime-400/40' : 'bg-zinc-900/50 border-zinc-800/50')} 
-                ${isAlternating && !isCompleted ? 'bg-gradient-to-br from-lime-500/5 to-zinc-900/40 border-lime-500/30 shadow-lg shadow-lime-500/5' : ''}
+                ${isOverlay ? 'border-lime-500 bg-white dark:bg-zinc-900 ring-2 ring-lime-400/20 shadow-xl' : (isCurrent ? 'bg-lime-400/10 border-lime-500/50 dark:border-lime-400/40 shadow-xs' : 'bg-white dark:bg-zinc-900/50 border-zinc-200 dark:border-zinc-800/50 shadow-xs')} 
+                ${isAlternating && !isCompleted ? 'bg-gradient-to-br from-lime-500/5 to-white dark:to-zinc-900/40 border-lime-500/30 shadow-lg shadow-lime-500/5' : ''}
                 ${isCompleted && !isOverlay ? 'opacity-40' : ''} 
-                ${isDragging && !isOverlay ? 'border-dashed border-lime-400/50 bg-lime-400/5' : ''}
+                ${isDragging && !isOverlay ? 'border-dashed border-lime-500/50 bg-lime-400/5' : ''}
             `}
         >
             {isAlternating && !isCompleted && (
@@ -83,7 +83,7 @@ export const DraggableExerciseItem = ({
                             {...attributes}
                             {...listeners}
                             className={`p-2 transition-all duration-300 ${
-                                isOverlay ? 'cursor-grabbing text-lime-400' : 'cursor-grab text-zinc-600 hover:text-lime-400'
+                                isOverlay ? 'cursor-grabbing text-lime-600 dark:text-lime-400' : 'cursor-grab text-zinc-400 dark:text-zinc-600 hover:text-lime-600 dark:hover:text-lime-400'
                             }`}
                             style={{ touchAction: 'none' }}
                         >
@@ -91,14 +91,14 @@ export const DraggableExerciseItem = ({
                         </div>
                     )}
 
-                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-black text-xs flex-shrink-0 ${isCurrent ? 'bg-lime-400 text-zinc-950' : 'bg-zinc-800 text-zinc-500'
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-black text-xs flex-shrink-0 ${isCurrent ? 'bg-lime-400 text-zinc-950 shadow-xs' : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-500'
                         }`}>
                         {isCompleted ? <Check size={18} strokeWidth={3} /> : idx + 1}
                     </div>
 
                     <div className="min-w-0 flex-1">
                         {isAlternating && (
-                            <span className="inline-flex items-center gap-1 text-[8px] font-black text-indigo-400 uppercase tracking-widest bg-indigo-400/10 px-2 py-0.5 rounded-full mb-1">
+                            <span className="inline-flex items-center gap-1 text-[8px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest bg-indigo-500/10 dark:bg-indigo-400/10 px-2 py-0.5 rounded-full mb-1">
                                 <RefreshCw size={8} />
                                 {t(`groupTypes.${group.groupType}`)}
                             </span>
@@ -112,7 +112,7 @@ export const DraggableExerciseItem = ({
                                     {isAlternating && (
                                         <div className="absolute -left-[19px] top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-lime-500/40" />
                                     )}
-                                    <p className={`font-black text-xs sm:text-sm uppercase italic tracking-tight truncate ${isCurrent ? 'text-white' : 'text-zinc-400'}`}>
+                                    <p className={`font-black text-xs sm:text-sm uppercase italic tracking-tight truncate ${isCurrent ? 'text-zinc-900 dark:text-white' : 'text-zinc-700 dark:text-zinc-400'}`}>
                                         {(() => {
                                             const baseName = te.has(ex.exerciseName) ? te(ex.exerciseName) : ex.exerciseName;
                                             const currentVar = ex.variation || 'none';
@@ -135,13 +135,13 @@ export const DraggableExerciseItem = ({
                             ))}
                         </div>
                         <div className="flex items-center gap-2 mt-1">
-                            <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">
+                            <span className="text-[10px] text-zinc-500 dark:text-zinc-400 font-bold uppercase tracking-wider">
                                 {totalSets} {t('sets')}
                             </span>
                             {group.rounds > 1 && (
                                 <>
-                                    <span className="w-1 h-1 rounded-full bg-zinc-800" />
-                                    <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">
+                                    <span className="w-1 h-1 rounded-full bg-zinc-300 dark:bg-zinc-800" />
+                                    <span className="text-[10px] text-zinc-500 dark:text-zinc-400 font-bold uppercase tracking-wider">
                                         {group.rounds} {t('rounds')}
                                     </span>
                                 </>
@@ -154,7 +154,7 @@ export const DraggableExerciseItem = ({
                     <div className="flex items-center gap-1 flex-shrink-0">
                         <button
                             onClick={() => onEdit(group, idx)}
-                            className="p-3 text-zinc-600 hover:text-lime-400 active:scale-90 transition-all"
+                            className="p-3 text-zinc-400 hover:text-lime-600 dark:hover:text-lime-400 active:scale-90 transition-all cursor-pointer"
                         >
                             <Pencil size={18} />
                         </button>
@@ -162,7 +162,7 @@ export const DraggableExerciseItem = ({
                         {!isCurrent && (
                             <button
                                 onClick={() => onRemove(idx)}
-                                className="p-3 text-zinc-600 hover:text-red-400 active:scale-90 transition-all"
+                                className="p-3 text-zinc-400 hover:text-rose-500 active:scale-90 transition-all cursor-pointer"
                             >
                                 <Trash2 size={18} />
                             </button>

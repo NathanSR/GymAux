@@ -197,10 +197,10 @@ export const WorkoutDrawerForm = ({
     if (!isFormOpen) return null;
 
     return (
-        <div className={`absolute bg-zinc-950 inset-0 z-20 rounded-t-[40px] p-8 animate-in slide-in-from-bottom duration-300 flex flex-col overflow-hidden
+        <div className={`absolute inset-0 z-20 rounded-t-[40px] p-8 animate-in slide-in-from-bottom duration-300 flex flex-col overflow-hidden
             ${groupType === 'straight'
-                ? 'bg-zinc-950'
-                : 'bg-gradient-to-br from-lime-500/5 to-zinc-950 border-t border-lime-500/20'}
+                ? 'bg-white dark:bg-zinc-950 text-zinc-900 dark:text-white'
+                : 'bg-gradient-to-br from-lime-500/5 via-white to-white dark:via-zinc-950 dark:to-zinc-950 text-zinc-900 dark:text-white border-t border-lime-500/20'}
         `}>
             {groupType !== 'straight' && (
                 <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
@@ -208,20 +208,20 @@ export const WorkoutDrawerForm = ({
                 </div>
             )}
             <div className="flex items-center justify-between mb-8">
-                <h4 className="text-lg font-black uppercase italic tracking-tighter">
+                <h4 className="text-lg font-black uppercase italic tracking-tighter text-zinc-900 dark:text-white">
                     {editingGroupIdx !== null ? t('editExercise') : t('addExercise')}
                 </h4>
-                <button onClick={() => setIsFormOpen(false)} className="text-zinc-500 p-2"><X /></button>
+                <button onClick={() => setIsFormOpen(false)} className="text-zinc-400 hover:text-zinc-900 dark:hover:text-white p-2 cursor-pointer"><X /></button>
             </div>
 
             <form onSubmit={handleSubmit(onSave)} className="flex-1 overflow-y-auto no-scrollbar py-2 space-y-6">
                 <div className="space-y-4">
                     <div className="flex items-center justify-between px-2">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-zinc-600">{t('groupTypeLabel')}</label>
+                        <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500 dark:text-zinc-400">{t('groupTypeLabel')}</label>
                         <select
                             value={groupType}
                             onChange={(e) => handleGroupTypeChange(e.target.value)}
-                            className="bg-zinc-950 text-lime-400 text-[10px] font-black uppercase tracking-widest px-4 py-2 rounded-2xl border border-zinc-800 outline-none cursor-pointer hover:border-lime-400/50 transition-colors shadow-lg shadow-black/50"
+                            className="bg-white dark:bg-zinc-950 text-lime-600 dark:text-lime-400 text-[10px] font-black uppercase tracking-widest px-4 py-2 rounded-2xl border border-zinc-200 dark:border-zinc-800 outline-none cursor-pointer hover:border-lime-500/50 transition-colors shadow-sm"
                         >
                             <option value="straight">{t('groupTypes.straight')}</option>
                             <option value="bi_set">{t('groupTypes.bi_set')}</option>
@@ -236,7 +236,7 @@ export const WorkoutDrawerForm = ({
                             <div className="absolute left-[7px] top-6 bottom-6 w-0.5 bg-lime-500/20 rounded-full" />
                         )}
                         {formExercises.map((ex, idx) => (
-                            <div key={idx} className={`relative flex flex-col gap-2 bg-zinc-900/20 p-3 rounded-2xl border border-zinc-900/60`}>
+                            <div key={idx} className={`relative flex flex-col gap-2 bg-zinc-50 dark:bg-zinc-900/20 p-3 rounded-2xl border border-zinc-200 dark:border-zinc-900/60`}>
                                 <div className="flex items-center gap-3 w-full">
                                     {groupType !== 'straight' && (
                                         <div className="absolute -left-[19px] top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-lime-500 ring-4 ring-lime-500/10 z-10" />
@@ -248,23 +248,23 @@ export const WorkoutDrawerForm = ({
                                             setSelectingIndex(idx);
                                             setIsSelectorOpen(true);
                                         }}
-                                        className="flex-1 flex items-center justify-between bg-zinc-900/50 p-3 rounded-2xl border border-zinc-800/50 text-left hover:border-lime-400/20 transition-all overflow-hidden"
+                                        className="flex-1 flex items-center justify-between bg-white dark:bg-zinc-900/50 p-3 rounded-2xl border border-zinc-200 dark:border-zinc-800/50 text-left hover:border-lime-500/30 dark:hover:border-lime-400/20 transition-all overflow-hidden cursor-pointer shadow-xs"
                                     >
                                         <div className="flex items-center gap-3">
-                                            <Dumbbell size={14} className={`${ex ? 'text-lime-400' : 'text-zinc-700'} shrink-0`} />
-                                            <span className={`text-[10px] sm:text-xs font-black uppercase tracking-tight truncate ${ex ? 'text-white' : 'text-zinc-600'}`}>
+                                            <Dumbbell size={14} className={`${ex ? 'text-lime-600 dark:text-lime-400' : 'text-zinc-400 dark:text-zinc-700'} shrink-0`} />
+                                            <span className={`text-[10px] sm:text-xs font-black uppercase tracking-tight truncate ${ex ? 'text-zinc-900 dark:text-white' : 'text-zinc-500 dark:text-zinc-600'}`}>
                                                 {ex ? (te.has(ex.name) ? te(ex.name) : ex.name) : t('selectExercise')}
                                             </span>
                                         </div>
-                                        <ChevronDown size={14} className="text-zinc-700 shrink-0" />
+                                        <ChevronDown size={14} className="text-zinc-400 dark:text-zinc-700 shrink-0" />
                                     </button>
 
                                     {groupType !== 'straight' && (
-                                        <div className="w-16 shrink-0 bg-zinc-900/50 rounded-2xl border border-zinc-800/50 p-2 flex flex-col items-center justify-center">
+                                        <div className="w-16 shrink-0 bg-white dark:bg-zinc-900/50 rounded-2xl border border-zinc-200 dark:border-zinc-800/50 p-2 flex flex-col items-center justify-center shadow-xs">
                                             <span className="text-[7px] font-black text-zinc-500 uppercase tracking-widest">{t('reps')}</span>
                                             <input
                                                 type="number"
-                                                className="w-full bg-transparent text-center font-black text-xs outline-none text-lime-400"
+                                                className="w-full bg-transparent text-center font-black text-xs outline-none text-lime-600 dark:text-lime-400"
                                                 value={numberInputUtils.formatValue(watch(`exerciseReps.${idx}`) || watch('reps') || 10)}
                                                 onFocus={numberInputUtils.onFocus}
                                                 onChange={(e) => numberInputUtils.onChange(e, (val) => setValue(`exerciseReps.${idx}`, val))}
@@ -276,7 +276,7 @@ export const WorkoutDrawerForm = ({
                                         <button
                                             type="button"
                                             onClick={() => setFormExercises(formExercises.filter((_, i) => i !== idx))}
-                                            className="p-2 text-zinc-600 hover:text-red-500 transition-colors shrink-0"
+                                            className="p-2 text-zinc-400 hover:text-rose-500 transition-colors shrink-0 cursor-pointer"
                                         >
                                             <X size={18} />
                                         </button>
@@ -292,13 +292,13 @@ export const WorkoutDrawerForm = ({
                                             <select
                                                 value={watch(`exerciseModes.${idx}`) || 'bilateral'}
                                                 onChange={(e) => setValue(`exerciseModes.${idx}`, e.target.value)}
-                                                className="w-full bg-zinc-950 border border-zinc-900 text-zinc-300 text-xs font-black uppercase p-2 rounded-xl outline-none focus:border-lime-500 transition-all cursor-pointer"
+                                                className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-900 text-zinc-900 dark:text-zinc-300 text-xs font-black uppercase p-2 rounded-xl outline-none focus:border-lime-500 transition-all cursor-pointer shadow-xs"
                                             >
-                                                <option className="bg-zinc-950 text-white" value="bilateral">{tw('executionModes.bilateral')}</option>
-                                                <option className="bg-zinc-950 text-white" value="unilateral">{tw('executionModes.unilateral')}</option>
-                                                <option className="bg-zinc-950 text-white" value="unilateral_right">{tw('executionModes.unilateral_right')}</option>
-                                                <option className="bg-zinc-950 text-white" value="unilateral_left">{tw('executionModes.unilateral_left')}</option>
-                                                <option className="bg-zinc-950 text-white" value="alternating">{tw('executionModes.alternating')}</option>
+                                                <option className="bg-white dark:bg-zinc-950 text-zinc-900 dark:text-white" value="bilateral">{tw('executionModes.bilateral')}</option>
+                                                <option className="bg-white dark:bg-zinc-950 text-zinc-900 dark:text-white" value="unilateral">{tw('executionModes.unilateral')}</option>
+                                                <option className="bg-white dark:bg-zinc-950 text-zinc-900 dark:text-white" value="unilateral_right">{tw('executionModes.unilateral_right')}</option>
+                                                <option className="bg-white dark:bg-zinc-950 text-zinc-900 dark:text-white" value="unilateral_left">{tw('executionModes.unilateral_left')}</option>
+                                                <option className="bg-white dark:bg-zinc-950 text-zinc-900 dark:text-white" value="alternating">{tw('executionModes.alternating')}</option>
                                             </select>
                                         </div>
                                         <div>
@@ -318,15 +318,15 @@ export const WorkoutDrawerForm = ({
                                                         setValue(`exerciseVariations.${idx}`, val);
                                                     }
                                                 }}
-                                                className="w-full bg-zinc-950 border border-zinc-900 text-zinc-300 text-xs font-black uppercase p-2 rounded-xl outline-none focus:border-lime-500 transition-all cursor-pointer"
+                                                className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-900 text-zinc-900 dark:text-zinc-300 text-xs font-black uppercase p-2 rounded-xl outline-none focus:border-lime-500 transition-all cursor-pointer shadow-xs"
                                             >
-                                                <option className="bg-zinc-950 text-white" value="none">{tw('variationOptions.none')}</option>
-                                                <option className="bg-zinc-950 text-white" value="barbell">{tw('variationOptions.barbell')}</option>
-                                                <option className="bg-zinc-950 text-white" value="dumbbell">{tw('variationOptions.dumbbell')}</option>
-                                                <option className="bg-zinc-950 text-white" value="cable">{tw('variationOptions.cable')}</option>
-                                                <option className="bg-zinc-950 text-white" value="machine">{tw('variationOptions.machine')}</option>
-                                                <option className="bg-zinc-950 text-white" value="smith">{tw('variationOptions.smith')}</option>
-                                                <option className="bg-zinc-950 text-white" value="custom">{tw('variationOptions.custom')}</option>
+                                                <option className="bg-white dark:bg-zinc-950 text-zinc-900 dark:text-white" value="none">{tw('variationOptions.none')}</option>
+                                                <option className="bg-white dark:bg-zinc-950 text-zinc-900 dark:text-white" value="barbell">{tw('variationOptions.barbell')}</option>
+                                                <option className="bg-white dark:bg-zinc-950 text-zinc-900 dark:text-white" value="dumbbell">{tw('variationOptions.dumbbell')}</option>
+                                                <option className="bg-white dark:bg-zinc-950 text-zinc-900 dark:text-white" value="cable">{tw('variationOptions.cable')}</option>
+                                                <option className="bg-white dark:bg-zinc-950 text-zinc-900 dark:text-white" value="machine">{tw('variationOptions.machine')}</option>
+                                                <option className="bg-white dark:bg-zinc-950 text-zinc-900 dark:text-white" value="smith">{tw('variationOptions.smith')}</option>
+                                                <option className="bg-white dark:bg-zinc-950 text-zinc-900 dark:text-white" value="custom">{tw('variationOptions.custom')}</option>
                                             </select>
                                         </div>
                                         {(() => {
@@ -340,7 +340,7 @@ export const WorkoutDrawerForm = ({
                                                             value={currentVar}
                                                             onChange={(e) => setValue(`exerciseVariations.${idx}`, e.target.value)}
                                                             placeholder={tw('customVariationPlaceholder')}
-                                                            className="w-full bg-zinc-950 border border-zinc-900 text-zinc-200 text-xs font-bold p-2.5 rounded-xl outline-none focus:border-lime-500 transition-all"
+                                                            className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-900 text-zinc-900 dark:text-zinc-200 text-xs font-bold p-2.5 rounded-xl outline-none focus:border-lime-500 transition-all shadow-xs"
                                                         />
                                                     </div>
                                                 );
@@ -356,7 +356,7 @@ export const WorkoutDrawerForm = ({
                             <button
                                 type="button"
                                 onClick={() => setFormExercises([...formExercises, null])}
-                                className="w-full py-3 border-2 border-dashed border-zinc-800 rounded-2xl text-[9px] font-black uppercase tracking-widest text-zinc-600 hover:border-lime-400/30 hover:text-lime-500 transition-all"
+                                className="w-full py-3 border-2 border-dashed border-zinc-200 dark:border-zinc-800 rounded-2xl text-[9px] font-black uppercase tracking-widest text-zinc-500 dark:text-zinc-400 hover:border-lime-500/40 hover:text-lime-600 dark:hover:text-lime-500 transition-all cursor-pointer"
                             >
                                 + {t('addExercise')}
                             </button>
@@ -364,7 +364,7 @@ export const WorkoutDrawerForm = ({
                     </div>
 
                     <div className={`grid ${groupType === 'straight' ? 'grid-cols-3' : 'grid-cols-2'} gap-2 pt-2`}>
-                        <div className="bg-zinc-900/80 p-3 rounded-2xl border border-zinc-800 focus-within:ring-2 focus-within:ring-lime-400/50 transition-all">
+                        <div className="bg-zinc-50 dark:bg-zinc-900/80 p-3 rounded-2xl border border-zinc-200 dark:border-zinc-800 focus-within:ring-2 focus-within:ring-lime-500/50 dark:focus-within:ring-lime-400/50 transition-all shadow-xs">
                             <span className="block text-[8px] font-black text-zinc-500 uppercase mb-1 tracking-tighter">
                                 {groupType === 'straight' ? t('sets') : t('rounds')}
                             </span>
@@ -373,12 +373,12 @@ export const WorkoutDrawerForm = ({
                                 value={numberInputUtils.formatValue(watch('sets'))}
                                 onFocus={numberInputUtils.onFocus}
                                 onChange={(e) => numberInputUtils.onChange(e, (val) => setValue('sets', val))}
-                                className="w-full bg-transparent font-black outline-none text-white text-lg"
+                                className="w-full bg-transparent font-black outline-none text-zinc-900 dark:text-white text-lg"
                             />
                         </div>
 
                         {groupType === 'straight' && (
-                            <div className="bg-zinc-900/80 p-3 rounded-2xl border border-zinc-800 focus-within:ring-2 focus-within:ring-lime-400/50 transition-all">
+                            <div className="bg-zinc-50 dark:bg-zinc-900/80 p-3 rounded-2xl border border-zinc-200 dark:border-zinc-800 focus-within:ring-2 focus-within:ring-lime-500/50 dark:focus-within:ring-lime-400/50 transition-all shadow-xs">
                                 <span className="block text-[8px] font-black text-zinc-500 uppercase mb-1 tracking-tighter">
                                     {t('reps')}
                                 </span>
@@ -387,12 +387,12 @@ export const WorkoutDrawerForm = ({
                                     value={numberInputUtils.formatValue(watch('reps'))}
                                     onFocus={numberInputUtils.onFocus}
                                     onChange={(e) => numberInputUtils.onChange(e, (val) => setValue('reps', val))}
-                                    className="w-full bg-transparent font-black outline-none text-white text-lg"
+                                    className="w-full bg-transparent font-black outline-none text-zinc-900 dark:text-white text-lg"
                                 />
                             </div>
                         )}
 
-                        <div className="bg-zinc-900/80 p-3 rounded-2xl border border-zinc-800 focus-within:ring-2 focus-within:ring-lime-400/50 transition-all">
+                        <div className="bg-zinc-50 dark:bg-zinc-900/80 p-3 rounded-2xl border border-zinc-200 dark:border-zinc-800 focus-within:ring-2 focus-within:ring-lime-500/50 dark:focus-within:ring-lime-400/50 transition-all shadow-xs">
                             <span className="block text-[8px] font-black text-zinc-500 uppercase mb-1 tracking-tighter">
                                 {groupType === 'straight' ? t('restTime') : t('restBetweenRounds')}
                             </span>
@@ -402,15 +402,15 @@ export const WorkoutDrawerForm = ({
                                     value={numberInputUtils.formatValue(watch('restTime'))}
                                     onFocus={numberInputUtils.onFocus}
                                     onChange={(e) => numberInputUtils.onChange(e, (val) => setValue('restTime', val))}
-                                    className="flex-1 bg-transparent font-black outline-none text-white text-lg"
+                                    className="flex-1 bg-transparent font-black outline-none text-zinc-900 dark:text-white text-lg"
                                 />
-                                <span className="text-[10px] font-black text-zinc-600">S</span>
+                                <span className="text-[10px] font-black text-zinc-400 dark:text-zinc-600">S</span>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <button type="submit" className="w-full py-5 bg-lime-400 text-zinc-950 rounded-[32px] font-black uppercase text-[11px] tracking-[0.2em] flex items-center justify-center gap-3 shadow-xl shadow-lime-400/10 active:scale-95 transition-all mt-6">
+                <button type="submit" className="w-full py-5 bg-lime-400 text-zinc-950 rounded-[32px] font-black uppercase text-[11px] tracking-[0.2em] flex items-center justify-center gap-3 shadow-xl shadow-lime-400/10 active:scale-95 transition-all mt-6 cursor-pointer">
                     <Save size={18} /> {editingGroupIdx !== null ? t('confirmEdit') : t('confirmAdd')}
                 </button>
             </form>

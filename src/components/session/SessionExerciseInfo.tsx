@@ -57,7 +57,7 @@ export function SessionExerciseInfo({
         if (mediaUrl) {
             const isVideo = mediaUrl.endsWith('.mp4') || mediaUrl.endsWith('.webm');
             return (
-                <div className="relative w-full aspect-video rounded-3xl overflow-hidden border border-zinc-800 shadow-2xl bg-zinc-950/50 flex items-center justify-center group mt-4">
+                <div className="relative w-full aspect-video rounded-3xl overflow-hidden border border-zinc-200 dark:border-zinc-800 shadow-2xl bg-zinc-100/50 dark:bg-zinc-950/50 flex items-center justify-center group mt-4">
                     {isVideo ? (
                         <video
                             src={mediaUrl}
@@ -108,14 +108,14 @@ export function SessionExerciseInfo({
         }
 
         return (
-            <div className="relative w-full aspect-[16/10] rounded-[24px] overflow-hidden border border-lime-500/10 bg-zinc-950/40 flex flex-col items-center justify-center group shadow-[inset_0_4px_24px_rgba(163,230,71,0.02),0_15px_35px_rgba(0,0,0,0.6)] mt-4">
-                <div className="absolute inset-0 bg-[linear-gradient(to_right,#27272a_1px,transparent_1px),linear-gradient(to_bottom,#27272a_1px,transparent_1px)] bg-[size:24px_24px] opacity-[0.03]" />
+            <div className="relative w-full aspect-[16/10] rounded-[24px] overflow-hidden border border-lime-500/20 dark:border-lime-500/10 bg-white/60 dark:bg-zinc-950/40 flex flex-col items-center justify-center group shadow-[inset_0_4px_24px_rgba(163,230,71,0.02),0_15px_35px_rgba(0,0,0,0.05)] dark:shadow-[inset_0_4px_24px_rgba(163,230,71,0.02),0_15px_35px_rgba(0,0,0,0.6)] mt-4">
+                <div className="absolute inset-0 bg-[linear-gradient(to_right,#e4e4e7_1px,transparent_1px),linear-gradient(to_bottom,#e4e4e7_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,#27272a_1px,transparent_1px),linear-gradient(to_bottom,#27272a_1px,transparent_1px)] bg-[size:24px_24px] opacity-20 dark:opacity-[0.03]" />
                 <div className="absolute w-36 h-36 rounded-full bg-lime-500/5 blur-[40px] -z-10 group-hover:scale-110 transition-transform duration-700" />
                 <div className="relative z-10 flex flex-col items-center text-center p-6">
                     <motion.div
                         animate={{ scale: [1, 1.04, 1] }}
                         transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
-                        className="w-16 h-16 rounded-full border border-lime-400/20 flex items-center justify-center bg-lime-400/5 text-lime-400 shadow-[0_0_15px_rgba(163,230,71,0.1)] mb-3"
+                        className="w-16 h-16 rounded-full border border-lime-400/20 flex items-center justify-center bg-lime-400/5 text-lime-600 dark:text-lime-400 shadow-[0_0_15px_rgba(163,230,71,0.1)] mb-3"
                     >
                         <svg className="w-8 h-8 opacity-80" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                             <path d="m6.5 6.5 11 11" />
@@ -128,7 +128,7 @@ export function SessionExerciseInfo({
                         </svg>
                     </motion.div>
                     <span className="text-[7px] font-black uppercase text-zinc-500 tracking-[0.2em] mb-1">Visualização do Exercício</span>
-                    <span className="text-[9px] font-black text-lime-400 uppercase tracking-widest bg-lime-400/10 border border-lime-400/20 px-3 py-0.5 rounded-lg">
+                    <span className="text-[9px] font-black text-lime-600 dark:text-lime-400 uppercase tracking-widest bg-lime-400/10 border border-lime-400/20 px-3 py-0.5 rounded-lg">
                         {category ? (tc.has(category) ? tc(category) : category) : 'Geral'}
                     </span>
                 </div>
@@ -163,7 +163,7 @@ export function SessionExerciseInfo({
                                     ? `${activeBg} shadow-[0_0_10px_rgba(163,230,71,0.3)]`
                                     : isCompleted
                                         ? `${activeBg} opacity-30`
-                                        : 'bg-zinc-800'
+                                        : 'bg-zinc-200 dark:bg-zinc-800'
                                     }`}
                             />
                         );
@@ -194,7 +194,7 @@ export function SessionExerciseInfo({
                             initial={{ opacity: 0, x: -10 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: 0.1 }}
-                            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-zinc-500 shadow-sm"
+                            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 shadow-sm"
                         >
                             <Zap size={10} className="fill-current" />
                             <span className="text-[10px] font-black uppercase tracking-widest leading-none">
@@ -207,7 +207,7 @@ export function SessionExerciseInfo({
                         key={currentExercise?.exerciseId}
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="text-3xl font-black uppercase tracking-tighter italic leading-[0.85] truncate pr-2 mt-1"
+                        className="text-3xl font-black uppercase tracking-tighter italic leading-[0.85] truncate pr-2 mt-1 text-zinc-900 dark:text-white"
                     >
                         {te.has(currentExercise?.exerciseName!) ? te(currentExercise?.exerciseName!) : currentExercise?.exerciseName}
                     </motion.h2>
@@ -220,7 +220,7 @@ export function SessionExerciseInfo({
                             animate={{ opacity: 1, y: 0 }}
                             className="flex flex-col gap-1.5 mt-2"
                         >
-                            <div className="flex items-center gap-1.5 text-xs font-black text-lime-500 uppercase tracking-widest leading-none">
+                            <div className="flex items-center gap-1.5 text-xs font-black text-lime-600 dark:text-lime-500 uppercase tracking-widest leading-none">
                                 {(() => {
                                     const parts = [];
                                     const variation = currentExercise.variation || 'none';
@@ -236,13 +236,13 @@ export function SessionExerciseInfo({
 
                             {isGroupAlternating && currentGroup?.exercises && currentGroup.exercises.length > 1 && (
                                 <div className="flex items-center gap-1.5 flex-wrap text-[9px] text-zinc-500 font-bold uppercase tracking-wider mt-0.5">
-                                    <span className="text-zinc-600 font-black">Sequência:</span>
+                                    <span className="text-zinc-600 dark:text-zinc-400 font-black">Sequência:</span>
                                     {currentGroup.exercises.map((ex: any, idx: number) => {
                                         const isActive = idx === currentExerciseIndex;
                                         return (
                                             <span key={idx} className="flex items-center gap-1.5">
-                                                {idx > 0 && <ArrowRight size={8} className="text-zinc-800" />}
-                                                <span className={isActive ? `${groupStyle.color} font-black` : "text-zinc-650 font-medium"}>
+                                                {idx > 0 && <ArrowRight size={8} className="text-zinc-400 dark:text-zinc-700" />}
+                                                <span className={isActive ? `${groupStyle.color} font-black` : "text-zinc-500 dark:text-zinc-400 font-medium"}>
                                                     {te.has(ex.exerciseName) ? te(ex.exerciseName) : ex.exerciseName}
                                                 </span>
                                             </span>
@@ -257,14 +257,14 @@ export function SessionExerciseInfo({
                         <motion.div
                             initial={{ opacity: 0, y: 5 }}
                             animate={{ opacity: 1, y: 0 }}
-                            className="mt-3 p-3 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-500 flex items-start gap-2.5 shadow-sm"
+                            className="mt-3 p-3 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-500 flex items-start gap-2.5 shadow-sm"
                         >
                             <NotebookPen size={16} className="shrink-0 mt-0.5" />
                             <div className="space-y-0.5 min-w-0 flex-1">
-                                <span className="block text-[8px] font-black uppercase tracking-widest text-amber-500/80">
+                                <span className="block text-[8px] font-black uppercase tracking-widest text-amber-600/80 dark:text-amber-500/80">
                                     {t('trainerNote')}
                                 </span>
-                                <p className="text-xs font-bold leading-relaxed text-zinc-200 whitespace-pre-wrap">
+                                <p className="text-xs font-bold leading-relaxed text-zinc-800 dark:text-zinc-200 whitespace-pre-wrap">
                                     {currentExercise.notes}
                                 </p>
                             </div>
@@ -276,43 +276,43 @@ export function SessionExerciseInfo({
                     onClick={onOpenInstructions}
                     className="flex flex-col items-center gap-1.5 group relative flex-shrink-0 transition-transform active:scale-90"
                 >
-                    <div className="w-12 h-12 rounded-2xl bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-400 group-hover:border-lime-400 group-hover:text-lime-400 transition-all shadow-lg">
+                    <div className="w-12 h-12 rounded-2xl bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 flex items-center justify-center text-zinc-500 dark:text-zinc-400 group-hover:border-lime-500 group-hover:text-lime-600 dark:group-hover:text-lime-400 transition-all shadow-lg">
                         <CircleHelp size={22} className="group-hover:rotate-12 transition-transform" />
                     </div>
-                    <span className="text-[8px] font-black uppercase text-zinc-600 tracking-widest group-hover:text-zinc-400 transition-colors">
+                    <span className="text-[8px] font-black uppercase text-zinc-500 dark:text-zinc-400 tracking-widest group-hover:text-zinc-700 dark:group-hover:text-zinc-300 transition-colors">
                         {t('howTo')}
                     </span>
                 </button>
             </div>
 
             <div className="grid grid-cols-3 gap-2 mt-5">
-                <div className="flex flex-col p-3.5 bg-zinc-900/40 rounded-3xl border border-white/5 relative overflow-hidden group">
-                    <span className="text-[8px] font-bold text-zinc-500 uppercase tracking-widest mb-0.5">
+                <div className="flex flex-col p-3.5 bg-white dark:bg-zinc-900/40 rounded-3xl border border-zinc-200/80 dark:border-zinc-800/80 relative overflow-hidden group shadow-xs">
+                    <span className="text-[8px] font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-widest mb-0.5">
                         {isGroupAlternating ? t('round') : t('currentSet')}
                     </span>
-                    <span className="text-xl sm:text-2xl font-black tabular-nums flex items-baseline gap-1">
+                    <span className="text-xl sm:text-2xl font-black tabular-nums flex items-baseline gap-1 text-zinc-900 dark:text-white">
                         {currentSetIndex + 1}
-                        <span className="text-zinc-600 text-[10px] font-bold">/ {isGroupAlternating ? (currentGroup.rounds || 1) : currentExercise.sets.length}</span>
+                        <span className="text-zinc-400 dark:text-zinc-500 text-[10px] font-bold">/ {isGroupAlternating ? (currentGroup.rounds || 1) : currentExercise.sets.length}</span>
                     </span>
                 </div>
-                <div className="flex flex-col p-3.5 bg-zinc-900/40 rounded-3xl border border-white/5 relative overflow-hidden group">
-                    <span className="text-[8px] font-bold text-zinc-500 uppercase tracking-widest mb-0.5">{t('goal')}</span>
-                    <span className="text-xl sm:text-2xl font-black tabular-nums flex items-baseline gap-1">
+                <div className="flex flex-col p-3.5 bg-white dark:bg-zinc-900/40 rounded-3xl border border-zinc-200/80 dark:border-zinc-800/80 relative overflow-hidden group shadow-xs">
+                    <span className="text-[8px] font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-widest mb-0.5">{t('goal')}</span>
+                    <span className="text-xl sm:text-2xl font-black tabular-nums flex items-baseline gap-1 text-zinc-900 dark:text-white">
                         {currentPlannedSet?.reps}
-                        <span className="text-[8px] text-zinc-500 uppercase font-black tracking-tighter">{t('reps')}</span>
+                        <span className="text-[8px] text-zinc-400 dark:text-zinc-500 uppercase font-black tracking-tighter">{t('reps')}</span>
                     </span>
                 </div>
                 <button
                     type="button"
                     onClick={onOpenRestAdjust}
-                    className="flex flex-col p-3.5 bg-zinc-900/40 hover:bg-zinc-850 rounded-3xl border border-white/5 hover:border-lime-500/30 relative overflow-hidden group text-left transition-all active:scale-95 cursor-pointer"
+                    className="flex flex-col p-3.5 bg-white dark:bg-zinc-900/40 hover:bg-zinc-50 dark:hover:bg-zinc-850 rounded-3xl border border-zinc-200/80 dark:border-zinc-800/80 hover:border-lime-500/30 relative overflow-hidden group text-left transition-all active:scale-95 cursor-pointer shadow-xs"
                 >
-                    <span className="text-[8px] font-bold text-zinc-500 group-hover:text-lime-400 uppercase tracking-widest mb-0.5 transition-colors">
+                    <span className="text-[8px] font-bold text-zinc-500 dark:text-zinc-400 group-hover:text-lime-600 dark:group-hover:text-lime-400 uppercase tracking-widest mb-0.5 transition-colors">
                         {t('adjustRestTime')}
                     </span>
-                    <span className="text-xl sm:text-2xl font-black tabular-nums flex items-baseline gap-1 text-lime-400">
+                    <span className="text-xl sm:text-2xl font-black tabular-nums flex items-baseline gap-1 text-lime-600 dark:text-lime-400">
                         {restDuration ?? currentPlannedSet?.restTime ?? 60}
-                        <span className="text-[8px] text-zinc-500 uppercase font-black tracking-tighter">s</span>
+                        <span className="text-[8px] text-zinc-400 dark:text-zinc-500 uppercase font-black tracking-tighter">s</span>
                     </span>
                 </button>
             </div>

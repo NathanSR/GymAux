@@ -70,7 +70,7 @@ export const RestTimer = ({ seconds, onFinish, onAdjustTime }: RestTimerProps) =
                         stroke="currentColor"
                         strokeWidth="4"
                         fill="transparent"
-                        className="text-zinc-900"
+                        className="text-zinc-200 dark:text-zinc-900"
                     />
                     <circle
                         cx="144"
@@ -84,14 +84,14 @@ export const RestTimer = ({ seconds, onFinish, onAdjustTime }: RestTimerProps) =
                             strokeDashoffset: offset,
                             transition: 'stroke-dashoffset 1s linear, stroke 0.3s ease'
                         }}
-                        className={`${isEnding ? 'text-white' : 'text-lime-400'} transition-all`}
+                        className={`${isEnding ? 'text-zinc-900 dark:text-white' : 'text-lime-500 dark:text-lime-400'} transition-all`}
                         strokeLinecap="round"
-                        filter={isEnding ? "drop-shadow(0 0 15px rgba(255, 255, 255, 0.5))" : "drop-shadow(0 0 8px rgba(163, 230, 31, 0.3))"}
+                        filter={isEnding ? "drop-shadow(0 0 15px rgba(163, 230, 71, 0.5))" : "drop-shadow(0 0 8px rgba(163, 230, 31, 0.3))"}
                     />
                 </svg>
 
                 <div key={timeLeft} className="absolute flex flex-col items-center animate-in zoom-in-90 duration-300">
-                    <span className={`text-7xl sm:text-8xl font-black tabular-nums tracking-tighter transition-colors ${isEnding ? 'text-lime-400 scale-110' : 'text-white'}`}>
+                    <span className={`text-7xl sm:text-8xl font-black tabular-nums tracking-tighter transition-colors ${isEnding ? 'text-lime-600 dark:text-lime-400 scale-110' : 'text-zinc-900 dark:text-white'}`}>
                         {timeLeft}
                     </span>
                     <span className="text-zinc-500 font-bold uppercase tracking-[0.2em] text-[10px] sm:text-xs mt-1">
@@ -105,32 +105,32 @@ export const RestTimer = ({ seconds, onFinish, onAdjustTime }: RestTimerProps) =
                 <button
                     type="button"
                     onClick={() => handleAdjust(-15)}
-                    className="px-3.5 py-2 bg-zinc-900 border border-zinc-800 hover:border-zinc-700 text-zinc-300 rounded-xl font-bold text-xs flex items-center gap-1 active:scale-95 transition-all shadow-md"
+                    className="px-3.5 py-2 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 text-zinc-700 dark:text-zinc-300 rounded-xl font-bold text-xs flex items-center gap-1 active:scale-95 transition-all shadow-xs"
                 >
                     <Minus size={12} /> 15s
                 </button>
                 <button
                     type="button"
                     onClick={() => handleAdjust(15)}
-                    className="px-3.5 py-2 bg-zinc-900 border border-zinc-800 hover:border-lime-500/40 text-lime-400 rounded-xl font-bold text-xs flex items-center gap-1 active:scale-95 transition-all shadow-md"
+                    className="px-3.5 py-2 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 hover:border-lime-500/40 text-lime-600 dark:text-lime-400 rounded-xl font-bold text-xs flex items-center gap-1 active:scale-95 transition-all shadow-xs"
                 >
                     <Plus size={12} /> 15s
                 </button>
                 <button
                     type="button"
                     onClick={() => handleAdjust(30)}
-                    className="px-3.5 py-2 bg-zinc-900 border border-zinc-800 hover:border-lime-500/40 text-lime-400 rounded-xl font-bold text-xs flex items-center gap-1 active:scale-95 transition-all shadow-md"
+                    className="px-3.5 py-2 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 hover:border-lime-500/40 text-lime-600 dark:text-lime-400 rounded-xl font-bold text-xs flex items-center gap-1 active:scale-95 transition-all shadow-xs"
                 >
                     <Plus size={12} /> 30s
                 </button>
             </div>
 
             <div className="text-center space-y-2 mb-8">
-                <h3 className="text-2xl font-black text-white uppercase tracking-tighter italic">
+                <h3 className="text-2xl font-black text-zinc-900 dark:text-white uppercase tracking-tighter italic">
                     {t('restTime')}
                 </h3>
                 {isEnding && (
-                    <p className="text-lime-400 font-black uppercase text-[10px] tracking-[0.3em] animate-pulse">
+                    <p className="text-lime-600 dark:text-lime-400 font-black uppercase text-[10px] tracking-[0.3em] animate-pulse">
                         {t('getReady')}
                     </p>
                 )}
@@ -138,7 +138,7 @@ export const RestTimer = ({ seconds, onFinish, onAdjustTime }: RestTimerProps) =
 
             <button
                 onClick={onFinish}
-                className="group w-full max-w-xs py-5 bg-zinc-900 border border-zinc-800 text-zinc-500 rounded-[28px] font-black uppercase text-xs tracking-[0.2em] active:scale-95 transition-all hover:bg-zinc-800 hover:text-white relative"
+                className="group w-full max-w-xs py-5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-500 dark:text-zinc-400 rounded-[28px] font-black uppercase text-xs tracking-[0.2em] active:scale-95 transition-all hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-white relative shadow-xs"
             >
                 <span className="group-hover:opacity-0 transition-opacity duration-300">
                     {t('skipRest')}

@@ -108,12 +108,12 @@ export function SessionActionsModal({
                         onClose();
                         onOpenStandaloneTimer();
                     }}
-                    className="w-full py-4 px-4 bg-zinc-900 hover:bg-zinc-850 border border-zinc-800 text-lime-400 rounded-2xl flex items-center gap-3 text-xs font-black uppercase tracking-widest transition-all active:scale-[0.98] shadow-md"
+                    className="w-full py-4 px-4 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-lime-600 dark:text-lime-400 hover:bg-zinc-100 dark:hover:bg-zinc-850 rounded-2xl flex items-center gap-3 text-xs font-black uppercase tracking-widest transition-all active:scale-[0.98] shadow-xs cursor-pointer"
                 >
-                    <Timer size={18} className="text-lime-400 flex-shrink-0" />
+                    <Timer size={18} className="text-lime-600 dark:text-lime-400 flex-shrink-0" />
                     <div className="flex flex-col items-start leading-none">
                         <span className="font-black text-left">{t('customTimer')}</span>
-                        <span className="text-[9px] font-bold text-zinc-400 mt-0.5 text-left normal-case">
+                        <span className="text-[9px] font-bold text-zinc-500 dark:text-zinc-400 mt-0.5 text-left normal-case">
                             {t('customTimerDesc')}
                         </span>
                     </div>

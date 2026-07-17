@@ -168,9 +168,9 @@ export function SessionSubstituteModal({
                         onOpenFullSelector();
                         onClose();
                     }}
-                    className="w-full py-4 px-4 bg-zinc-900 dark:bg-zinc-950 hover:bg-zinc-800 text-lime-400 rounded-2xl flex items-center justify-center gap-2.5 text-[10px] font-black uppercase tracking-widest transition-all active:scale-[0.98] border border-zinc-700 dark:border-zinc-800 hover:border-lime-500/30 cursor-pointer shadow-inner"
+                    className="w-full py-4 px-4 bg-zinc-100 dark:bg-zinc-950 hover:bg-zinc-200 dark:hover:bg-zinc-900 text-lime-600 dark:text-lime-400 rounded-2xl flex items-center justify-center gap-2.5 text-[10px] font-black uppercase tracking-widest transition-all active:scale-[0.98] border border-zinc-200 dark:border-zinc-800 hover:border-lime-500/30 cursor-pointer shadow-xs"
                 >
-                    <Search size={14} className="text-lime-400" />
+                    <Search size={14} className="text-lime-600 dark:text-lime-400" />
                     Buscar no Catálogo Completo
                 </button>
             </div>

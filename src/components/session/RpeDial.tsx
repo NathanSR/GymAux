@@ -1,5 +1,6 @@
 import React from 'react';
 import { RPE_EMOJIS } from './SessionConstants';
+import { useTheme } from '@/context/ThemeContext';
 
 interface RpeDialProps {
     value: number;
@@ -9,6 +10,8 @@ interface RpeDialProps {
 }
 
 export function RpeDial({ value, onChange, label, subLabel }: RpeDialProps) {
+    const { isDark } = useTheme();
+
     const handleMouseDown = (e: React.MouseEvent<SVGSVGElement>) => {
         const svg = e.currentTarget;
         const rect = svg.getBoundingClientRect();
@@ -97,9 +100,12 @@ export function RpeDial({ value, onChange, label, subLabel }: RpeDialProps) {
     const thumbT = value / 10;
     const thumbPos = getBezierPoint(thumbT);
 
+    const inactiveStroke = isDark ? '#27272a' : '#e4e4e7';
+    const labelFill = isDark ? '#71717a' : '#a1a1aa';
+
     return (
-        <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-4 flex flex-col w-full select-none shadow-sm">
-            <label className="text-[9px] font-black uppercase text-zinc-500 tracking-[0.2em] mb-1 ml-1">{label}</label>
+        <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl p-4 flex flex-col w-full select-none shadow-xs">
+            <label className="text-[9px] font-black uppercase text-zinc-500 dark:text-zinc-400 tracking-[0.2em] mb-1 ml-1">{label}</label>
 
             <div className="relative w-full flex flex-col items-center">
                 <svg
@@ -113,7 +119,7 @@ export function RpeDial({ value, onChange, label, subLabel }: RpeDialProps) {
                         <path
                             key={seg.id}
                             d={seg.d}
-                            stroke={seg.active ? '#a3e635' : '#27272a'}
+                            stroke={seg.active ? '#a3e635' : inactiveStroke}
                             strokeWidth={8}
                             strokeLinecap="round"
                             className="transition-colors duration-200"
@@ -137,8 +143,8 @@ export function RpeDial({ value, onChange, label, subLabel }: RpeDialProps) {
                     ))}
 
                     {/* Labels 1 and 10 at the ends */}
-                    <text x="25" y="62" fill="#71717a" fontSize="10" fontWeight="bold" textAnchor="middle">1</text>
-                    <text x="275" y="62" fill="#71717a" fontSize="10" fontWeight="bold" textAnchor="middle">10</text>
+                    <text x="25" y="62" fill={labelFill} fontSize="10" fontWeight="bold" textAnchor="middle">1</text>
+                    <text x="275" y="62" fill={labelFill} fontSize="10" fontWeight="bold" textAnchor="middle">10</text>
 
                     {/* Slider Thumb (glowing green circle with '>') */}
                     {value > 0 && (
@@ -155,15 +161,15 @@ export function RpeDial({ value, onChange, label, subLabel }: RpeDialProps) {
 
                 {/* Pill Selection Indicator */}
                 {value > 0 ? (
-                    <div className="bg-zinc-950 px-4 py-1.5 rounded-full border border-lime-400/20 text-lime-400 font-black text-[9px] uppercase tracking-wider flex items-center gap-1.5 shadow-[0_0_15px_rgba(163,230,71,0.05)] cursor-pointer mt-1">
-                        {subLabel} <span className="text-white">RPE {value}</span>
-                        <svg className="w-2.5 h-2.5 text-lime-400 ml-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4.5" strokeLinecap="round" strokeLinejoin="round">
+                    <div className="bg-zinc-100 dark:bg-zinc-950 px-4 py-1.5 rounded-full border border-lime-500/30 dark:border-lime-400/20 text-lime-600 dark:text-lime-400 font-black text-[9px] uppercase tracking-wider flex items-center gap-1.5 shadow-[0_0_15px_rgba(163,230,71,0.05)] cursor-pointer mt-1">
+                        {subLabel} <span className="text-zinc-900 dark:text-white">RPE {value}</span>
+                        <svg className="w-2.5 h-2.5 text-lime-600 dark:text-lime-400 ml-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4.5" strokeLinecap="round" strokeLinejoin="round">
                             <polyline points="9 18 15 12 9 6" />
                         </svg>
                     </div>
                 ) : (
-                    <div className="bg-zinc-950 px-4 py-1.5 rounded-full border border-zinc-800 text-zinc-500 font-black text-[9px] uppercase tracking-wider flex items-center gap-1.5 cursor-pointer mt-1">
-                        Sem Esforço <span className="text-zinc-600">RPE 0</span>
+                    <div className="bg-zinc-100 dark:bg-zinc-950 px-4 py-1.5 rounded-full border border-zinc-200 dark:border-zinc-800 text-zinc-500 font-black text-[9px] uppercase tracking-wider flex items-center gap-1.5 cursor-pointer mt-1">
+                        Sem Esforço <span className="text-zinc-400 dark:text-zinc-600">RPE 0</span>
                     </div>
                 )}
             </div>
