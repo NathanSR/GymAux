@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, useMotionValue, useTransform, animate } from 'framer-motion';
-import { ChevronsRight, Check } from 'lucide-react';
+import { ChevronsRight, ChevronsLeft, Check } from 'lucide-react';
 import { cn } from '@/utils/cn';
 
 export interface SlideToConfirmProps {
@@ -15,6 +15,7 @@ export interface SlideToConfirmProps {
     completedIcon?: React.ReactNode;
     threshold?: number; // 0.5 to 0.95, default 0.8 (80%)
     resetDelay?: number; // ms to reset after confirm, 0 for no auto-reset
+    direction?: 'right' | 'left'; // default 'right'
 }
 
 export function SlideToConfirm({
@@ -23,16 +24,22 @@ export function SlideToConfirm({
     completedText = 'CONCLUÍDO!',
     disabled = false,
     className = '',
-    icon = <ChevronsRight size={20} />,
+    icon,
     completedIcon = <Check size={20} strokeWidth={3} />,
     threshold = 0.8,
-    resetDelay = 1200
+    resetDelay = 1200,
+    direction = 'right'
 }: SlideToConfirmProps) {
+    const isLeft = direction === 'left';
+    const defaultIcon = isLeft ? <ChevronsLeft size={20} /> : <ChevronsRight size={20} />;
+    const activeIcon = icon || defaultIcon;
+
     const containerRef = useRef<HTMLDivElement>(null);
     const handleRef = useRef<HTMLDivElement>(null);
 
     const [maxDrag, setMaxDrag] = useState<number>(0);
     const [isConfirmed, setIsConfirmed] = useState<boolean>(false);
+    const [isDragging, setIsDragging] = useState<boolean>(false);
 
     const x = useMotionValue(0);
 
@@ -57,17 +64,34 @@ export function SlideToConfirm({
     // Handle reset if component stays mounted
     const reset = useCallback(() => {
         setIsConfirmed(false);
+        setIsDragging(false);
         animate(x, 0, { type: 'spring', stiffness: 400, damping: 30 });
     }, [x]);
 
+    const handlePointerDown = () => {
+        if (disabled || isConfirmed) return;
+        setIsDragging(true);
+    };
+
+    const handleDragStart = () => {
+        if (disabled || isConfirmed) return;
+        setIsDragging(true);
+    };
+
     const handleDragEnd = () => {
+        setIsDragging(false);
         if (disabled || isConfirmed) return;
 
         const currentX = x.get();
-        if (maxDrag > 0 && currentX >= maxDrag * threshold) {
+        const targetX = isLeft ? -maxDrag : maxDrag;
+        const isPassedThreshold = isLeft
+            ? currentX <= -maxDrag * threshold
+            : currentX >= maxDrag * threshold;
+
+        if (maxDrag > 0 && isPassedThreshold) {
             // Confirm action
             setIsConfirmed(true);
-            animate(x, maxDrag, { type: 'spring', stiffness: 500, damping: 30 });
+            animate(x, targetX, { type: 'spring', stiffness: 500, damping: 30 });
 
             // Trigger haptic feedback if available
             if (typeof window !== 'undefined' && 'vibrate' in navigator) {
@@ -94,17 +118,20 @@ export function SlideToConfirm({
     // Derived animated values
     const progressWidth = useTransform(x, (val) => {
         const handleWidth = handleRef.current?.offsetWidth || 48;
-        return `${val + handleWidth}px`;
+        return `${Math.abs(val) + handleWidth}px`;
     });
 
-    const textOpacity = useTransform(x, [0, maxDrag * 0.6], [1, 0]);
-    const textTranslateX = useTransform(x, [0, maxDrag], [0, 15]);
+    const textOpacity = useTransform(x, isLeft ? [0, -maxDrag * 0.6] : [0, maxDrag * 0.6], [1, 0]);
+    const textTranslateX = useTransform(x, isLeft ? [0, -maxDrag] : [0, maxDrag], isLeft ? [0, -15] : [0, 15]);
+
+    const bounceKeyframes = isLeft ? [0, -7, 0, 0] : [0, 7, 0, 0];
 
     return (
         <div
             ref={containerRef}
             className={cn(
                 "relative w-full h-[58px] p-1.5 rounded-[24px] overflow-hidden select-none touch-none flex items-center transition-all duration-300",
+                isLeft ? "justify-end" : "justify-start",
                 "bg-zinc-200/80 dark:bg-zinc-900 border border-zinc-300/80 dark:border-zinc-800/80 shadow-inner",
                 disabled && "opacity-50 pointer-events-none",
                 className
@@ -114,7 +141,8 @@ export function SlideToConfirm({
             <motion.div
                 style={{ width: isConfirmed ? '100%' : progressWidth }}
                 className={cn(
-                    "absolute left-0 top-0 bottom-0 rounded-[24px] transition-colors duration-300",
+                    "absolute top-0 bottom-0 rounded-[24px] transition-colors duration-300",
+                    isLeft ? "right-0" : "left-0",
                     isConfirmed ? "bg-lime-400" : "bg-lime-400/30 dark:bg-lime-400/20"
                 )}
             />
@@ -145,12 +173,14 @@ export function SlideToConfirm({
             <motion.div
                 ref={handleRef}
                 drag={disabled || isConfirmed ? false : "x"}
-                dragConstraints={{ left: 0, right: maxDrag }}
+                dragConstraints={isLeft ? { left: -maxDrag, right: 0 } : { left: 0, right: maxDrag }}
                 dragElastic={0.05}
                 dragMomentum={false}
                 dragSnapToOrigin={false}
+                onPointerDown={handlePointerDown}
+                onDragStart={handleDragStart}
                 onDragEnd={handleDragEnd}
-                style={{ x: isConfirmed ? maxDrag : x }}
+                style={{ x: isConfirmed ? (isLeft ? -maxDrag : maxDrag) : x }}
                 whileTap={{ scale: disabled ? 1 : 0.96 }}
                 className={cn(
                     "relative z-10 w-12 h-12 rounded-[18px] flex items-center justify-center cursor-grab active:cursor-grabbing transition-colors shadow-lg",
@@ -161,11 +191,15 @@ export function SlideToConfirm({
             >
                 {isConfirmed ? completedIcon : (
                     <motion.div
-                        animate={{ x: [0, 3, 0] }}
-                        transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
+                        animate={!isDragging && !isConfirmed && !disabled ? { x: bounceKeyframes } : { x: 0 }}
+                        transition={
+                            !isDragging && !isConfirmed && !disabled
+                                ? { repeat: Infinity, duration: 1.6, ease: "easeInOut", repeatDelay: 0.4 }
+                                : { duration: 0.1 }
+                        }
                         className="flex items-center justify-center"
                     >
-                        {icon}
+                        {activeIcon}
                     </motion.div>
                 )}
             </motion.div>
