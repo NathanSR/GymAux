@@ -1,14 +1,14 @@
-import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Zap, CircleHelp, List, ArrowRight, Target, Dumbbell, NotebookPen } from 'lucide-react';
 import { GROUP_CONFIG } from './SessionConstants';
 import { useTranslations } from 'next-intl';
-import { ExerciseService } from '@/services/exerciseService';
 import { CATEGORY_METADATA, CategoryType } from '@/config/constants';
+import { Exercise } from '@/config/types';
 
 interface SessionExerciseInfoProps {
     currentGroup: any;
     currentExercise: any;
+    currentExerciseDetails?: Exercise | null;
     currentPlannedSet: any;
     currentGroupIndex: number;
     currentExerciseIndex: number;
@@ -23,6 +23,7 @@ interface SessionExerciseInfoProps {
 export function SessionExerciseInfo({
     currentGroup,
     currentExercise,
+    currentExerciseDetails,
     currentPlannedSet,
     currentGroupIndex,
     currentExerciseIndex,
@@ -38,18 +39,8 @@ export function SessionExerciseInfo({
     const tw = useTranslations('WorkoutForm');
     const tc = useTranslations('Categories');
 
-    const [mediaUrl, setMediaUrl] = useState<string | undefined>(undefined);
-    const [category, setCategory] = useState<string | undefined>(undefined);
-
-    useEffect(() => {
-        if (!currentExercise?.exerciseId) return;
-        ExerciseService.getExerciseById(currentExercise.exerciseId).then(ex => {
-            if (ex) {
-                setMediaUrl(ex.mediaUrl);
-                setCategory(ex.category);
-            }
-        });
-    }, [currentExercise?.exerciseId]);
+    const mediaUrl = currentExerciseDetails?.mediaUrl;
+    const category = currentExerciseDetails?.category;
 
     const groupStyle = GROUP_CONFIG[currentGroup?.groupType || 'straight'] || GROUP_CONFIG.straight;
 
@@ -57,7 +48,7 @@ export function SessionExerciseInfo({
         if (mediaUrl) {
             const isVideo = mediaUrl.endsWith('.mp4') || mediaUrl.endsWith('.webm');
             return (
-                <div className="relative w-full aspect-video rounded-3xl overflow-hidden border border-zinc-200 dark:border-zinc-800 shadow-2xl bg-zinc-100/50 dark:bg-zinc-950/50 flex items-center justify-center group mt-4">
+                <div className="relative w-full aspect-video rounded-3xl overflow-hidden border border-zinc-200 dark:border-zinc-800 shadow-2xl bg-zinc-100/50 dark:bg-zinc-950/50 flex items-center justify-center group">
                     {isVideo ? (
                         <video
                             src={mediaUrl}
@@ -82,17 +73,17 @@ export function SessionExerciseInfo({
 
         if (categoryMeta) {
             return (
-                <div className="relative w-full h-[320px] sm:h-[380px] flex flex-col items-center justify-center group mt-4 overflow-hidden">
+                <div className="relative w-full aspect-video rounded-3xl border border-zinc-200 dark:border-zinc-800 shadow-2xl bg-zinc-100/50 dark:bg-zinc-950/50 flex flex-col items-center justify-center group overflow-hidden">
                     {/* Glowing radial background to emulate the neon feel */}
                     <div className="absolute w-72 h-72 rounded-full bg-lime-400/5 blur-[60px] -z-10 group-hover:scale-110 transition-transform duration-700" />
 
-                    <div className="relative z-10 flex flex-col items-center justify-center w-full h-full">
+                    <div className="relative z-10 flex flex-col items-center justify-center w-full h-full p-2">
                         <motion.img
                             src={categoryMeta.imagePath}
                             alt={tc(category as CategoryType)}
                             initial={{ opacity: 0, scale: 0.95 }}
                             animate={{ opacity: 1, scale: 1 }}
-                            // className="w-full h-full max-h-[300px] sm:max-h-[360px] object-contain drop-shadow-[0_0_35px_rgba(163,230,71,0.25)] group-hover:scale-105 transition-transform duration-700 select-none"
+                            className="w-full h-full object-contain drop-shadow-[0_0_25px_rgba(163,230,71,0.2)] group-hover:scale-105 transition-transform duration-700 select-none"
                             onError={(e) => {
                                 e.currentTarget.style.display = 'none';
                                 const fallback = e.currentTarget.parentElement?.querySelector('.fallback-icon');
@@ -108,16 +99,16 @@ export function SessionExerciseInfo({
         }
 
         return (
-            <div className="relative w-full aspect-[16/10] rounded-[24px] overflow-hidden border border-lime-500/20 dark:border-lime-500/10 bg-white/60 dark:bg-zinc-950/40 flex flex-col items-center justify-center group shadow-[inset_0_4px_24px_rgba(163,230,71,0.02),0_15px_35px_rgba(0,0,0,0.05)] dark:shadow-[inset_0_4px_24px_rgba(163,230,71,0.02),0_15px_35px_rgba(0,0,0,0.6)] mt-4">
+            <div className="relative w-full aspect-video rounded-3xl overflow-hidden border border-lime-500/20 dark:border-lime-500/10 bg-white/60 dark:bg-zinc-950/40 flex flex-col items-center justify-center group shadow-[inset_0_4px_24px_rgba(163,230,71,0.02),0_15px_35px_rgba(0,0,0,0.05)] dark:shadow-[inset_0_4px_24px_rgba(163,230,71,0.02),0_15px_35px_rgba(0,0,0,0.6)]">
                 <div className="absolute inset-0 bg-[linear-gradient(to_right,#e4e4e7_1px,transparent_1px),linear-gradient(to_bottom,#e4e4e7_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,#27272a_1px,transparent_1px),linear-gradient(to_bottom,#27272a_1px,transparent_1px)] bg-[size:24px_24px] opacity-20 dark:opacity-[0.03]" />
                 <div className="absolute w-36 h-36 rounded-full bg-lime-500/5 blur-[40px] -z-10 group-hover:scale-110 transition-transform duration-700" />
-                <div className="relative z-10 flex flex-col items-center text-center p-6">
+                <div className="relative z-10 flex flex-col items-center text-center p-4">
                     <motion.div
                         animate={{ scale: [1, 1.04, 1] }}
                         transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
-                        className="w-16 h-16 rounded-full border border-lime-400/20 flex items-center justify-center bg-lime-400/5 text-lime-600 dark:text-lime-400 shadow-[0_0_15px_rgba(163,230,71,0.1)] mb-3"
+                        className="w-12 h-12 rounded-full border border-lime-400/20 flex items-center justify-center bg-lime-400/5 text-lime-600 dark:text-lime-400 shadow-[0_0_15px_rgba(163,230,71,0.1)] mb-2"
                     >
-                        <svg className="w-8 h-8 opacity-80" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <svg className="w-6 h-6 opacity-80" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                             <path d="m6.5 6.5 11 11" />
                             <path d="m21 21-1-1" />
                             <path d="m3 3 1 1" />
@@ -174,7 +165,7 @@ export function SessionExerciseInfo({
             {/* Background Glow Identity */}
             <div className={`absolute -top-10 -left-10 w-40 h-40 rounded-full blur-[80px] opacity-15 -z-10 transition-colors duration-700 ${groupStyle.bg}`} />
 
-            <div className="flex items-start justify-between gap-4">
+            <div className="flex flex-col">
                 <div className="flex-1 min-w-0">
                     <div className="flex flex-wrap items-center gap-2 mb-3">
                         {isGroupAlternating && (
@@ -207,7 +198,7 @@ export function SessionExerciseInfo({
                         key={currentExercise?.exerciseId}
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="text-3xl font-black uppercase tracking-tighter italic leading-[0.85] truncate pr-2 mt-1 text-zinc-900 dark:text-white"
+                        className="text-3xl font-black uppercase tracking-tighter italic leading-[0.85] truncate mt-1 text-zinc-900 dark:text-white"
                     >
                         {te.has(currentExercise?.exerciseName!) ? te(currentExercise?.exerciseName!) : currentExercise?.exerciseName}
                     </motion.h2>
@@ -271,18 +262,6 @@ export function SessionExerciseInfo({
                         </motion.div>
                     )}
                 </div>
-
-                <button
-                    onClick={onOpenInstructions}
-                    className="flex flex-col items-center gap-1.5 group relative flex-shrink-0 transition-transform active:scale-90"
-                >
-                    <div className="w-12 h-12 rounded-2xl bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 flex items-center justify-center text-zinc-500 dark:text-zinc-400 group-hover:border-lime-500 group-hover:text-lime-600 dark:group-hover:text-lime-400 transition-all shadow-lg">
-                        <CircleHelp size={22} className="group-hover:rotate-12 transition-transform" />
-                    </div>
-                    <span className="text-[8px] font-black uppercase text-zinc-500 dark:text-zinc-400 tracking-widest group-hover:text-zinc-700 dark:group-hover:text-zinc-300 transition-colors">
-                        {t('howTo')}
-                    </span>
-                </button>
             </div>
 
             <div className="grid grid-cols-3 gap-2 mt-5">
@@ -322,8 +301,22 @@ export function SessionExerciseInfo({
                 </div>
             )}
 
-            {/* Espaço de Imagem ou Vídeo do Exercício */}
-            {renderExerciseMedia()}
+            {/* Espaço de Imagem ou Vídeo do Exercício com Botão de Como Fazer Sobreposto */}
+            <div className="relative mt-4">
+                {renderExerciseMedia()}
+                <button
+                    type="button"
+                    onClick={onOpenInstructions}
+                    title={t('howTo')}
+                    aria-label={t('howTo')}
+                    className="absolute top-3 right-3 z-20 cursor-pointer group"
+                >
+                    <div className='flex items-end gap-2 px-3 py-1.5 rounded-full bg-white/85 dark:bg-zinc-900/85 backdrop-blur-md border border-zinc-200 dark:border-zinc-800 text-zinc-700 dark:text-zinc-200 hover:border-lime-500/50 hover:text-lime-600 dark:hover:text-lime-400 transition-all shadow-md active:scale-95 '>
+                        <CircleHelp size={14} className="text-lime-600 dark:text-lime-400 group-hover:rotate-12 transition-transform" />
+                        <span className="text-[9px] font-black uppercase tracking-wider">{t('howTo')}</span>
+                    </div>
+                </button>
+            </div>
         </section>
     );
 }

@@ -46,6 +46,7 @@ export default function SessionClient({ initialSession, isReadOnly = false }: Se
         currentSetIndex,
         currentGroup,
         currentExercise,
+        currentExerciseDetails,
         currentPlannedSet,
         isGroupAlternating,
         handleSetCompletion,
@@ -106,7 +107,7 @@ export default function SessionClient({ initialSession, isReadOnly = false }: Se
                         <ExerciseInstructionModal
                             isOpen={showInstructions}
                             onClose={() => setShowInstructions(false)}
-                            exerciseId={currentExercise?.exerciseId as number}
+                            exercise={currentExerciseDetails}
                         />
 
                         <StandaloneTimerModal
@@ -126,6 +127,7 @@ export default function SessionClient({ initialSession, isReadOnly = false }: Se
                             <SessionExerciseInfo
                                 currentGroup={currentGroup}
                                 currentExercise={currentExercise}
+                                currentExerciseDetails={currentExerciseDetails}
                                 currentPlannedSet={currentPlannedSet}
                                 currentGroupIndex={currentGroupIndex}
                                 currentExerciseIndex={currentExerciseIndex}

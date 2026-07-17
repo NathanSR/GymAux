@@ -5,6 +5,7 @@ import { useSessionActions } from '@/hooks/useSessionActions';
 import { useAlerts } from '@/hooks/useAlerts';
 import { useTranslations } from 'next-intl';
 import { SessionService } from '@/services/sessionService';
+import { ExerciseService } from '@/services/exerciseService';
 import { UseFormWatch } from 'react-hook-form';
 
 interface UseSessionClientProps {
@@ -22,6 +23,7 @@ export function useSessionClient({ initialSession, isReadOnly = false, watchValu
     const [showPreview, setShowPreview] = useState(false);
     const [showInstructions, setShowInstructions] = useState(false);
     const [restDuration, setRestDuration] = useState<number>(60);
+    const [currentExerciseDetails, setCurrentExerciseDetails] = useState<Exercise | null>(null);
 
     const { getNextState } = useSessionNavigation(session);
 
@@ -34,6 +36,22 @@ export function useSessionClient({ initialSession, isReadOnly = false, watchValu
     const currentPlannedSet = currentExercise?.sets?.[currentSetIndex];
 
     const isGroupAlternating = currentGroup?.groupType !== 'straight';
+
+    useEffect(() => {
+        let isMounted = true;
+        if (!currentExercise?.exerciseId) {
+            setCurrentExerciseDetails(null);
+            return;
+        }
+        ExerciseService.getExerciseById(currentExercise.exerciseId).then(ex => {
+            if (isMounted) {
+                setCurrentExerciseDetails(ex || null);
+            }
+        });
+        return () => {
+            isMounted = false;
+        };
+    }, [currentExercise?.exerciseId]);
 
     useEffect(() => {
         window.history.pushState(null, '', window.location.href);
@@ -300,6 +318,7 @@ export function useSessionClient({ initialSession, isReadOnly = false, watchValu
         currentSetIndex,
         currentGroup,
         currentExercise,
+        currentExerciseDetails,
         currentPlannedSet,
         isGroupAlternating,
         handleSetCompletion,
