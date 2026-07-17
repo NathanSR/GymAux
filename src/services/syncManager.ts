@@ -9,20 +9,92 @@ export class SyncManager {
     private static pendingAfterSync = false;
 
     /**
-     * Enqueue a new mutation for background syncing.
+     * Deep merge objects for safe payload updates.
+     */
+    private static mergePayloads(target: any, source: any): any {
+        if (!target) return source;
+        if (!source) return target;
+        const merged = { ...target };
+
+        for (const key of Object.keys(source)) {
+            if (
+                source[key] !== null &&
+                typeof source[key] === 'object' &&
+                !Array.isArray(source[key]) &&
+                !(source[key] instanceof Date)
+            ) {
+                merged[key] = this.mergePayloads(target[key], source[key]);
+            } else {
+                merged[key] = source[key];
+            }
+        }
+        return merged;
+    }
+
+    /**
+     * Enqueue a new mutation for background syncing with Queue Collapsing (Deduplication).
      * Always awaited so callers know the item was persisted to Dexie before returning.
      */
     static async enqueue(
         action: SyncOperation['action'],
         entityType: SyncOperation['entityType'],
         entityId: string | number,
-        payload: any
+        payload: any,
+        userIdInput?: string
     ): Promise<number> {
+        const userId = userIdInput || (typeof window !== 'undefined' ? (await db.users.toCollection().first())?.id : undefined);
+
+        // Queue Collapsing: find existing pending operations for the same entity
+        const existingOps = await db.syncQueue
+            .where('entityType')
+            .equals(entityType)
+            .and(op => op.entityId === entityId && op.status === 'PENDING')
+            .toArray();
+
+        const pendingCreate = existingOps.find(op => op.action === 'CREATE');
+        const pendingUpdates = existingOps.filter(op => op.action === 'UPDATE');
+
+        if (action === 'DELETE') {
+            if (pendingCreate) {
+                // Was created locally and never sent to server -> purge local CREATE and don't send DELETE
+                await db.syncQueue.delete(pendingCreate.id!);
+                for (const u of pendingUpdates) {
+                    await db.syncQueue.delete(u.id!);
+                }
+                return 0;
+            } else if (pendingUpdates.length > 0) {
+                // Drop prior updates and replace with single DELETE
+                for (const u of pendingUpdates) {
+                    await db.syncQueue.delete(u.id!);
+                }
+            }
+        } else if (action === 'UPDATE') {
+            if (pendingCreate) {
+                // Merge updates into original CREATE payload
+                const mergedPayload = this.mergePayloads(pendingCreate.payload, payload);
+                await db.syncQueue.update(pendingCreate.id!, {
+                    payload: mergedPayload,
+                    createdAt: new Date()
+                });
+                return pendingCreate.id!;
+            } else if (pendingUpdates.length > 0) {
+                // Merge into most recent UPDATE
+                const lastUpdate = pendingUpdates[pendingUpdates.length - 1];
+                const mergedPayload = this.mergePayloads(lastUpdate.payload, payload);
+                await db.syncQueue.update(lastUpdate.id!, {
+                    payload: mergedPayload,
+                    createdAt: new Date()
+                });
+                return lastUpdate.id!;
+            }
+        }
+
         const id = await db.syncQueue.add({
             action,
             entityType,
             entityId,
             payload,
+            userId,
             status: 'PENDING',
             createdAt: new Date(),
             retryCount: 0
@@ -66,8 +138,8 @@ export class SyncManager {
             const supabase = createClient();
 
             // Validate auth before processing — avoids "user not found" / RLS errors
-            const userId = await this.resolveUserId(supabase);
-            if (!userId) {
+            const activeUserId = await this.resolveUserId(supabase);
+            if (!activeUserId) {
                 console.warn('[SyncManager] No authenticated user found, deferring sync.');
                 return;
             }
@@ -76,11 +148,17 @@ export class SyncManager {
                 // Abort mid-sync if connectivity drops
                 if (typeof window !== 'undefined' && !navigator.onLine) break;
 
+                // SECURITY: Skip ops queued under a different user ID to prevent cross-account RLS violations
+                if (op.userId && op.userId !== activeUserId) {
+                    console.warn(`[SyncManager] Skipping op ${op.id} belonging to user ${op.userId} (active: ${activeUserId})`);
+                    continue;
+                }
+
                 let success = false;
 
                 try {
                     // Inject/validate user_id in payload for entity types that require it
-                    const sanitizedPayload = this.ensureUserId(op, userId);
+                    const sanitizedPayload = this.ensureUserId(op, activeUserId);
 
                     const sanitizedOp = { ...op, payload: sanitizedPayload };
 

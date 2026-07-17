@@ -250,7 +250,7 @@ export const WorkoutService = {
         // Local-first
         if (typeof window !== 'undefined') {
             await db.workouts.put(mapWorkoutFromSupabase(apiPayload));
-            await SyncManager.enqueue('CREATE', 'WORKOUT', id, apiPayload);
+            await SyncManager.enqueue('CREATE', 'WORKOUT', id, apiPayload, workoutData.userId);
             return mapWorkoutFromSupabase(apiPayload);
         }
 
@@ -274,10 +274,11 @@ export const WorkoutService = {
         // Local-first
         if (typeof window !== 'undefined') {
             const local = await db.workouts.get(id);
+            const targetUserId = workoutData.userId || local?.userId || workoutData.callerId;
             if (local) {
                 const updated = { ...local, ...workoutData };
                 await db.workouts.put(updated);
-                await SyncManager.enqueue('UPDATE', 'WORKOUT', id, { id, ...updates });
+                await SyncManager.enqueue('UPDATE', 'WORKOUT', id, { id, ...updates }, targetUserId);
                 return updated;
             }
 
@@ -292,12 +293,12 @@ export const WorkoutService = {
                     const workout = mapWorkoutFromSupabase(fetchedData);
                     const updated = { ...workout, ...workoutData };
                     await db.workouts.put(updated);
-                    await SyncManager.enqueue('UPDATE', 'WORKOUT', id, { id, ...updates });
+                    await SyncManager.enqueue('UPDATE', 'WORKOUT', id, { id, ...updates }, targetUserId);
                     return updated;
                 }
             } catch {
                 // Can't fetch — enqueue anyway with what we have
-                await SyncManager.enqueue('UPDATE', 'WORKOUT', id, { id, ...updates });
+                await SyncManager.enqueue('UPDATE', 'WORKOUT', id, { id, ...updates }, targetUserId);
                 return { id, ...workoutData } as Workout;
             }
         }

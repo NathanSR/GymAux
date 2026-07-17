@@ -255,10 +255,10 @@ export const ExerciseService = {
         };
 
         if (typeof window !== 'undefined') {
-            const id = Date.now(); // Temporary numeric ID for local use
+            const id = Date.now(); // Temporary numeric ID (> 100,000) for local use
             const localExercise = { id, ...apiPayload } as Exercise;
             await db.exercises.add(localExercise);
-            await SyncManager.enqueue('CREATE', 'EXERCISE', id, apiPayload);
+            await SyncManager.enqueue('CREATE', 'EXERCISE', id, apiPayload, userId);
             return localExercise;
         }
 

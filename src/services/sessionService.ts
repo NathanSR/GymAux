@@ -115,7 +115,7 @@ export const SessionService = {
         // Always save locally first
         if (typeof window !== 'undefined') {
             await db.sessions.put(sessionPayload);
-            await SyncManager.enqueue('CREATE', 'SESSION', sessionId, mapSessionToSupabase(sessionPayload));
+            await SyncManager.enqueue('CREATE', 'SESSION', sessionId, mapSessionToSupabase(sessionPayload), workout.userId);
             return sessionPayload;
         }
 
@@ -137,7 +137,7 @@ export const SessionService = {
                     id: sessionId,
                     paused_at: null,
                     resumed_at: localSession.resumedAt.toISOString()
-                });
+                }, localSession.userId);
                 return;
             }
         }
@@ -166,7 +166,7 @@ export const SessionService = {
                     id: sessionId,
                     paused_at: now.toISOString(),
                     duration: localSession.duration
-                });
+                }, localSession.userId);
                 return;
             }
         }
@@ -319,7 +319,7 @@ export const SessionService = {
                 if (updates.pausedAt !== undefined) dbUpdates.paused_at = updates.pausedAt?.toISOString() || null;
                 if (updates.resumedAt !== undefined) dbUpdates.resumed_at = updates.resumedAt?.toISOString() || null;
 
-                await SyncManager.enqueue('UPDATE', 'SESSION', sessionId, dbUpdates);
+                await SyncManager.enqueue('UPDATE', 'SESSION', sessionId, dbUpdates, localSession.userId);
                 return;
             }
         }
@@ -381,8 +381,8 @@ export const SessionService = {
             await db.sessions.update(sessionId, { isFinishedLocally: true });
 
             // Await both enqueue calls so that Dexie write failures surface to the caller
-            await SyncManager.enqueue('CREATE', 'HISTORY', historyId, newHistory);
-            await SyncManager.enqueue('DELETE', 'SESSION', sessionId, { id: sessionId });
+            await SyncManager.enqueue('CREATE', 'HISTORY', historyId, newHistory, session.userId);
+            await SyncManager.enqueue('DELETE', 'SESSION', sessionId, { id: sessionId }, session.userId);
             return historyId;
         }
 
@@ -396,8 +396,10 @@ export const SessionService = {
 
     async deleteSession(sessionId: string, supabaseInput?: any) {
         if (typeof window !== 'undefined') {
+            const local = await db.sessions.get(sessionId);
+            const targetUserId = local?.userId;
             await db.sessions.delete(sessionId);
-            await SyncManager.enqueue('DELETE', 'SESSION', sessionId, { id: sessionId });
+            await SyncManager.enqueue('DELETE', 'SESSION', sessionId, { id: sessionId }, targetUserId);
             return;
         }
 

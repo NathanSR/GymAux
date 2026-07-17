@@ -235,6 +235,7 @@ export interface Connection {
 
 export interface SyncOperation {
     id?: number;
+    userId?: string;
     action: 'CREATE' | 'UPDATE' | 'DELETE';
     entityType: 'SESSION' | 'HISTORY' | 'WORKOUT' | 'SCHEDULE' | 'EXERCISE';
     entityId: string | number; // Local ID or Temporary ID
