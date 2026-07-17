@@ -9,6 +9,7 @@ import { Controller, useWatch } from 'react-hook-form';
 import { RpeDial } from './RpeDial';
 import { DropsetModal } from './DropsetModal';
 import { SessionActionsModal } from './SessionActionsModal';
+import { SlideToConfirm } from '@/components/ui/SlideToConfirm';
 
 interface SessionSetFormProps {
     currentPlannedSet: any;
@@ -109,11 +110,15 @@ export function SessionSetForm({
         setValue("reps", Math.max(0, currentReps + amount));
     };
 
+    const handleConfirmSet = handleSubmit((data) => {
+        onCompleteSet({ ...data, dropset }, false);
+    });
+
     const isDropsetActive = dropset && dropset.length > 0;
 
     return (
         <form
-            onSubmit={handleSubmit((data) => onCompleteSet({ ...data, dropset }, false))}
+            onSubmit={handleConfirmSet}
             className="space-y-4"
         >
             {/* Weight and Reps Inputs / Dropset Sequence */}
@@ -336,18 +341,17 @@ export function SessionSetForm({
 
             {/* Submit / Confirm & Actions side-by-side */}
             {!isReadOnly && (
-                <div className="flex gap-2.5 items-stretch pb-2 pt-1">
-                    <button
-                        type="submit"
-                        className="group flex-1 py-5 bg-lime-400 text-zinc-950 rounded-[24px] font-black uppercase text-[10px] tracking-[0.3em] flex items-center justify-center gap-3 shadow-[0_15px_40px_rgba(163,230,71,0.2)] hover:-translate-y-0.5 active:scale-[0.98] transition-all border-b-[6px] border-lime-600 cursor-pointer"
-                    >
-                        {t('confirmSet')}
-                        <ArrowRight size={18} className="group-hover:translate-x-2 transition-transform" />
-                    </button>
+                <div className="flex gap-2.5 items-center pb-2 pt-1">
+                    <div className="flex-1 min-w-0">
+                        <SlideToConfirm
+                            onConfirm={handleConfirmSet}
+                            text={t('confirmSet')}
+                        />
+                    </div>
                     <button
                         type="button"
                         onClick={() => setIsActionsOpen(true)}
-                        className="aspect-square px-5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-[24px] text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-50 dark:hover:bg-zinc-850 active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center border-b-[6px] border-b-zinc-200 dark:border-b-zinc-950 shadow-xs"
+                        className="w-[58px] h-[58px] bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-[24px] text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-50 dark:hover:bg-zinc-850 active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center border-b-[4px] border-b-zinc-200 dark:border-b-zinc-950 shadow-xs shrink-0"
                         title={t('setOptions')}
                     >
                         <SlidersHorizontal size={18} />
