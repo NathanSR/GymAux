@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Session } from '@/config/types';
-import Swal from 'sweetalert2';
+import { useDialog } from '@/hooks/useDialog';
 import { arrayMove } from '@dnd-kit/sortable';
 import { SessionService } from '@/services/sessionService';
 import { useRouter } from '@/i18n/routing';
@@ -14,6 +14,7 @@ export const useWorkoutDrawer = (
     onClose: () => void
 ) => {
     const router = useRouter();
+    const { confirm, error: showError } = useDialog();
     const [activeTab, setActiveTab] = useState<'todo' | 'done'>('todo');
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [editingGroupIdx, setEditingGroupIdx] = useState<number | null>(null);
@@ -66,24 +67,19 @@ export const useWorkoutDrawer = (
     };
 
     const handleDeleteGroup = async (idx: number) => {
-        Swal.fire({
+        const result = await confirm({
             title: t('confirmDeleteTitle'),
-            text: t('confirmDeleteText'),
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#ef4444',
-            cancelButtonColor: '#6b7280',
-            confirmButtonText: t('confirmDeleteButton'),
-            cancelButtonText: t('cancelButton'),
-            background: isDark ? '#18181b' : '#ffffff',
-            color: isDark ? '#ffffff' : '#18181b',
-        }).then((result) => {
-            if (result.isConfirmed) {
-                session.exercisesToDo = session.exercisesToDo.filter((_: any, i: number) => i !== idx);
-                setSession({ ...session });
-                syncSession();
-            }
+            description: t('confirmDeleteText'),
+            variant: 'delete',
+            confirmText: t('confirmDeleteButton'),
+            cancelText: t('cancelButton'),
         });
+
+        if (result.isConfirmed) {
+            session.exercisesToDo = session.exercisesToDo.filter((_: any, i: number) => i !== idx);
+            setSession({ ...session });
+            syncSession();
+        }
     };
 
     const handleUpdateHistorySet = (groupIdx: number, exIdx: number, setIdx: number, field: string, value: string) => {
@@ -107,17 +103,12 @@ export const useWorkoutDrawer = (
     };
 
     const onConfirmDeleteSession = async () => {
-        const result = await Swal.fire({
+        const result = await confirm({
             title: t('confirmDeleteSessionTitle'),
-            text: t('confirmDeleteSessionText'),
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#ef4444',
-            cancelButtonColor: '#6b7280',
-            confirmButtonText: t('confirmDeleteSessionButton'),
-            cancelButtonText: t('cancelButton'),
-            background: isDark ? '#18181b' : '#ffffff',
-            color: isDark ? '#ffffff' : '#18181b',
+            description: t('confirmDeleteSessionText'),
+            variant: 'delete',
+            confirmText: t('confirmDeleteSessionButton'),
+            cancelText: t('cancelButton'),
         });
 
         if (result.isConfirmed) {
@@ -129,13 +120,7 @@ export const useWorkoutDrawer = (
                 }
             } catch (error) {
                 console.error('Error deleting session:', error);
-                Swal.fire({
-                    title: 'Error',
-                    text: 'Could not delete session',
-                    icon: 'error',
-                    background: isDark ? '#18181b' : '#ffffff',
-                    color: isDark ? '#ffffff' : '#18181b',
-                });
+                showError('Error', 'Could not delete session');
             }
         }
     };

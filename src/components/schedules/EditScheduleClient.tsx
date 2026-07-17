@@ -1,14 +1,15 @@
-"use client";
+'use client';
 
-import { ScheduleForm } from "@/components/schedules/ScheduleForm";
-import { useTheme } from "@/context/ThemeContext";
-import { useRouter } from "@/i18n/routing";
-import { ScheduleService } from "@/services/scheduleService";
-import { ChevronLeft, Trash2 } from "lucide-react";
-import { useTranslations } from "next-intl";
 import { useState } from "react";
+import { ChevronLeft, Trash2 } from "lucide-react";
+import { useRouter } from "@/i18n/routing";
+import { useTranslations } from "next-intl";
+import { ScheduleForm } from "@/components/schedules/ScheduleForm";
+import { ScheduleService } from "@/services/scheduleService";
+import { useAlerts } from "@/hooks/useAlerts";
+import { useTheme } from "@/context/ThemeContext";
 import { toast } from "react-toastify";
-import Swal from "sweetalert2";
+import PageHeader from "@/components/ui/PageHeader";
 
 interface EditScheduleClientProps {
     initialData: any;
@@ -17,12 +18,11 @@ interface EditScheduleClientProps {
     baseUrl?: string;
 }
 
-import PageHeader from "@/components/ui/PageHeader";
-
 export default function EditScheduleClient({ initialData, scheduleId, callerId, baseUrl = '/schedules' }: EditScheduleClientProps) {
     const { isDark } = useTheme();
     const router = useRouter();
     const t = useTranslations('ScheduleEdit');
+    const alerts = useAlerts();
 
     const [loading, setLoading] = useState(false);
 
@@ -46,28 +46,23 @@ export default function EditScheduleClient({ initialData, scheduleId, callerId, 
     };
 
     const handleDelete = async () => {
-        Swal.fire({
+        const result = await alerts.confirm({
             title: t('confirmDeleteTitle'),
             text: t('confirmDeleteText'),
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#ef4444',
-            cancelButtonColor: '#6b7280',
-            confirmButtonText: t('confirmDeleteButton'),
-            cancelButtonText: t('cancelButton'),
-            background: isDark ? '#18181b' : '#ffffff',
-            color: isDark ? '#ffffff' : '#111827',
-        }).then(async (result) => {
-            if (result.isConfirmed) {
-                try {
-                    await ScheduleService.deleteSchedule(scheduleId, callerId);
-                    router.refresh();
-                    router.replace(baseUrl);
-                } catch (error: any) {
-                    console.error("Error deleting schedule:", error?.message || error);
-                }
-            }
+            confirmText: t('confirmDeleteButton'),
+            cancelText: t('cancelButton'),
+            variant: 'delete',
         });
+
+        if (result.isConfirmed) {
+            try {
+                await ScheduleService.deleteSchedule(scheduleId, callerId);
+                router.refresh();
+                router.replace(baseUrl);
+            } catch (error: any) {
+                console.error("Error deleting schedule:", error?.message || error);
+            }
+        }
     };
 
     return (

@@ -7,6 +7,7 @@ import { getMessages } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { routing } from '@/i18n/routing';
 import { ThemeProvider } from "@/context/ThemeContext";
+import { DialogProvider } from "@/context/DialogContext";
 import { OfflineSyncProvider } from "@/context/OfflineSyncProvider";
 import { ToastContainer } from 'react-toastify';
 import NextTopLoader from 'nextjs-toploader';
@@ -53,10 +54,12 @@ export default async function RootLayout(props: {
 				<NextTopLoader color="#a3e635" />
 				<NextIntlClientProvider messages={messages}>
 					<ThemeProvider>
-						<OfflineSyncProvider>
-							<AppSplashScreen />
-							{children}
-						</OfflineSyncProvider>
+						<DialogProvider>
+							<OfflineSyncProvider>
+								<AppSplashScreen />
+								{children}
+							</OfflineSyncProvider>
+						</DialogProvider>
 					</ThemeProvider>
 				</NextIntlClientProvider>
 				<ToastContainer pauseOnHover closeOnClick draggable />

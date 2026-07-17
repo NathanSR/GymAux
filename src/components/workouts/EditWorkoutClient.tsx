@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { useState } from 'react';
 import { ChevronLeft, Trash2 } from 'lucide-react';
@@ -6,10 +6,11 @@ import { useRouter } from '@/i18n/routing';
 import { useTranslations } from 'next-intl';
 import WorkoutForm from '@/components/workouts/WorkoutForm';
 import { WorkoutService } from '@/services/workoutService';
-import Swal from 'sweetalert2';
+import { useAlerts } from '@/hooks/useAlerts';
 import { useTheme } from '@/context/ThemeContext';
 import { toast } from 'react-toastify';
 import { Exercise, Workout } from '@/config/types';
+import PageHeader from '@/components/ui/PageHeader';
 
 interface EditWorkoutClientProps {
     initialWorkout: Workout;
@@ -19,12 +20,11 @@ interface EditWorkoutClientProps {
     baseUrl?: string;
 }
 
-import PageHeader from '@/components/ui/PageHeader';
-
 export default function EditWorkoutClient({ initialWorkout, availableExercises, workoutId, callerId, baseUrl = '/workouts' }: EditWorkoutClientProps) {
     const { isDark } = useTheme();
     const router = useRouter();
     const t = useTranslations('WorkoutEdit');
+    const alerts = useAlerts();
 
     const [isSaving, setIsSaving] = useState(false);
 
@@ -48,28 +48,23 @@ export default function EditWorkoutClient({ initialWorkout, availableExercises, 
     };
 
     const handleDelete = async () => {
-        Swal.fire({
+        const result = await alerts.confirm({
             title: t('confirmDeleteTitle'),
             text: t('confirmDeleteText'),
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#ef4444',
-            cancelButtonColor: '#6b7280',
-            confirmButtonText: t('confirmDeleteButton'),
-            cancelButtonText: t('cancelButton'),
-            background: isDark ? '#18181b' : '#ffffff',
-            color: isDark ? '#ffffff' : '#18181b',
-        }).then(async (result) => {
-            if (result.isConfirmed) {
-                try {
-                    await WorkoutService.deleteWorkout(workoutId, callerId);
-                    router.refresh();
-                    router.replace(baseUrl);
-                } catch (error: any) {
-                    console.error("Erro ao deletar:", error?.message || error);
-                }
-            }
+            confirmText: t('confirmDeleteButton'),
+            cancelText: t('cancelButton'),
+            variant: 'delete',
         });
+
+        if (result.isConfirmed) {
+            try {
+                await WorkoutService.deleteWorkout(workoutId, callerId);
+                router.refresh();
+                router.replace(baseUrl);
+            } catch (error: any) {
+                console.error("Erro ao deletar:", error?.message || error);
+            }
+        }
     };
 
     return (

@@ -1,75 +1,50 @@
-import { useTheme } from '@/context/ThemeContext';
-import Swal, { SweetAlertIcon, SweetAlertOptions } from 'sweetalert2';
+import { useDialog } from '@/hooks/useDialog';
+import { DialogVariant } from '@/components/ui/dialog/dialog.types';
 
 export const useAlerts = () => {
-    const { isDark } = useTheme();
+  const dialog = useDialog();
 
-    const baseOptions: SweetAlertOptions = {
-        background: isDark ? '#18181b' : '#ffffff',
-        color: isDark ? '#f4f4f5' : '#18181b',
-        confirmButtonColor: '#a3e635', // lime-400
-        cancelButtonColor: '#3f3f46',  // zinc-700
-        customClass: {
-            popup: 'rounded-[32px] border border-zinc-200 dark:border-zinc-800 shadow-2xl',
-            confirmButton: 'rounded-2xl px-6 py-3 font-black uppercase text-xs tracking-widest',
-            cancelButton: 'rounded-2xl px-6 py-3 font-black uppercase text-xs tracking-widest',
-        },
-    };
+  const confirm = async (options: {
+    title: string;
+    text?: string;
+    description?: string;
+    icon?: string;
+    confirmText?: string;
+    cancelText?: string;
+    danger?: boolean;
+    variant?: DialogVariant;
+  }) => {
+    let variant: DialogVariant = options.variant || (options.danger ? 'danger' : 'info');
+    if (options.icon === 'warning') variant = 'warning';
+    if (options.icon === 'error') variant = 'error';
+    if (options.icon === 'success') variant = 'success';
+    if (options.icon === 'question') variant = 'question';
 
-    const confirm = async (options: {
-        title: string;
-        text?: string;
-        icon?: SweetAlertIcon;
-        confirmText?: string;
-        cancelText?: string;
-        danger?: boolean;
-    }) => {
-        return Swal.fire({
-            ...baseOptions,
-            title: options.title,
-            text: options.text,
-            icon: options.icon || 'question',
-            showCancelButton: true,
-            confirmButtonText: options.confirmText || 'Confirmar',
-            cancelButtonText: options.cancelText || 'Cancelar',
-            confirmButtonColor: options.danger ? '#ef4444' : baseOptions.confirmButtonColor,
-        });
-    };
+    return dialog.confirm({
+      title: options.title,
+      description: options.text || options.description,
+      confirmText: options.confirmText,
+      cancelText: options.cancelText,
+      variant,
+    });
+  };
 
-    const success = (title: string, text?: string) => {
-        return Swal.fire({
-            ...baseOptions,
-            title,
-            text,
-            icon: 'success',
-            timer: 2000,
-            showConfirmButton: false,
-        });
-    };
+  const success = (title: string, text?: string) => {
+    return dialog.success(title, text);
+  };
 
-    const error = (title: string, text?: string) => {
-        return Swal.fire({
-            ...baseOptions,
-            title,
-            text,
-            icon: 'error',
-        });
-    };
+  const error = (title: string, text?: string) => {
+    return dialog.error(title, text);
+  };
 
-    const info = (title: string, text?: string) => {
-        return Swal.fire({
-            ...baseOptions,
-            title,
-            text,
-            icon: 'info',
-        });
-    };
+  const info = (title: string, text?: string) => {
+    return dialog.info(title, text);
+  };
 
-    return {
-        confirm,
-        success,
-        error,
-        info,
-        Swal, // Exposé for custom cases
-    };
+  return {
+    confirm,
+    success,
+    error,
+    info,
+  };
 };
