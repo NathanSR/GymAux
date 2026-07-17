@@ -173,7 +173,7 @@ export default function DrawerWorkoutExerciseAdd({
                     </div>
                 </div>
             ) : step === 'select' ? (
-                <div className="space-y-3 max-h-[50vh] overflow-y-auto pr-2 custom-scrollbar">
+                <div className="space-y-3 overflow-y-auto pr-2 custom-scrollbar">
                     {userWorkouts.length > 0 ? (
                         userWorkouts.map((workout) => (
                             <button
