@@ -283,16 +283,13 @@ export function useSessionClient({ initialSession, isReadOnly = false, watchValu
     }, [session, currentExercise, currentGroup, currentGroupIndex, currentExerciseIndex, synchronizeProgress]);
 
     const lastWeightUsed = useMemo(() => {
-        if (!currentExercise) return null;
-
-        // Find the most recent execution of this exerciseId in the current session
+        if (!currentExercise?.exerciseId) return null;
         for (let i = session.exercisesDone.length - 1; i >= 0; i--) {
             const group = session.exercisesDone[i];
             if (!group) continue;
 
             const ex = group.exercises.find(e => e.exerciseId === currentExercise.exerciseId);
             if (ex && ex.sets.length > 0) {
-                // Get the last non-skipped set with a valid weight
                 for (let j = ex.sets.length - 1; j >= 0; j--) {
                     const s = ex.sets[j];
                     if (!s.skipped && s.weight !== undefined && s.weight !== null) {
@@ -303,6 +300,40 @@ export function useSessionClient({ initialSession, isReadOnly = false, watchValu
         }
         return null;
     }, [session.exercisesDone, currentExercise?.exerciseId]);
+
+    const lastExecutedSetRpe = useMemo(() => {
+        if (!currentExercise?.exerciseId) return 7;
+        for (let i = session.exercisesDone.length - 1; i >= 0; i--) {
+            const group = session.exercisesDone[i];
+            if (!group) continue;
+            const ex = group.exercises.find(e => e.exerciseId === currentExercise.exerciseId);
+            if (ex && ex.sets.length > 0) {
+                const lastSet = ex.sets[ex.sets.length - 1];
+                if (lastSet && lastSet.rpe !== undefined) {
+                    return lastSet.rpe;
+                }
+            }
+        }
+        return 7;
+    }, [session.exercisesDone, currentExercise?.exerciseId]);
+
+    const handleUpdateLastSetRpe = useCallback(async (newRpe: number) => {
+        if (!currentExercise?.exerciseId) return;
+        const updatedSession = { ...session };
+        const updatedExecutions = [...updatedSession.exercisesDone];
+
+        if (updatedExecutions[currentGroupIndex]) {
+            const group = updatedExecutions[currentGroupIndex];
+            const ex = group.exercises.find(e => e.exerciseId === currentExercise.exerciseId);
+            if (ex && ex.sets.length > 0) {
+                const lastSetIndex = ex.sets.length - 1;
+                ex.sets[lastSetIndex] = { ...ex.sets[lastSetIndex], rpe: newRpe };
+                updatedSession.exercisesDone = updatedExecutions;
+                setSession(updatedSession);
+                await synchronizeProgress(updatedSession);
+            }
+        }
+    }, [currentExercise?.exerciseId, currentGroupIndex, session, synchronizeProgress]);
 
     return {
         session,
@@ -330,6 +361,8 @@ export function useSessionClient({ initialSession, isReadOnly = false, watchValu
         exitSession,
         synchronizeProgress,
         lastWeightUsed,
+        lastExecutedSetRpe,
+        handleUpdateLastSetRpe,
         handleSubstituteExercise,
         handleUpdateRestDuration
     };

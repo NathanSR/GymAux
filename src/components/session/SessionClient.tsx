@@ -58,6 +58,8 @@ export default function SessionClient({ initialSession, isReadOnly = false }: Se
         exitSession,
         synchronizeProgress,
         lastWeightUsed,
+        lastExecutedSetRpe,
+        handleUpdateLastSetRpe,
         handleSubstituteExercise,
         handleUpdateRestDuration
     } = useSessionClient({
@@ -73,6 +75,7 @@ export default function SessionClient({ initialSession, isReadOnly = false }: Se
     });
 
     const isCompletion = session.current.step === 'completion';
+    const isResting = session.current.step === 'resting';
 
     return (
         <div className="h-[100dvh] bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white transition-colors duration-300 flex flex-col font-sans selection:bg-lime-400 selection:text-zinc-950 overflow-hidden">
@@ -93,7 +96,7 @@ export default function SessionClient({ initialSession, isReadOnly = false }: Se
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="flex-1 flex flex-col overflow-hidden"
+                        className="flex-1 flex flex-col overflow-hidden justify-between"
                     >
                         <WorkoutDrawer
                             showPreview={showPreview}
@@ -123,7 +126,7 @@ export default function SessionClient({ initialSession, isReadOnly = false }: Se
                             onOpenTimer={() => setShowStandaloneTimer(true)}
                         />
 
-                        <main className="flex-1 flex flex-col px-5 py-2 overflow-y-auto overflow-x-hidden scrollbar-hide">
+                        <main className="flex-1 flex flex-col px-5 py-2 overflow-hidden justify-between">
                             <SessionExerciseInfo
                                 currentGroup={currentGroup}
                                 currentExercise={currentExercise}
@@ -137,21 +140,24 @@ export default function SessionClient({ initialSession, isReadOnly = false }: Se
                                 onOpenInstructions={() => setShowInstructions(true)}
                                 restDuration={restDuration}
                                 onOpenRestAdjust={() => setShowActionsModal(true)}
+                                isResting={isResting}
                             />
 
                             <AnimatePresence mode="wait">
-                                {session.current.step === 'resting' ? (
+                                {isResting ? (
                                     <motion.div
                                         key="resting"
                                         initial={{ opacity: 0, y: 15 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         exit={{ opacity: 0, y: -15 }}
-                                        className="flex-1 flex flex-col justify-center"
+                                        className="flex-1 flex flex-col justify-between min-h-0 overflow-hidden"
                                     >
                                         <RestTimer
                                             seconds={restDuration}
                                             onFinish={moveToNextStep}
                                             onAdjustTime={(delta) => handleUpdateRestDuration(Math.max(1, restDuration + delta))}
+                                            currentRpe={lastExecutedSetRpe}
+                                            onUpdateRpe={handleUpdateLastSetRpe}
                                         />
                                     </motion.div>
                                 ) : (

@@ -300,20 +300,6 @@ export function SessionSetForm({
                 )}
             </AnimatePresence>
 
-            {/* RPE Selector with Rotary Dial Component */}
-            <Controller
-                name="rpe"
-                control={control}
-                render={({ field }) => (
-                    <RpeDial
-                        value={field.value}
-                        onChange={field.onChange}
-                        label={t('effort')}
-                        subLabel={t(RPE_EMOJIS[Number(rpeValue)]?.labelKey)}
-                    />
-                )}
-            />
-
             {/* Dropset Configuration Modal */}
             <DropsetModal
                 isOpen={isDropsetOpen}

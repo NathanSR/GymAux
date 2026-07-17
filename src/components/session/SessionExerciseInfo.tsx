@@ -18,6 +18,7 @@ interface SessionExerciseInfoProps {
     onOpenInstructions: () => void;
     restDuration?: number;
     onOpenRestAdjust?: () => void;
+    isResting?: boolean;
 }
 
 export function SessionExerciseInfo({
@@ -32,7 +33,8 @@ export function SessionExerciseInfo({
     isGroupAlternating,
     onOpenInstructions,
     restDuration,
-    onOpenRestAdjust
+    onOpenRestAdjust,
+    isResting = false
 }: SessionExerciseInfoProps) {
     const t = useTranslations('Session');
     const te = useTranslations('Exercises');
@@ -264,59 +266,82 @@ export function SessionExerciseInfo({
                 </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-2 mt-5">
-                <div className="flex flex-col p-3.5 bg-white dark:bg-zinc-900/40 rounded-3xl border border-zinc-200/80 dark:border-zinc-800/80 relative overflow-hidden group shadow-xs">
-                    <span className="text-[8px] font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-widest mb-0.5">
-                        {isGroupAlternating ? t('round') : t('currentSet')}
-                    </span>
-                    <span className="text-xl sm:text-2xl font-black tabular-nums flex items-baseline gap-1 text-zinc-900 dark:text-white">
-                        {currentSetIndex + 1}
-                        <span className="text-zinc-400 dark:text-zinc-500 text-[10px] font-bold">/ {isGroupAlternating ? (currentGroup.rounds || 1) : currentExercise.sets.length}</span>
-                    </span>
-                </div>
-                <div className="flex flex-col p-3.5 bg-white dark:bg-zinc-900/40 rounded-3xl border border-zinc-200/80 dark:border-zinc-800/80 relative overflow-hidden group shadow-xs">
-                    <span className="text-[8px] font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-widest mb-0.5">{t('goal')}</span>
-                    <span className="text-xl sm:text-2xl font-black tabular-nums flex items-baseline gap-1 text-zinc-900 dark:text-white">
-                        {currentPlannedSet?.reps}
-                        <span className="text-[8px] text-zinc-400 dark:text-zinc-500 uppercase font-black tracking-tighter">{t('reps')}</span>
-                    </span>
-                </div>
-                <button
-                    type="button"
-                    onClick={onOpenRestAdjust}
-                    className="flex flex-col p-3.5 bg-white dark:bg-zinc-900/40 hover:bg-zinc-50 dark:hover:bg-zinc-850 rounded-3xl border border-zinc-200/80 dark:border-zinc-800/80 hover:border-lime-500/30 relative overflow-hidden group text-left transition-all active:scale-95 cursor-pointer shadow-xs"
-                >
-                    <span className="text-[8px] font-bold text-zinc-500 dark:text-zinc-400 group-hover:text-lime-600 dark:group-hover:text-lime-400 uppercase tracking-widest mb-0.5 transition-colors">
-                        {t('adjustRestTime')}
-                    </span>
-                    <span className="text-xl sm:text-2xl font-black tabular-nums flex items-baseline gap-1 text-lime-600 dark:text-lime-400">
-                        {restDuration ?? currentPlannedSet?.restTime ?? 60}
-                        <span className="text-[8px] text-zinc-400 dark:text-zinc-500 uppercase font-black tracking-tighter">s</span>
-                    </span>
-                </button>
-            </div>
-            {currentPlannedSet?.technique && currentPlannedSet.technique !== 'normal' && (
-                <div className="mt-2 text-center p-2 bg-rose-500/10 border border-rose-500/20 rounded-xl text-xs font-black text-rose-400 uppercase tracking-widest">
-                    🔥 {t('techniques.' + currentPlannedSet.technique)}
-                </div>
+            {!isResting && (
+                <>
+                    <div className="grid grid-cols-3 gap-2 mt-5">
+                        <div className="flex flex-col p-3.5 bg-white dark:bg-zinc-900/40 rounded-3xl border border-zinc-200/80 dark:border-zinc-800/80 relative overflow-hidden group shadow-xs">
+                            <span className="text-[8px] font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-widest mb-0.5">
+                                {isGroupAlternating ? t('round') : t('currentSet')}
+                            </span>
+                            <span className="text-xl sm:text-2xl font-black tabular-nums flex items-baseline gap-1 text-zinc-900 dark:text-white">
+                                {currentSetIndex + 1}
+                                <span className="text-zinc-400 dark:text-zinc-500 text-[10px] font-bold">/ {isGroupAlternating ? (currentGroup.rounds || 1) : currentExercise.sets.length}</span>
+                            </span>
+                        </div>
+                        <div className="flex flex-col p-3.5 bg-white dark:bg-zinc-900/40 rounded-3xl border border-zinc-200/80 dark:border-zinc-800/80 relative overflow-hidden group shadow-xs">
+                            <span className="text-[8px] font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-widest mb-0.5">{t('goal')}</span>
+                            <span className="text-xl sm:text-2xl font-black tabular-nums flex items-baseline gap-1 text-zinc-900 dark:text-white">
+                                {currentPlannedSet?.reps}
+                                <span className="text-[8px] text-zinc-400 dark:text-zinc-500 uppercase font-black tracking-tighter">{t('reps')}</span>
+                            </span>
+                        </div>
+                        <button
+                            type="button"
+                            onClick={onOpenRestAdjust}
+                            className="flex flex-col p-3.5 bg-white dark:bg-zinc-900/40 hover:bg-zinc-50 dark:hover:bg-zinc-850 rounded-3xl border border-zinc-200/80 dark:border-zinc-800/80 hover:border-lime-500/30 relative overflow-hidden group text-left transition-all active:scale-95 cursor-pointer shadow-xs"
+                        >
+                            <span className="text-[8px] font-bold text-zinc-500 dark:text-zinc-400 group-hover:text-lime-600 dark:group-hover:text-lime-400 uppercase tracking-widest mb-0.5 transition-colors">
+                                {t('adjustRestTime')}
+                            </span>
+                            <span className="text-xl sm:text-2xl font-black tabular-nums flex items-baseline gap-1 text-lime-600 dark:text-lime-400">
+                                {restDuration ?? currentPlannedSet?.restTime ?? 60}
+                                <span className="text-[8px] text-zinc-400 dark:text-zinc-500 uppercase font-black tracking-tighter">s</span>
+                            </span>
+                        </button>
+                    </div>
+                    {currentPlannedSet?.technique && currentPlannedSet.technique !== 'normal' && (
+                        <div className="mt-2 text-center p-2 bg-rose-500/10 border border-rose-500/20 rounded-xl text-xs font-black text-rose-400 uppercase tracking-widest">
+                            🔥 {t('techniques.' + currentPlannedSet.technique)}
+                        </div>
+                    )}
+
+                    {/* Espaço de Imagem ou Vídeo do Exercício com Botão de Como Fazer Sobreposto */}
+                    <div className="relative mt-4">
+                        {renderExerciseMedia()}
+                        <button
+                            type="button"
+                            onClick={onOpenInstructions}
+                            title={t('howTo')}
+                            aria-label={t('howTo')}
+                            className="absolute top-3 right-3 z-20 cursor-pointer group"
+                        >
+                            <div className='flex items-end gap-2 px-3 py-1.5 rounded-full bg-white/85 dark:bg-zinc-900/85 backdrop-blur-md border border-zinc-200 dark:border-zinc-800 text-zinc-700 dark:text-zinc-200 hover:border-lime-500/50 hover:text-lime-600 dark:hover:text-lime-400 transition-all shadow-md active:scale-95 '>
+                                <CircleHelp size={14} className="text-lime-600 dark:text-lime-400 group-hover:rotate-12 transition-transform" />
+                                <span className="text-[9px] font-black uppercase tracking-wider">{t('howTo')}</span>
+                            </div>
+                        </button>
+                    </div>
+                </>
             )}
 
-            {/* Espaço de Imagem ou Vídeo do Exercício com Botão de Como Fazer Sobreposto */}
-            <div className="relative mt-4">
-                {renderExerciseMedia()}
-                <button
-                    type="button"
-                    onClick={onOpenInstructions}
-                    title={t('howTo')}
-                    aria-label={t('howTo')}
-                    className="absolute top-3 right-3 z-20 cursor-pointer group"
-                >
-                    <div className='flex items-end gap-2 px-3 py-1.5 rounded-full bg-white/85 dark:bg-zinc-900/85 backdrop-blur-md border border-zinc-200 dark:border-zinc-800 text-zinc-700 dark:text-zinc-200 hover:border-lime-500/50 hover:text-lime-600 dark:hover:text-lime-400 transition-all shadow-md active:scale-95 '>
-                        <CircleHelp size={14} className="text-lime-600 dark:text-lime-400 group-hover:rotate-12 transition-transform" />
-                        <span className="text-[9px] font-black uppercase tracking-wider">{t('howTo')}</span>
+            {isResting && (
+                <div className="mt-2 flex items-center justify-between p-3.5 bg-white dark:bg-zinc-900/40 rounded-3xl border border-zinc-200/80 dark:border-zinc-800/80 shadow-xs">
+                    <div className="flex items-center gap-2">
+                        <div className="w-2.5 h-2.5 rounded-full bg-lime-400 animate-ping" />
+                        <span className="text-[9px] font-black uppercase text-lime-600 dark:text-lime-400 tracking-widest">
+                            {t('currentSet')} {currentSetIndex + 1}/{isGroupAlternating ? (currentGroup.rounds || 1) : currentExercise?.sets?.length}
+                        </span>
                     </div>
-                </button>
-            </div>
+                    <button
+                        type="button"
+                        onClick={onOpenInstructions}
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-lime-400/10 border border-lime-400/20 text-lime-600 dark:text-lime-400 hover:bg-lime-400/20 active:scale-95 transition-all cursor-pointer shrink-0"
+                    >
+                        <CircleHelp size={14} />
+                        <span className="text-[9px] font-black uppercase tracking-wider">{t('howTo')}</span>
+                    </button>
+                </div>
+            )}
         </section>
     );
 }

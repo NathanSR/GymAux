@@ -2,16 +2,27 @@
 
 import { useEffect, useState, useRef } from "react";
 import { useTranslations } from 'next-intl';
-import { Plus, Minus } from 'lucide-react';
+import { Plus, Minus, ArrowRight } from 'lucide-react';
+import { RpeDial } from './RpeDial';
+import { RPE_EMOJIS } from './SessionConstants';
 
 interface RestTimerProps {
     seconds: number;
     onFinish: () => void;
     onAdjustTime?: (additionalSeconds: number) => void;
+    currentRpe?: number;
+    onUpdateRpe?: (rpe: number) => void;
 }
 
-export const RestTimer = ({ seconds, onFinish, onAdjustTime }: RestTimerProps) => {
+export const RestTimer = ({
+    seconds,
+    onFinish,
+    onAdjustTime,
+    currentRpe = 7,
+    onUpdateRpe
+}: RestTimerProps) => {
     const t = useTranslations('RestTimer');
+    const ts = useTranslations('Session');
     const [timeLeft, setTimeLeft] = useState(seconds);
     const [totalSeconds, setTotalSeconds] = useState(seconds);
 
@@ -50,102 +61,101 @@ export const RestTimer = ({ seconds, onFinish, onAdjustTime }: RestTimerProps) =
         }
     };
 
-    const radius = 130;
+    const radius = 70;
     const circumference = 2 * Math.PI * radius;
     const offset = circumference - (timeLeft / Math.max(1, totalSeconds)) * circumference;
     const isEnding = timeLeft <= 3 && timeLeft > 0;
 
     return (
-        <div className="overflow-x-hidden flex flex-col items-center justify-center p-4 sm:p-8 animate-in fade-in duration-700">
-            <div className="relative flex items-center justify-center mb-6 sm:mb-8 w-full max-w-[288px]">
-                {isEnding && (
-                    <div className="absolute inset-0 rounded-full border-4 border-lime-400/30 animate-ping" />
-                )}
+        <div className="flex flex-col items-center justify-between h-full py-1 px-2 select-none overflow-hidden animate-in fade-in duration-500 gap-3">
+            {/* Top Section: Compact Timer Ring & Quick Adjusters */}
+            <div className="flex flex-col items-center flex-shrink-0">
+                <div className="relative flex items-center justify-center w-44 h-44">
+                    {isEnding && (
+                        <div className="absolute inset-0 rounded-full border-4 border-lime-400/30 animate-ping" />
+                    )}
 
-                <svg className="w-full aspect-square -rotate-90" viewBox="0 0 288 288">
-                    <circle
-                        cx="144"
-                        cy="144"
-                        r={radius}
-                        stroke="currentColor"
-                        strokeWidth="4"
-                        fill="transparent"
-                        className="text-zinc-200 dark:text-zinc-900"
-                    />
-                    <circle
-                        cx="144"
-                        cy="144"
-                        r={radius}
-                        stroke="currentColor"
-                        strokeWidth="10"
-                        fill="transparent"
-                        strokeDasharray={circumference}
-                        style={{
-                            strokeDashoffset: offset,
-                            transition: 'stroke-dashoffset 1s linear, stroke 0.3s ease'
-                        }}
-                        className={`${isEnding ? 'text-zinc-900 dark:text-white' : 'text-lime-500 dark:text-lime-400'} transition-all`}
-                        strokeLinecap="round"
-                        filter={isEnding ? "drop-shadow(0 0 15px rgba(163, 230, 71, 0.5))" : "drop-shadow(0 0 8px rgba(163, 230, 31, 0.3))"}
-                    />
-                </svg>
+                    <svg className="w-full h-full -rotate-90" viewBox="0 0 160 160">
+                        <circle
+                            cx="80"
+                            cy="80"
+                            r={radius}
+                            stroke="currentColor"
+                            strokeWidth="4"
+                            fill="transparent"
+                            className="text-zinc-200 dark:text-zinc-800"
+                        />
+                        <circle
+                            cx="80"
+                            cy="80"
+                            r={radius}
+                            stroke="currentColor"
+                            strokeWidth="8"
+                            fill="transparent"
+                            strokeDasharray={circumference}
+                            style={{
+                                strokeDashoffset: offset,
+                                transition: 'stroke-dashoffset 1s linear, stroke 0.3s ease'
+                            }}
+                            className={`${isEnding ? 'text-zinc-900 dark:text-white' : 'text-lime-500 dark:text-lime-400'} transition-all`}
+                            strokeLinecap="round"
+                            filter={isEnding ? "drop-shadow(0 0 10px rgba(163, 230, 71, 0.5))" : "drop-shadow(0 0 6px rgba(163, 230, 31, 0.3))"}
+                        />
+                    </svg>
 
-                <div key={timeLeft} className="absolute flex flex-col items-center animate-in zoom-in-90 duration-300">
-                    <span className={`text-7xl sm:text-8xl font-black tabular-nums tracking-tighter transition-colors ${isEnding ? 'text-lime-600 dark:text-lime-400 scale-110' : 'text-zinc-900 dark:text-white'}`}>
-                        {timeLeft}
-                    </span>
-                    <span className="text-zinc-500 font-bold uppercase tracking-[0.2em] text-[10px] sm:text-xs mt-1">
-                        {t('seconds')}
-                    </span>
+                    <div key={timeLeft} className="absolute flex flex-col items-center animate-in zoom-in-90 duration-300">
+                        <span className={`text-5xl font-black tabular-nums tracking-tighter transition-colors ${isEnding ? 'text-lime-600 dark:text-lime-400 scale-110' : 'text-zinc-900 dark:text-white'}`}>
+                            {timeLeft}
+                        </span>
+                        <span className="text-zinc-500 font-black uppercase tracking-[0.2em] text-[9px] mt-0.5">
+                            {t('seconds')}
+                        </span>
+                    </div>
+                </div>
+
+                {/* Quick Adjust Buttons */}
+                <div className="flex items-center gap-1.5 mt-2">
+                    <button
+                        type="button"
+                        onClick={() => handleAdjust(-15)}
+                        className="px-3 py-1.5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 text-zinc-700 dark:text-zinc-300 rounded-xl font-black text-[11px] flex items-center gap-1 active:scale-95 transition-all shadow-xs cursor-pointer"
+                    >
+                        <Minus size={11} /> 15s
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => handleAdjust(15)}
+                        className="px-3 py-1.5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 hover:border-lime-500/40 text-lime-600 dark:text-lime-400 rounded-xl font-black text-[11px] flex items-center gap-1 active:scale-95 transition-all shadow-xs cursor-pointer"
+                    >
+                        <Plus size={11} /> 15s
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => handleAdjust(30)}
+                        className="px-3 py-1.5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 hover:border-lime-500/40 text-lime-600 dark:text-lime-400 rounded-xl font-black text-[11px] flex items-center gap-1 active:scale-95 transition-all shadow-xs cursor-pointer"
+                    >
+                        <Plus size={11} /> 30s
+                    </button>
                 </div>
             </div>
 
-            {/* Quick Adjust Buttons */}
-            <div className="flex items-center gap-2 mb-6">
-                <button
-                    type="button"
-                    onClick={() => handleAdjust(-15)}
-                    className="px-3.5 py-2 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 text-zinc-700 dark:text-zinc-300 rounded-xl font-bold text-xs flex items-center gap-1 active:scale-95 transition-all shadow-xs"
-                >
-                    <Minus size={12} /> 15s
-                </button>
-                <button
-                    type="button"
-                    onClick={() => handleAdjust(15)}
-                    className="px-3.5 py-2 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 hover:border-lime-500/40 text-lime-600 dark:text-lime-400 rounded-xl font-bold text-xs flex items-center gap-1 active:scale-95 transition-all shadow-xs"
-                >
-                    <Plus size={12} /> 15s
-                </button>
-                <button
-                    type="button"
-                    onClick={() => handleAdjust(30)}
-                    className="px-3.5 py-2 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 hover:border-lime-500/40 text-lime-600 dark:text-lime-400 rounded-xl font-bold text-xs flex items-center gap-1 active:scale-95 transition-all shadow-xs"
-                >
-                    <Plus size={12} /> 30s
-                </button>
+            {/* Middle Section: Integrated RPE Dial */}
+            <div className="w-full max-w-sm flex-1 flex flex-col justify-center my-1">
+                <RpeDial
+                    value={currentRpe}
+                    onChange={(val) => onUpdateRpe?.(val)}
+                    label={ts('effort')}
+                    subLabel={ts(RPE_EMOJIS[currentRpe]?.labelKey)}
+                />
             </div>
 
-            <div className="text-center space-y-2 mb-8">
-                <h3 className="text-2xl font-black text-zinc-900 dark:text-white uppercase tracking-tighter italic">
-                    {t('restTime')}
-                </h3>
-                {isEnding && (
-                    <p className="text-lime-600 dark:text-lime-400 font-black uppercase text-[10px] tracking-[0.3em] animate-pulse">
-                        {t('getReady')}
-                    </p>
-                )}
-            </div>
-
+            {/* Bottom Section: Skip Rest Button */}
             <button
                 onClick={onFinish}
-                className="group w-full max-w-xs py-5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-500 dark:text-zinc-400 rounded-[28px] font-black uppercase text-xs tracking-[0.2em] active:scale-95 transition-all hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-white relative shadow-xs"
+                className="group w-full max-w-xs py-3.5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-700 dark:text-zinc-300 rounded-[22px] font-black uppercase text-[10px] tracking-[0.25em] active:scale-95 transition-all hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-white relative shadow-xs flex items-center justify-center gap-2 cursor-pointer flex-shrink-0"
             >
-                <span className="group-hover:opacity-0 transition-opacity duration-300">
-                    {t('skipRest')}
-                </span>
-                <span className="absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">
-                    {t('readyNext')}
-                </span>
+                <span>{t('skipRest')}</span>
+                <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
             </button>
         </div>
     );
