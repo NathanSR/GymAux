@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Minus, Trash2, X, AlertCircle } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Plus, Minus, Trash2, Info, ArrowRight } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { Modal } from '@/components/ui/Modal';
 
 interface DropsetPart {
     reps: number;
@@ -25,7 +26,7 @@ export function DropsetModal({
     defaultWeight,
     defaultReps
 }: DropsetModalProps) {
-    const t = useTranslations('Session');
+    const t = useTranslations('Session.dropsetModal');
     const [drops, setDrops] = useState<DropsetPart[]>([]);
 
     useEffect(() => {
@@ -38,18 +39,16 @@ export function DropsetModal({
                 const firstReps = Number(defaultReps) || 0;
                 setDrops([
                     { weight: firstWeight, reps: firstReps },
-                    { weight: Math.max(0, Math.round(firstWeight * 0.8 * 10) / 10), reps: firstReps }
+                    { weight: Math.max(0, Math.round((firstWeight * 0.8) * 10) / 10), reps: firstReps }
                 ]);
             }
         }
     }, [isOpen, initialDropset, defaultWeight, defaultReps]);
 
-    if (!isOpen) return null;
-
     const handleAddDrop = () => {
         const lastDrop = drops[drops.length - 1] || { weight: defaultWeight, reps: defaultReps };
-        // Suggest 20% less weight, keep the same reps
-        const nextWeight = Math.max(0, Math.round(lastDrop.weight * 0.8 * 2) / 2); // rounded to nearest 0.5kg
+        // Suggest 20% less weight, rounded to nearest 0.5kg
+        const nextWeight = Math.max(0, Math.round(lastDrop.weight * 0.8 * 2) / 2);
         const nextReps = lastDrop.reps;
         setDrops([...drops, { weight: nextWeight, reps: nextReps }]);
     };
@@ -65,14 +64,13 @@ export function DropsetModal({
         const newDrops = [...drops];
         newDrops[index] = {
             ...newDrops[index],
-            [field]: Math.max(0, value)
+            [field]: Math.max(0, isNaN(value) ? 0 : value)
         };
         setDrops(newDrops);
     };
 
     const handleConfirm = () => {
         if (drops.length <= 1) {
-            // If only 1 drop is left, it's just a normal set
             onSave(null);
         } else {
             onSave(drops);
@@ -86,177 +84,190 @@ export function DropsetModal({
     };
 
     return (
-        <AnimatePresence>
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-                {/* Backdrop overlay */}
-                <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    onClick={onClose}
-                    className="absolute inset-0 bg-black/70 backdrop-blur-md"
-                />
-
-                {/* Modal Container */}
-                <motion.div
-                    initial={{ opacity: 0, scale: 0.95, y: 20 }}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                    transition={{ type: "spring", duration: 0.4 }}
-                    className="relative w-full max-w-md bg-zinc-900 border border-zinc-800 rounded-3xl p-6 shadow-2xl z-10 flex flex-col overflow-hidden max-h-[85vh]"
-                >
-                    {/* Header */}
-                    <div className="flex justify-between items-start mb-4">
-                        <div>
-                            <h3 className="text-lg font-black uppercase italic tracking-tighter text-white">
-                                Configurar Dropset
-                            </h3>
-                            <p className="text-xs text-zinc-500 font-medium mt-0.5">
-                                Reduza as cargas consecutivamente sem intervalo.
-                            </p>
-                        </div>
-                        <button
-                            onClick={onClose}
-                            className="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center hover:bg-zinc-700 transition-colors text-zinc-400 hover:text-white"
-                        >
-                            <X size={16} />
-                        </button>
+        <Modal
+            isOpen={isOpen}
+            onClose={onClose}
+            title={t('title')}
+            maxWidth="max-w-md"
+            className="bg-zinc-950 dark:bg-zinc-950 border-zinc-800/80 p-5 rounded-3xl"
+        >
+            <div className="flex flex-col gap-4 p-1">
+                {/* Subtitle / Tip for beginners */}
+                <div className="bg-zinc-900/60 border border-zinc-800/80 rounded-2xl p-3.5 flex items-start gap-3">
+                    <div className="w-8 h-8 rounded-xl bg-lime-400/10 border border-lime-400/20 text-lime-400 flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <Info size={18} />
                     </div>
+                    <div className="flex flex-col min-w-0">
+                        <span className="text-xs font-semibold text-zinc-300">
+                            {t('subtitle')}
+                        </span>
+                        <span className="text-[11px] text-zinc-500 mt-1 leading-snug">
+                            {t('infoTip')}
+                        </span>
+                    </div>
+                </div>
 
-                    {/* Drops List */}
-                    <div className="flex-1 overflow-y-auto space-y-3 pr-1 py-1 scrollbar-thin">
-                        {drops.map((drop, idx) => {
-                            const isOriginal = idx === 0;
-                            return (
-                                <div
-                                    key={idx}
-                                    className={`p-3 rounded-2xl border transition-all ${
-                                        isOriginal
-                                            ? 'bg-zinc-950/60 border-zinc-800/80'
-                                            : 'bg-zinc-900 border-zinc-800/40 hover:border-zinc-800'
-                                    }`}
-                                >
-                                    <div className="flex justify-between items-center mb-2">
-                                        <span className={`text-[9px] font-black uppercase tracking-widest ${
-                                            isOriginal ? 'text-lime-400' : 'text-zinc-500'
+                {/* Drops List */}
+                <div className="flex flex-col gap-3 max-h-[45vh] overflow-y-auto pr-1 scrollbar-thin">
+                    {drops.map((drop, idx) => {
+                        const isOriginal = idx === 0;
+                        return (
+                            <motion.div
+                                key={idx}
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                className={`p-3.5 rounded-2xl border transition-all ${
+                                    isOriginal
+                                        ? 'bg-zinc-900/90 border-lime-400/30 shadow-sm shadow-lime-400/5'
+                                        : 'bg-zinc-900/40 border-zinc-800/60 hover:border-zinc-700'
+                                }`}
+                            >
+                                <div className="flex justify-between items-center mb-2.5">
+                                    <div className="flex items-center gap-2">
+                                        <span className={`text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-md ${
+                                            isOriginal
+                                                ? 'bg-lime-400/10 text-lime-400 border border-lime-400/20'
+                                                : 'bg-zinc-800 text-zinc-400 border border-zinc-700/50'
                                         }`}>
-                                            {isOriginal ? 'Série 1 (Original)' : `Drop ${idx}`}
+                                            {isOriginal ? t('originalSet') : t('dropIndex', { index: idx })}
                                         </span>
-                                        {!isOriginal && (
+                                    </div>
+                                    {!isOriginal && (
+                                        <button
+                                            type="button"
+                                            onClick={() => handleRemoveDrop(idx)}
+                                            aria-label={t('deleteDrop')}
+                                            className="w-8 h-8 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 hover:text-rose-300 border border-rose-500/20 transition-all flex items-center justify-center active:scale-90"
+                                        >
+                                            <Trash2 size={16} />
+                                        </button>
+                                    )}
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-3">
+                                    {/* Weight control */}
+                                    <div className="bg-zinc-950/60 rounded-2xl p-2.5 border border-zinc-800/50 flex items-center justify-between gap-2">
+                                        <div className="flex flex-col min-w-0 flex-1">
+                                            <span className="text-[9px] font-bold uppercase text-zinc-500 tracking-wider">
+                                                {t('weightShort')} <span className="text-zinc-600 font-normal">(kg)</span>
+                                            </span>
+                                            <input
+                                                type="number"
+                                                step="any"
+                                                inputMode="decimal"
+                                                value={drop.weight}
+                                                onFocus={(e) => e.target.select()}
+                                                onChange={(e) => handleUpdateDrop(idx, 'weight', parseFloat(e.target.value))}
+                                                className="bg-transparent border-none p-0 text-lg font-black outline-none w-full text-white"
+                                            />
+                                        </div>
+                                        <div className="flex items-center gap-1.5">
                                             <button
                                                 type="button"
-                                                onClick={() => handleRemoveDrop(idx)}
-                                                className="text-zinc-600 hover:text-rose-500 transition-colors p-1"
+                                                onClick={() => handleUpdateDrop(idx, 'weight', drop.weight - 1)}
+                                                className="w-9 h-9 sm:w-10 sm:h-10 bg-zinc-800/80 hover:bg-zinc-700 hover:border-zinc-600 border border-zinc-700/50 text-zinc-200 rounded-xl flex items-center justify-center active:scale-95 transition-all shadow-sm"
                                             >
-                                                <Trash2 size={13} />
+                                                <Minus size={16} />
                                             </button>
-                                        )}
+                                            <button
+                                                type="button"
+                                                onClick={() => handleUpdateDrop(idx, 'weight', drop.weight + 1)}
+                                                className="w-9 h-9 sm:w-10 sm:h-10 bg-zinc-800/80 hover:bg-zinc-700 hover:border-zinc-600 border border-zinc-700/50 text-zinc-200 rounded-xl flex items-center justify-center active:scale-95 transition-all shadow-sm"
+                                            >
+                                                <Plus size={16} />
+                                            </button>
+                                        </div>
                                     </div>
 
-                                    <div className="grid grid-cols-2 gap-3">
-                                        {/* Weight control */}
-                                        <div className="bg-zinc-950/40 rounded-xl px-3 py-2 border border-zinc-800/30 flex items-center justify-between">
-                                            <div className="flex flex-col min-w-0">
-                                                <span className="text-[7px] font-black uppercase text-zinc-500 tracking-wider">Carga</span>
-                                                <input
-                                                    type="number"
-                                                    value={drop.weight}
-                                                    onChange={(e) => handleUpdateDrop(idx, 'weight', Number(e.target.value))}
-                                                    className="bg-transparent border-none p-0 text-base font-black outline-none w-full text-white"
-                                                />
-                                            </div>
-                                            <div className="flex items-center gap-1">
-                                                <button
-                                                    type="button"
-                                                    onClick={() => handleUpdateDrop(idx, 'weight', drop.weight - 2)}
-                                                    className="w-5 h-5 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded flex items-center justify-center active:scale-90 transition-all"
-                                                >
-                                                    <Minus size={10} />
-                                                </button>
-                                                <button
-                                                    type="button"
-                                                    onClick={() => handleUpdateDrop(idx, 'weight', drop.weight + 2)}
-                                                    className="w-5 h-5 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded flex items-center justify-center active:scale-90 transition-all"
-                                                >
-                                                    <Plus size={10} />
-                                                </button>
-                                            </div>
+                                    {/* Reps control */}
+                                    <div className="bg-zinc-950/60 rounded-2xl p-2.5 border border-zinc-800/50 flex items-center justify-between gap-2">
+                                        <div className="flex flex-col min-w-0 flex-1">
+                                            <span className="text-[9px] font-bold uppercase text-zinc-500 tracking-wider">
+                                                {t('repsShort')}
+                                            </span>
+                                            <input
+                                                type="number"
+                                                inputMode="numeric"
+                                                value={drop.reps}
+                                                onFocus={(e) => e.target.select()}
+                                                onChange={(e) => handleUpdateDrop(idx, 'reps', parseInt(e.target.value, 10))}
+                                                className="bg-transparent border-none p-0 text-lg font-black outline-none w-full text-white"
+                                            />
                                         </div>
-
-                                        {/* Reps control */}
-                                        <div className="bg-zinc-950/40 rounded-xl px-3 py-2 border border-zinc-800/30 flex items-center justify-between">
-                                            <div className="flex flex-col min-w-0">
-                                                <span className="text-[7px] font-black uppercase text-zinc-500 tracking-wider">Reps</span>
-                                                <input
-                                                    type="number"
-                                                    value={drop.reps}
-                                                    onChange={(e) => handleUpdateDrop(idx, 'reps', Number(e.target.value))}
-                                                    className="bg-transparent border-none p-0 text-base font-black outline-none w-full text-white"
-                                                />
-                                            </div>
-                                            <div className="flex items-center gap-1">
-                                                <button
-                                                    type="button"
-                                                    onClick={() => handleUpdateDrop(idx, 'reps', drop.reps - 1)}
-                                                    className="w-5 h-5 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded flex items-center justify-center active:scale-90 transition-all"
-                                                >
-                                                    <Minus size={10} />
-                                                </button>
-                                                <button
-                                                    type="button"
-                                                    onClick={() => handleUpdateDrop(idx, 'reps', drop.reps + 1)}
-                                                    className="w-5 h-5 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded flex items-center justify-center active:scale-90 transition-all"
-                                                >
-                                                    <Plus size={10} />
-                                                </button>
-                                            </div>
+                                        <div className="flex items-center gap-1.5">
+                                            <button
+                                                type="button"
+                                                onClick={() => handleUpdateDrop(idx, 'reps', drop.reps - 1)}
+                                                className="w-9 h-9 sm:w-10 sm:h-10 bg-zinc-800/80 hover:bg-zinc-700 hover:border-zinc-600 border border-zinc-700/50 text-zinc-200 rounded-xl flex items-center justify-center active:scale-95 transition-all shadow-sm"
+                                            >
+                                                <Minus size={16} />
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => handleUpdateDrop(idx, 'reps', drop.reps + 1)}
+                                                className="w-9 h-9 sm:w-10 sm:h-10 bg-zinc-800/80 hover:bg-zinc-700 hover:border-zinc-600 border border-zinc-700/50 text-zinc-200 rounded-xl flex items-center justify-center active:scale-95 transition-all shadow-sm"
+                                            >
+                                                <Plus size={16} />
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
-                            );
-                        })}
+                            </motion.div>
+                        );
+                    })}
 
-                        {/* Add Drop Button */}
-                        <button
-                            type="button"
-                            onClick={handleAddDrop}
-                            className="w-full py-3 bg-zinc-950 border border-dashed border-zinc-800 hover:border-lime-400/40 hover:bg-lime-400/5 text-zinc-400 hover:text-lime-400 rounded-2xl flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-widest transition-all active:scale-[0.99]"
-                        >
-                            <Plus size={12} />
-                            Adicionar Drop
-                        </button>
-                    </div>
+                    {/* Add Drop Button */}
+                    <button
+                        type="button"
+                        onClick={handleAddDrop}
+                        className="w-full py-3.5 bg-zinc-900/50 hover:bg-lime-400/10 border border-dashed border-zinc-800 hover:border-lime-400/40 text-zinc-300 hover:text-lime-400 rounded-2xl flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider transition-all active:scale-[0.99] group"
+                    >
+                        <Plus size={16} className="text-zinc-400 group-hover:text-lime-400 transition-colors" />
+                        {t('addDrop')}
+                    </button>
+                </div>
 
-                    {/* Summary Info */}
-                    <div className="my-4 bg-zinc-950/40 border border-zinc-800/40 p-3 rounded-2xl flex items-start gap-2.5">
-                        <AlertCircle size={15} className="text-lime-400 flex-shrink-0 mt-0.5" />
-                        <div className="text-[10px] text-zinc-400 font-bold leading-normal">
-                            <span>Série totalizando <strong>{drops.length} drops</strong> com cargas de: </span>
-                            <span className="text-lime-400 italic block mt-0.5">
-                                {drops.map(d => `${d.weight}kg`).join(' ➔ ')}
-                            </span>
-                        </div>
+                {/* Visual Summary Progression */}
+                <div className="bg-zinc-900/80 border border-zinc-800/80 p-3.5 rounded-2xl flex flex-col gap-2">
+                    <span className="text-[10px] font-bold uppercase text-zinc-400 tracking-wider">
+                        {t('summaryText', { count: drops.length })}
+                    </span>
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                        {drops.map((d, i) => (
+                            <React.Fragment key={i}>
+                                <span className={`px-2.5 py-1 rounded-xl text-xs font-black tracking-tight ${
+                                    i === 0
+                                        ? 'bg-lime-400/20 text-lime-300 border border-lime-400/30'
+                                        : 'bg-zinc-800/80 text-zinc-300 border border-zinc-700/40'
+                                }`}>
+                                    {d.weight}kg <span className="text-zinc-500 font-medium">×</span> {d.reps}
+                                </span>
+                                {i < drops.length - 1 && (
+                                    <ArrowRight size={12} className="text-zinc-600 flex-shrink-0" />
+                                )}
+                            </React.Fragment>
+                        ))}
                     </div>
+                </div>
 
-                    {/* Action buttons */}
-                    <div className="grid grid-cols-2 gap-3 pt-2 border-t border-zinc-800/50">
-                        <button
-                            type="button"
-                            onClick={handleClear}
-                            className="py-3.5 bg-zinc-800 hover:bg-zinc-700 hover:text-white text-zinc-400 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all"
-                        >
-                            Limpar Dropset
-                        </button>
-                        <button
-                            type="button"
-                            onClick={handleConfirm}
-                            className="py-3.5 bg-lime-400 text-zinc-950 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-lime-500 hover:shadow-lg hover:shadow-lime-500/10 transition-all active:scale-[0.98]"
-                        >
-                            Confirmar
-                        </button>
-                    </div>
-                </motion.div>
+                {/* Action buttons */}
+                <div className="grid grid-cols-2 gap-3 pt-2 border-t border-zinc-800/60 mt-1">
+                    <button
+                        type="button"
+                        onClick={handleClear}
+                        className="py-3.5 bg-zinc-900 hover:bg-zinc-800 text-zinc-400 hover:text-white border border-zinc-800 rounded-2xl text-xs font-bold uppercase tracking-wider transition-all active:scale-[0.98]"
+                    >
+                        {t('clear')}
+                    </button>
+                    <button
+                        type="button"
+                        onClick={handleConfirm}
+                        className="py-3.5 bg-lime-400 text-zinc-950 font-black rounded-2xl text-xs uppercase tracking-wider hover:bg-lime-300 hover:shadow-lg hover:shadow-lime-400/20 transition-all active:scale-[0.98]"
+                    >
+                        {t('confirm')}
+                    </button>
+                </div>
             </div>
-        </AnimatePresence>
+        </Modal>
     );
 }

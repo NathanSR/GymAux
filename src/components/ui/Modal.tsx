@@ -47,7 +47,11 @@ export function Modal({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={onClose}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onClose();
+            }}
             className="absolute inset-0 bg-black/60 backdrop-blur-sm"
           />
           <motion.div
@@ -64,7 +68,12 @@ export function Modal({
               <div className="p-6 border-b border-slate-100 dark:border-white/5 flex items-center justify-between">
                 <h2 className="text-xl font-bold">{title}</h2>
                 <button
-                  onClick={onClose}
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    onClose();
+                  }}
                   className="p-2 hover:bg-slate-100 dark:hover:bg-white/5 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50"
                   aria-label="Close modal"
                 >
