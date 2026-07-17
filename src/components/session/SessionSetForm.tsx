@@ -25,6 +25,11 @@ interface SessionSetFormProps {
     setWatchValues: (watchFn: () => { weight: number; reps: number; rpe: number; dropset?: { reps: number; weight: number }[] }) => void;
     lastWeightUsed?: number | null;
     onSubstituteExercise: () => void;
+    onOpenStandaloneTimer?: () => void;
+    currentRestDuration?: number;
+    onUpdateRestDuration?: (seconds: number) => void;
+    isActionsOpen?: boolean;
+    onActionsOpenChange?: (open: boolean) => void;
 }
 
 export function SessionSetForm({
@@ -41,12 +46,26 @@ export function SessionSetForm({
     onForceFinishWorkout,
     setWatchValues,
     lastWeightUsed,
-    onSubstituteExercise
+    onSubstituteExercise,
+    onOpenStandaloneTimer,
+    currentRestDuration,
+    onUpdateRestDuration,
+    isActionsOpen: controlledActionsOpen,
+    onActionsOpenChange
 }: SessionSetFormProps) {
     const t = useTranslations('Session');
 
     const [isDropsetOpen, setIsDropsetOpen] = useState(false);
-    const [isActionsOpen, setIsActionsOpen] = useState(false);
+    const [internalActionsOpen, setInternalActionsOpen] = useState(false);
+
+    const isActionsOpen = controlledActionsOpen !== undefined ? controlledActionsOpen : internalActionsOpen;
+    const setIsActionsOpen = (open: boolean) => {
+        if (onActionsOpenChange) {
+            onActionsOpenChange(open);
+        } else {
+            setInternalActionsOpen(open);
+        }
+    };
     const [dropset, setDropset] = useState<{ reps: number; weight: number }[] | null>(null);
 
     const { register, handleSubmit, setValue, control } = useForm({
@@ -310,6 +329,9 @@ export function SessionSetForm({
                 onForceFinishWorkout={onForceFinishWorkout}
                 isGroupAlternating={isGroupAlternating}
                 onSubstituteExercise={onSubstituteExercise}
+                onOpenStandaloneTimer={onOpenStandaloneTimer}
+                currentRestDuration={currentRestDuration}
+                onUpdateRestDuration={onUpdateRestDuration}
             />
 
             {/* Submit / Confirm & Actions side-by-side */}

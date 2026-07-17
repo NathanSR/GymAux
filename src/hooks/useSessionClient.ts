@@ -241,6 +241,29 @@ export function useSessionClient({ initialSession, isReadOnly = false, watchValu
         synchronizeProgress(newSession);
     }, [session, currentExercise, currentGroup, currentGroupIndex, currentExerciseIndex, synchronizeProgress]);
 
+    const handleUpdateRestDuration = useCallback((seconds: number) => {
+        setRestDuration(seconds);
+        if (!session || !currentExercise || !currentGroup) return;
+
+        const newSession = { ...session };
+        const group = newSession.exercisesToDo[currentGroupIndex];
+        if (group) {
+            if (group.groupType === 'straight') {
+                const ex = group.exercises[currentExerciseIndex];
+                if (ex) {
+                    ex.sets.forEach(s => {
+                        s.restTime = seconds;
+                    });
+                }
+            } else {
+                group.restAfterGroup = seconds;
+            }
+        }
+
+        setSession(newSession);
+        synchronizeProgress(newSession);
+    }, [session, currentExercise, currentGroup, currentGroupIndex, currentExerciseIndex, synchronizeProgress]);
+
     const lastWeightUsed = useMemo(() => {
         if (!currentExercise) return null;
 
@@ -271,6 +294,7 @@ export function useSessionClient({ initialSession, isReadOnly = false, watchValu
         showInstructions,
         setShowInstructions,
         restDuration,
+        setRestDuration,
         currentGroupIndex,
         currentExerciseIndex,
         currentSetIndex,
@@ -287,6 +311,7 @@ export function useSessionClient({ initialSession, isReadOnly = false, watchValu
         exitSession,
         synchronizeProgress,
         lastWeightUsed,
-        handleSubstituteExercise
+        handleSubstituteExercise,
+        handleUpdateRestDuration
     };
 }

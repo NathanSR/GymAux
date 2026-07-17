@@ -1,4 +1,4 @@
-import { ChevronLeft, List } from 'lucide-react';
+import { ChevronLeft, List, Timer } from 'lucide-react';
 import { Session } from '@/config/types';
 
 interface SessionHeaderProps {
@@ -6,9 +6,10 @@ interface SessionHeaderProps {
     currentGroupIndex: number;
     onExit: () => void;
     onOpenPreview: () => void;
+    onOpenTimer?: () => void;
 }
 
-export function SessionHeader({ session, currentGroupIndex, onExit, onOpenPreview }: SessionHeaderProps) {
+export function SessionHeader({ session, currentGroupIndex, onExit, onOpenPreview, onOpenTimer }: SessionHeaderProps) {
     return (
         <header className="px-5 pt-8 pb-2.5 flex items-center justify-between z-10 sticky top-0 bg-zinc-950/90 backdrop-blur-xl border-b border-white/5">
             <button
@@ -37,12 +38,24 @@ export function SessionHeader({ session, currentGroupIndex, onExit, onOpenPrevie
                 </div>
             </div>
 
-            <button
-                onClick={onOpenPreview}
-                className="p-2 bg-zinc-900 rounded-xl border border-zinc-800 text-lime-400 hover:bg-lime-400/10 active:scale-95 transition-all"
-            >
-                <List size={20} />
-            </button>
+            <div className="flex items-center gap-1.5">
+                {onOpenTimer && (
+                    <button
+                        type="button"
+                        onClick={onOpenTimer}
+                        className="p-2 bg-zinc-900 rounded-xl border border-zinc-800 text-lime-400 hover:bg-lime-400/10 active:scale-95 transition-all"
+                        title="Cronômetro / Temporizador"
+                    >
+                        <Timer size={20} />
+                    </button>
+                )}
+                <button
+                    onClick={onOpenPreview}
+                    className="p-2 bg-zinc-900 rounded-xl border border-zinc-800 text-lime-400 hover:bg-lime-400/10 active:scale-95 transition-all"
+                >
+                    <List size={20} />
+                </button>
+            </div>
         </header>
     );
 }

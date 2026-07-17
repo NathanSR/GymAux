@@ -2,15 +2,18 @@
 
 import { useEffect, useState, useRef } from "react";
 import { useTranslations } from 'next-intl';
+import { Plus, Minus } from 'lucide-react';
 
 interface RestTimerProps {
     seconds: number;
     onFinish: () => void;
+    onAdjustTime?: (additionalSeconds: number) => void;
 }
 
-export const RestTimer = ({ seconds, onFinish }: RestTimerProps) => {
+export const RestTimer = ({ seconds, onFinish, onAdjustTime }: RestTimerProps) => {
     const t = useTranslations('RestTimer');
     const [timeLeft, setTimeLeft] = useState(seconds);
+    const [totalSeconds, setTotalSeconds] = useState(seconds);
 
     const audioRef = useRef<HTMLAudioElement | null>(null);
 
@@ -18,6 +21,11 @@ export const RestTimer = ({ seconds, onFinish }: RestTimerProps) => {
         audioRef.current = new Audio('/sounds/3-2-1-ja.mp3');
         audioRef.current.load();
     }, []);
+
+    useEffect(() => {
+        setTimeLeft(seconds);
+        setTotalSeconds(seconds);
+    }, [seconds]);
 
     useEffect(() => {
         if (timeLeft === 3 && audioRef.current) {
@@ -33,14 +41,23 @@ export const RestTimer = ({ seconds, onFinish }: RestTimerProps) => {
         return () => clearInterval(timer);
     }, [timeLeft, onFinish]);
 
+    const handleAdjust = (delta: number) => {
+        const newTime = Math.max(1, timeLeft + delta);
+        setTimeLeft(newTime);
+        setTotalSeconds(prev => Math.max(newTime, prev + delta));
+        if (onAdjustTime) {
+            onAdjustTime(delta);
+        }
+    };
+
     const radius = 130;
     const circumference = 2 * Math.PI * radius;
-    const offset = circumference - (timeLeft / seconds) * circumference;
+    const offset = circumference - (timeLeft / Math.max(1, totalSeconds)) * circumference;
     const isEnding = timeLeft <= 3 && timeLeft > 0;
 
     return (
         <div className="overflow-x-hidden flex flex-col items-center justify-center p-4 sm:p-8 animate-in fade-in duration-700">
-            <div className="relative flex items-center justify-center mb-8 sm:mb-12 w-full max-w-[288px]">
+            <div className="relative flex items-center justify-center mb-6 sm:mb-8 w-full max-w-[288px]">
                 {isEnding && (
                     <div className="absolute inset-0 rounded-full border-4 border-lime-400/30 animate-ping" />
                 )}
@@ -83,7 +100,32 @@ export const RestTimer = ({ seconds, onFinish }: RestTimerProps) => {
                 </div>
             </div>
 
-            <div className="text-center space-y-2 mb-10">
+            {/* Quick Adjust Buttons */}
+            <div className="flex items-center gap-2 mb-6">
+                <button
+                    type="button"
+                    onClick={() => handleAdjust(-15)}
+                    className="px-3.5 py-2 bg-zinc-900 border border-zinc-800 hover:border-zinc-700 text-zinc-300 rounded-xl font-bold text-xs flex items-center gap-1 active:scale-95 transition-all shadow-md"
+                >
+                    <Minus size={12} /> 15s
+                </button>
+                <button
+                    type="button"
+                    onClick={() => handleAdjust(15)}
+                    className="px-3.5 py-2 bg-zinc-900 border border-zinc-800 hover:border-lime-500/40 text-lime-400 rounded-xl font-bold text-xs flex items-center gap-1 active:scale-95 transition-all shadow-md"
+                >
+                    <Plus size={12} /> 15s
+                </button>
+                <button
+                    type="button"
+                    onClick={() => handleAdjust(30)}
+                    className="px-3.5 py-2 bg-zinc-900 border border-zinc-800 hover:border-lime-500/40 text-lime-400 rounded-xl font-bold text-xs flex items-center gap-1 active:scale-95 transition-all shadow-md"
+                >
+                    <Plus size={12} /> 30s
+                </button>
+            </div>
+
+            <div className="text-center space-y-2 mb-8">
                 <h3 className="text-2xl font-black text-white uppercase tracking-tighter italic">
                     {t('restTime')}
                 </h3>

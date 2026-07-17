@@ -10,6 +10,7 @@ import { ExerciseInstructionModal } from '@/components/session/ExerciseInstructi
 import { motion, AnimatePresence } from 'framer-motion';
 import { SessionSubstituteModal } from './SessionSubstituteModal';
 import { ExerciseSelector } from '../exercises/ExerciseSelector';
+import { StandaloneTimerModal } from './StandaloneTimerModal';
 
 import { useSessionClient } from '../../hooks/useSessionClient';
 import { SessionHeader } from './SessionHeader';
@@ -28,6 +29,8 @@ export default function SessionClient({ initialSession, isReadOnly = false }: Se
 
     const [showSubstitute, setShowSubstitute] = useState(false);
     const [showFullSelector, setShowFullSelector] = useState(false);
+    const [showStandaloneTimer, setShowStandaloneTimer] = useState(false);
+    const [showActionsModal, setShowActionsModal] = useState(false);
 
     const {
         session,
@@ -53,7 +56,8 @@ export default function SessionClient({ initialSession, isReadOnly = false }: Se
         exitSession,
         synchronizeProgress,
         lastWeightUsed,
-        handleSubstituteExercise
+        handleSubstituteExercise,
+        handleUpdateRestDuration
     } = useSessionClient({
         initialSession,
         isReadOnly,
@@ -98,11 +102,17 @@ export default function SessionClient({ initialSession, isReadOnly = false }: Se
                             exerciseId={currentExercise?.exerciseId as number}
                         />
 
+                        <StandaloneTimerModal
+                            isOpen={showStandaloneTimer}
+                            onClose={() => setShowStandaloneTimer(false)}
+                        />
+
                         <SessionHeader
                             session={session}
                             currentGroupIndex={currentGroupIndex}
                             onExit={() => exitSession(session.id as string)}
                             onOpenPreview={() => setShowPreview(true)}
+                            onOpenTimer={() => setShowStandaloneTimer(true)}
                         />
 
                         <main className="flex-1 flex flex-col px-5 py-2 overflow-y-auto overflow-x-hidden scrollbar-hide">
@@ -116,6 +126,8 @@ export default function SessionClient({ initialSession, isReadOnly = false }: Se
                                 totalGroups={session.exercisesToDo.length}
                                 isGroupAlternating={isGroupAlternating}
                                 onOpenInstructions={() => setShowInstructions(true)}
+                                restDuration={restDuration}
+                                onOpenRestAdjust={() => setShowActionsModal(true)}
                             />
 
                             <AnimatePresence mode="wait">
@@ -130,6 +142,7 @@ export default function SessionClient({ initialSession, isReadOnly = false }: Se
                                         <RestTimer
                                             seconds={restDuration}
                                             onFinish={moveToNextStep}
+                                            onAdjustTime={(delta) => handleUpdateRestDuration(Math.max(1, restDuration + delta))}
                                         />
                                     </motion.div>
                                 ) : (
@@ -155,6 +168,11 @@ export default function SessionClient({ initialSession, isReadOnly = false }: Se
                                             setWatchValues={(watchFn) => { watchValuesRef.current = watchFn; }}
                                             lastWeightUsed={lastWeightUsed}
                                             onSubstituteExercise={() => setShowSubstitute(true)}
+                                            onOpenStandaloneTimer={() => setShowStandaloneTimer(true)}
+                                            currentRestDuration={restDuration}
+                                            onUpdateRestDuration={handleUpdateRestDuration}
+                                            isActionsOpen={showActionsModal}
+                                            onActionsOpenChange={setShowActionsModal}
                                         />
                                     </motion.div>
                                 )}
