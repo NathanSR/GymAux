@@ -3,24 +3,28 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Dumbbell, Sparkles } from 'lucide-react';
-
-const MOTIVATIONAL_QUOTES = [
-    "Sem atalhos, apenas constância.",
-    "Sua única competição é quem você foi ontem.",
-    "Cada repetição aproxima você do seu objetivo.",
-    "Foco no processo, o resultado é consequência.",
-    "Disciplina é fazer o que precisa ser feito.",
-    "Treine a sua mente e o seu corpo acompanhará.",
-    "O melhor treino é aquele que você faz."
-];
+import { useTranslations } from 'next-intl';
 
 export function AppSplashScreen({ onFinish }: { onFinish?: () => void }) {
+    const t = useTranslations('SplashScreen');
     const [quote, setQuote] = useState('');
     const [isVisible, setIsVisible] = useState(true);
 
     useEffect(() => {
-        // Pick random motivational quote
-        const randomQuote = MOTIVATIONAL_QUOTES[Math.floor(Math.random() * MOTIVATIONAL_QUOTES.length)];
+        let quotesArray: string[] = [];
+        try {
+            const rawQuotes = t.raw('quotes');
+            if (Array.isArray(rawQuotes) && rawQuotes.length > 0) {
+                quotesArray = rawQuotes;
+            }
+        } catch {
+            quotesArray = [
+                "Sem atalhos, apenas constância.",
+                "Sua única competição é quem você foi ontem."
+            ];
+        }
+
+        const randomQuote = quotesArray[Math.floor(Math.random() * quotesArray.length)];
         setQuote(randomQuote);
 
         // Hide splash screen after 1.8s
@@ -30,7 +34,7 @@ export function AppSplashScreen({ onFinish }: { onFinish?: () => void }) {
         }, 1800);
 
         return () => clearTimeout(timer);
-    }, [onFinish]);
+    }, [onFinish, t]);
 
     return (
         <AnimatePresence>
@@ -46,7 +50,7 @@ export function AppSplashScreen({ onFinish }: { onFinish?: () => void }) {
 
                     <div className="w-full flex justify-end">
                         <span className="text-[10px] uppercase tracking-widest text-zinc-600 font-bold flex items-center gap-1">
-                            <Sparkles className="w-3 h-3 text-lime-400" /> Offline Native Engine
+                            <Sparkles className="w-3 h-3 text-lime-400" /> {t('engineLabel')}
                         </span>
                     </div>
 
@@ -101,7 +105,7 @@ export function AppSplashScreen({ onFinish }: { onFinish?: () => void }) {
                         </div>
 
                         <span className="text-[11px] text-zinc-500 font-mono tracking-wider">
-                            MEU TREINO DIÁRIO
+                            {t('subtitle')}
                         </span>
                     </div>
                 </motion.div>

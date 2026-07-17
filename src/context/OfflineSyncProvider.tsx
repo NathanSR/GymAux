@@ -5,7 +5,10 @@ import { SyncManager } from '@/services/syncManager';
 import { toast } from 'react-toastify';
 import { InstallPromptBanner } from '@/components/pwa/InstallPromptBanner';
 
+import { useTranslations } from 'next-intl';
+
 export function OfflineSyncProvider({ children }: { children: React.ReactNode }) {
+    const t = useTranslations('OfflineSync');
     const toastIdRef = useRef<string | number | null>(null);
 
     useEffect(() => {
@@ -29,7 +32,7 @@ export function OfflineSyncProvider({ children }: { children: React.ReactNode })
 
                 if (pendingBefore > 0) {
                     const syncingToastId = toast.loading(
-                        `Sincronizando ${pendingBefore} alteração(ões)...`,
+                        t('syncing', { count: pendingBefore }),
                         {
                             style: { background: '#27272a', color: '#fff', borderRadius: '16px', fontSize: '14px' }
                         }
@@ -41,7 +44,7 @@ export function OfflineSyncProvider({ children }: { children: React.ReactNode })
 
                     if (pendingAfter === 0) {
                         toast.update(syncingToastId, {
-                            render: 'Tudo sincronizado! ✓',
+                            render: t('synced'),
                             type: 'success',
                             isLoading: false,
                             autoClose: 2500,
@@ -49,7 +52,7 @@ export function OfflineSyncProvider({ children }: { children: React.ReactNode })
                         });
                     } else {
                         toast.update(syncingToastId, {
-                            render: `${pendingAfter} item(ns) pendente(s). Tentando novamente em breve.`,
+                            render: t('pending', { count: pendingAfter }),
                             type: 'warning',
                             isLoading: false,
                             autoClose: 4000,
@@ -57,7 +60,7 @@ export function OfflineSyncProvider({ children }: { children: React.ReactNode })
                         });
                     }
                 } else {
-                    toast.success('Você está online novamente!', {
+                    toast.success(t('backOnline'), {
                         autoClose: 2000,
                         style: { background: '#27272a', color: '#4ade80', borderRadius: '16px', fontSize: '14px' }
                     });
@@ -69,7 +72,7 @@ export function OfflineSyncProvider({ children }: { children: React.ReactNode })
 
         const handleOffline = () => {
             console.log('[OfflineSyncProvider] You are currently offline. Changes will be saved locally.');
-            toastIdRef.current = toast.info('Você está offline. Alterações salvas localmente.', {
+            toastIdRef.current = toast.info(t('offlineNotice'), {
                 autoClose: 3000,
                 hideProgressBar: false,
                 closeOnClick: true,
@@ -103,7 +106,7 @@ export function OfflineSyncProvider({ children }: { children: React.ReactNode })
             window.removeEventListener('offline', handleOffline);
             document.removeEventListener('visibilitychange', handleVisibilityChange);
         };
-    }, []);
+    }, [t]);
 
     return (
         <>

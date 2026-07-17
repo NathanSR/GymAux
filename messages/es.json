@@ -1625,10 +1625,40 @@
   },
   "PWAInstall": {
     "installButton": "Instalar App",
+    "title": "Instalar GymAux",
+    "description": "¡Descarga la aplicación en tu computadora o teléfono para usarla 100% offline en cualquier momento!",
+    "installDesktop": "Instalar en el Escritorio",
+    "notNow": "Ahora no",
     "iosTitle": "Instalar en iPhone",
     "iosStep1": "Pulsa",
     "iosStep2": "luego",
     "iosStep3": "\"Añadir a pantalla de inicio\""
+  },
+  "OfflineFallback": {
+    "title": "Estás sin conexión",
+    "description": "Esta página aún no se ha guardado en tu dispositivo, ¡pero todos tus entrenamientos e historial guardados siguen totalmente accesibles!",
+    "retry": "Reintentar",
+    "goToWorkouts": "Ir a Mis Entrenamientos"
+  },
+  "SplashScreen": {
+    "engineLabel": "Motor Nativo Offline",
+    "subtitle": "MI ENTRENAMIENTO DIARIO",
+    "quotes": [
+      "Sin atajos, solo constancia.",
+      "Tu única competencia es quien eras ayer.",
+      "Cada repetición te acerca a tu objetivo.",
+      "Enfócate en el proceso, los resultados seguirán.",
+      "Disciplina es hacer lo que hay que hacer.",
+      "Entrena tu mente y tu cuerpo la seguirá.",
+      "El mejor entrenamiento es el que completas."
+    ]
+  },
+  "OfflineSync": {
+    "syncing": "Sincronizando {count} cambio(s)...",
+    "synced": "¡Todo sincronizado! ✓",
+    "pending": "{count} elemento(s) pendiente(s). Reintentando pronto.",
+    "backOnline": "¡Estás en línea de nuevo!",
+    "offlineNotice": "Estás sin conexión. Cambios guardados localmente."
   },
   "Marketing": {
     "Features": {

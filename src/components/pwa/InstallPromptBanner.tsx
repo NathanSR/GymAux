@@ -1,9 +1,11 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Download, X, Laptop, Smartphone, CheckCircle2 } from 'lucide-react';
+import { Download, X } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 export function InstallPromptBanner() {
+    const t = useTranslations('PWAInstall');
     const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
     const [isVisible, setIsVisible] = useState(false);
     const [isInstalled, setIsInstalled] = useState(false);
@@ -68,7 +70,7 @@ export function InstallPromptBanner() {
                 <button
                     onClick={handleDismiss}
                     className="absolute top-3 right-3 text-zinc-400 hover:text-white p-1 rounded-lg hover:bg-zinc-800 transition-colors"
-                    aria-label="Fechar"
+                    aria-label={t('notNow')}
                 >
                     <X className="w-4 h-4" />
                 </button>
@@ -79,10 +81,10 @@ export function InstallPromptBanner() {
                     </div>
                     <div className="pr-6">
                         <h4 className="font-semibold text-sm text-white flex items-center gap-1.5">
-                            Instalar o GymAux
+                            {t('title')}
                         </h4>
                         <p className="text-xs text-zinc-400 mt-0.5 leading-relaxed">
-                            Baixe o app no seu computador ou celular para usar <strong className="text-zinc-200 font-medium">100% offline</strong> a qualquer momento!
+                            {t('description')}
                         </p>
                     </div>
                 </div>
@@ -93,13 +95,13 @@ export function InstallPromptBanner() {
                         className="flex-1 py-2.5 px-4 bg-lime-400 hover:bg-lime-300 text-zinc-950 text-xs font-bold rounded-xl flex items-center justify-center gap-2 transition-all shadow-md shadow-lime-400/20 active:scale-[0.98] cursor-pointer"
                     >
                         <Download className="w-3.5 h-3.5" />
-                        Instalar na Área de Trabalho
+                        {t('installDesktop')}
                     </button>
                     <button
                         onClick={handleDismiss}
                         className="py-2.5 px-3 text-xs text-zinc-400 hover:text-white hover:bg-zinc-800 rounded-xl transition-colors font-medium cursor-pointer"
                     >
-                        Agora não
+                        {t('notNow')}
                     </button>
                 </div>
             </div>
