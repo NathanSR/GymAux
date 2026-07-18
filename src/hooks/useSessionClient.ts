@@ -56,6 +56,14 @@ export function useSessionClient({ initialSession, isReadOnly = false, watchValu
     useEffect(() => {
         window.history.pushState(null, '', window.location.href);
         const handleBackButton = (event: PopStateEvent) => {
+            if (event.state && (event.state.__modalId || event.state.__drawerId)) {
+                return;
+            }
+            const hasOverlayOpen = showPreview || document.querySelector('[role="dialog"]:not([data-state="closed"])') !== null;
+            if (hasOverlayOpen) {
+                return;
+            }
+
             event.preventDefault();
             if (session.id) exitSession(session.id);
             window.history.pushState(null, '', window.location.href);
@@ -64,7 +72,7 @@ export function useSessionClient({ initialSession, isReadOnly = false, watchValu
         return () => {
             window.removeEventListener('popstate', handleBackButton);
         };
-    }, [session.id, exitSession]);
+    }, [session.id, exitSession, showPreview]);
 
     const synchronizeProgress = useCallback(async (newSession: Session) => {
         if (!newSession.id) return;

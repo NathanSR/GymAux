@@ -1,4 +1,4 @@
-import { Info, Zap, Layers, RefreshCcw, Activity, Play } from 'lucide-react';
+import { Info, Zap, Layers, RefreshCcw, Activity, Play, Repeat } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Modal } from '@/components/ui/Modal';
 
@@ -15,6 +15,7 @@ export const GroupTypeHelpModal = ({ isOpen, onClose }: {
         { id: 'tri_set', icon: Layers, color: 'text-orange-500 dark:text-orange-400', bg: 'bg-orange-500/10 dark:bg-orange-500/20' },
         { id: 'giant_set', icon: Activity, color: 'text-red-500 dark:text-red-400', bg: 'bg-red-500/10 dark:bg-red-500/20' },
         { id: 'circuit', icon: RefreshCcw, color: 'text-lime-500 dark:text-lime-400', bg: 'bg-lime-500/10 dark:bg-lime-500/20' },
+        { id: 'superset', icon: Repeat, color: 'text-purple-500 dark:text-purple-400', bg: 'bg-purple-500/10 dark:bg-purple-500/20' },
     ];
 
     return (

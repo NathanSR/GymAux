@@ -1322,7 +1322,8 @@
       "bi_set": "Bi-Serie",
       "tri_set": "Tri-Serie",
       "giant_set": "Serie Gigante",
-      "circuit": "Circuito"
+      "circuit": "Circuito",
+      "superset": "Súper Serie"
     },
     "groupTypesHelp": {
       "title": "Grupos de Ejercicios",
@@ -1331,6 +1332,7 @@
       "tri_set": "Tres ejercicios seguidos. Haz uno tras otro sin parar. El descanso viene sólo después del tercer ejercicio.",
       "giant_set": "Un maratón de 4 o más ejercicios para el mismo músculo. Ve rápido entre ellos y descansa al final.",
       "circuit": "Una secuencia de varios ejercicios diferentes. ¡Ideal para quemar calorías y mantener el ritmo alto!",
+      "superset": "Combina dos ejercicios para músculos opuestos o complementarios con descanso reducido.",
       "gotIt": "Entendido"
     },
     "restAfterGroup": "Descanso tras Grupo (s)",
@@ -1342,8 +1344,15 @@
       "normal": "Normal",
       "drop_set": "Drop Set",
       "rest_pause": "Rest Pause",
+      "forced_reps": "Reps Forzadas",
+      "negative": "Negativa",
+      "isometric": "Isométrica",
+      "tempo": "Tempo",
+      "cluster": "Cluster",
       "to_failure": "Al Fallo"
     },
+    "confirmAdd": "Guardar / Confirmar",
+    "configureGroup": "Configurar Grupo",
     "addSet": "Añadir Serie",
     "programming": "Programación",
     "groupsCount": "{count, plural, =0 {Sin Grupos} =1 {# Grupo} other {# Grupos}}",
@@ -1353,6 +1362,11 @@
       "normal": "N",
       "drop_set": "DS",
       "rest_pause": "RP",
+      "forced_reps": "RF",
+      "negative": "NEG",
+      "isometric": "ISO",
+      "tempo": "T",
+      "cluster": "C",
       "to_failure": "F"
     },
     "confirmTypeChange": "¿Cambiar tipo de grupo?",

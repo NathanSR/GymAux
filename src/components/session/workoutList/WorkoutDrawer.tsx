@@ -6,7 +6,7 @@ import { Session } from '@/config/types';
 import { WorkoutDrawerHeader } from './WorkoutDrawerHeader';
 import { WorkoutDrawerTodoList } from './WorkoutDrawerTodoList';
 import { WorkoutDrawerDoneList } from './WorkoutDrawerDoneList';
-import { WorkoutDrawerForm } from './WorkoutDrawerForm';
+import ExerciseConfigModal from '@/components/workouts/ExerciseConfigModal';
 import { useWorkoutDrawer } from '@/hooks/useWorkoutDrawer';
 import { Drawer } from '@/components/ui/Drawer';
 
@@ -54,6 +54,19 @@ export const WorkoutDrawer = ({
     const hasDoneExercises = doneGroups.some(g => g && g.exercises && g.exercises.length > 0);
     const currentGroupIndex = session.current?.groupIndex || 0;
 
+    const handleSaveGroup = (updatedGroup: any) => {
+        const updatedGroups = [...(session.exercisesToDo || [])];
+        if (editingGroupIdx !== null && updatedGroups[editingGroupIdx]) {
+            updatedGroups[editingGroupIdx] = updatedGroup;
+        } else {
+            updatedGroups.push(updatedGroup);
+        }
+        setSession({ ...session, exercisesToDo: updatedGroups });
+        syncSession();
+        setIsFormOpen(false);
+        setEditingGroupIdx(null);
+    };
+
     return (
         <Drawer
             isOpen={showPreview}
@@ -97,16 +110,14 @@ export const WorkoutDrawer = ({
                 )}
             </div>
 
-            <WorkoutDrawerForm
-                session={session}
-                setSession={setSession}
-                syncSession={syncSession}
-                isFormOpen={isFormOpen}
-                setIsFormOpen={setIsFormOpen}
-                editingGroupIdx={editingGroupIdx}
-                setEditingGroupIdx={setEditingGroupIdx}
-                t={t}
-                te={te}
+            <ExerciseConfigModal
+                isOpen={isFormOpen}
+                onClose={() => {
+                    setIsFormOpen(false);
+                    setEditingGroupIdx(null);
+                }}
+                groupData={editingGroupIdx !== null ? groups[editingGroupIdx] : null}
+                onSave={handleSaveGroup}
             />
         </Drawer>
     );

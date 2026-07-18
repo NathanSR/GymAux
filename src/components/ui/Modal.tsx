@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 import { cn } from '@/utils/cn';
@@ -22,8 +23,14 @@ export function Modal({
   maxWidth = 'max-w-xl',
   className = ''
 }: ModalProps) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const modalIdRef = React.useRef<string>(`modal-${Math.random().toString(36).substring(2, 9)}`);
+  const containerRef = React.useRef<HTMLDivElement>(null);
   const isPushedRef = React.useRef(false);
   const isPopStateTriggeredRef = React.useRef(false);
   const onCloseRef = React.useRef(onClose);
@@ -46,6 +53,10 @@ export function Modal({
 
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
+        const dialogs = document.querySelectorAll('[role="dialog"]:not([data-state="closed"])');
+        const isTopmost = dialogs.length === 0 || dialogs[dialogs.length - 1] === containerRef.current;
+        if (!isTopmost) return;
+
         e.preventDefault();
         e.stopPropagation();
         e.stopImmediatePropagation();
@@ -53,7 +64,11 @@ export function Modal({
       }
     };
 
-    const handlePopState = () => {
+    const handlePopState = (e: PopStateEvent) => {
+      // Se a navegação retornou para o histórico DESTE modal, ele deve PERMANECER aberto!
+      if (e.state && e.state.__modalId === modalId) {
+        return;
+      }
       isPopStateTriggeredRef.current = true;
       isPushedRef.current = false;
       onCloseRef.current();
@@ -74,18 +89,22 @@ export function Modal({
     };
   }, [isOpen]);
 
-  return (
+  if (!mounted) return null;
+
+  return createPortal(
     <AnimatePresence>
       {isOpen && (
-        <div role="dialog" aria-modal="true" data-overlay="true" data-state={isOpen ? 'open' : 'closed'} className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+        <div ref={containerRef} role="dialog" aria-modal="true" data-overlay="true" data-state={isOpen ? 'open' : 'closed'} className="fixed inset-0 z-[150] flex items-center justify-center p-4">
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              onClose();
+              if (e.target === e.currentTarget) {
+                e.preventDefault();
+                e.stopPropagation();
+                onClose();
+              }
             }}
             className="absolute inset-0 bg-black/60 backdrop-blur-sm"
           />
@@ -122,6 +141,7 @@ export function Modal({
           </motion.div>
         </div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 }

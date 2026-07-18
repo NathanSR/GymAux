@@ -1322,7 +1322,8 @@
       "bi_set": "Bi-Set",
       "tri_set": "Tri-Set",
       "giant_set": "Giant Set",
-      "circuit": "Circuit"
+      "circuit": "Circuit",
+      "superset": "Superset"
     },
     "groupTypesHelp": {
       "title": "Exercise Groups",
@@ -1331,6 +1332,7 @@
       "tri_set": "Three exercises in a row. Do them one after another without stopping. Take your rest after the third one.",
       "giant_set": "A marathon of 4 or more exercises for the same area. Move quickly between them and rest at the very end.",
       "circuit": "A 'round' of several different exercises. Good for burning calories and keeping your heart rate up!",
+      "superset": "Combines two antagonist or complementary exercises with minimal rest in between.",
       "gotIt": "Got it"
     },
     "restAfterGroup": "Rest After Group (s)",
@@ -1342,8 +1344,15 @@
       "normal": "Normal",
       "drop_set": "Drop Set",
       "rest_pause": "Rest Pause",
+      "forced_reps": "Forced Reps",
+      "negative": "Negative",
+      "isometric": "Isometric",
+      "tempo": "Tempo",
+      "cluster": "Cluster",
       "to_failure": "Failure"
     },
+    "confirmAdd": "Save / Confirm",
+    "configureGroup": "Configure Group",
     "addSet": "Add Set",
     "programming": "Programming",
     "groupsCount": "{count, plural, =0 {No Groups} =1 {# Group} other {# Groups}}",
@@ -1353,6 +1362,11 @@
       "normal": "N",
       "drop_set": "DS",
       "rest_pause": "RP",
+      "forced_reps": "FR",
+      "negative": "NEG",
+      "isometric": "ISO",
+      "tempo": "T",
+      "cluster": "C",
       "to_failure": "F"
     },
     "confirmTypeChange": "Change group type?",

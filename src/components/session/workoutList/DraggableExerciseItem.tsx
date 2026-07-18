@@ -153,7 +153,12 @@ export const DraggableExerciseItem = ({
                 {!isCompleted && !isOverlay && (
                     <div className="flex items-center gap-1 flex-shrink-0">
                         <button
-                            onClick={() => onEdit(group, idx)}
+                            type="button"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                e.preventDefault();
+                                onEdit(group, idx);
+                            }}
                             className="p-3 text-zinc-400 hover:text-lime-600 dark:hover:text-lime-400 active:scale-90 transition-all cursor-pointer"
                         >
                             <Pencil size={18} />

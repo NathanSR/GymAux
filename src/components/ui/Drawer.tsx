@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence, useDragControls, PanInfo } from 'framer-motion';
 import { X, ChevronDown, ArrowLeft, Maximize2, Minimize2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -98,8 +99,13 @@ export function Drawer({
   onExpandedChange,
 }: DrawerProps) {
   const t = useTranslations('Drawer');
+  const [mounted, setMounted] = useState(false);
   const [internalExpanded, setInternalExpanded] = useState(false);
   const dragControls = useDragControls();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const isExpanded = controlledExpanded !== undefined ? controlledExpanded : internalExpanded;
 
@@ -119,6 +125,7 @@ export function Drawer({
     drawerIdRef.current = 'drawer-' + Math.random().toString(36).substring(2, 9);
   }
   const drawerId = drawerIdRef.current;
+  const containerRef = React.useRef<HTMLDivElement>(null);
   const isPopStateTriggeredRef = React.useRef(false);
   const isPushedRef = React.useRef(false);
 
@@ -154,6 +161,10 @@ export function Drawer({
 
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
+        const dialogs = document.querySelectorAll('[role="dialog"]:not([data-state="closed"])');
+        const isTopmost = dialogs.length === 0 || dialogs[dialogs.length - 1] === containerRef.current;
+        if (!isTopmost) return;
+
         e.preventDefault();
         e.stopPropagation();
         e.stopImmediatePropagation();
@@ -165,7 +176,13 @@ export function Drawer({
       }
     };
 
-    const handlePopState = () => {
+    const handlePopState = (e: PopStateEvent) => {
+      if (e.state && e.state.__modalId) {
+        return;
+      }
+      if (e.state && e.state.__drawerId === drawerId) {
+        return;
+      }
       isPopStateTriggeredRef.current = true;
       isPushedRef.current = false;
       if (isExpandedRef.current) {
@@ -220,10 +237,12 @@ export function Drawer({
 
   const sideVariant = variants[side];
 
-  return (
+  if (!mounted) return null;
+
+  return createPortal(
     <AnimatePresence>
       {isOpen && (
-        <div role="dialog" aria-modal="true" data-overlay="true" data-state={isOpen ? 'open' : 'closed'} className="fixed inset-0 z-[100] flex items-center justify-center">
+        <div ref={containerRef} role="dialog" aria-modal="true" data-overlay="true" data-state={isOpen ? 'open' : 'closed'} className="fixed inset-0 z-[100] flex items-center justify-center">
           {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
@@ -340,6 +359,7 @@ export function Drawer({
           </motion.div>
         </div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 }

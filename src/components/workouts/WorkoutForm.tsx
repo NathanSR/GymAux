@@ -15,6 +15,8 @@ import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSo
 
 import SortableGroupItem from './SortableGroupItem';
 
+import ExerciseConfigModal from './ExerciseConfigModal';
+
 interface WorkoutFormProps {
     initialData?: any;
     availableExercises: Exercise[];
@@ -42,7 +44,7 @@ function InsertionPoint({ onClick, isVisible = true }: { onClick: () => void, is
                     e.stopPropagation();
                     onClick();
                 }}
-                className="pointer-events-auto w-7 h-7 rounded-full bg-zinc-100/50 dark:bg-zinc-800/30 border border-zinc-200 dark:border-zinc-700 flex items-center justify-center text-zinc-400 dark:text-zinc-500 hover:text-lime-500 transition-all duration-300 shadow-sm"
+                className="pointer-events-auto w-7 h-7 rounded-full bg-zinc-100/50 dark:bg-zinc-800/30 border border-zinc-500 dark:border-zinc-500 flex items-center justify-center text-zinc-500 dark:text-zinc-500 hover:text-lime-500 transition-all duration-300 shadow-sm"
             >
                 <Plus size={16} strokeWidth={2} />
             </motion.button>
@@ -69,9 +71,14 @@ export default function WorkoutForm({ initialData, availableExercises = [], onSu
         name: "exercises"
     });
 
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isSelectorOpen, setIsSelectorOpen] = useState(false);
     const [isQuickDrawerOpen, setIsQuickDrawerOpen] = useState(false);
     const [isHelpOpen, setIsHelpOpen] = useState(false);
+
+    // Modal de Configuração de Exercício
+    const [configModalIndex, setConfigModalIndex] = useState<number | null>(null);
+    const [isConfigModalOpen, setIsConfigModalOpen] = useState(false);
+
     const [targetGroupIndex, setTargetGroupIndex] = useState<number | null>(null);
     const [targetExerciseIndex, setTargetExerciseIndex] = useState<number | null>(null);
     const [confirmModal, setConfirmModal] = useState<{
@@ -93,18 +100,24 @@ export default function WorkoutForm({ initialData, availableExercises = [], onSu
         useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
     );
 
-    const openSelectorFor = (grpIdx: number | null, exIdx: number | null = null) => {
-        setTargetGroupIndex(grpIdx);
-        setTargetExerciseIndex(exIdx);
-        setInsertionIndex(null);
-        setIsModalOpen(true);
-    };
-
     const openSelectorForInsertion = (index: number) => {
         setTargetGroupIndex(null);
         setTargetExerciseIndex(null);
         setInsertionIndex(index);
-        setIsModalOpen(true);
+        setIsSelectorOpen(true);
+    };
+
+    const openConfigModal = (groupIndex: number) => {
+        setConfigModalIndex(groupIndex);
+        setIsConfigModalOpen(true);
+    };
+
+    const handleSaveConfigGroup = (updatedGroup: any) => {
+        if (configModalIndex !== null) {
+            update(configModalIndex, updatedGroup);
+        }
+        setIsConfigModalOpen(false);
+        setConfigModalIndex(null);
     };
 
     const handleDragStart = (event: any) => {
@@ -123,71 +136,8 @@ export default function WorkoutForm({ initialData, availableExercises = [], onSu
         }
     };
 
-    const handleDragEnd = (event: any) => {
+    const handleDragEnd = () => {
         setActiveId(null);
-    };
-
-    const handleGroupTypeChange = (groupIndex: number, newType: string) => {
-        const group = getValues(`exercises.${groupIndex}`);
-        const currentExercises = group.exercises || [];
-
-        let requiredCount = currentExercises.length;
-        if (newType === 'straight') requiredCount = 1;
-        else if (newType === 'bi_set') requiredCount = 2;
-        else if (newType === 'tri_set') requiredCount = 3;
-
-        if (requiredCount > currentExercises.length) {
-            // Adicionar exercícios vazios
-            const newExs = [...currentExercises];
-            while (newExs.length < requiredCount) {
-                newExs.push({
-                    exerciseId: '',
-                    exerciseName: '',
-                    restAfterExercise: 0,
-                    sets: currentExercises[0]?.sets
-                        ? JSON.parse(JSON.stringify(currentExercises[0].sets))
-                        : [{ reps: 10, weight: 0, restTime: 60, technique: 'normal' }]
-                });
-            }
-            update(groupIndex, { ...group, exercises: newExs, groupType: newType, rounds: newExs[0]?.sets.length || 0 });
-        } else if (requiredCount < currentExercises.length) {
-            // Verificar se exercícios que serão removidos estão preenchidos
-            const toRemove = currentExercises.slice(requiredCount);
-            const hasData = toRemove.some((ex: any) => ex.exerciseId || ex.exerciseName);
-
-            if (hasData) {
-                setConfirmModal({
-                    isOpen: true,
-                    groupIndex,
-                    newType
-                });
-            } else {
-                // Remover imediatamente
-                const newExs = currentExercises.slice(0, requiredCount);
-                update(groupIndex, { ...group, exercises: newExs, groupType: newType, rounds: newExs[0]?.sets.length || 0 });
-            }
-        } else {
-            // Apenas mudar o tipo (pode ser giant_set, circuit ou o mesmo count)
-            update(groupIndex, { ...group, groupType: newType, rounds: currentExercises[0]?.sets.length || 0 });
-        }
-    };
-
-    const confirmTypeChange = () => {
-        if (confirmModal.groupIndex === null || confirmModal.newType === null) return;
-
-        const groupIndex = confirmModal.groupIndex;
-        const newType = confirmModal.newType;
-        const group = watch(`exercises.${groupIndex}`);
-
-        let requiredCount = group.exercises.length;
-        if (newType === 'straight') requiredCount = 1;
-        else if (newType === 'bi_set') requiredCount = 2;
-        else if (newType === 'tri_set') requiredCount = 3;
-
-        const newExs = group.exercises.slice(0, requiredCount);
-        update(groupIndex, { ...group, exercises: newExs, groupType: newType, rounds: newExs[0]?.sets.length || 0 });
-
-        setConfirmModal({ isOpen: false, groupIndex: null, newType: null });
     };
 
     const processingSelection = useRef(false);
@@ -196,88 +146,41 @@ export default function WorkoutForm({ initialData, availableExercises = [], onSu
         if (processingSelection.current) return;
         processingSelection.current = true;
 
+        const newGroup = {
+            groupType: 'straight',
+            rounds: 3,
+            restBetweenRounds: 0,
+            restAfterGroup: 60,
+            exercises: [{
+                exerciseId: exercise.id,
+                exerciseName: exercise.name,
+                restAfterExercise: 0,
+                sets: [
+                    { reps: 10, weight: 0, restTime: 60, technique: 'normal' },
+                    { reps: 10, weight: 0, restTime: 60, technique: 'normal' },
+                    { reps: 10, weight: 0, restTime: 60, technique: 'normal' },
+                ]
+            }]
+        };
+
+        let newIdx = 0;
         if (insertionIndex !== null) {
-            // Criar novo grupo em uma posição específica
-            insert(insertionIndex, {
-                groupType: 'straight',
-                rounds: 3,
-                restBetweenRounds: 0,
-                restAfterGroup: 60,
-                exercises: [{
-                    exerciseId: exercise.id,
-                    exerciseName: exercise.name,
-                    restAfterExercise: 0,
-                    sets: [
-                        { reps: 10, weight: 0, restTime: 60, technique: 'normal' },
-                        { reps: 10, weight: 0, restTime: 60, technique: 'normal' },
-                        { reps: 10, weight: 0, restTime: 60, technique: 'normal' },
-                    ]
-                }]
-            });
-        } else if (targetGroupIndex === null) {
-            // Criar novo grupo com 1 exercício (Straight) no final
-            appendGroup({
-                groupType: 'straight',
-                rounds: 3,
-                restBetweenRounds: 0,
-                restAfterGroup: 60,
-                exercises: [{
-                    exerciseId: exercise.id,
-                    exerciseName: exercise.name,
-                    restAfterExercise: 0,
-                    sets: [
-                        { reps: 10, weight: 0, restTime: 60, technique: 'normal' },
-                        { reps: 10, weight: 0, restTime: 60, technique: 'normal' },
-                        { reps: 10, weight: 0, restTime: 60, technique: 'normal' },
-                    ]
-                }]
-            });
+            insert(insertionIndex, newGroup);
+            newIdx = insertionIndex;
         } else {
-            const group = groupFields[targetGroupIndex] as any;
-            if (targetExerciseIndex === null) {
-                // Adicionar novo exercício a um grupo existente (transforma em bi-set/tri-set)
-                const newEx = {
-                    exerciseId: exercise.id,
-                    exerciseName: exercise.name,
-                    restAfterExercise: 0,
-                    sets: (group.exercises && group.exercises[0]?.sets)
-                        ? JSON.parse(JSON.stringify(group.exercises[0].sets)) // Copiar estrutura do primeiro exercício
-                        : [{ reps: 10, weight: 0, restTime: 60, technique: 'normal' }]
-                };
-
-                const newExercises = [...(group.exercises || []), newEx];
-                let newGroupType = group.groupType;
-
-                // Sugerir tipo de grupo baseado na quantidade
-                if (newExercises.length === 2) newGroupType = 'bi_set';
-                else if (newExercises.length === 3) newGroupType = 'tri_set';
-                else if (newExercises.length >= 4) newGroupType = 'giant_set';
-
-                update(targetGroupIndex, {
-                    ...group,
-                    exercises: newExercises,
-                    groupType: newGroupType,
-                    rounds: newExercises[0]?.sets.length || 0
-                });
-            } else {
-                // Substituir exercício existente
-                const newExercises = [...group.exercises];
-                newExercises[targetExerciseIndex] = {
-                    ...newExercises[targetExerciseIndex],
-                    exerciseId: exercise.id,
-                    exerciseName: exercise.name
-                };
-                update(targetGroupIndex, { ...group, exercises: newExercises });
-            }
+            appendGroup(newGroup);
+            newIdx = groupFields.length;
         }
-        setIsModalOpen(false);
-        setTargetGroupIndex(null);
-        setTargetExerciseIndex(null);
+
+        setIsSelectorOpen(false);
         setInsertionIndex(null);
 
+        // Immediately open config modal for the newly added exercise group after selector transition
         setTimeout(() => {
+            setConfigModalIndex(newIdx);
+            setIsConfigModalOpen(true);
             processingSelection.current = false;
-        }, 500);
+        }, 200);
     };
 
     return (
@@ -322,8 +225,8 @@ export default function WorkoutForm({ initialData, availableExercises = [], onSu
                             type="button"
                             onClick={() => setIsReorderMode(!isReorderMode)}
                             className={`flex items-center gap-2 px-4 py-2 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${isReorderMode
-                                    ? 'bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 shadow-lg shadow-black/10'
-                                    : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100'
+                                ? 'bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 shadow-lg shadow-black/10'
+                                : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100'
                                 }`}
                         >
                             {isReorderMode ? (
@@ -363,9 +266,7 @@ export default function WorkoutForm({ initialData, availableExercises = [], onSu
                                             group={field}
                                             groupIndex={index}
                                             removeGroup={removeGroup}
-                                            openSelectorFor={openSelectorFor}
-                                            onShowHelp={() => setIsHelpOpen(true)}
-                                            onGroupTypeChange={handleGroupTypeChange}
+                                            onOpenConfigModal={openConfigModal}
                                             isAnyItemDragging={!!activeId}
                                             isReorderMode={isReorderMode}
                                         />
@@ -395,9 +296,7 @@ export default function WorkoutForm({ initialData, availableExercises = [], onSu
                                         group={groupFields.find(f => f.id === activeId)}
                                         groupIndex={groupFields.findIndex(f => f.id === activeId)}
                                         removeGroup={() => { }}
-                                        openSelectorFor={() => { }}
-                                        onShowHelp={() => { }}
-                                        onGroupTypeChange={() => { }}
+                                        onOpenConfigModal={() => { }}
                                         isAnyItemDragging={true}
                                         isOverlay
                                     />
@@ -408,7 +307,10 @@ export default function WorkoutForm({ initialData, availableExercises = [], onSu
 
                     <button
                         type="button"
-                        onClick={() => openSelectorFor(null)}
+                        onClick={() => {
+                            setInsertionIndex(null);
+                            setIsSelectorOpen(true);
+                        }}
                         className="w-full py-6 mt-4 border-2 border-dashed border-zinc-200 dark:border-zinc-800 rounded-3xl text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-900 font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 hover:border-lime-400 hover:text-lime-500 transition-all active:scale-[0.98] cursor-pointer"
                     >
                         <Plus size={20} />
@@ -435,9 +337,19 @@ export default function WorkoutForm({ initialData, availableExercises = [], onSu
             </form>
 
             <ExerciseSelector
-                isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
+                isOpen={isSelectorOpen}
+                onClose={() => setIsSelectorOpen(false)}
                 onSelect={handleExerciseSelected}
+            />
+
+            <ExerciseConfigModal
+                isOpen={isConfigModalOpen}
+                onClose={() => {
+                    setIsConfigModalOpen(false);
+                    setConfigModalIndex(null);
+                }}
+                groupData={configModalIndex !== null ? groupFields[configModalIndex] as any : null}
+                onSave={handleSaveConfigGroup}
             />
 
             <QuickExerciseDrawer
@@ -450,17 +362,6 @@ export default function WorkoutForm({ initialData, availableExercises = [], onSu
                 isOpen={isHelpOpen}
                 onClose={() => setIsHelpOpen(false)}
             />
-
-            <ConfirmDialog
-                isOpen={confirmModal.isOpen}
-                onClose={() => setConfirmModal({ ...confirmModal, isOpen: false })}
-                onConfirm={confirmTypeChange}
-                title={t('confirmTypeChange')}
-                description={t('confirmTypeChangeText', { type: confirmModal.newType ? t(`groupTypes.${confirmModal.newType}`) : '' })}
-                confirmText={t('confirmChange')}
-                cancelText={t('cancelChange')}
-                variant="warning"
-            />
         </FormProvider>
     );
-}
+}
