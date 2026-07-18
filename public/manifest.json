@@ -10,7 +10,7 @@
     "launch_handler": {
         "client_mode": "focus-existing"
     },
-    "orientation": "any",
+    "orientation": "portrait",
     "background_color": "#09090b",
     "theme_color": "#a3e635",
     "categories": ["health", "fitness", "sports", "lifestyle"],

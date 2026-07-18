@@ -94,9 +94,19 @@ html.dark,
 
 /* ---------------------- NATIVE PWA UX ---------------------- */
 html, body {
-  overscroll-behavior-y: none;
+  overscroll-behavior-y: auto;
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
+}
+
+body.modal-open,
+body.drawer-open {
+  overscroll-behavior-y: none !important;
+  overflow: hidden !important;
+}
+
+[role="dialog"] {
+  overscroll-behavior-y: contain;
 }
 
 button, a, [role="button"] {

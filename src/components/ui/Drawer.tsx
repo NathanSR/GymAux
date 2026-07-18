@@ -150,8 +150,9 @@ export function Drawer({
   useEffect(() => {
     if (!isOpen) return;
 
-    // Lock body scroll
+    // Lock body scroll and pull-to-refresh
     document.body.style.overflow = 'hidden';
+    document.body.classList.add('drawer-open');
 
     // Push history state on open if not already pushed
     if (typeof window !== 'undefined' && !isPushedRef.current) {
@@ -202,6 +203,7 @@ export function Drawer({
 
     return () => {
       document.body.style.overflow = 'unset';
+      document.body.classList.remove('drawer-open');
       window.removeEventListener('keydown', handleEscape, true);
       window.removeEventListener('popstate', handlePopState);
 
@@ -266,7 +268,7 @@ export function Drawer({
             onDragEnd={handleDragEnd}
             transition={{ type: 'spring', damping: 28, stiffness: 280, mass: 0.8 }}
             className={cn(
-              'fixed bg-white dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 shadow-2xl z-10 flex flex-col border-t sm:border border-zinc-200 dark:border-zinc-800/80 overflow-hidden transition-[height,max-height,border-radius,top] duration-300 ease-out',
+              'fixed bg-white dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 shadow-2xl z-10 flex flex-col border-t sm:border border-zinc-200 dark:border-zinc-800/80 overflow-hidden overscroll-contain transition-[height,max-height,border-radius,top] duration-300 ease-out',
               isExpanded && side === 'bottom'
                 ? 'top-0 bottom-0 left-0 right-0 w-full h-full max-h-none rounded-none'
                 : sideVariant.className,

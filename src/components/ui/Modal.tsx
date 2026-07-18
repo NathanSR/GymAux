@@ -43,6 +43,7 @@ export function Modal({
     if (!isOpen) return;
 
     document.body.style.overflow = 'hidden';
+    document.body.classList.add('modal-open');
     const modalId = modalIdRef.current;
     isPopStateTriggeredRef.current = false;
 
@@ -79,6 +80,7 @@ export function Modal({
 
     return () => {
       document.body.style.overflow = 'unset';
+      document.body.classList.remove('modal-open');
       window.removeEventListener('keydown', handleEscape, true);
       window.removeEventListener('popstate', handlePopState);
 
