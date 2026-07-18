@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { User } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { User as AppUser } from '@/config/types';
@@ -9,6 +9,7 @@ import ProfileMenu from '@/components/home/ProfileMenu';
 export function HomeHeader({ activeUser, formattedDate }: { activeUser: AppUser | null; formattedDate: string }) {
     const t = useTranslations('Home');
     const [showProfileMenu, setShowProfileMenu] = useState(false);
+    const triggerRef = useRef<HTMLButtonElement>(null);
 
     return (
         <header className="mb-8 flex justify-between items-center relative">
@@ -23,6 +24,7 @@ export function HomeHeader({ activeUser, formattedDate }: { activeUser: AppUser 
 
             <div className="relative">
                 <button
+                    ref={triggerRef}
                     onClick={() => setShowProfileMenu(!showProfileMenu)}
                     className="group relative w-12 h-12 rounded-[20px] bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 flex items-center justify-center text-zinc-600 dark:text-zinc-400 overflow-hidden active:scale-95 transition-all shadow-sm hover:shadow-md hover:border-lime-500/50"
                 >
@@ -35,6 +37,7 @@ export function HomeHeader({ activeUser, formattedDate }: { activeUser: AppUser 
                     showProfileMenu={showProfileMenu}
                     setShowProfileMenu={setShowProfileMenu}
                     activeUser={activeUser}
+                    triggerRef={triggerRef}
                 />
             </div>
         </header>

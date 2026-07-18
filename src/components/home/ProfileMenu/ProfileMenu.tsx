@@ -24,6 +24,7 @@ import { User as AppUser } from '@/config/types';
 import { createClient } from '@/lib/supabase/client';
 import { motion, AnimatePresence } from 'framer-motion';
 
+import { Popover } from '@/components/ui/Popover';
 import { ProfileMenuButton } from './ProfileMenuButton';
 import { ProfileMenuSectionTitle } from './ProfileMenuSectionTitle';
 
@@ -31,6 +32,7 @@ interface ProfileMenuProps {
     showProfileMenu: boolean;
     setShowProfileMenu: (show: boolean) => void;
     activeUser: AppUser | null;
+    triggerRef?: React.RefObject<HTMLElement | null>;
 }
 
 type Language = typeof LANGUAGES[number];
@@ -38,7 +40,8 @@ type Language = typeof LANGUAGES[number];
 const ProfileMenu: React.FC<ProfileMenuProps> = ({
     showProfileMenu,
     setShowProfileMenu,
-    activeUser
+    activeUser,
+    triggerRef
 }) => {
     const t = useTranslations('ProfileMenu');
     const locale = useLocale();
@@ -74,6 +77,11 @@ const ProfileMenu: React.FC<ProfileMenuProps> = ({
     // --- View State ---
     const [view, setView] = useState<'main' | 'language'>('main');
 
+    const handleClose = () => {
+        setShowProfileMenu(false);
+        setView('main');
+    };
+
     const handleLanguageChange = (newLocale: Language) => {
         router.push(pathname, { locale: newLocale });
         setShowProfileMenu(false);
@@ -103,26 +111,14 @@ const ProfileMenu: React.FC<ProfileMenuProps> = ({
     };
 
     return (
-        <AnimatePresence>
-            {showProfileMenu && (
-                <>
-                    {/* Backdrop */}
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        onClick={() => { setShowProfileMenu(false); setView('main'); }}
-                        className="fixed inset-0 z-[100] bg-black/20 dark:bg-black/40 backdrop-blur-[2px]"
-                    />
-
-                    {/* Menu Content */}
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.95, y: 10, x: 20 }}
-                        animate={{ opacity: 1, scale: 1, y: 0, x: 0 }}
-                        exit={{ opacity: 0, scale: 0.95, y: 10, x: 20 }}
-                        transition={{ type: 'spring', damping: 20, stiffness: 300 }}
-                        className="absolute right-0 mt-3 w-72 bg-white/90 dark:bg-zinc-900/95 backdrop-blur-xl border border-zinc-200 dark:border-zinc-800 rounded-[28px] shadow-2xl z-[101] overflow-hidden p-2"
-                    >
+        <Popover
+            isOpen={showProfileMenu}
+            onClose={handleClose}
+            triggerRef={triggerRef}
+            side="bottom"
+            align="end"
+            className="w-72"
+        >
                         {/* User Header */}
                         <div className="px-4 py-4 mb-2 bg-zinc-50/50 dark:bg-zinc-800/30 rounded-[22px] border border-zinc-100 dark:border-zinc-800/50">
                             <div className="flex items-center gap-3">
@@ -319,10 +315,7 @@ const ProfileMenu: React.FC<ProfileMenuProps> = ({
                                 )}
                             </AnimatePresence>
                         </div>
-                    </motion.div>
-                </>
-            )}
-        </AnimatePresence>
+        </Popover>
     );
 };
 
