@@ -177,13 +177,11 @@ export default function HistoryClient({
                 {loading && <div className="text-center py-4"><div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-lime-500" /></div>}
             </section>
 
-            {selectedWorkouts && (
-                <WorkoutHistoryModal
-                    selectedWorkouts={selectedWorkouts}
-                    onClose={handleCloseModal}
-                    initialActiveWorkoutId={initialWorkoutId}
-                />
-            )}
+            <WorkoutHistoryModal
+                selectedWorkouts={selectedWorkouts}
+                onClose={handleCloseModal}
+                initialActiveWorkoutId={initialWorkoutId}
+            />
         </div>
     );
 }
