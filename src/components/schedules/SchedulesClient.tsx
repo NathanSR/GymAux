@@ -78,13 +78,8 @@ export default function SchedulesClient({ initialSchedules, initialTotalCount, u
     }, [initialSchedules]);
 
     useEffect(() => {
-        // Skip initial load
-        if (debouncedSearch === '' && initialData === initialSchedules) {
-            return;
-        }
-
         fetchFirstPage();
-    }, [debouncedSearch, initialSchedules, fetchFirstPage]);
+    }, [debouncedSearch, fetchFirstPage]);
 
     // Handle online/visibility recovery
     useEffect(() => {

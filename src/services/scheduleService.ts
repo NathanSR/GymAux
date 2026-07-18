@@ -67,19 +67,24 @@ export const ScheduleService = {
             }
         } catch (error) {
             console.warn('[ScheduleService] getSchedulesByUserId failed, falling back to local DB:', error);
-            if (typeof window !== 'undefined') {
-                const allLocal = await db.schedules.where('userId').equals(userId).toArray();
-                let filtered = allLocal;
-                if (searchQuery.trim()) {
-                    const q = searchQuery.toLowerCase().trim();
-                    filtered = allLocal.filter(s => s.name.toLowerCase().includes(q));
-                }
-                filtered.sort((a, b) => b.startDate.getTime() - a.startDate.getTime());
-                totalCount = filtered.length;
-                const from = (pagination.page - 1) * pagination.limit;
-                const to = from + pagination.limit;
-                schedules = filtered.slice(from, to);
+        }
+
+        if (typeof window !== 'undefined') {
+            const allLocal = await db.schedules.where('userId').equals(userId).toArray();
+            let filtered = allLocal;
+            if (searchQuery.trim()) {
+                const q = searchQuery.toLowerCase().trim();
+                filtered = allLocal.filter(s => s.name.toLowerCase().includes(q));
             }
+            filtered.sort((a, b) => {
+                const timeA = a.startDate ? new Date(a.startDate).getTime() : 0;
+                const timeB = b.startDate ? new Date(b.startDate).getTime() : 0;
+                return timeB - timeA;
+            });
+            totalCount = filtered.length;
+            const from = (pagination.page - 1) * pagination.limit;
+            const to = from + pagination.limit;
+            schedules = filtered.slice(from, to);
         }
 
         return {
@@ -100,13 +105,14 @@ export const ScheduleService = {
                     .select('*')
                     .eq('user_id', userId)
                     .eq('active', true)
-                    .maybeSingle(),
+                    .order('created_at', { ascending: false })
+                    .limit(1),
                 3000
             );
 
             if (error) throw error;
 
-            const schedule = data ? mapScheduleFromSupabase(data) : null;
+            const schedule = data && data.length > 0 ? mapScheduleFromSupabase(data[0]) : null;
             if (typeof window !== 'undefined' && schedule) {
                 await db.schedules.put(schedule).catch(() => {});
             }
@@ -196,7 +202,7 @@ export const ScheduleService = {
             }
         }
 
-        // If activating this schedule, deactivate others locally
+        // If activating this schedule, deactivate others locally & enqueue sync
         if (scheduleData.active && typeof window !== 'undefined') {
             const activeSchedules = await db.schedules
                 .where('userId')
@@ -206,6 +212,10 @@ export const ScheduleService = {
 
             for (const s of activeSchedules) {
                 await db.schedules.update(s.id!, { active: false });
+                await SyncManager.enqueue('UPDATE', 'SCHEDULE', s.id!, {
+                    id: s.id,
+                    active: false,
+                });
             }
         }
 
