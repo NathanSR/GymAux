@@ -51,7 +51,9 @@ export const useSessionActions = () => {
 
         if (result.isConfirmed) {
             await SessionService.pauseSession(sessionId);
-            router.push('/home');
+            setTimeout(() => {
+                router.replace('/home');
+            }, 50);
         }
     };
 

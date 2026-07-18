@@ -47,7 +47,7 @@ export function Modal({
     isPopStateTriggeredRef.current = false;
 
     if (typeof window !== 'undefined' && !isPushedRef.current) {
-      window.history.pushState({ __modalId: modalId }, '');
+      window.history.pushState({ ...window.history.state, __modalId: modalId }, '');
       isPushedRef.current = true;
     }
 

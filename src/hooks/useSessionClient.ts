@@ -54,7 +54,9 @@ export function useSessionClient({ initialSession, isReadOnly = false, watchValu
     }, [currentExercise?.exerciseId]);
 
     useEffect(() => {
-        window.history.pushState(null, '', window.location.href);
+        if (typeof window !== 'undefined') {
+            window.history.pushState({ ...window.history.state, __sessionTrap: true }, '', window.location.href);
+        }
         const handleBackButton = (event: PopStateEvent) => {
             if (event.state && (event.state.__modalId || event.state.__drawerId)) {
                 return;
@@ -66,7 +68,9 @@ export function useSessionClient({ initialSession, isReadOnly = false, watchValu
 
             event.preventDefault();
             if (session.id) exitSession(session.id);
-            window.history.pushState(null, '', window.location.href);
+            if (typeof window !== 'undefined') {
+                window.history.pushState({ ...window.history.state, __sessionTrap: true }, '', window.location.href);
+            }
         };
         window.addEventListener('popstate', handleBackButton);
         return () => {

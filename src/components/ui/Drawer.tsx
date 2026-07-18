@@ -155,7 +155,7 @@ export function Drawer({
 
     // Push history state on open if not already pushed
     if (typeof window !== 'undefined' && !isPushedRef.current) {
-      window.history.pushState({ __drawerId: drawerId }, '');
+      window.history.pushState({ ...window.history.state, __drawerId: drawerId }, '');
       isPushedRef.current = true;
     }
 
@@ -189,7 +189,7 @@ export function Drawer({
         setIsExpandedRef.current(false);
         // Push state back so next back press will close the drawer
         if (typeof window !== 'undefined') {
-          window.history.pushState({ __drawerId: drawerId }, '');
+          window.history.pushState({ ...window.history.state, __drawerId: drawerId }, '');
           isPushedRef.current = true;
         }
       } else {

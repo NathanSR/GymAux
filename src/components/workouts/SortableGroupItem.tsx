@@ -111,11 +111,10 @@ export const SortableGroupItem = memo(({
                     {...attributes}
                     {...listeners}
                     onClick={(e) => e.stopPropagation()}
-                    className={`p-1 -ml-1 transition-all duration-300 ${
-                        isReorderMode
+                    className={`p-1 -ml-1 transition-all duration-300 ${isReorderMode
                         ? 'cursor-grab active:cursor-grabbing text-lime-500 opacity-100 scale-100'
                         : 'cursor-default text-zinc-300 opacity-0 scale-50 pointer-events-none w-0 overflow-hidden'
-                    }`}
+                        }`}
                     style={{ touchAction: 'none' }}
                 >
                     <GripVertical size={16} />
@@ -186,7 +185,7 @@ export const SortableGroupItem = memo(({
                         onOpenConfigModal(groupIndex);
                     }}
                     className="p-2 text-zinc-400 hover:text-lime-500 hover:bg-lime-500/10 rounded-xl transition-all cursor-pointer"
-                    title={t('editExercise')}
+                // title={t('editExercise')}
                 >
                     <Edit3 size={15} />
                 </button>
@@ -195,7 +194,7 @@ export const SortableGroupItem = memo(({
                     type="button"
                     onClick={() => removeGroup(groupIndex)}
                     className="p-2 text-zinc-400 hover:text-red-500 hover:bg-red-500/10 rounded-xl transition-all cursor-pointer"
-                    title={t('removeExercise')}
+                // title={t('removeExercise')}
                 >
                     <Trash2 size={15} />
                 </button>
