@@ -1,35 +1,25 @@
 'use client';
 
 import React, { useState, useEffect } from "react";
-import { useForm, Controller } from "react-hook-form";
 import {
     Dumbbell,
     Plus,
-    Hash,
-    RotateCcw,
-    Clock,
     CheckCircle2,
     ChevronLeft,
     ArrowRight
 } from "lucide-react";
-import { Exercise, Workout } from "@/config/types";
+import { Exercise, ExerciseGroup, Workout } from "@/config/types";
 import { useSession } from "@/hooks/useSession";
 import { WorkoutService } from "@/services/workoutService";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/routing";
-import { numberInputUtils } from "@/utils/numberUtil";
 import { Drawer } from "@/components/ui/Drawer";
+import { ExerciseConfigForm } from "@/components/workouts/ExerciseConfigForm";
 
 interface DrawerProps {
     isOpen: boolean;
     onClose: () => void;
     exercise: Exercise;
-}
-
-interface FormData {
-    sets: number;
-    reps: number;
-    restTime: number;
 }
 
 export default function DrawerWorkoutExerciseAdd({
@@ -44,16 +34,6 @@ export default function DrawerWorkoutExerciseAdd({
 
     const t = useTranslations('DrawerWorkoutExerciseAdd');
     const te = useTranslations('Exercises');
-
-    const { control, handleSubmit, setValue, watch, reset } = useForm<FormData>({
-        defaultValues: {
-            sets: 3,
-            reps: 12,
-            restTime: 60
-        }
-    });
-
-    const currentValues = watch();
 
     const [userWorkouts, setUserWorkouts] = useState<Workout[]>([]);
 
@@ -82,33 +62,14 @@ export default function DrawerWorkoutExerciseAdd({
         setSelectedWorkout(null);
     };
 
-    const onFormSubmit = async (data: FormData) => {
-        if (!selectedWorkout?.id) return;
+    const handleSaveGroup = async (group: ExerciseGroup) => {
+        if (!selectedWorkout?.id || !activeUser?.id) return;
 
         try {
-            const plannedSets = Array.from({ length: data.sets }, () => ({
-                reps: data.reps,
-                restTime: data.restTime,
-                technique: 'normal' as const,
-            }));
-
-            const newGroup = {
-                groupType: 'straight' as const,
-                rounds: 1,
-                restBetweenRounds: 0,
-                restAfterGroup: data.restTime,
-                exercises: [{
-                    exerciseId: exercise.id as number,
-                    exerciseName: exercise.name,
-                    sets: plannedSets,
-                    restAfterExercise: 0,
-                }],
-            };
-
-            await WorkoutService.addExerciseToWorkout(selectedWorkout.id, newGroup, activeUser!.id as string);
+            await WorkoutService.addExerciseToWorkout(selectedWorkout.id, group, activeUser.id as string);
             setSuccess(true);
         } catch (error: any) {
-            console.error("Error adding exercise:", error?.message || error);
+            console.error("Error adding exercise to workout:", error?.message || error);
         }
     };
 
@@ -116,13 +77,31 @@ export default function DrawerWorkoutExerciseAdd({
         setSuccess(false);
         setStep('select');
         setSelectedWorkout(null);
-        reset();
         onClose();
     };
 
     const titleText = success
         ? t("successTitle")
         : step === 'select' ? t("selectWorkout") : t("configureSets");
+
+    const initialGroupData: ExerciseGroup = {
+        groupType: 'straight',
+        rounds: 3,
+        restBetweenRounds: 0,
+        restAfterGroup: 60,
+        exercises: [
+            {
+                exerciseId: exercise.id as number,
+                exerciseName: exercise.name,
+                restAfterExercise: 0,
+                sets: [
+                    { reps: 10, weight: 0, restTime: 60, technique: 'normal' },
+                    { reps: 10, weight: 0, restTime: 60, technique: 'normal' },
+                    { reps: 10, weight: 0, restTime: 60, technique: 'normal' }
+                ]
+            }
+        ]
+    };
 
     return (
         <Drawer
@@ -206,115 +185,21 @@ export default function DrawerWorkoutExerciseAdd({
                     )}
                 </div>
             ) : (
-                <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-6">
-                    <div className="p-4 bg-lime-400/10 dark:bg-lime-400/5 rounded-2xl border border-dashed border-lime-400/30">
-                        <p className="text-[10px] font-black uppercase tracking-widest text-lime-600 dark:text-lime-400 mb-1">{t("destination")}</p>
-                        <p className="text-sm font-bold">{selectedWorkout?.name}</p>
-                    </div>
-
-                    <div className="grid grid-cols-1 gap-6">
-                        {/* Séries */}
-                        <div className="space-y-3">
-                            <label className="text-[10px] font-black uppercase tracking-widest text-zinc-400 flex items-center gap-2">
-                                <Hash size={12} /> {t("sets")}
-                            </label>
-                            <Controller
-                                name="sets"
-                                control={control}
-                                render={({ field }) => (
-                                    <div className="flex items-center gap-4">
-                                        <input
-                                            type="range" min="1" max="12"
-                                            {...field}
-                                            onChange={(e) => field.onChange(parseInt(e.target.value))}
-                                            className="flex-1 h-2 bg-zinc-200 dark:bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-lime-400"
-                                        />
-                                        <div className="w-14 h-14 bg-zinc-100 dark:bg-zinc-800 rounded-2xl flex items-center justify-center font-black text-xl italic border border-zinc-200 dark:border-zinc-700">
-                                            {field.value}
-                                        </div>
-                                    </div>
-                                )}
-                            />
-                        </div>
-
-                        {/* Repetições */}
-                        <div className="space-y-3">
-                            <label className="text-[10px] font-black uppercase tracking-widest text-zinc-400 flex items-center gap-2">
-                                <RotateCcw size={12} /> {t("reps")}
-                            </label>
-                            <div className="grid grid-cols-5 gap-2">
-                                {[8, 10, 12, 15].map((val) => (
-                                    <button
-                                        key={val} type="button"
-                                        onClick={() => setValue('reps', val)}
-                                        className={`py-4 rounded-2xl text-xs font-black transition-all ${currentValues.reps === val ? 'bg-lime-400 text-zinc-950 shadow-lg shadow-lime-400/20' : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-400'}`}
-                                    >
-                                        {val}
-                                    </button>
-                                ))}
-                                <Controller
-                                    name="reps"
-                                    control={control}
-                                    render={({ field }) => (
-                                        <input
-                                            type="number"
-                                            placeholder="+"
-                                            {...field}
-                                            value={numberInputUtils.formatValue(field.value)}
-                                            onFocus={numberInputUtils.onFocus}
-                                            onChange={(e) => numberInputUtils.onChange(e, field.onChange)}
-                                            className="w-full py-4 bg-zinc-100 dark:bg-zinc-800 rounded-2xl text-center text-xs font-black outline-none focus:ring-2 ring-lime-400 placeholder:text-zinc-400"
-                                        />
-                                    )}
-                                />
-                            </div>
-                        </div>
-
-                        {/* Descanso */}
-                        <div className="space-y-3">
-                            <label className="text-[10px] font-black uppercase tracking-widest text-zinc-400 flex items-center gap-2">
-                                <Clock size={12} /> {t("restTime")} ({t("seconds")})
-                            </label>
-                            <div className="flex items-center gap-4">
-                                <div className="flex-1 grid grid-cols-3 gap-2">
-                                    {[45, 60, 90].map(s => (
-                                        <button
-                                            key={s} type="button"
-                                            onClick={() => setValue('restTime', s)}
-                                            className={`py-4 rounded-2xl text-xs font-black ${currentValues.restTime === s ? 'bg-zinc-950 dark:bg-zinc-100 dark:text-zinc-950 text-white' : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-500'}`}
-                                        >
-                                            {s}s
-                                        </button>
-                                    ))}
-                                </div>
-                                <div className="relative w-24">
-                                    <Controller
-                                        name="restTime"
-                                        control={control}
-                                        render={({ field }) => (
-                                            <input
-                                                type="number"
-                                                {...field}
-                                                value={numberInputUtils.formatValue(field.value)}
-                                                onFocus={numberInputUtils.onFocus}
-                                                onChange={(e) => numberInputUtils.onChange(e, field.onChange)}
-                                                className="w-full py-4 bg-zinc-100 dark:bg-zinc-800 rounded-2xl text-center text-xs font-black outline-none focus:ring-2 ring-lime-400"
-                                            />
-                                        )}
-                                    />
-                                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[8px] font-bold text-zinc-400 pointer-events-none uppercase">{t("secAbbr")}</span>
-                                </div>
-                            </div>
+                <div className="space-y-4">
+                    <div className="p-4 bg-lime-400/10 dark:bg-lime-400/5 rounded-2xl border border-dashed border-lime-400/30 flex items-center justify-between">
+                        <div>
+                            <p className="text-[10px] font-black uppercase tracking-widest text-lime-600 dark:text-lime-400 mb-0.5">{t("destination")}</p>
+                            <p className="text-sm font-bold">{selectedWorkout?.name}</p>
                         </div>
                     </div>
 
-                    <button
-                        type="submit"
-                        className="w-full py-5 bg-zinc-950 dark:bg-lime-400 dark:text-zinc-950 text-white rounded-3xl font-black uppercase text-xs tracking-[0.2em] shadow-xl flex items-center justify-center gap-2 mt-4 active:scale-[0.98] transition-transform"
-                    >
-                        {t("confirmBtn")}
-                    </button>
-                </form>
+                    <ExerciseConfigForm
+                        initialGroupData={initialGroupData}
+                        onSave={handleSaveGroup}
+                        onCancel={handleBackToSelect}
+                        submitLabel={t("confirmBtn")}
+                    />
+                </div>
             )}
         </Drawer>
     );
