@@ -1,29 +1,32 @@
+'use client';
+
 import WorkoutsClient from '@/components/workouts/WorkoutsClient';
-import { createClient } from '@/lib/supabase/server';
-import { WorkoutService } from '@/services/workoutService';
+import { useSession } from '@/hooks/useSession';
+import { useDexieWorkouts } from '@/hooks/useDexieData';
 
-export default async function WorkoutsPage() {
-    const supabase = await createClient();
-    
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return null;
+export default function WorkoutsPage() {
+    const { activeUser, loading } = useSession();
+    const workouts = useDexieWorkouts(activeUser?.id);
 
-    // Busca inicial no servidor
-    const result = await WorkoutService.getWorkoutsByUserId(
-        user.id,
-        '',
-        { page: 1, limit: 20 },
-        supabase
-    );
+    if (loading && !activeUser) {
+        return (
+            <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 p-6">
+                <div className="space-y-4 pt-20">
+                    {Array.from({ length: 4 }).map((_, i) => (
+                        <div key={i} className="h-40 bg-zinc-100 dark:bg-zinc-900 rounded-[32px] animate-pulse" />
+                    ))}
+                </div>
+            </div>
+        );
+    }
 
-    const initialWorkouts = (result as any).workouts || [];
-    const initialTotalCount = (result as any).totalCount || 0;
+    if (!activeUser) return null;
 
     return (
         <WorkoutsClient 
-            initialWorkouts={initialWorkouts} 
-            initialTotalCount={initialTotalCount}
-            userId={user.id}
+            initialWorkouts={workouts} 
+            initialTotalCount={workouts.length}
+            userId={activeUser.id!}
         />
     );
 }

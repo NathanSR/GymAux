@@ -30,11 +30,15 @@ export const UserProvider: React.FC<{ children: React.ReactNode; initialUser?: U
                 const profile = await userService.getUserById(userId);
                 if (profile) {
                     setUser(profile);
-                } else {
-                    // Auth exists but no profile yet (e.g., new signup or offline first load)
-                    // Don't wipe user if we already have one from initialUser
-                    if (!user) setUser(null);
+                } else if (typeof window !== 'undefined') {
+                    const cached = await (await import('@/config/db')).db.users.get(userId);
+                    if (cached) setUser(cached);
+                    else if (!user) setUser(null);
                 }
+            } else if (typeof window !== 'undefined') {
+                const cached = await (await import('@/config/db')).db.users.toCollection().first();
+                if (cached) setUser(cached);
+                else setUser(null);
             } else {
                 setUser(null);
             }

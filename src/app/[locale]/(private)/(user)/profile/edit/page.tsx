@@ -1,20 +1,20 @@
+'use client';
+
 import EditProfileClient from '@/components/profile/EditProfileClient';
-import { createClient } from '@/lib/supabase/server';
-import { userService } from '@/services/userService';
-import { redirect } from 'next/navigation';
+import { useSession } from '@/hooks/useSession';
 
-export default async function EditProfilePage() {
-    const supabase = await createClient();
-    
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-        redirect('/');
+export default function EditProfilePage() {
+    const { activeUser, loading } = useSession();
+
+    if (loading && !activeUser) {
+        return (
+            <div className="min-h-screen bg-zinc-950 p-6 flex items-center justify-center">
+                <div className="w-10 h-10 border-4 border-lime-400 border-t-transparent rounded-full animate-spin" />
+            </div>
+        );
     }
 
-    const activeUser = await userService.getUserById(user.id, supabase);
-    if (!activeUser) {
-        redirect('/home');
-    }
+    if (!activeUser) return null;
 
     return (
         <EditProfileClient initialUser={activeUser} />

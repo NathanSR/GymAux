@@ -77,19 +77,21 @@ export default function WorkoutsClient({ initialWorkouts, initialTotalCount, use
     }, [initialWorkouts]);
 
     useEffect(() => {
-        // Skip initial load if it matches initial state
-        if (debouncedSearch === '' && initialData === initialWorkouts) {
+        // Se a busca estiver vazia, os dados iniciais providos por props/Dexie já são utilizados
+        if (debouncedSearch === '') {
             return;
         }
 
         fetchFirstPage();
-    }, [debouncedSearch, initialWorkouts, fetchFirstPage]);
+    }, [debouncedSearch, fetchFirstPage]);
 
-    // Handle online/visibility recovery
+    // Handle online/visibility recovery (somente se houver busca ativa)
     useEffect(() => {
         const handleRecovery = () => {
-            console.log('[WorkoutsClient] App recovered, refreshing workouts...');
-            fetchFirstPage();
+            if (debouncedSearch !== '') {
+                console.log('[WorkoutsClient] App recovered, refreshing search results...');
+                fetchFirstPage();
+            }
         };
 
         window.addEventListener('online', handleRecovery);
@@ -104,7 +106,7 @@ export default function WorkoutsClient({ initialWorkouts, initialTotalCount, use
             window.removeEventListener('online', handleRecovery);
             document.removeEventListener('visibilitychange', handleVisibilityChange);
         };
-    }, [fetchFirstPage]);
+    }, [debouncedSearch, fetchFirstPage]);
 
     const { visibleData, isLoadingMore, lastItemRef } = useInfiniteScroll(initialData, {
         pageSize: 20,

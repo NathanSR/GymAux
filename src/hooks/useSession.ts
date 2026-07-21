@@ -19,7 +19,17 @@ export function useSession() {
 
                 if (userId) {
                     const profile = await userService.getUserById(userId);
-                    setActiveUser(profile);
+                    if (profile) {
+                        setActiveUser(profile);
+                    } else if (typeof window !== 'undefined') {
+                        const cached = await (await import('@/config/db')).db.users.get(userId);
+                        if (cached) setActiveUser(cached);
+                        else setActiveUser(null);
+                    }
+                } else if (typeof window !== 'undefined') {
+                    const cached = await (await import('@/config/db')).db.users.toCollection().first();
+                    if (cached) setActiveUser(cached);
+                    else setActiveUser(null);
                 } else {
                     setActiveUser(null);
                 }

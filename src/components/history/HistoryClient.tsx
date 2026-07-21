@@ -56,14 +56,18 @@ export default function HistoryClient({
         return data;
     }, [historyList, debouncedSearch]);
 
-    // Fetch Logic
+    useEffect(() => {
+        setHistoryList(initialHistoryList);
+    }, [initialHistoryList]);
+
+    // Fetch Logic para mudança de mês/ano no calendário
     useEffect(() => {
         const isCurrentMonth = () => {
             const now = new Date();
             return month === now.getMonth() && year === now.getFullYear();
         };
 
-        if (isCurrentMonth() && historyList === initialHistoryList) return;
+        if (isCurrentMonth()) return;
 
         const fetchHistory = async () => {
             setLoading(true);
@@ -72,14 +76,13 @@ export default function HistoryClient({
                 setHistoryList(list || []);
             } catch (error: any) {
                 console.error("Error fetching history:", error?.message || error);
-                setHistoryList([]);
             } finally {
                 setLoading(false);
             }
         };
 
         fetchHistory();
-    }, [userId, month, year, startMonthDate.toISOString(), endMonthDate.toISOString()]);
+    }, [userId, month, year, startMonthDate, endMonthDate]);
 
     // Auto-open logic for deep links
     useEffect(() => {

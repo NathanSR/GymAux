@@ -24,21 +24,20 @@ export default function MyIDPage() {
 
     useEffect(() => {
         const fetchUser = async () => {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (user) {
-                // Buscar o perfil para ter o gymauxId
-                const { data: profile } = await supabase
-                    .from('profiles')
-                    .select('gymaux_id')
-                    .eq('id', user.id)
-                    .single();
-
-                setUid(user.id);
+            try {
+                const { userService } = await import('@/services/userService');
+                const userId = await userService.resolveCurrentUserId();
+                if (userId) {
+                    setUid(userId);
+                }
+            } catch (err) {
+                console.warn('[MyIDPage] Error resolving user ID:', err);
+            } finally {
+                setLoading(false);
             }
-            setLoading(false);
         };
         fetchUser();
-    }, [supabase]);
+    }, []);
 
     const handleCopy = () => {
         if (uid) {

@@ -1,32 +1,68 @@
+'use client';
+
+import { use, useEffect, useState } from 'react';
 import EditScheduleClient from '@/components/schedules/EditScheduleClient';
 import { ScheduleService } from '@/services/scheduleService';
-import { createClient } from '@/lib/supabase/server';
-import { redirect } from 'next/navigation';
+import { useSession } from '@/hooks/useSession';
+import { useRouter } from '@/i18n/routing';
 
 interface EditSchedulePageProps {
     params: Promise<{ id: string }>;
 }
 
-export default async function EditSchedulePage({ params }: EditSchedulePageProps) {
-    const { id } = await params;
-    const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
+export default function EditSchedulePage({ params }: EditSchedulePageProps) {
+    const { id } = use(params);
+    const router = useRouter();
+    const { activeUser, loading: sessionLoading } = useSession();
 
-    if (!user) redirect('/schedules');
+    const [formattedData, setFormattedData] = useState<any>(null);
+    const [fetchingSchedule, setFetchingSchedule] = useState(true);
 
-    const data: any = await ScheduleService.getScheduleById(id, supabase);
-    if (!data) {
-        redirect('/schedules');
+    useEffect(() => {
+        let isMounted = true;
+        setFetchingSchedule(true);
+
+        ScheduleService.getScheduleById(id).then(data => {
+            if (!isMounted) return;
+            if (!data) {
+                router.push('/schedules');
+            } else {
+                const startDateStr = data.startDate instanceof Date 
+                    ? data.startDate.toISOString().split('T')[0] 
+                    : new Date(data.startDate).toISOString().split('T')[0];
+
+                const endDateStr = data.endDate 
+                    ? (data.endDate instanceof Date ? data.endDate.toISOString().split('T')[0] : new Date(data.endDate).toISOString().split('T')[0]) 
+                    : undefined;
+
+                setFormattedData({
+                    ...data,
+                    startDate: startDateStr,
+                    endDate: endDateStr
+                });
+            }
+        }).catch(() => {
+            if (isMounted) router.push('/schedules');
+        }).finally(() => {
+            if (isMounted) setFetchingSchedule(false);
+        });
+
+        return () => {
+            isMounted = false;
+        };
+    }, [id, router]);
+
+    if ((sessionLoading || fetchingSchedule) && !formattedData) {
+        return (
+            <div className="min-h-screen bg-zinc-950 p-6 flex items-center justify-center">
+                <div className="w-10 h-10 border-4 border-lime-400 border-t-transparent rounded-full animate-spin" />
+            </div>
+        );
     }
 
-    // Formata datas para o input type="date"
-    const formattedData = {
-        ...data,
-        startDate: data.startDate.toISOString().split('T')[0],
-        endDate: data.endDate ? data.endDate.toISOString().split('T')[0] : undefined
-    };
+    if (!activeUser || !formattedData) return null;
 
     return (
-        <EditScheduleClient initialData={formattedData} scheduleId={id} callerId={user.id} />
+        <EditScheduleClient initialData={formattedData} scheduleId={id} callerId={activeUser.id!} />
     );
 }

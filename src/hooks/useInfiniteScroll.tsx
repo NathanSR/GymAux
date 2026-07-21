@@ -51,7 +51,11 @@ export function useInfiniteScroll<T>(
     if (fetchDataRef.current) {
       // Dynamic true pagination: show the initial data as-is
       setVisibleData(allItemsOrInitialData);
-      setPage(initialPage + 1);
+      const nextCalculatedPage = Math.max(
+        initialPage + 1,
+        Math.floor(allItemsOrInitialData.length / pageSize) + 1
+      );
+      setPage(nextCalculatedPage);
       setHasMore(allItemsOrInitialData.length >= pageSize);
     } else {
       // Legacy slicing
@@ -83,15 +87,21 @@ export function useInfiniteScroll<T>(
         const nextBatch = await currentFetchData(page, pageSize);
 
         if (nextBatch.length > 0) {
-          setVisibleData(prev => {
-            if (!currentKeyExtractor) return [...prev, ...nextBatch];
-            const seen = new Set(prev.map(currentKeyExtractor));
-            const unique = nextBatch.filter(item => !seen.has(currentKeyExtractor(item)));
-            return [...prev, ...unique];
-          });
-          setPage(prev => prev + 1);
+          let unique = nextBatch;
+          if (currentKeyExtractor) {
+            const seen = new Set(visibleData.map(currentKeyExtractor));
+            unique = nextBatch.filter(item => !seen.has(currentKeyExtractor(item)));
+          }
+
+          if (unique.length > 0) {
+            setVisibleData(prev => [...prev, ...unique]);
+            setPage(prev => prev + 1);
+          }
+
+          setHasMore(nextBatch.length === pageSize && unique.length > 0);
+        } else {
+          setHasMore(false);
         }
-        setHasMore(nextBatch.length === pageSize);
       } else {
         // Legacy slicing
         const start = (page - 1) * pageSize;
@@ -106,20 +116,21 @@ export function useInfiniteScroll<T>(
       }
     } catch (error) {
       console.error('Error fetching more items:', error);
+      setHasMore(false);
     } finally {
       isLoadingRef.current = false;
       setIsLoadingMore(false);
     }
-  }, [page, isLoadingMore, hasMore, allItemsOrInitialData, pageSize, visualDelay]);
+  }, [page, isLoadingMore, hasMore, allItemsOrInitialData, pageSize, visualDelay, visibleData]);
 
   const observer = useRef<IntersectionObserver | null>(null);
 
   const lastItemRef = useCallback((node: HTMLElement | null) => {
-    if (isLoadingMore) return;
+    if (isLoadingMore || isLoadingRef.current) return;
     if (observer.current) observer.current.disconnect();
 
     observer.current = new IntersectionObserver(entries => {
-      if (entries[0].isIntersecting && hasMore) {
+      if (entries[0].isIntersecting && hasMore && !isLoadingRef.current) {
         loadMore();
       }
     });

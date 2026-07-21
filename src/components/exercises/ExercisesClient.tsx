@@ -85,21 +85,22 @@ export default function ExercisesClient({ initialExercises, initialTotalCount }:
         setInitialData(initialExercises);
     }, [initialExercises]);
 
-    // Efeito para lidar com filtros e resetar a lista
     useEffect(() => {
-        // Se for o carregamento inicial (primeira página, sem filtros), não bucar de novo
-        if (selectedCategory === 'all' && selectedEquipment === 'all' && debouncedSearch === '' && initialData === initialExercises) {
+        // Se não houver filtros ativos nem busca, utiliza os dados iniciais providos do Dexie/props
+        if (selectedCategory === 'all' && selectedEquipment === 'all' && debouncedSearch === '') {
             return;
         }
 
         fetchFirstPage();
-    }, [debouncedSearch, selectedCategory, selectedEquipment, initialExercises, fetchFirstPage]);
+    }, [debouncedSearch, selectedCategory, selectedEquipment, fetchFirstPage]);
 
     // Handle online/visibility recovery
     useEffect(() => {
         const handleRecovery = () => {
-            console.log('[ExercisesClient] App recovered, refreshing exercises...');
-            fetchFirstPage();
+            if (selectedCategory !== 'all' || selectedEquipment !== 'all' || debouncedSearch !== '') {
+                console.log('[ExercisesClient] App recovered, refreshing filtered exercises...');
+                fetchFirstPage();
+            }
         };
 
         window.addEventListener('online', handleRecovery);
@@ -114,7 +115,7 @@ export default function ExercisesClient({ initialExercises, initialTotalCount }:
             window.removeEventListener('online', handleRecovery);
             document.removeEventListener('visibilitychange', handleVisibilityChange);
         };
-    }, [fetchFirstPage]);
+    }, [debouncedSearch, selectedCategory, selectedEquipment, fetchFirstPage]);
 
     // Hook de Scroll Infinito
     const { visibleData, isLoadingMore, lastItemRef } = useInfiniteScroll(initialData, {
@@ -223,7 +224,7 @@ export default function ExercisesClient({ initialExercises, initialTotalCount }:
                                         {t('viewDetails')}
                                     </Link>
 
-                                    {(exercise.created_by === activeUser?.id) && (
+                                    {(exercise.created_by_type !== 'system' && (exercise.id ? exercise.id >= 1000 : false) && !!activeUser?.id && exercise.created_by === activeUser.id) && (
                                         <Link
                                             href={`/exercises/${exercise.id}/edit`}
                                             className="bg-lime-400 hover:bg-lime-500 text-zinc-950 px-4 py-3 rounded-2xl transition-colors flex items-center justify-center"

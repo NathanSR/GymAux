@@ -4,6 +4,7 @@ import { useEffect, useRef } from 'react';
 import { SyncManager } from '@/services/syncManager';
 import { toast } from 'react-toastify';
 import { InstallPromptBanner } from '@/components/pwa/InstallPromptBanner';
+import { OfflineIndicator } from '@/components/ui/OfflineIndicator';
 
 import { useTranslations } from 'next-intl';
 
@@ -72,14 +73,6 @@ export function OfflineSyncProvider({ children }: { children: React.ReactNode })
 
         const handleOffline = () => {
             console.log('[OfflineSyncProvider] You are currently offline. Changes will be saved locally.');
-            toastIdRef.current = toast.info(t('offlineNotice'), {
-                autoClose: 3000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                style: { background: '#27272a', color: '#fff', borderRadius: '16px', fontSize: '14px' }
-            });
         };
 
         const handleVisibilityChange = () => {
@@ -110,6 +103,7 @@ export function OfflineSyncProvider({ children }: { children: React.ReactNode })
 
     return (
         <>
+            <OfflineIndicator />
             {children}
             <InstallPromptBanner />
         </>

@@ -34,8 +34,27 @@ export default async function middleware(request: NextRequest) {
         }
     );
 
-    // 4. Verificamos a sessão do usuário
-    const { data: { user } } = await supabase.auth.getUser();
+    // 4. Verificamos a sessão do usuário com resiliência offline
+    let user = null;
+    try {
+        const { data } = await supabase.auth.getUser();
+        user = data?.user || null;
+    } catch {
+        // Operação de rede falhou (offline): tentar obter a sessão cacheada dos cookies
+        try {
+            const { data: { session } } = await supabase.auth.getSession();
+            user = session?.user || null;
+        } catch {
+            // Sessão também falhou offline — verifica se há cookie de autenticação do Supabase
+            const hasAuthCookie = request.cookies.getAll().some(c =>
+                c.name.startsWith('sb-') && c.name.endsWith('-auth-token')
+            );
+            if (hasAuthCookie) {
+                // Permite a passagem se houver cookie de sessão; a validação e hidratação serão feitas via Dexie no client
+                user = { offlineAllowed: true } as any;
+            }
+        }
+    }
 
     // 5. Lógica de Proteção de Rotas
     const pathname = request.nextUrl.pathname;
@@ -45,10 +64,6 @@ export default async function middleware(request: NextRequest) {
 
     const isPublicPage = publicPages.some((page) => {
         const locales = routing.locales.join('|');
-        // Regex flexível para aceitar:
-        // - Rota pura: /login
-        // - Rota com locale: /pt/login
-        // - Rota com/sem trailing slash: /login/
         const path = page === '/' ? '/?' : `${page}/?`;
         const regex = new RegExp(`^(/(${locales}))?${path}$`, 'i');
         return regex.test(pathname);

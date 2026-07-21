@@ -9,10 +9,12 @@ const withPWA = withPWAInit({
   register: true,
   extendDefaultRuntimeCaching: true,
   fallbacks: {
-    document: "/pt/offline",
+    document: "/pt/home",
   },
   workboxOptions: {
     disableDevLogs: true,
+    skipWaiting: true,
+    clientsClaim: true,
     runtimeCaching: [
       {
         // Sons do timer de treino e mídia local - CacheFirst imediato
@@ -52,16 +54,16 @@ const withPWA = withPWAInit({
         },
       },
       {
-        // Navegação de páginas HTML (App Shell) - NetworkFirst com 1.5s timeout
-        urlPattern: ({ request }: { request: any }) => request.mode === "navigate",
-        handler: "NetworkFirst",
+        // Navegação de páginas HTML (App Shell) - StaleWhileRevalidate para abertura instantânea
+        urlPattern: ({ request, url }: { request: any; url: URL }) =>
+          request.mode === "navigate" && !url.pathname.includes('/login') && !url.pathname.includes('/register'),
+        handler: "StaleWhileRevalidate",
         options: {
           cacheName: "pages-html-cache",
           expiration: {
             maxEntries: 100,
-            maxAgeSeconds: 7 * 24 * 60 * 60,
+            maxAgeSeconds: 30 * 24 * 60 * 60, // 30 dias — os dados da UI vêm do Dexie
           },
-          networkTimeoutSeconds: 1.5,
         },
       },
       {
@@ -81,7 +83,7 @@ const withPWA = withPWAInit({
   },
   cacheOnFrontEndNav: true,
   aggressiveFrontEndNavCaching: true,
-  reloadOnOnline: true,
+  reloadOnOnline: false,
 });
 
 const nextConfig = {
