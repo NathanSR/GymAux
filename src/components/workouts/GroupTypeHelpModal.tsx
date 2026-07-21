@@ -19,7 +19,7 @@ export const GroupTypeHelpModal = ({ isOpen, onClose }: {
     ];
 
     return (
-        <Modal isOpen={isOpen} onClose={onClose} title={t('title')}>
+        <Modal isOpen={isOpen} onClose={onClose} title={t('title')} zIndex="z-[200]">
             <div className="p-5 sm:p-6 space-y-5">
                 <div className="space-y-4">
                     {groupTypes.map(({ id, icon: Icon, color, bg }) => (

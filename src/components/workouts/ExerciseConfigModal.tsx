@@ -11,13 +11,15 @@ interface ExerciseConfigModalProps {
     onClose: () => void;
     groupData: ExerciseGroup | null;
     onSave: (group: ExerciseGroup) => void;
+    zIndex?: string | number;
 }
 
 export const ExerciseConfigModal: React.FC<ExerciseConfigModalProps> = ({
     isOpen,
     onClose,
     groupData,
-    onSave
+    onSave,
+    zIndex = "z-[150]"
 }) => {
     const t = useTranslations('WorkoutForm');
     const te = useTranslations('Exercises');
@@ -32,6 +34,7 @@ export const ExerciseConfigModal: React.FC<ExerciseConfigModalProps> = ({
             onClose={onClose}
             title={titleText}
             maxWidth="max-w-2xl"
+            zIndex={zIndex}
         >
             <div className="p-5">
                 <ExerciseConfigForm

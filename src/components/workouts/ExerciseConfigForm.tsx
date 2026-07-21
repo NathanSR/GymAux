@@ -1,10 +1,12 @@
+"use client";
+
 import React, { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
-import { Plus, Trash2, Dumbbell, HelpCircle, Save, Sliders, Flame, ChevronDown, ChevronUp } from 'lucide-react';
+import { Plus, Trash2, Dumbbell, HelpCircle, Save, Zap, ArrowRight, Sliders, Edit2, Edit } from 'lucide-react';
 import { ExerciseGroup, PlannedSet, GroupType, SetTechnique } from '@/config/types';
 import { ExerciseSelector } from '@/components/exercises/ExerciseSelector';
 import { GroupTypeHelpModal } from './GroupTypeHelpModal';
-import { DropsetModal } from '@/components/session/DropsetModal';
+import { DropsetModal, DropsetPart } from '@/components/session/DropsetModal';
 import { numberInputUtils } from '@/utils/numberUtil';
 
 export interface ExerciseConfigFormProps {
@@ -50,6 +52,7 @@ export const ExerciseConfigForm: React.FC<ExerciseConfigFormProps> = ({
     const t = useTranslations('WorkoutForm');
     const te = useTranslations('Exercises');
     const tw = useTranslations('WorkoutDrawer');
+    const ts = useTranslations('Session');
 
     const [group, setGroup] = useState<ExerciseGroup>(() => {
         return initialGroupData ? JSON.parse(JSON.stringify(initialGroupData)) : JSON.parse(JSON.stringify(DEFAULT_GROUP));
@@ -57,8 +60,11 @@ export const ExerciseConfigForm: React.FC<ExerciseConfigFormProps> = ({
     const [selectingExIndex, setSelectingExIndex] = useState<number | null>(null);
     const [isSelectorOpen, setIsSelectorOpen] = useState(false);
     const [isHelpOpen, setIsHelpOpen] = useState(false);
-    const [showAdvanced, setShowAdvanced] = useState(false);
-    const [activeDropsetTarget, setActiveDropsetTarget] = useState<{ exIndex: number; setIndex: number } | null>(null);
+    const [showDetailedView, setShowDetailedView] = useState(false);
+    const [activeDropsetTarget, setActiveDropsetTarget] = useState<{
+        exIndex: number;
+        setIndex: number | 'all';
+    } | null>(null);
 
     useEffect(() => {
         if (initialGroupData) {
@@ -140,6 +146,71 @@ export const ExerciseConfigForm: React.FC<ExerciseConfigFormProps> = ({
         setGroup(prev => ({ ...prev, exercises: updatedExercises }));
     };
 
+    const handleSetsCountChange = (exIndex: number, newCount: number) => {
+        if (newCount < 1) return;
+        setGroup(prev => {
+            const updatedExercises = [...prev.exercises];
+            const currentSets = updatedExercises[exIndex]?.sets || [];
+            let newSets = [...currentSets];
+
+            if (currentSets.length < newCount) {
+                const lastSet = currentSets[currentSets.length - 1] || DEFAULT_SET;
+                while (newSets.length < newCount) {
+                    newSets.push(JSON.parse(JSON.stringify(lastSet)));
+                }
+            } else if (currentSets.length > newCount) {
+                newSets = newSets.slice(0, newCount);
+            }
+
+            updatedExercises[exIndex].sets = newSets;
+            return {
+                ...prev,
+                rounds: newCount,
+                exercises: updatedExercises
+            };
+        });
+    };
+
+    const handleGlobalRepsChange = (exIndex: number, newReps: number) => {
+        setGroup(prev => {
+            const updatedExercises = [...prev.exercises];
+            const updatedSets = (updatedExercises[exIndex].sets || []).map(s => ({
+                ...s,
+                reps: newReps
+            }));
+            updatedExercises[exIndex].sets = updatedSets;
+            return { ...prev, exercises: updatedExercises };
+        });
+    };
+
+    const handleGlobalWeightChange = (exIndex: number, newWeight: number) => {
+        setGroup(prev => {
+            const updatedExercises = [...prev.exercises];
+            const updatedSets = (updatedExercises[exIndex].sets || []).map(s => ({
+                ...s,
+                weight: newWeight
+            }));
+            updatedExercises[exIndex].sets = updatedSets;
+            return { ...prev, exercises: updatedExercises };
+        });
+    };
+
+    const handleGlobalRestChange = (exIndex: number, newRest: number) => {
+        setGroup(prev => {
+            const updatedExercises = [...prev.exercises];
+            const updatedSets = (updatedExercises[exIndex].sets || []).map(s => ({
+                ...s,
+                restTime: newRest
+            }));
+            updatedExercises[exIndex].sets = updatedSets;
+            return {
+                ...prev,
+                restAfterGroup: newRest,
+                exercises: updatedExercises
+            };
+        });
+    };
+
     const handleRoundsChange = (newRounds: number) => {
         if (newRounds < 1) return;
         setGroup(prev => {
@@ -173,6 +244,10 @@ export const ExerciseConfigForm: React.FC<ExerciseConfigFormProps> = ({
         };
         updatedExercises[exIndex].sets = currentSets;
         setGroup(prev => ({ ...prev, exercises: updatedExercises }));
+
+        if (field === 'technique' && value === 'drop_set') {
+            setActiveDropsetTarget({ exIndex, setIndex });
+        }
     };
 
     const handleAddSet = (exIndex: number) => {
@@ -210,6 +285,74 @@ export const ExerciseConfigForm: React.FC<ExerciseConfigFormProps> = ({
         setGroup(prev => ({ ...prev, exercises: updatedExercises }));
     };
 
+    const handleSaveDropset = (dropsetData: DropsetPart[] | null) => {
+        if (!activeDropsetTarget) return;
+        const { exIndex, setIndex } = activeDropsetTarget;
+
+        const updatedExercises = [...group.exercises];
+        const currentSets = [...(updatedExercises[exIndex].sets || [])];
+
+        if (setIndex === 'all') {
+            const updatedSets = currentSets.map(s => {
+                if (dropsetData && dropsetData.length > 1) {
+                    return {
+                        ...s,
+                        technique: 'drop_set' as SetTechnique,
+                        dropset: JSON.parse(JSON.stringify(dropsetData))
+                    };
+                } else {
+                    return {
+                        ...s,
+                        technique: s.technique === 'drop_set' ? ('normal' as SetTechnique) : s.technique,
+                        dropset: undefined
+                    };
+                }
+            });
+            updatedExercises[exIndex].sets = updatedSets;
+        } else {
+            if (dropsetData && dropsetData.length > 1) {
+                currentSets[setIndex] = {
+                    ...currentSets[setIndex],
+                    technique: 'drop_set',
+                    dropset: JSON.parse(JSON.stringify(dropsetData))
+                };
+            } else {
+                currentSets[setIndex] = {
+                    ...currentSets[setIndex],
+                    technique: currentSets[setIndex].technique === 'drop_set' ? 'normal' : currentSets[setIndex].technique,
+                    dropset: undefined
+                };
+            }
+            updatedExercises[exIndex].sets = currentSets;
+        }
+
+        setGroup(prev => ({ ...prev, exercises: updatedExercises }));
+        setActiveDropsetTarget(null);
+    };
+
+    const handleRemoveDropset = (exIndex: number, setIndex: number | 'all') => {
+        const updatedExercises = [...group.exercises];
+        const currentSets = [...(updatedExercises[exIndex].sets || [])];
+
+        if (setIndex === 'all') {
+            const updatedSets = currentSets.map(s => ({
+                ...s,
+                technique: s.technique === 'drop_set' ? ('normal' as SetTechnique) : s.technique,
+                dropset: undefined
+            }));
+            updatedExercises[exIndex].sets = updatedSets;
+        } else {
+            currentSets[setIndex] = {
+                ...currentSets[setIndex],
+                technique: currentSets[setIndex].technique === 'drop_set' ? 'normal' : currentSets[setIndex].technique,
+                dropset: undefined
+            };
+            updatedExercises[exIndex].sets = currentSets;
+        }
+
+        setGroup(prev => ({ ...prev, exercises: updatedExercises }));
+    };
+
     const handleConfirm = (e: React.FormEvent) => {
         e.preventDefault();
         const missingExercise = group.exercises.find(ex => !ex.exerciseId || !ex.exerciseName);
@@ -223,6 +366,11 @@ export const ExerciseConfigForm: React.FC<ExerciseConfigFormProps> = ({
     };
 
     const isStraight = group.groupType === 'straight';
+
+    const getGlobalDropset = (exIndex: number) => {
+        const sets = group.exercises[exIndex]?.sets || [];
+        return sets.find(s => s.dropset && s.dropset.length > 1)?.dropset || null;
+    };
 
     return (
         <div className={className}>
@@ -258,196 +406,455 @@ export const ExerciseConfigForm: React.FC<ExerciseConfigFormProps> = ({
 
                 {/* Exercises in Group */}
                 <div className="space-y-4">
-                    {group.exercises.map((ex, exIndex) => (
-                        <div
-                            key={exIndex}
-                            className="bg-white dark:bg-zinc-900 p-4 rounded-2xl border border-zinc-200/80 dark:border-zinc-800 space-y-4 relative shadow-2xs min-w-0"
-                        >
-                            {/* Exercise Selector Header */}
-                            <div className="flex items-center gap-2 min-w-0">
-                                <button
-                                    type="button"
-                                    onClick={() => handleOpenSelector(exIndex)}
-                                    className="flex-1 flex items-center justify-between p-3 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200/80 dark:border-zinc-800/80 hover:border-lime-500/50 rounded-xl transition-all cursor-pointer group min-w-0 overflow-hidden"
-                                >
-                                    <div className="flex items-center gap-2.5 min-w-0 flex-1 pr-2">
-                                        <Dumbbell size={16} className="text-lime-500 shrink-0" />
-                                        <span className="font-black text-xs uppercase tracking-tight text-zinc-900 dark:text-zinc-100 truncate block">
-                                            {ex.exerciseName
-                                                ? (te.has(ex.exerciseName) ? te(ex.exerciseName) : ex.exerciseName)
-                                                : t('selectExercise')}
-                                        </span>
-                                    </div>
-                                    <span className="text-[10px] font-black uppercase text-lime-600 dark:text-lime-400 group-hover:underline shrink-0">
-                                        {t('selectExercise')}
-                                    </span>
-                                </button>
+                    {group.exercises.map((ex, exIndex) => {
+                        const globalDropset = getGlobalDropset(exIndex);
 
-                                {group.exercises.length > 1 && (
+                        return (
+                            <div
+                                key={exIndex}
+                                className="bg-white dark:bg-zinc-900 p-4 rounded-2xl border border-zinc-200/80 dark:border-zinc-800 space-y-4 relative shadow-2xs min-w-0"
+                            >
+                                {/* Exercise Selector Header */}
+                                <div className="flex items-center gap-2 min-w-0">
                                     <button
                                         type="button"
-                                        onClick={() => handleRemoveExerciseFromGroup(exIndex)}
-                                        className="p-3 text-zinc-400 hover:text-red-500 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200/80 dark:border-zinc-800 rounded-xl transition-all shrink-0 cursor-pointer"
+                                        onClick={() => handleOpenSelector(exIndex)}
+                                        className="flex-1 flex items-center justify-between p-3 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200/80 dark:border-zinc-800/80 hover:border-lime-500/50 rounded-xl transition-all cursor-pointer group min-w-0 overflow-hidden"
                                     >
-                                        <Trash2 size={16} />
-                                    </button>
-                                )}
-                            </div>
-
-                            {/* Exercise Notes */}
-                            <div>
-                                <input
-                                    type="text"
-                                    placeholder={t('exerciseNotesPlaceholder')}
-                                    value={ex.notes || ''}
-                                    onChange={(e) => handleNotesChange(exIndex, e.target.value)}
-                                    className="w-full bg-amber-500/[0.04] dark:bg-amber-500/5 border border-amber-500/20 focus:border-amber-500/50 rounded-xl px-3 py-2 text-xs font-medium outline-none text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-600 transition-all"
-                                />
-                            </div>
-
-                            {/* Sets Table or Compact Exercise Controls */}
-                            {isStraight ? (
-                                <div className="space-y-2">
-                                    <div className="flex items-center justify-between px-1">
-                                        <span className="text-[9px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">
-                                            {tw('sets')} ({ex.sets?.length || 0})
+                                        <div className="flex items-center gap-2.5 min-w-0 flex-1 pr-2">
+                                            <Dumbbell size={16} className="text-lime-500 shrink-0" />
+                                            <span className="font-black text-xs uppercase tracking-tight text-zinc-900 dark:text-zinc-100 truncate block">
+                                                {ex.exerciseName
+                                                    ? (te.has(ex.exerciseName) ? te(ex.exerciseName) : ex.exerciseName)
+                                                    : t('selectExercise')}
+                                            </span>
+                                        </div>
+                                        <span className="text-[10px] font-black uppercase text-lime-600 dark:text-lime-400 group-hover:underline shrink-0">
+                                            <Edit size={16} className="text-lime-500" />
                                         </span>
+                                    </button>
+
+                                    {group.exercises.length > 1 && (
                                         <button
                                             type="button"
-                                            onClick={() => handleAddSet(exIndex)}
-                                            className="flex items-center gap-1 text-[9px] font-black uppercase tracking-tight text-lime-600 dark:text-lime-400 hover:underline cursor-pointer"
+                                            onClick={() => handleRemoveExerciseFromGroup(exIndex)}
+                                            className="p-3 text-zinc-400 hover:text-red-500 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200/80 dark:border-zinc-800 rounded-xl transition-all shrink-0 cursor-pointer"
                                         >
-                                            <Plus size={12} /> {tw('addExercise')}
+                                            <Trash2 size={16} />
                                         </button>
-                                    </div>
+                                    )}
+                                </div>
 
-                                    <div className="bg-zinc-50/80 dark:bg-zinc-950/60 p-2.5 rounded-xl border border-zinc-100 dark:border-zinc-800/80 space-y-2">
-                                        {/* Table Header */}
-                                        <div className="grid grid-cols-12 gap-1.5 text-[7.5px] font-black uppercase tracking-widest text-zinc-400 dark:text-zinc-500 px-1 text-center">
-                                            <span className="col-span-1 text-left">#</span>
-                                            <span className="col-span-3">{t('reps')}</span>
-                                            <span className="col-span-3">{t('weight')}</span>
-                                            <span className="col-span-2">{t('rest')}</span>
-                                            <span className="col-span-2">{t('tech')}</span>
-                                            <span className="col-span-1"></span>
+                                {/* Exercise Notes */}
+                                <div>
+                                    <input
+                                        type="text"
+                                        placeholder={t('exerciseNotesPlaceholder')}
+                                        value={ex.notes || ''}
+                                        onChange={(e) => handleNotesChange(exIndex, e.target.value)}
+                                        className="w-full bg-amber-500/[0.04] dark:bg-amber-500/5 border border-amber-500/20 focus:border-amber-500/50 rounded-xl px-3 py-2 text-xs font-medium outline-none text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-600 transition-all"
+                                    />
+                                </div>
+
+                                {/* Exercise Metrics Configuration */}
+                                {isStraight ? (
+                                    <div className="space-y-4">
+                                        {/* Toggle View Header */}
+                                        <div className="flex items-center justify-between px-1">
+                                            <span className="text-[9px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">
+                                                {tw('sets')} ({ex.sets?.length || 0})
+                                            </span>
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowDetailedView(prev => !prev)}
+                                                className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-zinc-100 dark:bg-zinc-800/80 hover:bg-zinc-200 dark:hover:bg-zinc-800 text-[9px] font-black uppercase tracking-wider text-zinc-600 dark:text-zinc-300 hover:text-lime-600 dark:hover:text-lime-400 transition-all cursor-pointer"
+                                            >
+                                                <Sliders size={12} className="text-lime-500" />
+                                                <span>{showDetailedView ? t('simplifiedView') : t('detailedView')}</span>
+                                            </button>
                                         </div>
 
-                                        {/* Table Rows */}
-                                        {ex.sets?.map((setObj, sIndex) => (
-                                            <div key={sIndex} className="grid grid-cols-12 gap-1.5 items-center">
-                                                <span className="col-span-1 text-[10px] font-black text-zinc-400 dark:text-zinc-500 pl-1">
-                                                    {sIndex + 1}
-                                                </span>
-                                                <div className="col-span-3">
-                                                    <input
-                                                        type="number"
-                                                        onFocus={numberInputUtils.onFocus}
-                                                        value={numberInputUtils.formatValue(setObj.reps)}
-                                                        onChange={(e) => numberInputUtils.onChange(e, (val) => handleSetChange(exIndex, sIndex, 'reps', val))}
-                                                        className="w-full bg-white dark:bg-zinc-900 border border-zinc-200/60 dark:border-zinc-800/80 focus:border-lime-500 rounded-lg p-1.5 text-xs font-black outline-none text-center text-zinc-900 dark:text-zinc-100"
-                                                    />
-                                                </div>
-                                                <div className="col-span-3">
-                                                    <input
-                                                        type="number"
-                                                        step="any"
-                                                        onFocus={numberInputUtils.onFocus}
-                                                        value={numberInputUtils.formatValue(setObj.weight)}
-                                                        onChange={(e) => numberInputUtils.onChange(e, (val) => handleSetChange(exIndex, sIndex, 'weight', val))}
-                                                        className="w-full bg-white dark:bg-zinc-900 border border-zinc-200/60 dark:border-zinc-800/80 focus:border-lime-500 rounded-lg p-1.5 text-xs font-black outline-none text-center text-lime-600 dark:text-lime-400"
-                                                    />
-                                                </div>
-                                                <div className="col-span-2">
-                                                    <input
-                                                        type="number"
-                                                        onFocus={numberInputUtils.onFocus}
-                                                        value={numberInputUtils.formatValue(setObj.restTime)}
-                                                        onChange={(e) => numberInputUtils.onChange(e, (val) => handleSetChange(exIndex, sIndex, 'restTime', val))}
-                                                        className="w-full bg-white dark:bg-zinc-900 border border-zinc-200/60 dark:border-zinc-800/80 focus:border-lime-500 rounded-lg p-1.5 text-xs font-black outline-none text-center text-zinc-900 dark:text-zinc-100"
-                                                    />
-                                                </div>
-                                                <div className="col-span-2">
-                                                    <select
-                                                        value={setObj.technique || 'normal'}
-                                                        onChange={(e) => handleSetChange(exIndex, sIndex, 'technique', e.target.value as SetTechnique)}
-                                                        className="w-full bg-white dark:bg-zinc-900 border border-zinc-200/60 dark:border-zinc-800/80 focus:border-lime-500 rounded-lg p-1 text-[10px] font-black text-center outline-none text-zinc-800 dark:text-zinc-200 cursor-pointer"
-                                                    >
-                                                        <option value="normal">{t('techniques.normal')}</option>
-                                                        <option value="drop_set">{t('techniques.drop_set')}</option>
-                                                        <option value="rest_pause">{t('techniques.rest_pause')}</option>
-                                                        <option value="forced_reps">{t('techniques.forced_reps')}</option>
-                                                        <option value="negative">{t('techniques.negative')}</option>
-                                                        <option value="isometric">{t('techniques.isometric')}</option>
-                                                        <option value="tempo">{t('techniques.tempo')}</option>
-                                                        <option value="cluster">{t('techniques.cluster')}</option>
-                                                        <option value="to_failure">{t('techniques.to_failure')}</option>
-                                                    </select>
-                                                </div>
-                                                <div className="col-span-1 flex justify-center">
-                                                    {ex.sets.length > 1 && (
+                                        {!showDetailedView ? (
+                                            /* SIMPLIFIED MAIN INPUTS VIEW */
+                                            <div className="space-y-3">
+                                                {!globalDropset ? (
+                                                    /* STANDARD 4-CARD INPUT GRID (No Dropset) */
+                                                    <div className="space-y-3">
+                                                        <div className="grid grid-cols-2 gap-2.5">
+                                                            {/* Séries Stepper */}
+                                                            <div className="bg-zinc-50/90 dark:bg-zinc-950/70 p-3 rounded-2xl border border-zinc-100 dark:border-zinc-800/80 flex flex-col justify-between">
+                                                                <span className="block text-[8.5px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mb-1.5">
+                                                                    {tw('sets')}
+                                                                </span>
+                                                                <div className="flex items-center justify-between">
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() => handleSetsCountChange(exIndex, (ex.sets?.length || 1) - 1)}
+                                                                        className="w-7 h-7 rounded-lg bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 flex items-center justify-center text-zinc-700 dark:text-zinc-300 hover:border-lime-500 transition-colors font-bold cursor-pointer"
+                                                                    >
+                                                                        -
+                                                                    </button>
+                                                                    <span className="text-base font-black text-zinc-900 dark:text-white">
+                                                                        {ex.sets?.length || 0}
+                                                                    </span>
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() => handleSetsCountChange(exIndex, (ex.sets?.length || 1) + 1)}
+                                                                        className="w-7 h-7 rounded-lg bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 flex items-center justify-center text-zinc-700 dark:text-zinc-300 hover:border-lime-500 transition-colors font-bold cursor-pointer"
+                                                                    >
+                                                                        +
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+
+                                                            {/* Repetições Input */}
+                                                            <div className="bg-zinc-50/90 dark:bg-zinc-950/70 p-3 rounded-2xl border border-zinc-100 dark:border-zinc-800/80">
+                                                                <span className="block text-[8.5px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mb-1.5">
+                                                                    {t('reps')}
+                                                                </span>
+                                                                <input
+                                                                    type="number"
+                                                                    onFocus={numberInputUtils.onFocus}
+                                                                    value={numberInputUtils.formatValue(ex.sets?.[0]?.reps || 10)}
+                                                                    onChange={(e) => numberInputUtils.onChange(e, (val) => handleGlobalRepsChange(exIndex, Number(val)))}
+                                                                    className="w-full bg-white dark:bg-zinc-900 border border-zinc-200/60 dark:border-zinc-800/80 focus:border-lime-500 rounded-xl p-2 text-sm font-black outline-none text-center text-zinc-900 dark:text-zinc-100"
+                                                                />
+                                                            </div>
+
+                                                            {/* Carga (kg) Input */}
+                                                            <div className="bg-zinc-50/90 dark:bg-zinc-950/70 p-3 rounded-2xl border border-zinc-100 dark:border-zinc-800/80">
+                                                                <span className="block text-[8.5px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mb-1.5">
+                                                                    {t('weight')} (kg)
+                                                                </span>
+                                                                <input
+                                                                    type="number"
+                                                                    step="any"
+                                                                    onFocus={numberInputUtils.onFocus}
+                                                                    value={numberInputUtils.formatValue(ex.sets?.[0]?.weight || 0)}
+                                                                    onChange={(e) => numberInputUtils.onChange(e, (val) => handleGlobalWeightChange(exIndex, Number(val)))}
+                                                                    className="w-full bg-white dark:bg-zinc-900 border border-zinc-200/60 dark:border-zinc-800/80 focus:border-lime-500 rounded-xl p-2 text-sm font-black outline-none text-center text-lime-600 dark:text-lime-400"
+                                                                />
+                                                            </div>
+
+                                                            {/* Descanso (s) Input */}
+                                                            <div className="bg-zinc-50/90 dark:bg-zinc-950/70 p-3 rounded-2xl border border-zinc-100 dark:border-zinc-800/80">
+                                                                <span className="block text-[8.5px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mb-1.5">
+                                                                    {t('rest')} (s)
+                                                                </span>
+                                                                <input
+                                                                    type="number"
+                                                                    onFocus={numberInputUtils.onFocus}
+                                                                    value={numberInputUtils.formatValue(ex.sets?.[0]?.restTime || 60)}
+                                                                    onChange={(e) => numberInputUtils.onChange(e, (val) => handleGlobalRestChange(exIndex, Number(val)))}
+                                                                    className="w-full bg-white dark:bg-zinc-900 border border-zinc-200/60 dark:border-zinc-800/80 focus:border-lime-500 rounded-xl p-2 text-sm font-black outline-none text-center text-zinc-900 dark:text-zinc-100"
+                                                                />
+                                                            </div>
+                                                        </div>
+
+                                                        {/* Configurar Dropset Button */}
                                                         <button
                                                             type="button"
-                                                            onClick={() => handleRemoveSet(exIndex, sIndex)}
-                                                            className="text-zinc-300 hover:text-red-500 transition-colors cursor-pointer"
+                                                            onClick={() => setActiveDropsetTarget({ exIndex, setIndex: 'all' })}
+                                                            className="w-full py-3 px-4 bg-zinc-50 hover:bg-lime-400/10 dark:bg-zinc-950/60 dark:hover:bg-lime-400/10 border border-dashed border-zinc-200 dark:border-zinc-800 hover:border-lime-500/40 text-zinc-600 dark:text-zinc-400 hover:text-lime-600 dark:hover:text-lime-400 rounded-2xl flex items-center justify-center gap-2 text-[11px] font-black uppercase tracking-wider transition-all cursor-pointer active:scale-[0.99]"
                                                         >
-                                                            <Trash2 size={13} />
+                                                            <Zap size={14} className="text-lime-500" />
+                                                            <span>{t('configureDropset')}</span>
                                                         </button>
-                                                    )}
-                                                </div>
+                                                    </div>
+                                                ) : (
+                                                    /* DROIPSET ACTIVE VIEW (Hide Reps & Weight, Show Séries + Descanso + Dropset Card) */
+                                                    <div className="space-y-3">
+                                                        <div className="grid grid-cols-2 gap-2.5">
+                                                            {/* Séries Stepper */}
+                                                            <div className="bg-zinc-50/90 dark:bg-zinc-950/70 p-3 rounded-2xl border border-zinc-100 dark:border-zinc-800/80 flex flex-col justify-between">
+                                                                <span className="block text-[8.5px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mb-1.5">
+                                                                    {tw('sets')}
+                                                                </span>
+                                                                <div className="flex items-center justify-between">
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() => handleSetsCountChange(exIndex, (ex.sets?.length || 1) - 1)}
+                                                                        className="w-7 h-7 rounded-lg bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 flex items-center justify-center text-zinc-700 dark:text-zinc-300 hover:border-lime-500 transition-colors font-bold cursor-pointer"
+                                                                    >
+                                                                        -
+                                                                    </button>
+                                                                    <span className="text-base font-black text-zinc-900 dark:text-white">
+                                                                        {ex.sets?.length || 0}
+                                                                    </span>
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() => handleSetsCountChange(exIndex, (ex.sets?.length || 1) + 1)}
+                                                                        className="w-7 h-7 rounded-lg bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 flex items-center justify-center text-zinc-700 dark:text-zinc-300 hover:border-lime-500 transition-colors font-bold cursor-pointer"
+                                                                    >
+                                                                        +
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+
+                                                            {/* Descanso (s) Input */}
+                                                            <div className="bg-zinc-50/90 dark:bg-zinc-950/70 p-3 rounded-2xl border border-zinc-100 dark:border-zinc-800/80">
+                                                                <span className="block text-[8.5px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mb-1.5">
+                                                                    {t('rest')} (s)
+                                                                </span>
+                                                                <input
+                                                                    type="number"
+                                                                    onFocus={numberInputUtils.onFocus}
+                                                                    value={numberInputUtils.formatValue(ex.sets?.[0]?.restTime || 60)}
+                                                                    onChange={(e) => numberInputUtils.onChange(e, (val) => handleGlobalRestChange(exIndex, Number(val)))}
+                                                                    className="w-full bg-white dark:bg-zinc-900 border border-zinc-200/60 dark:border-zinc-800/80 focus:border-lime-500 rounded-xl p-2 text-sm font-black outline-none text-center text-zinc-900 dark:text-zinc-100"
+                                                                />
+                                                            </div>
+                                                        </div>
+
+                                                        {/* DROIPSET ACTIVE CARD */}
+                                                        <div className="p-3.5 bg-lime-400/10 dark:bg-lime-400/5 rounded-2xl border border-lime-500/30 dark:border-lime-400/30 space-y-2.5">
+                                                            <div className="flex items-center justify-between">
+                                                                <div className="flex items-center gap-2">
+                                                                    <Zap size={14} className="text-lime-500 fill-current" />
+                                                                    <span className="text-[10px] font-black uppercase tracking-wider text-lime-700 dark:text-lime-400">
+                                                                        {t('dropsetConfigured', { count: globalDropset.length })}
+                                                                    </span>
+                                                                </div>
+                                                                <div className="flex items-center gap-1.5">
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() => setActiveDropsetTarget({ exIndex, setIndex: 'all' })}
+                                                                        className="px-2.5 py-1 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-[9px] font-black uppercase text-zinc-700 dark:text-zinc-300 hover:text-lime-500 transition-colors cursor-pointer"
+                                                                    >
+                                                                        {ts('edit')}
+                                                                    </button>
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() => handleRemoveDropset(exIndex, 'all')}
+                                                                        className="px-2.5 py-1 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-[9px] font-black uppercase text-rose-500 hover:text-rose-600 transition-colors cursor-pointer"
+                                                                    >
+                                                                        {ts('remove')}
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+
+                                                            {/* Horizontal Drops Preview */}
+                                                            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-thin">
+                                                                {globalDropset.map((drop, idx) => (
+                                                                    <React.Fragment key={idx}>
+                                                                        {idx > 0 && <ArrowRight size={10} className="text-zinc-400 shrink-0" />}
+                                                                        <span className={`px-2 py-1 rounded-lg text-[10px] font-black shrink-0 ${idx === 0
+                                                                            ? 'bg-lime-400/20 text-lime-800 dark:text-lime-300'
+                                                                            : 'bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-800'
+                                                                            }`}>
+                                                                            {drop.weight}kg × {drop.reps}
+                                                                        </span>
+                                                                    </React.Fragment>
+                                                                ))}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                )}
                                             </div>
-                                        ))}
+                                        ) : (
+                                            /* EXPANDED DETAILED PER-SET TABLE VIEW */
+                                            <div className="space-y-2">
+                                                <div className="bg-zinc-50/80 dark:bg-zinc-950/60 p-2.5 rounded-xl border border-zinc-100 dark:border-zinc-800/80 space-y-2">
+                                                    {/* Table Header */}
+                                                    <div className="grid grid-cols-12 gap-1.5 text-[7.5px] font-black uppercase tracking-widest text-zinc-400 dark:text-zinc-500 px-1 text-center">
+                                                        <span className="col-span-1 text-left">#</span>
+                                                        <span className="col-span-3">{t('reps')}</span>
+                                                        <span className="col-span-3">{t('weight')}</span>
+                                                        <span className="col-span-2">{t('rest')}</span>
+                                                        <span className="col-span-2">{t('tech')}</span>
+                                                        <span className="col-span-1"></span>
+                                                    </div>
+
+                                                    {/* Table Rows */}
+                                                    {ex.sets?.map((setObj, sIndex) => {
+                                                        const hasRowDropset = setObj.dropset && setObj.dropset.length > 1;
+
+                                                        return (
+                                                            <div key={sIndex} className="grid grid-cols-12 gap-1.5 items-center">
+                                                                <span className="col-span-1 text-[10px] font-black text-zinc-400 dark:text-zinc-500 pl-1">
+                                                                    {sIndex + 1}
+                                                                </span>
+
+                                                                {hasRowDropset ? (
+                                                                    /* DROIPSET ROW SUMMARY (Replaces Reps & Weight inputs) */
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() => setActiveDropsetTarget({ exIndex, setIndex: sIndex })}
+                                                                        className="col-span-6 flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-lime-400/10 dark:bg-lime-400/10 border border-lime-500/30 text-[10px] font-black text-lime-700 dark:text-lime-400 hover:border-lime-500 transition-all cursor-pointer truncate shadow-xs min-w-0"
+                                                                    >
+                                                                        <div className="flex items-center gap-1.5 truncate min-w-0">
+                                                                            <Zap size={11} className="fill-current text-lime-500 shrink-0" />
+                                                                            <span className="truncate">{setObj.dropset?.[0]?.weight || 0}kg × {setObj.dropset?.[0]?.reps || 0} ({setObj.dropset?.length || 0} drops)</span>
+                                                                        </div>
+                                                                        <span className="text-[9px] underline shrink-0 ml-1 opacity-80 hover:opacity-100">{ts('edit')}</span>
+                                                                    </button>
+                                                                ) : (
+                                                                    /* STANDARD REPS & WEIGHT INPUTS */
+                                                                    <>
+                                                                        <div className="col-span-3">
+                                                                            <input
+                                                                                type="number"
+                                                                                onFocus={numberInputUtils.onFocus}
+                                                                                value={numberInputUtils.formatValue(setObj.reps)}
+                                                                                onChange={(e) => numberInputUtils.onChange(e, (val) => handleSetChange(exIndex, sIndex, 'reps', val))}
+                                                                                className="w-full bg-white dark:bg-zinc-900 border border-zinc-200/60 dark:border-zinc-800/80 focus:border-lime-500 rounded-lg p-1.5 text-xs font-black outline-none text-center text-zinc-900 dark:text-zinc-100"
+                                                                            />
+                                                                        </div>
+                                                                        <div className="col-span-3">
+                                                                            <input
+                                                                                type="number"
+                                                                                step="any"
+                                                                                onFocus={numberInputUtils.onFocus}
+                                                                                value={numberInputUtils.formatValue(setObj.weight)}
+                                                                                onChange={(e) => numberInputUtils.onChange(e, (val) => handleSetChange(exIndex, sIndex, 'weight', val))}
+                                                                                className="w-full bg-white dark:bg-zinc-900 border border-zinc-200/60 dark:border-zinc-800/80 focus:border-lime-500 rounded-lg p-1.5 text-xs font-black outline-none text-center text-lime-600 dark:text-lime-400"
+                                                                            />
+                                                                        </div>
+                                                                    </>
+                                                                )}
+
+                                                                <div className="col-span-2">
+                                                                    <input
+                                                                        type="number"
+                                                                        onFocus={numberInputUtils.onFocus}
+                                                                        value={numberInputUtils.formatValue(setObj.restTime)}
+                                                                        onChange={(e) => numberInputUtils.onChange(e, (val) => handleSetChange(exIndex, sIndex, 'restTime', val))}
+                                                                        className="w-full bg-white dark:bg-zinc-900 border border-zinc-200/60 dark:border-zinc-800/80 focus:border-lime-500 rounded-lg p-1.5 text-xs font-black outline-none text-center text-zinc-900 dark:text-zinc-100"
+                                                                    />
+                                                                </div>
+                                                                <div className="col-span-2 flex items-center gap-1 min-w-0">
+                                                                    <select
+                                                                        value={setObj.technique || 'normal'}
+                                                                        onChange={(e) => handleSetChange(exIndex, sIndex, 'technique', e.target.value as SetTechnique)}
+                                                                        className="w-full bg-white dark:bg-zinc-900 border border-zinc-200/60 dark:border-zinc-800/80 focus:border-lime-500 rounded-lg p-1 text-[10px] font-black text-center outline-none text-zinc-800 dark:text-zinc-200 cursor-pointer truncate"
+                                                                    >
+                                                                        <option value="normal">{t('techniques.normal')}</option>
+                                                                        <option value="drop_set">{t('techniques.drop_set')}</option>
+                                                                        <option value="rest_pause">{t('techniques.rest_pause')}</option>
+                                                                        <option value="forced_reps">{t('techniques.forced_reps')}</option>
+                                                                        <option value="negative">{t('techniques.negative')}</option>
+                                                                        <option value="isometric">{t('techniques.isometric')}</option>
+                                                                        <option value="tempo">{t('techniques.tempo')}</option>
+                                                                        <option value="cluster">{t('techniques.cluster')}</option>
+                                                                        <option value="to_failure">{t('techniques.to_failure')}</option>
+                                                                    </select>
+
+                                                                    {/* Row-specific dropset trigger */}
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() => setActiveDropsetTarget({ exIndex, setIndex: sIndex })}
+                                                                        title={t('configureDropset')}
+                                                                        className={`p-1 rounded-md transition-colors shrink-0 cursor-pointer shadow-xs active:scale-95 ${hasRowDropset
+                                                                            ? 'bg-lime-400 text-zinc-950 hover:bg-lime-300'
+                                                                            : 'bg-zinc-200 dark:bg-zinc-800 text-zinc-500 hover:text-lime-500'
+                                                                            }`}
+                                                                    >
+                                                                        <Zap size={11} className="fill-current" />
+                                                                    </button>
+                                                                </div>
+                                                                <div className="col-span-1 flex justify-center">
+                                                                    {ex.sets.length > 1 && (
+                                                                        <button
+                                                                            type="button"
+                                                                            onClick={() => handleRemoveSet(exIndex, sIndex)}
+                                                                            className="text-zinc-300 hover:text-red-500 transition-colors cursor-pointer"
+                                                                        >
+                                                                            <Trash2 size={13} />
+                                                                        </button>
+                                                                    )}
+                                                                </div>
+                                                            </div>
+                                                        );
+                                                    })}
+                                                </div>
+
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleAddSet(exIndex)}
+                                                    className="w-full py-2 bg-zinc-50 dark:bg-zinc-950/60 border border-dashed border-zinc-200 dark:border-zinc-800 hover:border-lime-500/40 text-lime-600 dark:text-lime-400 rounded-xl text-[10px] font-black uppercase tracking-wider flex items-center justify-center gap-1 transition-all cursor-pointer"
+                                                >
+                                                    <Plus size={12} /> {tw('addExercise')}
+                                                </button>
+                                            </div>
+                                        )}
                                     </div>
-                                </div>
-                            ) : (
-                                <div className="bg-zinc-50/80 dark:bg-zinc-950/60 p-3 rounded-xl border border-zinc-100 dark:border-zinc-800/80 grid grid-cols-2 gap-3">
-                                    <div>
-                                        <span className="block text-[8px] font-black text-zinc-400 uppercase tracking-widest mb-1">
-                                            {t('weight')}
-                                        </span>
-                                        <input
-                                            type="number"
-                                            step="any"
-                                            onFocus={numberInputUtils.onFocus}
-                                            value={numberInputUtils.formatValue(ex.sets?.[0]?.weight || 0)}
-                                            onChange={(e) => {
-                                                numberInputUtils.onChange(e, (val) => {
-                                                    const updatedExercises = [...group.exercises];
-                                                    const updatedSets = (updatedExercises[exIndex].sets || [DEFAULT_SET]).map(s => ({
-                                                        ...s,
-                                                        weight: Number(val)
-                                                    }));
-                                                    updatedExercises[exIndex].sets = updatedSets;
-                                                    setGroup(prev => ({ ...prev, exercises: updatedExercises }));
-                                                });
-                                            }}
-                                            className="w-full bg-white dark:bg-zinc-900 border border-zinc-200/60 dark:border-zinc-800/80 focus:border-lime-500 rounded-lg p-2 text-xs font-black outline-none text-lime-600 dark:text-lime-400"
-                                        />
-                                    </div>
-                                    <div>
-                                        <span className="block text-[8px] font-black text-zinc-400 uppercase tracking-widest mb-1">
-                                            {t('restAfterExercise')}
-                                        </span>
-                                        <div className="flex items-center gap-1">
-                                            <input
-                                                type="number"
-                                                onFocus={numberInputUtils.onFocus}
-                                                value={numberInputUtils.formatValue(ex.restAfterExercise || 0)}
-                                                onChange={(e) => {
-                                                    numberInputUtils.onChange(e, (val) => {
-                                                        const updatedExercises = [...group.exercises];
-                                                        updatedExercises[exIndex].restAfterExercise = Number(val);
-                                                        setGroup(prev => ({ ...prev, exercises: updatedExercises }));
-                                                    });
-                                                }}
-                                                className="w-full bg-white dark:bg-zinc-900 border border-zinc-200/60 dark:border-zinc-800/80 focus:border-lime-500 rounded-lg p-2 text-xs font-black outline-none text-zinc-900 dark:text-zinc-100"
-                                            />
-                                            <span className="text-[10px] text-zinc-500 font-bold">s</span>
+                                ) : (
+                                    /* COMPOUND GROUPS VIEW */
+                                    <div className="bg-zinc-50/80 dark:bg-zinc-950/60 p-3 rounded-xl border border-zinc-100 dark:border-zinc-800/80 space-y-3">
+                                        <div className="grid grid-cols-2 gap-3">
+                                            <div>
+                                                <span className="block text-[8px] font-black text-zinc-400 uppercase tracking-widest mb-1">
+                                                    {t('reps')}
+                                                </span>
+                                                <input
+                                                    type="number"
+                                                    onFocus={numberInputUtils.onFocus}
+                                                    value={numberInputUtils.formatValue(ex.sets?.[0]?.reps || 10)}
+                                                    onChange={(e) => {
+                                                        numberInputUtils.onChange(e, (val) => {
+                                                            const updatedExercises = [...group.exercises];
+                                                            const updatedSets = (updatedExercises[exIndex].sets || [DEFAULT_SET]).map(s => ({
+                                                                ...s,
+                                                                reps: Number(val)
+                                                            }));
+                                                            updatedExercises[exIndex].sets = updatedSets;
+                                                            setGroup(prev => ({ ...prev, exercises: updatedExercises }));
+                                                        });
+                                                    }}
+                                                    className="w-full bg-white dark:bg-zinc-900 border border-zinc-200/60 dark:border-zinc-800/80 focus:border-lime-500 rounded-lg p-2 text-xs font-black outline-none text-zinc-900 dark:text-zinc-100"
+                                                />
+                                            </div>
+                                            <div>
+                                                <span className="block text-[8px] font-black text-zinc-400 uppercase tracking-widest mb-1">
+                                                    {t('weight')} (kg)
+                                                </span>
+                                                <input
+                                                    type="number"
+                                                    step="any"
+                                                    onFocus={numberInputUtils.onFocus}
+                                                    value={numberInputUtils.formatValue(ex.sets?.[0]?.weight || 0)}
+                                                    onChange={(e) => {
+                                                        numberInputUtils.onChange(e, (val) => {
+                                                            const updatedExercises = [...group.exercises];
+                                                            const updatedSets = (updatedExercises[exIndex].sets || [DEFAULT_SET]).map(s => ({
+                                                                ...s,
+                                                                weight: Number(val)
+                                                            }));
+                                                            updatedExercises[exIndex].sets = updatedSets;
+                                                            setGroup(prev => ({ ...prev, exercises: updatedExercises }));
+                                                        });
+                                                    }}
+                                                    className="w-full bg-white dark:bg-zinc-900 border border-zinc-200/60 dark:border-zinc-800/80 focus:border-lime-500 rounded-lg p-2 text-xs font-black outline-none text-lime-600 dark:text-lime-400"
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <div>
+                                            <span className="block text-[8px] font-black text-zinc-400 uppercase tracking-widest mb-1">
+                                                {t('restAfterExercise')}
+                                            </span>
+                                            <div className="flex items-center gap-1">
+                                                <input
+                                                    type="number"
+                                                    onFocus={numberInputUtils.onFocus}
+                                                    value={numberInputUtils.formatValue(ex.restAfterExercise || 0)}
+                                                    onChange={(e) => {
+                                                        numberInputUtils.onChange(e, (val) => {
+                                                            const updatedExercises = [...group.exercises];
+                                                            updatedExercises[exIndex].restAfterExercise = Number(val);
+                                                            setGroup(prev => ({ ...prev, exercises: updatedExercises }));
+                                                        });
+                                                    }}
+                                                    className="w-full bg-white dark:bg-zinc-900 border border-zinc-200/60 dark:border-zinc-800/80 focus:border-lime-500 rounded-lg p-2 text-xs font-black outline-none text-zinc-900 dark:text-zinc-100"
+                                                />
+                                                <span className="text-[10px] text-zinc-500 font-bold">s</span>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            )}
-                        </div>
-                    ))}
+                                )}
+                            </div>
+                        );
+                    })}
 
                     {/* Add Exercise to Compound Group */}
                     {!isStraight && (
@@ -495,58 +902,6 @@ export const ExerciseConfigForm: React.FC<ExerciseConfigFormProps> = ({
                     )}
                 </div>
 
-                {/* Advanced Config Section */}
-                <div className="pt-1">
-                    <button
-                        type="button"
-                        onClick={() => setShowAdvanced(prev => !prev)}
-                        className="w-full py-2.5 px-3 bg-zinc-100/80 dark:bg-zinc-900/80 hover:bg-zinc-200 dark:hover:bg-zinc-800 border border-zinc-200 dark:border-zinc-800 rounded-xl text-[10px] font-black uppercase tracking-widest text-zinc-600 dark:text-zinc-400 flex items-center justify-between transition-all cursor-pointer"
-                    >
-                        <div className="flex items-center gap-2">
-                            <Sliders size={14} className="text-lime-500" />
-                            <span>{t('advancedConfig')}</span>
-                        </div>
-                        {showAdvanced ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-                    </button>
-
-                    {showAdvanced && (
-                        <div className="mt-3 p-3.5 bg-zinc-50 dark:bg-zinc-950/80 rounded-2xl border border-zinc-200/80 dark:border-zinc-800 space-y-3">
-                            <span className="block text-[9px] font-black uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
-                                {t('configureDropset')}
-                            </span>
-                            {group.exercises.map((exItem, exIdx) => (
-                                <div key={exIdx} className="space-y-2 p-2.5 bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200/60 dark:border-zinc-800/80">
-                                    <div className="text-[10px] font-bold text-zinc-800 dark:text-zinc-200 truncate">
-                                        {exItem.exerciseName ? (te.has(exItem.exerciseName) ? te(exItem.exerciseName) : exItem.exerciseName) : `#${exIdx + 1}`}
-                                    </div>
-                                    <div className="flex flex-wrap gap-2">
-                                        {(exItem.sets || []).map((setObj, sIdx) => {
-                                            const hasDropset = setObj.dropset && setObj.dropset.length > 1;
-                                            return (
-                                                <button
-                                                    key={sIdx}
-                                                    type="button"
-                                                    onClick={() => setActiveDropsetTarget({ exIndex: exIdx, setIndex: sIdx })}
-                                                    className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase flex items-center gap-1.5 border transition-all cursor-pointer ${
-                                                        hasDropset
-                                                            ? 'bg-lime-400/20 text-lime-700 dark:text-lime-400 border-lime-500/40'
-                                                            : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border-zinc-200 dark:border-zinc-700'
-                                                    }`}
-                                                >
-                                                    <Flame size={12} className={hasDropset ? 'text-lime-500 animate-pulse' : 'text-zinc-400'} />
-                                                    <span>
-                                                        {t('set')} {sIdx + 1}: {hasDropset ? t('dropsetConfigured', { count: setObj.dropset!.length }) : t('configureDropset')}
-                                                    </span>
-                                                </button>
-                                            );
-                                        })}
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    )}
-                </div>
-
                 {/* Save Button */}
                 <button
                     type="submit"
@@ -570,36 +925,33 @@ export const ExerciseConfigForm: React.FC<ExerciseConfigFormProps> = ({
                 onClose={() => setIsHelpOpen(false)}
             />
 
-            {/* Dropset Modal */}
-            {activeDropsetTarget && (
-                <DropsetModal
-                    isOpen={!!activeDropsetTarget}
-                    onClose={() => setActiveDropsetTarget(null)}
-                    defaultWeight={group.exercises[activeDropsetTarget.exIndex]?.sets?.[activeDropsetTarget.setIndex]?.weight || 0}
-                    defaultReps={group.exercises[activeDropsetTarget.exIndex]?.sets?.[activeDropsetTarget.setIndex]?.reps || 10}
-                    initialDropset={group.exercises[activeDropsetTarget.exIndex]?.sets?.[activeDropsetTarget.setIndex]?.dropset || null}
-                    onSave={(dropsetData) => {
-                        const updatedExercises = [...group.exercises];
-                        const updatedSets = [...(updatedExercises[activeDropsetTarget.exIndex].sets || [])];
-                        if (dropsetData && dropsetData.length > 1) {
-                            updatedSets[activeDropsetTarget.setIndex] = {
-                                ...updatedSets[activeDropsetTarget.setIndex],
-                                technique: 'drop_set',
-                                dropset: dropsetData
-                            };
-                        } else {
-                            updatedSets[activeDropsetTarget.setIndex] = {
-                                ...updatedSets[activeDropsetTarget.setIndex],
-                                technique: updatedSets[activeDropsetTarget.setIndex].technique === 'drop_set' ? 'normal' : updatedSets[activeDropsetTarget.setIndex].technique,
-                                dropset: undefined
-                            };
-                        }
-                        updatedExercises[activeDropsetTarget.exIndex].sets = updatedSets;
-                        setGroup(prev => ({ ...prev, exercises: updatedExercises }));
-                        setActiveDropsetTarget(null);
-                    }}
-                />
-            )}
+            {/* Dropset Configuration Modal */}
+            <DropsetModal
+                isOpen={!!activeDropsetTarget}
+                onClose={() => setActiveDropsetTarget(null)}
+                defaultWeight={
+                    activeDropsetTarget
+                        ? (activeDropsetTarget.setIndex === 'all'
+                            ? (group.exercises[activeDropsetTarget.exIndex]?.sets?.[0]?.weight ?? 20)
+                            : (group.exercises[activeDropsetTarget.exIndex]?.sets?.[activeDropsetTarget.setIndex]?.weight ?? 20))
+                        : 20
+                }
+                defaultReps={
+                    activeDropsetTarget
+                        ? (activeDropsetTarget.setIndex === 'all'
+                            ? (group.exercises[activeDropsetTarget.exIndex]?.sets?.[0]?.reps ?? 10)
+                            : (group.exercises[activeDropsetTarget.exIndex]?.sets?.[activeDropsetTarget.setIndex]?.reps ?? 10))
+                        : 10
+                }
+                initialDropset={
+                    activeDropsetTarget
+                        ? (activeDropsetTarget.setIndex === 'all'
+                            ? (group.exercises[activeDropsetTarget.exIndex]?.sets?.[0]?.dropset || null)
+                            : (group.exercises[activeDropsetTarget.exIndex]?.sets?.[activeDropsetTarget.setIndex]?.dropset || null))
+                        : null
+                }
+                onSave={handleSaveDropset}
+            />
         </div>
     );
 };

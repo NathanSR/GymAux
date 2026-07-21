@@ -158,6 +158,7 @@ export const ExerciseSelector = ({ isOpen, onClose, onSelect }: {
                 onClose={onClose}
                 title={t('title')}
                 maxWidth="max-w-xl"
+                zIndex="z-[200]"
                 className="!rounded-[40px]"
             >
                 <div className="flex flex-col h-full max-h-[80vh]">

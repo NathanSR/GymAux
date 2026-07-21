@@ -13,6 +13,14 @@ interface ModalProps {
   children: React.ReactNode;
   maxWidth?: string;
   className?: string;
+  zIndex?: string | number;
+}
+
+function getZIndexValue(zIndex?: string | number): number {
+  if (typeof zIndex === 'number') return zIndex;
+  if (!zIndex) return 150;
+  const match = String(zIndex).match(/\d+/);
+  return match ? parseInt(match[0], 10) : 150;
 }
 
 export function Modal({
@@ -21,7 +29,8 @@ export function Modal({
   title,
   children,
   maxWidth = 'max-w-xl',
-  className = ''
+  className = '',
+  zIndex = 'z-[150]'
 }: ModalProps) {
   const [mounted, setMounted] = useState(false);
 
@@ -79,8 +88,11 @@ export function Modal({
     window.addEventListener('popstate', handlePopState);
 
     return () => {
-      document.body.style.overflow = 'unset';
-      document.body.classList.remove('modal-open');
+      const remainingDialogs = document.querySelectorAll('[role="dialog"][data-state="open"]');
+      if (remainingDialogs.length <= 1) {
+        document.body.style.overflow = 'unset';
+        document.body.classList.remove('modal-open');
+      }
       window.removeEventListener('keydown', handleEscape, true);
       window.removeEventListener('popstate', handlePopState);
 
@@ -96,7 +108,15 @@ export function Modal({
   return createPortal(
     <AnimatePresence>
       {isOpen && (
-        <div ref={containerRef} role="dialog" aria-modal="true" data-overlay="true" data-state={isOpen ? 'open' : 'closed'} className="fixed inset-0 z-[150] flex items-center justify-center p-4">
+        <div
+          ref={containerRef}
+          role="dialog"
+          aria-modal="true"
+          data-overlay="true"
+          data-state={isOpen ? 'open' : 'closed'}
+          style={{ zIndex: getZIndexValue(zIndex) }}
+          className={cn("fixed inset-0 flex items-center justify-center p-4", typeof zIndex === 'string' ? zIndex : `z-[${zIndex}]`)}
+        >
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -130,7 +150,7 @@ export function Modal({
                     e.stopPropagation();
                     onClose();
                   }}
-                  className="p-2 hover:bg-slate-100 dark:hover:bg-white/5 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50 shrink-0"
+                  className="p-2 hover:bg-slate-100 dark:hover:bg-white/5 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50 shrink-0 cursor-pointer"
                   aria-label="Close modal"
                 >
                   <X className="w-5 h-5" />
