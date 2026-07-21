@@ -72,7 +72,7 @@ export const HistoryService = {
                     .toArray();
 
                 // Sort by date descending
-                allLocal.sort((a, b) => b.date.getTime() - a.date.getTime());
+                allLocal.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
                 // Paginate
                 const from = (page - 1) * limit;
@@ -115,7 +115,7 @@ export const HistoryService = {
                     .toArray();
 
                 return allLocal.filter(h => {
-                    const d = h.date.getTime();
+                    const d = new Date(h.date).getTime();
                     return d >= startDate.getTime() && d <= endDate.getTime();
                 });
             }

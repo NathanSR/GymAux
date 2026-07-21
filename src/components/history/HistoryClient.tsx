@@ -9,6 +9,8 @@ import { useTranslations, useLocale } from "next-intl";
 import { WorkoutHistoryModal } from "@/components/history/WorkoutHistoryModal";
 import { useDebounce } from "@/hooks/useDebounce";
 import PageHeader from "@/components/ui/PageHeader";
+import { useLiveQuery } from "dexie-react-hooks";
+import { db } from "@/config/db";
 
 interface HistoryClientProps {
     userId: string;
@@ -30,7 +32,7 @@ export default function HistoryClient({
     const debouncedSearch = useDebounce(searchQuery, 300);
     const [currentDate, setCurrentDate] = useState(() => initialDate ? new Date(initialDate) : new Date());
     const [selectedWorkouts, setSelectedWorkouts] = useState<History[] | null>(null);
-    const [historyList, setHistoryList] = useState<History[]>(initialHistoryList);
+    const [remoteHistoryList, setRemoteHistoryList] = useState<History[]>([]);
     const [loading, setLoading] = useState(false);
     const [hasOpenedInitial, setHasOpenedInitial] = useState(false);
 
@@ -38,8 +40,44 @@ export default function HistoryClient({
     const month = currentDate.getMonth();
     const year = currentDate.getFullYear();
 
-    const startMonthDate = useMemo(() => new Date(year, month, 1), [year, month]);
-    const endMonthDate = useMemo(() => new Date(year, month + 1, 0), [year, month]);
+    const startMonthDate = useMemo(() => new Date(year, month, 1, 0, 0, 0, 0), [year, month]);
+    const endMonthDate = useMemo(() => new Date(year, month + 1, 0, 23, 59, 59, 999), [year, month]);
+
+    // Live query from Dexie for current month range
+    const dexieMonthHistory = useLiveQuery(
+        async () => {
+            if (!userId) return [];
+            const all = await db.history
+                .where('userId')
+                .equals(userId)
+                .toArray();
+            const start = startMonthDate.getTime();
+            const end = endMonthDate.getTime();
+            return all.filter(h => {
+                const d = new Date(h.date).getTime();
+                return d >= start && d <= end;
+            });
+        },
+        [userId, startMonthDate.getTime(), endMonthDate.getTime()]
+    );
+
+    // Merge initialHistoryList, Dexie live query results, and remote fetches
+    const historyList = useMemo(() => {
+        const map = new Map<string, History>();
+        (initialHistoryList || []).forEach(h => {
+            const key = h.id || `${h.workoutId}-${new Date(h.date).getTime()}`;
+            map.set(key, h);
+        });
+        (dexieMonthHistory || []).forEach(h => {
+            const key = h.id || `${h.workoutId}-${new Date(h.date).getTime()}`;
+            map.set(key, h);
+        });
+        (remoteHistoryList || []).forEach(h => {
+            const key = h.id || `${h.workoutId}-${new Date(h.date).getTime()}`;
+            map.set(key, h);
+        });
+        return Array.from(map.values());
+    }, [initialHistoryList, dexieMonthHistory, remoteHistoryList]);
 
     // Grouping data (Memoized to prevent unnecessary re-renders)
     const workoutData = useMemo(() => {
@@ -56,33 +94,28 @@ export default function HistoryClient({
         return data;
     }, [historyList, debouncedSearch]);
 
-    useEffect(() => {
-        setHistoryList(initialHistoryList);
-    }, [initialHistoryList]);
-
     // Fetch Logic para mudança de mês/ano no calendário
     useEffect(() => {
-        const isCurrentMonth = () => {
-            const now = new Date();
-            return month === now.getMonth() && year === now.getFullYear();
-        };
-
-        if (isCurrentMonth()) return;
-
+        let isSubscribed = true;
         const fetchHistory = async () => {
             setLoading(true);
             try {
                 const list = await HistoryService.getHistoryByRange(userId, startMonthDate, endMonthDate);
-                setHistoryList(list || []);
+                if (isSubscribed) {
+                    setRemoteHistoryList(list || []);
+                }
             } catch (error: any) {
                 console.error("Error fetching history:", error?.message || error);
             } finally {
-                setLoading(false);
+                if (isSubscribed) setLoading(false);
             }
         };
 
         fetchHistory();
-    }, [userId, month, year, startMonthDate, endMonthDate]);
+        return () => {
+            isSubscribed = false;
+        };
+    }, [userId, startMonthDate, endMonthDate]);
 
     // Auto-open logic for deep links
     useEffect(() => {

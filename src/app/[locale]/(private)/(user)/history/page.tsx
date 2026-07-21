@@ -18,18 +18,6 @@ export default function HistoryPage(props: Props) {
     const { activeUser, loading } = useSession();
     const historyList = useDexieHistory(activeUser?.id, 100);
 
-    const filteredHistory = useMemo(() => {
-        if (!dateQuery && !workoutIdQuery) return historyList;
-        return historyList.filter(h => {
-            if (workoutIdQuery && h.workoutId !== workoutIdQuery) return false;
-            if (dateQuery) {
-                const hDate = h.date.toISOString().split('T')[0];
-                if (hDate !== dateQuery) return false;
-            }
-            return true;
-        });
-    }, [historyList, dateQuery, workoutIdQuery]);
-
     if (loading && !activeUser) {
         return (
             <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 px-6 pt-6 space-y-8">
@@ -44,7 +32,7 @@ export default function HistoryPage(props: Props) {
     return (
         <HistoryClient 
             userId={activeUser.id!}
-            initialHistoryList={filteredHistory}
+            initialHistoryList={historyList}
             initialDate={dateQuery}
             initialWorkoutId={workoutIdQuery}
         />

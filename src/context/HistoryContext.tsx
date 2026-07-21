@@ -38,7 +38,7 @@ export const HistoryProvider: React.FC<{ children: React.ReactNode }> = ({ child
                     if (idx >= 0) newHistory[idx] = item;
                     else newHistory.push(item);
                 });
-                return newHistory.sort((a, b) => b.date.getTime() - a.date.getTime());
+                return newHistory.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
             });
             setLoadedPages(prev => new Set(prev).add(page));
         } catch (err: any) {
@@ -56,7 +56,7 @@ export const HistoryProvider: React.FC<{ children: React.ReactNode }> = ({ child
                     newHistory.push(item);
                 }
             });
-            return newHistory.sort((a, b) => b.date.getTime() - a.date.getTime());
+            return newHistory.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
         });
     }, []);
 
@@ -67,7 +67,7 @@ export const HistoryProvider: React.FC<{ children: React.ReactNode }> = ({ child
         try {
             const entry = await HistoryService.getHistoryById(id);
             if (entry) {
-                setHistory((prev: History[]) => [...prev.filter(h => h.id !== id), entry].sort((a, b) => b.date.getTime() - a.date.getTime()));
+                setHistory((prev: History[]) => [...prev.filter(h => h.id !== id), entry].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
             }
             return entry;
         } catch (err) {
@@ -76,7 +76,7 @@ export const HistoryProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }, [history]);
 
     const addHistoryEntry = useCallback((entry: History) => {
-        setHistory((prev: History[]) => [entry, ...prev].sort((a, b) => b.date.getTime() - a.date.getTime()));
+        setHistory((prev: History[]) => [entry, ...prev].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
     }, []);
 
     const updateHistoryState = useCallback((id: string, updates: Partial<History>) => {

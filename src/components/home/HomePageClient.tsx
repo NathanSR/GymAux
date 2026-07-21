@@ -12,10 +12,15 @@ import { Workout, History } from '@/config/types';
 import { SessionService } from '@/services/sessionService';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '@/config/db';
+import { stopTopLoader } from '@/utils/topLoader';
 
 export function HomePageClient() {
     const { activeUser, loading: sessionLoading } = useSession();
     useDataPreloader(activeUser?.id);
+
+    useEffect(() => {
+        stopTopLoader();
+    }, []);
 
     const activeSchedule = useDexieActiveSchedule(activeUser?.id);
     const historyList = useDexieHistory(activeUser?.id, 4);
@@ -54,7 +59,7 @@ export function HomePageClient() {
             if (foundWorkout?.id) {
                 const { start, end } = getBrazilDayRange();
                 const matchedHistory = historyList.find(h => {
-                    const hTime = h.date.getTime();
+                    const hTime = new Date(h.date).getTime();
                     return h.workoutId === foundWorkout.id && hTime >= start.getTime() && hTime <= end.getTime();
                 });
                 setTodayHistory(matchedHistory || null);

@@ -5,6 +5,8 @@ import { arrayMove } from '@dnd-kit/sortable';
 import { SessionService } from '@/services/sessionService';
 import { useRouter } from '@/i18n/routing';
 
+import { startTopLoader } from '@/utils/topLoader';
+
 export const useWorkoutDrawer = (
     session: Session,
     setSession: (session: Session) => void,
@@ -116,6 +118,7 @@ export const useWorkoutDrawer = (
                 if (session.id) {
                     await SessionService.deleteSession(session.id);
                     // Force a hard redirect to bypass any Next.js router unmount/lifecycle issues
+                    startTopLoader();
                     window.location.href = '/home';
                 }
             } catch (error) {

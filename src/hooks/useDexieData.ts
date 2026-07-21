@@ -72,7 +72,7 @@ export function useDexieHistory(userId?: string | null, limit = 20): History[] {
                 .where('userId')
                 .equals(userId)
                 .toArray();
-            return all.sort((a, b) => b.date.getTime() - a.date.getTime()).slice(0, limit);
+            return all.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, limit);
         },
         [userId, limit]
     );

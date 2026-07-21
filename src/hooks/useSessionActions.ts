@@ -3,6 +3,7 @@ import { useAlerts } from './useAlerts';
 import { SessionService } from '@/services/sessionService';
 import { Workout, Session } from '@/config/types';
 import { useTranslations } from 'next-intl';
+import { startTopLoader } from '@/utils/topLoader';
 
 export const useSessionActions = () => {
     const router = useRouter();
@@ -21,11 +22,13 @@ export const useSessionActions = () => {
 
         if (result.isConfirmed) {
             const session = await SessionService.startSession(workout);
+            startTopLoader();
             router.push(`/session/${session.id}`);
         }
     };
 
     const resumeWorkout = async (sessionId: string) => {
+        if (!sessionId) return;
         const result = await confirm({
             title: th('resumeWorkoutTitle'),
             text: th('resumeWorkoutText'),
@@ -36,11 +39,17 @@ export const useSessionActions = () => {
 
         if (result.isConfirmed) {
             await SessionService.resumeSession(sessionId);
+            startTopLoader();
             router.push(`/session/${sessionId}`);
         }
     };
 
     const exitSession = async (sessionId: string) => {
+        if (!sessionId) {
+            startTopLoader();
+            router.replace('/home');
+            return;
+        }
         const result = await confirm({
             title: t('exitTitle'),
             text: t('exitText'),
@@ -51,6 +60,7 @@ export const useSessionActions = () => {
 
         if (result.isConfirmed) {
             await SessionService.pauseSession(sessionId);
+            startTopLoader();
             setTimeout(() => {
                 router.replace('/home');
             }, 50);
