@@ -159,7 +159,7 @@ export default function HistoryClient({
             <PageHeader
                 title={t('title')}
                 variant="minimal"
-                backHref="/home"
+                backHref={baseUrl === '/history' || !baseUrl ? '/home' : baseUrl.replace(/\/history$/, '')}
             >
                 <div className="relative">
                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400" size={18} />

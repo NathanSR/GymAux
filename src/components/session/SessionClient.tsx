@@ -68,9 +68,13 @@ export default function SessionClient({ initialSession, isReadOnly = false }: Se
         watchValues: () => watchValuesRef.current ? watchValuesRef.current() : { weight: 0, reps: 0, rpe: 7, dropset: undefined }
     });
 
-    useSmartNavigation({
+    const { goBack } = useSmartNavigation({
         onBack: () => {
-            if (session.id) exitSession(session.id);
+            if (isReadOnly) {
+                goBack(`/trainer/${session.userId}`);
+            } else if (session.id) {
+                exitSession(session.id);
+            }
         }
     });
 

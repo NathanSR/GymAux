@@ -58,8 +58,30 @@ export function getParentHierarchyRoute(pathname: string): string {
     if (cleanPath.startsWith('/profile/')) {
         return '/home';
     }
-    if (cleanPath.startsWith('/trainer/')) {
-        return cleanPath === '/trainer' ? '/home' : '/trainer';
+    if (cleanPath.startsWith('/trainer/') || cleanPath === '/trainer') {
+        if (cleanPath === '/trainer') return '/home';
+
+        const workoutsMatch = cleanPath.match(/^\/trainer\/([^/]+)\/workouts(\/(new|.+\/edit))?$/);
+        if (workoutsMatch) {
+            return workoutsMatch[2] ? `/trainer/${workoutsMatch[1]}/workouts` : `/trainer/${workoutsMatch[1]}`;
+        }
+
+        const scheduleMatch = cleanPath.match(/^\/trainer\/([^/]+)\/schedule(\/(new|.+\/edit))?$/);
+        if (scheduleMatch) {
+            return scheduleMatch[2] ? `/trainer/${scheduleMatch[1]}/schedule` : `/trainer/${scheduleMatch[1]}`;
+        }
+
+        const historyMatch = cleanPath.match(/^\/trainer\/([^/]+)\/history$/);
+        if (historyMatch) {
+            return `/trainer/${historyMatch[1]}`;
+        }
+
+        const sessionMatch = cleanPath.match(/^\/trainer\/([^/]+)\/session$/);
+        if (sessionMatch) {
+            return `/trainer/${sessionMatch[1]}`;
+        }
+
+        return '/trainer';
     }
     if (cleanPath.startsWith('/admin/')) {
         if (cleanPath.startsWith('/admin/workouts/')) return '/admin/workouts';
@@ -109,9 +131,16 @@ export function useSmartNavigation(options: UseSmartNavigationOptions = {}) {
             stack.pop();
             saveSpaHistory(stack);
         } else {
-            // O usuário navegou para uma nova rota
-            stack.push(normalizedCurrentPath);
-            saveSpaHistory(stack);
+            // O usuário navegou para uma nova rota.
+            // Se a rota já existir no histórico anterior (ex: retorno para rota pai),
+            // truncamos a pilha até ela para evitar loops circulares (A -> B -> C -> A)
+            const existingIdx = stack.lastIndexOf(normalizedCurrentPath);
+            if (existingIdx !== -1) {
+                saveSpaHistory(stack.slice(0, existingIdx + 1));
+            } else {
+                stack.push(normalizedCurrentPath);
+                saveSpaHistory(stack);
+            }
         }
     }, [normalizedCurrentPath]);
 
@@ -142,13 +171,20 @@ export function useSmartNavigation(options: UseSmartNavigationOptions = {}) {
             return;
         }
 
-        router.refresh();
-
         if (typeof window !== 'undefined') {
             const stack = getSpaHistory();
             const hasInternalHistory = stack.length >= 2;
+            const prevRoute = stack.length >= 2 ? stack[stack.length - 2] : null;
 
-            if (hasInternalHistory) {
+            // Se a rota anterior no histórico era uma sub-rota (filha) da rota atual ou a mesma rota,
+            // chamar router.back() na navegação do navegador voltaria para a sub-rota (loop).
+            // Exemplo: estar em /trainer e a rota anterior no histórico do browser ser /trainer/student1/workouts.
+            const isPrevChildOrSame = prevRoute && (
+                prevRoute === cleanPath ||
+                prevRoute.startsWith(cleanPath + '/')
+            );
+
+            if (hasInternalHistory && !isPrevChildOrSame) {
                 router.back();
                 return;
             }

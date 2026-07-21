@@ -1,8 +1,8 @@
 import { getTranslations } from 'next-intl/server';
 import { userService } from '@/services/userService';
 import { createClient } from '@/lib/supabase/server';
-import { ArrowLeft, ShieldCheck, User } from 'lucide-react';
-import { Link } from '@/i18n/routing';
+import { TrainerHeaderExitButton } from '@/components/trainers/TrainerHeaderExitButton';
+import { ShieldCheck, User } from 'lucide-react';
 
 export default async function TrainerLayout({
     children,
@@ -22,18 +22,7 @@ export default async function TrainerLayout({
             <header className="sticky top-0 z-50 bg-lime-400 border-b border-zinc-950/10 px-4 py-2.5 shadow-xl transition-all">
                 <div className="max-w-6xl mx-auto flex items-center justify-between gap-4 relative z-10">
                     <div className="flex items-center gap-3 flex-1 min-w-0">
-                        <Link
-                            href="/trainer"
-                            className="flex items-center gap-2 px-3 py-2 bg-zinc-950 hover:bg-zinc-800 rounded-xl transition-all group active:scale-95 shadow-lg shadow-zinc-950/20 flex-shrink-0"
-                        >
-                            <ArrowLeft className="w-4 h-4 text-lime-400 group-hover:-translate-x-1 transition-transform" />
-                            <span className="text-[10px] font-black text-white uppercase tracking-tight hidden xs:block">
-                                {t('exitEditingMode')}
-                            </span>
-                            <span className="text-[10px] font-black text-white uppercase tracking-tight xs:hidden">
-                                {t('exit') || 'Sair'}
-                            </span>
-                        </Link>
+                        <TrainerHeaderExitButton />
 
                         <div className="flex items-center gap-3 min-w-0">
                             <div className="hidden sm:flex p-2 bg-zinc-950 rounded-lg shadow-md flex-shrink-0">

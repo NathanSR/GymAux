@@ -54,6 +54,8 @@ export function useSessionClient({ initialSession, isReadOnly = false, watchValu
     }, [currentExercise?.exerciseId]);
 
     useEffect(() => {
+        if (isReadOnly) return;
+
         if (typeof window !== 'undefined') {
             window.history.pushState({ ...window.history.state, __sessionTrap: true }, '', window.location.href);
         }
@@ -76,7 +78,7 @@ export function useSessionClient({ initialSession, isReadOnly = false, watchValu
         return () => {
             window.removeEventListener('popstate', handleBackButton);
         };
-    }, [session.id, exitSession, showPreview]);
+    }, [session.id, exitSession, showPreview, isReadOnly]);
 
     const synchronizeProgress = useCallback(async (newSession: Session) => {
         if (!newSession.id) return;
