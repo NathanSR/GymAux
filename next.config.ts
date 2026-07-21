@@ -56,7 +56,7 @@ const withPWA = withPWAInit({
       {
         // Navegação de páginas HTML (App Shell) - StaleWhileRevalidate para abertura instantânea
         urlPattern: ({ request, url }: { request: any; url: URL }) =>
-          request.mode === "navigate" && !url.pathname.includes('/login') && !url.pathname.includes('/register'),
+          request.mode === "navigate" && !url.pathname.includes('/login') && !url.pathname.includes('/register') && !url.pathname.includes('/admin'),
         handler: "StaleWhileRevalidate",
         options: {
           cacheName: "pages-html-cache",

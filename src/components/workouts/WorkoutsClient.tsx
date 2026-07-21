@@ -19,6 +19,7 @@ import { Workout } from '@/config/types';
 import { useDebounce } from '@/hooks/useDebounce';
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
 import PageHeader from '@/components/ui/PageHeader';
+import { ListSkeleton } from '@/components/ui/Skeleton';
 
 interface WorkoutsClientProps {
     initialWorkouts: Workout[];
@@ -146,9 +147,7 @@ export default function WorkoutsClient({ initialWorkouts, initialTotalCount, use
             {/* Grid de Treinos */}
             <main className="px-6 space-y-4 pt-4">
                 {loading ? (
-                    Array.from({ length: 4 }).map((_, i) => (
-                        <div key={i} className="h-40 bg-zinc-100 dark:bg-zinc-900 rounded-[32px] animate-pulse" />
-                    ))
+                    <ListSkeleton count={4} />
                 ) : visibleData.length > 0 ? (
                     visibleData.map((workout, index) => (
                         <div

@@ -5,6 +5,7 @@ import EditExerciseClient from '@/components/exercises/EditExerciseClient';
 import { ExerciseService } from '@/services/exerciseService';
 import { useSession } from '@/hooks/useSession';
 import { useRouter } from '@/i18n/routing';
+import { FormSkeleton } from '@/components/ui/Skeleton';
 
 interface EditExercisePageProps {
     params: Promise<{ id: string }>;
@@ -54,11 +55,7 @@ export default function EditExercisePage({ params }: EditExercisePageProps) {
     }, [id, activeUser?.id, router]);
 
     if ((sessionLoading || fetching) && !exercise) {
-        return (
-            <div className="min-h-screen bg-zinc-950 p-6 flex items-center justify-center">
-                <div className="w-10 h-10 border-4 border-lime-400 border-t-transparent rounded-full animate-spin" />
-            </div>
-        );
+        return <FormSkeleton />;
     }
 
     if (!activeUser || !exercise) return null;

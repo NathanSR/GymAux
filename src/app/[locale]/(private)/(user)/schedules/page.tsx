@@ -6,6 +6,7 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '@/config/db';
 import { useEffect } from 'react';
 import { ScheduleService } from '@/services/scheduleService';
+import { HeaderSkeleton, ScheduleListSkeleton } from '@/components/ui/Skeleton';
 
 export default function SchedulesPage() {
     const { activeUser, loading } = useSession();
@@ -28,8 +29,9 @@ export default function SchedulesPage() {
 
     if (loading && !activeUser) {
         return (
-            <div className="min-h-screen bg-zinc-950 p-6 flex items-center justify-center">
-                <div className="w-10 h-10 border-4 border-lime-400 border-t-transparent rounded-full animate-spin" />
+            <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 p-6 space-y-6">
+                <HeaderSkeleton />
+                <ScheduleListSkeleton count={3} />
             </div>
         );
     }

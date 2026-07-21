@@ -13,6 +13,7 @@ import {
 import { useSmartNavigation } from '@/hooks/useSmartNavigation';
 import { useTranslations } from 'next-intl';
 import { createClient } from '@/lib/supabase/client';
+import { MyIdSkeleton } from '@/components/ui/Skeleton';
 
 export default function MyIDPage() {
     const t = useTranslations('MyID');
@@ -48,11 +49,7 @@ export default function MyIDPage() {
     };
 
     if (loading) {
-        return (
-            <div className="flex flex-col items-center justify-center min-h-screen bg-white dark:bg-zinc-950 p-6 transition-colors duration-300">
-                <div className="w-12 h-12 border-4 border-zinc-200 dark:border-zinc-800 border-t-lime-400 rounded-full animate-spin" />
-            </div>
-        );
+        return <MyIdSkeleton />;
     }
 
     return (

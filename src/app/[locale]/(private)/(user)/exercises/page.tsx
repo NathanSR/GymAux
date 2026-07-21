@@ -3,7 +3,7 @@
 import ExercisesClient from '@/components/exercises/ExercisesClient';
 import { useDexieExercises } from '@/hooks/useDexieData';
 import { useSession } from '@/hooks/useSession';
-import { HeaderSkeleton, ListSkeleton } from '@/components/ui/Skeleton';
+import { HeaderSkeleton, ExerciseListSkeleton } from '@/components/ui/Skeleton';
 
 export default function ExerciseLibraryPage() {
     const { activeUser, loading } = useSession();
@@ -11,9 +11,9 @@ export default function ExerciseLibraryPage() {
 
     if (loading && !activeUser) {
         return (
-            <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 px-6 pt-6 space-y-8">
+            <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 px-6 pt-6 space-y-6">
                 <HeaderSkeleton />
-                <ListSkeleton count={4} />
+                <ExerciseListSkeleton count={4} />
             </div>
         );
     }

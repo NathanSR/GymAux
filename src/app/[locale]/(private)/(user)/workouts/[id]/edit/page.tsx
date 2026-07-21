@@ -7,6 +7,7 @@ import { useSession } from '@/hooks/useSession';
 import { useDexieExercises } from '@/hooks/useDexieData';
 import { Workout } from '@/config/types';
 import { useRouter } from '@/i18n/routing';
+import { FormSkeleton } from '@/components/ui/Skeleton';
 
 interface EditWorkoutPageProps {
     params: Promise<{ id: string }>;
@@ -44,11 +45,7 @@ export default function EditWorkoutPage({ params }: EditWorkoutPageProps) {
     }, [id, router]);
 
     if ((sessionLoading || fetchingWorkout) && !workout) {
-        return (
-            <div className="min-h-screen bg-zinc-950 p-6 flex items-center justify-center">
-                <div className="w-10 h-10 border-4 border-lime-400 border-t-transparent rounded-full animate-spin" />
-            </div>
-        );
+        return <FormSkeleton />;
     }
 
     if (!activeUser || !workout) return null;

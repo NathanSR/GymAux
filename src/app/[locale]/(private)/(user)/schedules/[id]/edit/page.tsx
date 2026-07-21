@@ -5,6 +5,7 @@ import EditScheduleClient from '@/components/schedules/EditScheduleClient';
 import { ScheduleService } from '@/services/scheduleService';
 import { useSession } from '@/hooks/useSession';
 import { useRouter } from '@/i18n/routing';
+import { FormSkeleton } from '@/components/ui/Skeleton';
 
 interface EditSchedulePageProps {
     params: Promise<{ id: string }>;
@@ -53,11 +54,7 @@ export default function EditSchedulePage({ params }: EditSchedulePageProps) {
     }, [id, router]);
 
     if ((sessionLoading || fetchingSchedule) && !formattedData) {
-        return (
-            <div className="min-h-screen bg-zinc-950 p-6 flex items-center justify-center">
-                <div className="w-10 h-10 border-4 border-lime-400 border-t-transparent rounded-full animate-spin" />
-            </div>
-        );
+        return <FormSkeleton />;
     }
 
     if (!activeUser || !formattedData) return null;

@@ -19,6 +19,7 @@ import { useDebounce } from '@/hooks/useDebounce';
 import { formatDate } from '@/utils/dateUtil';
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
 import PageHeader from '@/components/ui/PageHeader';
+import { ScheduleListSkeleton } from '@/components/ui/Skeleton';
 
 interface SchedulesClientProps {
     initialSchedules: Schedule[];
@@ -143,9 +144,7 @@ export default function SchedulesClient({ initialSchedules, initialTotalCount, u
             {/* Lista de Cards */}
             <main className="px-6 space-y-6 pt-6 mb-10">
                 {loading ? (
-                    Array.from({ length: 3 }).map((_, i) => (
-                        <div key={i} className="h-64 bg-white dark:bg-zinc-900 rounded-[32px] animate-pulse" />
-                    ))
+                    <ScheduleListSkeleton count={3} />
                 ) : visibleData.length > 0 ? (
                     visibleData.map((schedule, index) => {
                         const activeDaysCount = schedule.workouts.filter((w: any) => w !== null).length;

@@ -9,6 +9,7 @@ import { useTranslations, useLocale } from "next-intl";
 import { WorkoutHistoryModal } from "@/components/history/WorkoutHistoryModal";
 import { useDebounce } from "@/hooks/useDebounce";
 import PageHeader from "@/components/ui/PageHeader";
+import { Skeleton } from "@/components/ui/Skeleton";
 import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "@/config/db";
 
@@ -210,7 +211,12 @@ export default function HistoryClient({
                         })}
                     </div>
                 </div>
-                {loading && <div className="text-center py-4"><div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-lime-500" /></div>}
+                {loading && (
+                    <div className="flex justify-center items-center py-3 gap-2">
+                        <Skeleton className="h-2 w-2 rounded-full animate-ping bg-lime-400" />
+                        <Skeleton className="h-3 w-28 rounded-full" />
+                    </div>
+                )}
             </section>
 
             <WorkoutHistoryModal

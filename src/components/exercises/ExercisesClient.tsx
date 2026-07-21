@@ -12,6 +12,7 @@ import { useSession } from '@/hooks/useSession';
 import PageHeader from '@/components/ui/PageHeader';
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
 import { ExerciseFilterPanel } from './ExerciseFilterPanel';
+import { ExerciseListSkeleton } from '@/components/ui/Skeleton';
 
 interface ExercisesClientProps {
     initialExercises: Exercise[];
@@ -165,9 +166,7 @@ export default function ExercisesClient({ initialExercises, initialTotalCount }:
                 {/* Listagem */}
                 <div className="grid grid-cols-1 gap-4 mb-10">
                     {loading ? (
-                        Array.from({ length: 5 }).map((_, i) => (
-                            <div key={i} className="h-32 bg-zinc-100 dark:bg-zinc-900 rounded-[32px] animate-pulse" />
-                        ))
+                        <ExerciseListSkeleton count={5} />
                     ) : visibleData.length > 0 ? (
                         visibleData.map((exercise, index) => (
                             <div

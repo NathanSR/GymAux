@@ -3,6 +3,7 @@
 import WorkoutsClient from '@/components/workouts/WorkoutsClient';
 import { useSession } from '@/hooks/useSession';
 import { useDexieWorkouts } from '@/hooks/useDexieData';
+import { HeaderSkeleton, ListSkeleton } from '@/components/ui/Skeleton';
 
 export default function WorkoutsPage() {
     const { activeUser, loading } = useSession();
@@ -10,12 +11,9 @@ export default function WorkoutsPage() {
 
     if (loading && !activeUser) {
         return (
-            <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 p-6">
-                <div className="space-y-4 pt-20">
-                    {Array.from({ length: 4 }).map((_, i) => (
-                        <div key={i} className="h-40 bg-zinc-100 dark:bg-zinc-900 rounded-[32px] animate-pulse" />
-                    ))}
-                </div>
+            <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 p-6 space-y-6">
+                <HeaderSkeleton />
+                <ListSkeleton count={4} />
             </div>
         );
     }
