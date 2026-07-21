@@ -75,11 +75,14 @@ export default function SchedulesClient({ initialSchedules, initialTotalCount, u
     }, [userId, debouncedSearch]);
 
     useEffect(() => {
-        setInitialData(initialSchedules);
-    }, [initialSchedules]);
+        if (!debouncedSearch.trim()) {
+            setInitialData(initialSchedules);
+        }
+    }, [initialSchedules, debouncedSearch]);
 
     useEffect(() => {
-        if (debouncedSearch === '') {
+        if (!debouncedSearch.trim()) {
+            setInitialData(initialSchedules);
             return;
         }
 

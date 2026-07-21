@@ -83,12 +83,15 @@ export default function ExercisesClient({ initialExercises, initialTotalCount }:
     }, [debouncedSearch, selectedCategory, selectedEquipment, te, tt]);
 
     useEffect(() => {
-        setInitialData(initialExercises);
-    }, [initialExercises]);
+        if (selectedCategory === 'all' && selectedEquipment === 'all' && !debouncedSearch.trim()) {
+            setInitialData(initialExercises);
+        }
+    }, [initialExercises, selectedCategory, selectedEquipment, debouncedSearch]);
 
     useEffect(() => {
         // Se não houver filtros ativos nem busca, utiliza os dados iniciais providos do Dexie/props
-        if (selectedCategory === 'all' && selectedEquipment === 'all' && debouncedSearch === '') {
+        if (selectedCategory === 'all' && selectedEquipment === 'all' && !debouncedSearch.trim()) {
+            setInitialData(initialExercises);
             return;
         }
 

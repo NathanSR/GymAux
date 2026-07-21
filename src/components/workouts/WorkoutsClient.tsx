@@ -74,12 +74,15 @@ export default function WorkoutsClient({ initialWorkouts, initialTotalCount, use
     }, [userId, debouncedSearch]);
 
     useEffect(() => {
-        setInitialData(initialWorkouts);
-    }, [initialWorkouts]);
+        if (!debouncedSearch.trim()) {
+            setInitialData(initialWorkouts);
+        }
+    }, [initialWorkouts, debouncedSearch]);
 
     useEffect(() => {
         // Se a busca estiver vazia, os dados iniciais providos por props/Dexie já são utilizados
-        if (debouncedSearch === '') {
+        if (!debouncedSearch.trim()) {
+            setInitialData(initialWorkouts);
             return;
         }
 
