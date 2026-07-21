@@ -121,8 +121,8 @@ export function Modal({
             )}
           >
             {title && (
-              <div className="p-6 border-b border-slate-100 dark:border-white/5 flex items-center justify-between">
-                <h2 className="text-xl font-bold">{title}</h2>
+              <div className="p-6 border-b border-slate-100 dark:border-white/5 flex items-center justify-between gap-3 min-w-0">
+                <h2 className="text-xl font-bold truncate min-w-0 flex-1">{title}</h2>
                 <button
                   type="button"
                   onClick={(e) => {
@@ -130,7 +130,7 @@ export function Modal({
                     e.stopPropagation();
                     onClose();
                   }}
-                  className="p-2 hover:bg-slate-100 dark:hover:bg-white/5 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50"
+                  className="p-2 hover:bg-slate-100 dark:hover:bg-white/5 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50 shrink-0"
                   aria-label="Close modal"
                 >
                   <X className="w-5 h-5" />

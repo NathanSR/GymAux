@@ -77,6 +77,7 @@ export interface PlannedSet {
     restTime: number;          // Descanso APÓS esta série (segundos)
     technique?: SetTechnique;  // Técnica especial (default: 'normal')
     notes?: string;            // Nota para esta série (ex: "3-1-2-0 tempo")
+    dropset?: { reps: number; weight: number }[];
 }
 
 /** Exercício dentro de um grupo (planejamento) */
