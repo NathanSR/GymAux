@@ -60,16 +60,8 @@ export function Popover({
     transformOrigin: string;
   } | null>(null);
 
-  const popoverIdRef = useRef<string>('');
-  if (!popoverIdRef.current) {
-    popoverIdRef.current = 'popover-' + Math.random().toString(36).substring(2, 9);
-  }
-  const popoverId = popoverIdRef.current;
-
   const containerRef = useRef<HTMLDivElement>(null);
   const popoverContentRef = useRef<HTMLDivElement>(null);
-  const isPushedRef = useRef(false);
-  const isPopStateTriggeredRef = useRef(false);
   const onCloseRef = useRef(onClose);
 
   useEffect(() => {
@@ -179,17 +171,9 @@ export function Popover({
     };
   }, [isOpen, updatePosition]);
 
-  // Handle ESC key and Mobile Back Button (popstate)
+  // Handle ESC key
   useEffect(() => {
     if (!isOpen) return;
-
-    const modalId = popoverId;
-    isPopStateTriggeredRef.current = false;
-
-    if (typeof window !== 'undefined' && !isPushedRef.current) {
-      window.history.pushState({ ...window.history.state, __popoverId: modalId }, '');
-      isPushedRef.current = true;
-    }
 
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
@@ -204,34 +188,12 @@ export function Popover({
       }
     };
 
-    const handlePopState = (e: PopStateEvent) => {
-      if (e.state && (e.state.__modalId || e.state.__drawerId)) {
-        return;
-      }
-      if (e.state && e.state.__popoverId === modalId) {
-        return;
-      }
-      isPopStateTriggeredRef.current = true;
-      isPushedRef.current = false;
-      onCloseRef.current();
-    };
-
     window.addEventListener('keydown', handleEscape, true);
-    window.addEventListener('popstate', handlePopState);
 
     return () => {
       window.removeEventListener('keydown', handleEscape, true);
-      window.removeEventListener('popstate', handlePopState);
-
-      if (typeof window !== 'undefined' && isPushedRef.current && !isPopStateTriggeredRef.current) {
-        isPushedRef.current = false;
-        if (window.history.state?.__popoverId === modalId) {
-          window.history.back();
-        }
-      }
-      isPopStateTriggeredRef.current = false;
     };
-  }, [isOpen, popoverId]);
+  }, [isOpen]);
 
   if (!mounted) return null;
 
