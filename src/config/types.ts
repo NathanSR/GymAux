@@ -113,6 +113,7 @@ export interface Workout {
     createdByType?: "user" | "system" | "trainer";
     name: string;
     createdAt: Date;
+    updatedAt?: Date;
     exercises: ExerciseGroup[];
     description?: string;
 }
@@ -162,6 +163,8 @@ export interface Schedule {
     endDate?: Date;
     active: boolean;
     lastCompleted?: number;
+    createdAt?: Date;
+    updatedAt?: Date;
 }
 
 // ========================

@@ -60,3 +60,28 @@ export const getBrazilDayRange = () => {
     
     return { start, end };
 };
+
+/**
+ * Retorna o timestamp mais recente entre updatedAt, createdAt e startDate.
+ * Usado para ordenação decrescente (mais novos/atualizados primeiro).
+ */
+export const getEffectiveTime = (item: { updatedAt?: Date | string | null; createdAt?: Date | string | null; startDate?: Date | string | null }): number => {
+    if (!item) return 0;
+    const parse = (val?: Date | string | null) => {
+        if (!val) return 0;
+        const d = val instanceof Date ? val : new Date(val);
+        const t = d.getTime();
+        return isNaN(t) ? 0 : t;
+    };
+    const updated = parse(item.updatedAt);
+    const created = parse(item.createdAt);
+    const start = parse(item.startDate);
+    return Math.max(updated, created, start);
+};
+
+/**
+ * Ordena um array de itens por ordem decrescente do timestamp mais recente (criação ou update).
+ */
+export const sortByNewest = <T extends { updatedAt?: Date | string | null; createdAt?: Date | string | null; startDate?: Date | string | null }>(items: T[]): T[] => {
+    return [...items].sort((a, b) => getEffectiveTime(b) - getEffectiveTime(a));
+};

@@ -20,6 +20,7 @@ import { useDebounce } from '@/hooks/useDebounce';
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
 import PageHeader from '@/components/ui/PageHeader';
 import { ListSkeleton } from '@/components/ui/Skeleton';
+import { sortByNewest } from '@/utils/dateUtil';
 
 interface WorkoutsClientProps {
     initialWorkouts: Workout[];
@@ -40,22 +41,22 @@ export default function WorkoutsClient({ initialWorkouts, initialTotalCount, use
     const t = useTranslations('WorkoutList');
 
     // Função para buscar mais treinos
-    const fetchMoreWorkouts = useCallback(async (page: number, pageSize: number) => {
+    const fetchMoreWorkouts = useCallback(async (page: number, pageSize: number): Promise<Workout[]> => {
         try {
             const result = await WorkoutService.getWorkoutsByUserId(
                 userId,
                 debouncedSearch,
                 { page, limit: pageSize }
             );
-            // @ts-ignore
-            return result.workouts;
+            const list = Array.isArray(result) ? result : result.workouts;
+            return sortByNewest<Workout>(list);
         } catch (error) {
             console.error("Error fetching more workouts:", error);
             return [];
         }
     }, [userId, debouncedSearch]);
 
-    const [initialData, setInitialData] = useState<Workout[]>(initialWorkouts);
+    const [initialData, setInitialData] = useState<Workout[]>(() => sortByNewest<Workout>(initialWorkouts));
 
     const fetchFirstPage = useCallback(async () => {
         setLoading(true);
@@ -65,8 +66,8 @@ export default function WorkoutsClient({ initialWorkouts, initialTotalCount, use
                 debouncedSearch,
                 { page: 1, limit: 20 }
             );
-            // @ts-ignore
-            setInitialData(result.workouts);
+            const list = Array.isArray(result) ? result : result.workouts;
+            setInitialData(sortByNewest<Workout>(list));
         } catch (error: any) {
             console.error("Error fetching workouts:", error?.message || error);
         } finally {
@@ -76,7 +77,7 @@ export default function WorkoutsClient({ initialWorkouts, initialTotalCount, use
 
     useEffect(() => {
         if (!debouncedSearch.trim()) {
-            setInitialData(initialWorkouts);
+            setInitialData(sortByNewest(initialWorkouts));
         }
     }, [initialWorkouts, debouncedSearch]);
 

@@ -10,6 +10,8 @@ import { ExerciseService } from '@/services/exerciseService';
 import { SessionService } from '@/services/sessionService';
 import { Workout, Schedule, History, Exercise, Session } from '@/config/types';
 
+import { getEffectiveTime, sortByNewest } from '@/utils/dateUtil';
+
 /**
  * Retorna lista reativa de treinos do usuário via Dexie.
  * Atualiza o Dexie em segundo plano se houver conexão.
@@ -18,11 +20,11 @@ export function useDexieWorkouts(userId?: string | null): Workout[] {
     const workouts = useLiveQuery(
         async () => {
             if (!userId) return [];
-            return await db.workouts
+            const all = await db.workouts
                 .where('userId')
                 .equals(userId)
-                .reverse()
                 .toArray();
+            return sortByNewest(all);
         },
         [userId]
     );

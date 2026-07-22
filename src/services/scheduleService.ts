@@ -4,18 +4,21 @@ import { db } from '@/config/db';
 import { SyncManager } from './syncManager';
 import { connectionService } from './connectionService';
 import { withTimeout } from '@/lib/utils/timeout';
+import { getEffectiveTime, sortByNewest } from '@/utils/dateUtil';
 
 const mapScheduleFromSupabase = (s: any): Schedule => ({
     id: s.id,
     name: s.name,
-    userId: s.user_id,
-    createdBy: s.created_by,
-    createdByType: s.created_by_type,
+    userId: s.user_id || s.userId,
+    createdBy: s.created_by || s.createdBy,
+    createdByType: s.created_by_type || s.createdByType,
     workouts: s.workouts as (string | null)[],
-    startDate: new Date(s.start_date),
-    endDate: s.end_date ? new Date(s.end_date) : undefined,
+    startDate: new Date(s.start_date || s.startDate),
+    endDate: s.end_date ? new Date(s.end_date) : (s.endDate ? new Date(s.endDate) : undefined),
     active: s.active,
-    lastCompleted: s.last_completed ?? undefined,
+    lastCompleted: s.last_completed ?? s.lastCompleted ?? undefined,
+    createdAt: s.created_at ? new Date(s.created_at) : (s.createdAt ? new Date(s.createdAt) : undefined),
+    updatedAt: s.updated_at ? new Date(s.updated_at) : (s.updatedAt ? new Date(s.updatedAt) : undefined),
 });
 
 const mapScheduleToSupabase = (s: Schedule) => ({
@@ -26,9 +29,11 @@ const mapScheduleToSupabase = (s: Schedule) => ({
     created_by_type: s.createdByType,
     workouts: s.workouts,
     start_date: s.startDate instanceof Date ? s.startDate.toISOString() : s.startDate,
-    end_date: s.endDate instanceof Date ? s.endDate.toISOString() : s.endDate,
+    end_date: s.endDate ? (s.endDate instanceof Date ? s.endDate.toISOString() : s.endDate) : undefined,
     active: s.active,
     last_completed: s.lastCompleted ?? -1,
+    created_at: s.createdAt ? (s.createdAt instanceof Date ? s.createdAt.toISOString() : s.createdAt) : undefined,
+    updated_at: s.updatedAt ? (s.updatedAt instanceof Date ? s.updatedAt.toISOString() : s.updatedAt) : undefined,
 });
 
 export const ScheduleService = {
@@ -46,6 +51,7 @@ export const ScheduleService = {
                 .from('schedules')
                 .select('*', { count: 'exact' })
                 .eq('user_id', userId)
+                .order('updated_at', { ascending: false, nullsFirst: false })
                 .order('created_at', { ascending: false });
 
             if (searchQuery.trim()) {
@@ -59,7 +65,7 @@ export const ScheduleService = {
 
             if (error) throw error;
 
-            schedules = (data || []).map(mapScheduleFromSupabase);
+            schedules = sortByNewest((data || []).map(mapScheduleFromSupabase));
             totalCount = count || 0;
 
             if (typeof window !== 'undefined' && schedules.length > 0) {
@@ -76,11 +82,7 @@ export const ScheduleService = {
                 const q = searchQuery.toLowerCase().trim();
                 filtered = allLocal.filter(s => s.name.toLowerCase().includes(q));
             }
-            filtered.sort((a, b) => {
-                const timeA = a.startDate ? new Date(a.startDate).getTime() : 0;
-                const timeB = b.startDate ? new Date(b.startDate).getTime() : 0;
-                return timeB - timeA;
-            });
+            filtered = sortByNewest(filtered);
             totalCount = filtered.length;
             const from = (pagination.page - 1) * pagination.limit;
             const to = from + pagination.limit;
@@ -178,6 +180,7 @@ export const ScheduleService = {
         }
 
         const id = crypto.randomUUID();
+        const now = new Date();
         const newSchedule: Schedule = {
             ...scheduleData,
             id,
@@ -186,6 +189,8 @@ export const ScheduleService = {
             createdByType: scheduleData.userId === callerId ? 'user' : 'trainer',
             startDate: typeof scheduleData.startDate === 'string' ? new Date(scheduleData.startDate) : scheduleData.startDate,
             endDate: scheduleData.endDate ? (typeof scheduleData.endDate === 'string' ? new Date(scheduleData.endDate) : scheduleData.endDate) : undefined,
+            createdAt: now,
+            updatedAt: now,
         } as Schedule;
 
         // Permission check (non-blocking if offline — will be enforced by RLS on sync)
@@ -258,7 +263,10 @@ export const ScheduleService = {
      */
     async updateSchedule(id: string, scheduleData: Partial<Schedule>, callerId: string, supabaseInput?: any) {
         // Build updates for Supabase format
-        const updates: any = {};
+        const now = new Date();
+        const updates: any = {
+            updated_at: now.toISOString(),
+        };
         if (scheduleData.name) updates.name = scheduleData.name.trim();
         if (scheduleData.userId) updates.user_id = scheduleData.userId;
         if (scheduleData.workouts) updates.workouts = scheduleData.workouts;
@@ -290,7 +298,7 @@ export const ScheduleService = {
                     }
                 }
 
-                const updated = { ...current, ...scheduleData };
+                const updated = { ...current, ...scheduleData, updatedAt: now };
                 await db.schedules.put(updated);
                 await SyncManager.enqueue('UPDATE', 'SCHEDULE', id, { id, ...updates });
                 return updated;

@@ -20,6 +20,7 @@ import { formatDate } from '@/utils/dateUtil';
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
 import PageHeader from '@/components/ui/PageHeader';
 import { ScheduleListSkeleton } from '@/components/ui/Skeleton';
+import { sortByNewest } from '@/utils/dateUtil';
 
 interface SchedulesClientProps {
     initialSchedules: Schedule[];
@@ -43,21 +44,21 @@ export default function SchedulesClient({ initialSchedules, initialTotalCount, u
     const dayLabels = t.raw('dayLabels') as string[];
 
     // Função para buscar mais cronogramas
-    const fetchMoreSchedules = useCallback(async (page: number, pageSize: number) => {
+    const fetchMoreSchedules = useCallback(async (page: number, pageSize: number): Promise<Schedule[]> => {
         try {
             const result = await ScheduleService.getSchedulesByUserId(
                 userId,
                 debouncedSearch,
                 { page, limit: pageSize }
             );
-            return result.schedules;
+            return sortByNewest<Schedule>(result.schedules);
         } catch (error) {
             console.error("Error fetching more schedules:", error);
             return [];
         }
     }, [userId, debouncedSearch]);
 
-    const [initialData, setInitialData] = useState<Schedule[]>(initialSchedules);
+    const [initialData, setInitialData] = useState<Schedule[]>(() => sortByNewest<Schedule>(initialSchedules));
 
     const fetchFirstPage = useCallback(async () => {
         setLoading(true);
@@ -67,7 +68,7 @@ export default function SchedulesClient({ initialSchedules, initialTotalCount, u
                 debouncedSearch,
                 { page: 1, limit: 20 }
             );
-            setInitialData(result.schedules);
+            setInitialData(sortByNewest<Schedule>(result.schedules));
         } catch (error: any) {
             console.error("Error fetching schedules:", error?.message || error);
         } finally {
@@ -77,7 +78,7 @@ export default function SchedulesClient({ initialSchedules, initialTotalCount, u
 
     useEffect(() => {
         if (!debouncedSearch.trim()) {
-            setInitialData(initialSchedules);
+            setInitialData(sortByNewest(initialSchedules));
         }
     }, [initialSchedules, debouncedSearch]);
 

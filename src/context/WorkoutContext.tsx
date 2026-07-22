@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
 import { Workout } from '@/config/types';
 import { WorkoutService } from '@/services/workoutService';
+import { sortByNewest } from '@/utils/dateUtil';
 
 interface WorkoutContextType {
     workouts: Workout[];
@@ -33,7 +34,7 @@ export const WorkoutProvider: React.FC<{ children: React.ReactNode }> = ({ child
             const result = await WorkoutService.getWorkoutsByUserId(userId, '', { page: 1, limit: 100 });
             // result is { workouts, totalCount } when pagination is provided
             const fetchedWorkouts = Array.isArray(result) ? result : result.workouts;
-            setWorkouts(fetchedWorkouts);
+            setWorkouts(sortByNewest(fetchedWorkouts));
             setHasLoaded(true);
         } catch (err: any) {
             setError(err.message || 'Failed to fetch workouts');
@@ -50,7 +51,7 @@ export const WorkoutProvider: React.FC<{ children: React.ReactNode }> = ({ child
                     newWorkouts.push(w);
                 }
             });
-            return newWorkouts;
+            return sortByNewest(newWorkouts);
         });
         setHasLoaded(true);
     }, []);
@@ -62,7 +63,7 @@ export const WorkoutProvider: React.FC<{ children: React.ReactNode }> = ({ child
         try {
             const workout = await WorkoutService.getWorkoutById(id);
             if (workout) {
-                setWorkouts((prev: Workout[]) => [...prev.filter(w => w.id !== id), workout]);
+                setWorkouts((prev: Workout[]) => sortByNewest([...prev.filter(w => w.id !== id), workout]));
             }
             return workout;
         } catch (err) {
@@ -71,11 +72,11 @@ export const WorkoutProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }, [workouts]);
 
     const addWorkout = useCallback((workout: Workout) => {
-        setWorkouts((prev: Workout[]) => [workout, ...prev]);
+        setWorkouts((prev: Workout[]) => sortByNewest([workout, ...prev]));
     }, []);
 
     const updateWorkoutState = useCallback((id: string, updates: Partial<Workout>) => {
-        setWorkouts((prev: Workout[]) => prev.map(w => w.id === id ? { ...w, ...updates } : w));
+        setWorkouts((prev: Workout[]) => sortByNewest(prev.map(w => w.id === id ? { ...w, ...updates, updatedAt: updates.updatedAt || new Date() } : w)));
     }, []);
 
     const removeWorkout = useCallback((id: string) => {

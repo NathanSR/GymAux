@@ -4,6 +4,7 @@ import { db } from '@/config/db';
 import { SyncManager } from './syncManager';
 import { connectionService } from './connectionService';
 import { withTimeout } from '@/lib/utils/timeout';
+import { getEffectiveTime, sortByNewest } from '@/utils/dateUtil';
 
 const mapGroupFromSupabase = (g: any): ExerciseGroup => ({
     groupType: g.groupType || 'straight',
@@ -30,12 +31,13 @@ const mapGroupFromSupabase = (g: any): ExerciseGroup => ({
 
 const mapWorkoutFromSupabase = (workout: any): Workout => ({
     id: workout.id,
-    userId: workout.user_id,
-    createdBy: workout.created_by,
-    createdByType: workout.created_by_type,
+    userId: workout.user_id || workout.userId,
+    createdBy: workout.created_by || workout.createdBy,
+    createdByType: workout.created_by_type || workout.createdByType,
     name: workout.name,
     description: workout.description || undefined,
-    createdAt: workout.created_at ? new Date(workout.created_at) : new Date(),
+    createdAt: workout.created_at ? new Date(workout.created_at) : (workout.createdAt ? new Date(workout.createdAt) : new Date()),
+    updatedAt: workout.updated_at ? new Date(workout.updated_at) : (workout.updatedAt ? new Date(workout.updatedAt) : undefined),
     exercises: (workout.exercises || []).map(mapGroupFromSupabase),
 });
 
@@ -76,7 +78,7 @@ export const WorkoutService = {
             );
 
             if (error) throw error;
-            workouts = (data || []).map(mapWorkoutFromSupabase);
+            workouts = sortByNewest((data || []).map(mapWorkoutFromSupabase));
 
             if (typeof window !== 'undefined' && workouts.length > 0) {
                 await db.workouts.bulkPut(workouts).catch(() => {});
@@ -84,7 +86,7 @@ export const WorkoutService = {
         } catch (error) {
             console.warn('[WorkoutService] getAllWorkouts failed, falling back to local DB:', error);
             if (typeof window !== 'undefined') {
-                workouts = await db.workouts.toArray();
+                workouts = sortByNewest(await db.workouts.toArray());
             }
         }
         return workouts;
@@ -100,6 +102,7 @@ export const WorkoutService = {
                 .from('workouts')
                 .select('*', { count: 'exact' })
                 .eq('user_id', userId)
+                .order('updated_at', { ascending: false, nullsFirst: false })
                 .order('created_at', { ascending: false });
 
             if (searchQuery.trim()) {
@@ -116,7 +119,7 @@ export const WorkoutService = {
 
             if (error) throw error;
 
-            workouts = (data || []).map(mapWorkoutFromSupabase);
+            workouts = sortByNewest((data || []).map(mapWorkoutFromSupabase));
             totalCount = count || 0;
 
             if (typeof window !== 'undefined' && workouts.length > 0) {
@@ -135,7 +138,7 @@ export const WorkoutService = {
                     filtered = allLocal.filter(w => w.name.toLowerCase().includes(q));
                 }
 
-                filtered.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+                filtered = sortByNewest(filtered);
                 
                 totalCount = filtered.length;
 
@@ -237,6 +240,7 @@ export const WorkoutService = {
             }
         }
 
+        const now = new Date();
         const apiPayload = {
             id,
             user_id: workoutData.userId,
@@ -245,13 +249,16 @@ export const WorkoutService = {
             name: formattedName,
             description: workoutData.description,
             exercises: serializeGroups(workoutData.exercises) as any,
+            created_at: now.toISOString(),
+            updated_at: now.toISOString(),
         };
 
         // Local-first
         if (typeof window !== 'undefined') {
-            await db.workouts.put(mapWorkoutFromSupabase(apiPayload));
+            const createdWorkout = { ...mapWorkoutFromSupabase(apiPayload), createdAt: now, updatedAt: now };
+            await db.workouts.put(createdWorkout);
             await SyncManager.enqueue('CREATE', 'WORKOUT', id, apiPayload, workoutData.userId);
-            return mapWorkoutFromSupabase(apiPayload);
+            return createdWorkout;
         }
 
         const { data, error } = await withTimeout(
@@ -263,7 +270,10 @@ export const WorkoutService = {
     },
 
     async updateWorkout(id: string, workoutData: Partial<Workout> & { callerId: string }, supabaseInput?: any) {
-        const updates: any = {};
+        const now = new Date();
+        const updates: any = {
+            updated_at: now.toISOString(),
+        };
         if (workoutData.name) updates.name = workoutData.name.trim();
         if (workoutData.description !== undefined) updates.description = workoutData.description;
         if (workoutData.userId) updates.user_id = workoutData.userId;
@@ -276,7 +286,7 @@ export const WorkoutService = {
             const local = await db.workouts.get(id);
             const targetUserId = workoutData.userId || local?.userId || workoutData.callerId;
             if (local) {
-                const updated = { ...local, ...workoutData };
+                const updated = { ...local, ...workoutData, updatedAt: now };
                 await db.workouts.put(updated);
                 await SyncManager.enqueue('UPDATE', 'WORKOUT', id, { id, ...updates }, targetUserId);
                 return updated;
@@ -291,7 +301,7 @@ export const WorkoutService = {
                 );
                 if (fetchedData) {
                     const workout = mapWorkoutFromSupabase(fetchedData);
-                    const updated = { ...workout, ...workoutData };
+                    const updated = { ...workout, ...workoutData, updatedAt: now };
                     await db.workouts.put(updated);
                     await SyncManager.enqueue('UPDATE', 'WORKOUT', id, { id, ...updates }, targetUserId);
                     return updated;
@@ -299,7 +309,7 @@ export const WorkoutService = {
             } catch {
                 // Can't fetch — enqueue anyway with what we have
                 await SyncManager.enqueue('UPDATE', 'WORKOUT', id, { id, ...updates }, targetUserId);
-                return { id, ...workoutData } as Workout;
+                return { id, ...workoutData, updatedAt: now } as Workout;
             }
         }
 

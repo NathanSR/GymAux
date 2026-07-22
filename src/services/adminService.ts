@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/client';
 import { User, Exercise } from '@/config/types';
+import { sortByNewest } from '@/utils/dateUtil';
 
 const mapProfileToUser = (profile: any): User => ({
     id: profile.id,
@@ -85,6 +86,7 @@ export const adminService = {
         const { data, error } = await supabase
             .from('workouts')
             .select('*, profiles(name, avatar)')
+            .order('updated_at', { ascending: false, nullsFirst: false })
             .order('created_at', { ascending: false });
 
         if (error) {
@@ -92,18 +94,21 @@ export const adminService = {
             throw error;
         }
 
-        return (data || []).map((workout: any) => ({
+        const mapped = (data || []).map((workout: any) => ({
             id: workout.id,
             userId: workout.user_id,
             name: workout.name,
             description: workout.description,
             createdAt: workout.created_at ? new Date(workout.created_at) : new Date(),
+            updatedAt: workout.updated_at ? new Date(workout.updated_at) : undefined,
             exercises: workout.exercises || [],
             user: workout.profiles ? {
                 name: workout.profiles.name,
                 avatar: workout.profiles.avatar
             } : null
         }));
+
+        return sortByNewest(mapped);
     },
 
     // Buscar todos os exercícios com suporte a filtros e paginação para o admin

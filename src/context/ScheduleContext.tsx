@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
 import { Schedule } from '@/config/types';
 import { ScheduleService } from '@/services/scheduleService';
+import { sortByNewest } from '@/utils/dateUtil';
 
 interface ScheduleContextType {
     schedules: Schedule[];
@@ -31,7 +32,7 @@ export const ScheduleProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         setError(null);
         try {
             const result = await ScheduleService.getSchedulesByUserId(userId, '', { page: 1, limit: 100 });
-            setSchedules(result.schedules);
+            setSchedules(sortByNewest(result.schedules));
             setHasLoaded(true);
         } catch (err: any) {
             setError(err.message || 'Failed to fetch schedules');
@@ -48,7 +49,7 @@ export const ScheduleProvider: React.FC<{ children: React.ReactNode }> = ({ chil
                     newSchedules.push(s);
                 }
             });
-            return newSchedules;
+            return sortByNewest(newSchedules);
         });
         setHasLoaded(true);
     }, []);
@@ -60,7 +61,7 @@ export const ScheduleProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         try {
             const schedule = await ScheduleService.getScheduleById(id);
             if (schedule) {
-                setSchedules((prev: Schedule[]) => [...prev.filter(s => s.id !== id), schedule]);
+                setSchedules((prev: Schedule[]) => sortByNewest([...prev.filter(s => s.id !== id), schedule]));
             }
             return schedule;
         } catch (err) {
@@ -69,11 +70,11 @@ export const ScheduleProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }, [schedules]);
 
     const addSchedule = useCallback((schedule: Schedule) => {
-        setSchedules((prev: Schedule[]) => [schedule, ...prev]);
+        setSchedules((prev: Schedule[]) => sortByNewest([schedule, ...prev]));
     }, []);
 
     const updateScheduleState = useCallback((id: string, updates: Partial<Schedule>) => {
-        setSchedules((prev: Schedule[]) => prev.map(s => s.id === id ? { ...s, ...updates } : s));
+        setSchedules((prev: Schedule[]) => sortByNewest(prev.map(s => s.id === id ? { ...s, ...updates, updatedAt: updates.updatedAt || new Date() } : s)));
     }, []);
 
     const removeSchedule = useCallback((id: string) => {

@@ -6,6 +6,7 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '@/config/db';
 import { useEffect } from 'react';
 import { ScheduleService } from '@/services/scheduleService';
+import { sortByNewest } from '@/utils/dateUtil';
 
 export default function SchedulesPage() {
     const { activeUser, loading } = useSession();
@@ -13,10 +14,11 @@ export default function SchedulesPage() {
     const schedules = useLiveQuery(
         async () => {
             if (!activeUser?.id) return [];
-            return await db.schedules
+            const all = await db.schedules
                 .where('userId')
                 .equals(activeUser.id)
                 .toArray();
+            return sortByNewest(all);
         },
         [activeUser?.id]
     );
