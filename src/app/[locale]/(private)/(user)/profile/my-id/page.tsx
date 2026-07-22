@@ -13,7 +13,7 @@ import {
 import { useSmartNavigation } from '@/hooks/useSmartNavigation';
 import { useTranslations } from 'next-intl';
 import { createClient } from '@/lib/supabase/client';
-import { MyIdSkeleton } from '@/components/ui/Skeleton';
+import { MyIdCardSkeleton } from '@/components/ui/Skeleton';
 
 export default function MyIDPage() {
     const t = useTranslations('MyID');
@@ -48,10 +48,6 @@ export default function MyIDPage() {
         }
     };
 
-    if (loading) {
-        return <MyIdSkeleton />;
-    }
-
     return (
         <div className="flex flex-col min-h-screen bg-white dark:bg-zinc-950 transition-colors duration-300 font-sans p-6 pb-12">
             {/* Header */}
@@ -69,12 +65,15 @@ export default function MyIDPage() {
             </header>
 
             <main className="flex-1 flex flex-col items-center justify-center">
-                <motion.div
-                    initial={{ opacity: 0, scale: 0.95, y: 20 }}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                    transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                    className="w-full max-w-sm"
-                >
+                {loading ? (
+                    <MyIdCardSkeleton />
+                ) : (
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                        className="w-full max-w-sm"
+                    >
                     <div className="relative group overflow-hidden">
                         {/* Glow effect */}
                         <div className="absolute -inset-1 bg-gradient-to-br from-lime-400 to-lime-600 rounded-[40px] blur opacity-20 group-hover:opacity-30 transition duration-1000"></div>
@@ -162,6 +161,7 @@ export default function MyIDPage() {
                         </div>
                     </div>
                 </motion.div>
+                )}
             </main>
 
             {/* Notification Toast */}

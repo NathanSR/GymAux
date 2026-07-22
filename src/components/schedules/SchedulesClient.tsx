@@ -26,9 +26,10 @@ interface SchedulesClientProps {
     initialTotalCount: number;
     userId: string;
     baseUrl?: string;
+    isSessionLoading?: boolean;
 }
 
-export default function SchedulesClient({ initialSchedules, initialTotalCount, userId, baseUrl = '/schedules' }: SchedulesClientProps) {
+export default function SchedulesClient({ initialSchedules, initialTotalCount, userId, baseUrl = '/schedules', isSessionLoading = false }: SchedulesClientProps) {
     const router = useRouter();
     const t = useTranslations('ScheduleList');
     const locale = useLocale();
@@ -146,7 +147,7 @@ export default function SchedulesClient({ initialSchedules, initialTotalCount, u
 
             {/* Lista de Cards */}
             <main className="px-6 space-y-6 pt-6 mb-10">
-                {loading ? (
+                {loading || isSessionLoading ? (
                     <ScheduleListSkeleton count={3} />
                 ) : visibleData.length > 0 ? (
                     visibleData.map((schedule, index) => {

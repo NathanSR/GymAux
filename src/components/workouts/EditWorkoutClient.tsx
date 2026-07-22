@@ -12,15 +12,18 @@ import { toast } from 'react-toastify';
 import { Exercise, Workout } from '@/config/types';
 import PageHeader from '@/components/ui/PageHeader';
 
+import { FormFieldsSkeleton } from '@/components/ui/Skeleton';
+
 interface EditWorkoutClientProps {
-    initialWorkout: Workout;
+    initialWorkout: Workout | null;
     availableExercises: Exercise[];
     workoutId: string;
     callerId: string;
     baseUrl?: string;
+    isFetching?: boolean;
 }
 
-export default function EditWorkoutClient({ initialWorkout, availableExercises, workoutId, callerId, baseUrl = '/workouts' }: EditWorkoutClientProps) {
+export default function EditWorkoutClient({ initialWorkout, availableExercises, workoutId, callerId, baseUrl = '/workouts', isFetching = false }: EditWorkoutClientProps) {
     const { isDark } = useTheme();
     const { navigateAfterAction } = useSmartNavigation({ fallbackUrl: baseUrl });
     const t = useTranslations('WorkoutEdit');
@@ -81,12 +84,16 @@ export default function EditWorkoutClient({ initialWorkout, availableExercises, 
             />
 
             <main className="p-6 max-w-3xl mx-auto animate-in fade-in duration-500">
-                <WorkoutForm
-                    initialData={initialWorkout}
-                    availableExercises={availableExercises}
-                    onSubmit={handleUpdate}
-                    isLoading={isSaving}
-                />
+                {isFetching || !initialWorkout ? (
+                    <FormFieldsSkeleton />
+                ) : (
+                    <WorkoutForm
+                        initialData={initialWorkout}
+                        availableExercises={availableExercises}
+                        onSubmit={handleUpdate}
+                        isLoading={isSaving}
+                    />
+                )}
             </main>
         </div>
     );

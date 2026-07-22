@@ -125,26 +125,30 @@ export const BannerSkeleton = () => (
   </div>
 );
 
+export const FormFieldsSkeleton = () => (
+  <div className="max-w-3xl mx-auto space-y-6 w-full animate-in fade-in duration-300">
+    <div className="space-y-2">
+      <Skeleton className="h-3 w-28 rounded-full" />
+      <Skeleton className="h-14 w-full rounded-2xl" />
+    </div>
+    <div className="space-y-2">
+      <Skeleton className="h-3 w-24 rounded-full" />
+      <Skeleton className="h-28 w-full rounded-2xl" />
+    </div>
+    <div className="space-y-2">
+      <Skeleton className="h-3 w-36 rounded-full" />
+      <Skeleton className="h-14 w-full rounded-2xl" />
+    </div>
+    <div className="pt-4">
+      <Skeleton className="h-14 w-full rounded-2xl" />
+    </div>
+  </div>
+);
+
 export const FormSkeleton = () => (
   <div className="min-h-screen bg-white dark:bg-zinc-950 p-6 space-y-8 font-sans transition-colors duration-300">
     <HeaderSkeleton />
-    <div className="max-w-md mx-auto space-y-6">
-      <div className="space-y-2">
-        <Skeleton className="h-3 w-28 rounded-full" />
-        <Skeleton className="h-14 w-full rounded-2xl" />
-      </div>
-      <div className="space-y-2">
-        <Skeleton className="h-3 w-24 rounded-full" />
-        <Skeleton className="h-28 w-full rounded-2xl" />
-      </div>
-      <div className="space-y-2">
-        <Skeleton className="h-3 w-36 rounded-full" />
-        <Skeleton className="h-14 w-full rounded-2xl" />
-      </div>
-      <div className="pt-4">
-        <Skeleton className="h-14 w-full rounded-2xl" />
-      </div>
-    </div>
+    <FormFieldsSkeleton />
   </div>
 );
 
@@ -178,6 +182,19 @@ export const SessionSkeleton = () => (
   </div>
 );
 
+export const MyIdCardSkeleton = () => (
+  <div className="w-full max-w-sm bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 rounded-[32px] p-8 flex flex-col items-center shadow-2xl space-y-6 animate-pulse">
+    <Skeleton className="w-20 h-20 rounded-[24px]" />
+    <div className="space-y-2 text-center w-full flex flex-col items-center">
+      <Skeleton className="h-3 w-16 rounded-full" />
+      <Skeleton className="h-8 w-40" />
+      <Skeleton className="h-4 w-56" />
+    </div>
+    <Skeleton className="w-48 h-48 rounded-[28px]" />
+    <Skeleton className="h-14 w-full rounded-[20px]" />
+  </div>
+);
+
 export const MyIdSkeleton = () => (
   <div className="min-h-screen bg-white dark:bg-zinc-950 p-6 flex flex-col items-center justify-between font-sans transition-colors duration-300">
     <div className="flex justify-between items-center w-full mb-8">
@@ -185,16 +202,7 @@ export const MyIdSkeleton = () => (
       <Skeleton className="h-6 w-28 rounded-full" />
       <div className="w-12 h-12" />
     </div>
-    <div className="w-full max-w-sm bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 rounded-[32px] p-8 flex flex-col items-center shadow-2xl space-y-6">
-      <Skeleton className="w-20 h-20 rounded-[24px]" />
-      <div className="space-y-2 text-center w-full flex flex-col items-center">
-        <Skeleton className="h-3 w-16 rounded-full" />
-        <Skeleton className="h-8 w-40" />
-        <Skeleton className="h-4 w-56" />
-      </div>
-      <Skeleton className="w-48 h-48 rounded-[28px]" />
-      <Skeleton className="h-14 w-full rounded-[20px]" />
-    </div>
+    <MyIdCardSkeleton />
     <div className="w-full" />
   </div>
 );

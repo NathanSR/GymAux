@@ -17,9 +17,10 @@ import { ExerciseListSkeleton } from '@/components/ui/Skeleton';
 interface ExercisesClientProps {
     initialExercises: Exercise[];
     initialTotalCount: number;
+    isSessionLoading?: boolean;
 }
 
-export default function ExercisesClient({ initialExercises, initialTotalCount }: ExercisesClientProps) {
+export default function ExercisesClient({ initialExercises, initialTotalCount, isSessionLoading = false }: ExercisesClientProps) {
     const { activeUser } = useSession();
 
     // Estados de interface
@@ -168,7 +169,7 @@ export default function ExercisesClient({ initialExercises, initialTotalCount }:
 
                 {/* Listagem */}
                 <div className="grid grid-cols-1 gap-4 mb-10">
-                    {loading ? (
+                    {loading || isSessionLoading ? (
                         <ExerciseListSkeleton count={5} />
                     ) : visibleData.length > 0 ? (
                         visibleData.map((exercise, index) => (

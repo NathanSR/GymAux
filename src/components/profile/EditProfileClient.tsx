@@ -9,21 +9,25 @@ import { userService } from "@/services/userService";
 import UserForm from "@/components/users/UserForm";
 import { useTranslations } from "next-intl";
 
+import { FormFieldsSkeleton } from "@/components/ui/Skeleton";
+
 interface EditProfileClientProps {
-    initialUser: AppUser;
+    initialUser?: AppUser | null;
+    isFetching?: boolean;
 }
 
 import PageHeader from "@/components/ui/PageHeader";
 
-export default function EditProfileClient({ initialUser }: EditProfileClientProps) {
+export default function EditProfileClient({ initialUser, isFetching = false }: EditProfileClientProps) {
     const router = useRouter();
     const t = useTranslations('UserEdit');
     const [isSaving, setIsSaving] = useState(false);
 
     const handleUpdate = async (data: AppUser) => {
+        if (!initialUser?.id) return;
         setIsSaving(true);
         try {
-            await userService.updateUser(initialUser.id!, {
+            await userService.updateUser(initialUser.id, {
                 name: data.name,
                 avatar: data.avatar,
                 weight: Number(data.weight),
@@ -43,19 +47,25 @@ export default function EditProfileClient({ initialUser }: EditProfileClientProp
             <PageHeader title={t('title')} backHref="/home" className="max-w-lg mx-auto rounded-b-[32px] border-x" />
 
             <main className="p-6 max-w-lg mx-auto">
-                <UserForm
-                    initialData={initialUser}
-                    onSubmit={handleUpdate}
-                    isLoading={isSaving}
-                    submitLabel={t('submitBtn')}
-                />
+                {isFetching || !initialUser ? (
+                    <FormFieldsSkeleton />
+                ) : (
+                    <>
+                        <UserForm
+                            initialData={initialUser}
+                            onSubmit={handleUpdate}
+                            isLoading={isSaving}
+                            submitLabel={t('submitBtn')}
+                        />
 
-                <div className="mt-8 p-5 bg-zinc-100/50 dark:bg-zinc-900/30 rounded-[32px] border border-zinc-200/50 dark:border-zinc-800/50 flex gap-4">
-                    <AlertCircle className="text-zinc-400 shrink-0" size={20} />
-                    <p className="text-[11px] text-zinc-400 leading-relaxed font-medium">
-                        {t('tip')}
-                    </p>
-                </div>
+                        <div className="mt-8 p-5 bg-zinc-100/50 dark:bg-zinc-900/30 rounded-[32px] border border-zinc-200/50 dark:border-zinc-800/50 flex gap-4">
+                            <AlertCircle className="text-zinc-400 shrink-0" size={20} />
+                            <p className="text-[11px] text-zinc-400 leading-relaxed font-medium">
+                                {t('tip')}
+                            </p>
+                        </div>
+                    </>
+                )}
             </main>
         </div>
     );

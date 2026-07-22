@@ -11,14 +11,17 @@ import { useTheme } from "@/context/ThemeContext";
 import { toast } from "react-toastify";
 import PageHeader from "@/components/ui/PageHeader";
 
+import { FormFieldsSkeleton } from '@/components/ui/Skeleton';
+
 interface EditScheduleClientProps {
     initialData: any;
     scheduleId: string;
     callerId: string;
     baseUrl?: string;
+    isFetching?: boolean;
 }
 
-export default function EditScheduleClient({ initialData, scheduleId, callerId, baseUrl = '/schedules' }: EditScheduleClientProps) {
+export default function EditScheduleClient({ initialData, scheduleId, callerId, baseUrl = '/schedules', isFetching = false }: EditScheduleClientProps) {
     const { isDark } = useTheme();
     const { navigateAfterAction } = useSmartNavigation({ fallbackUrl: baseUrl });
     const t = useTranslations('ScheduleEdit');
@@ -80,12 +83,16 @@ export default function EditScheduleClient({ initialData, scheduleId, callerId, 
             />
 
             <main className="px-6 max-w-2xl mx-auto mt-6 animate-in fade-in slide-in-from-bottom-2 duration-500">
-                <ScheduleForm
-                    initialData={initialData}
-                    onSubmit={handleUpdate}
-                    isLoading={loading}
-                    userId={initialData.userId}
-                />
+                {isFetching || !initialData ? (
+                    <FormFieldsSkeleton />
+                ) : (
+                    <ScheduleForm
+                        initialData={initialData}
+                        onSubmit={handleUpdate}
+                        isLoading={loading}
+                        userId={initialData.userId}
+                    />
+                )}
             </main>
         </div>
     );

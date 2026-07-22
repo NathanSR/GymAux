@@ -13,12 +13,15 @@ import { Exercise } from '@/config/types';
 import { useSession } from '@/hooks/useSession';
 import PageHeader from '@/components/ui/PageHeader';
 
+import { FormFieldsSkeleton } from '@/components/ui/Skeleton';
+
 interface EditExerciseClientProps {
     initialExercise: any;
     exerciseId: number;
+    isFetching?: boolean;
 }
 
-export default function EditExerciseClient({ initialExercise, exerciseId }: EditExerciseClientProps) {
+export default function EditExerciseClient({ initialExercise, exerciseId, isFetching = false }: EditExerciseClientProps) {
     const { isDark } = useTheme();
     const { navigateAfterAction } = useSmartNavigation({ fallbackUrl: '/exercises' });
     const t = useTranslations('ExerciseEdit');
@@ -82,12 +85,16 @@ export default function EditExerciseClient({ initialExercise, exerciseId }: Edit
                 }
             />
 
-            <main className="p-6 max-2xl mx-auto animate-in fade-in duration-500">
-                <ExerciseForm
-                    initialData={initialExercise}
-                    onSubmit={handleUpdate}
-                    isLoading={isLoading}
-                />
+            <main className="p-6 max-w-2xl mx-auto animate-in fade-in duration-500">
+                {isFetching || !initialExercise ? (
+                    <FormFieldsSkeleton />
+                ) : (
+                    <ExerciseForm
+                        initialData={initialExercise}
+                        onSubmit={handleUpdate}
+                        isLoading={isLoading}
+                    />
+                )}
             </main>
         </div>
     );

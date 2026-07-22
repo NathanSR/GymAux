@@ -54,13 +54,13 @@ export default function EditExercisePage({ params }: EditExercisePageProps) {
         };
     }, [id, activeUser?.id, router]);
 
-    if ((sessionLoading || fetching) && !exercise) {
-        return <FormSkeleton />;
-    }
-
-    if (!activeUser || !exercise) return null;
+    const isFetching = (sessionLoading || fetching) && !exercise;
 
     return (
-        <EditExerciseClient initialExercise={exercise} exerciseId={Number(id)} />
+        <EditExerciseClient 
+            initialExercise={exercise} 
+            exerciseId={Number(id)} 
+            isFetching={isFetching}
+        />
     );
 }

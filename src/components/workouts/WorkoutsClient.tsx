@@ -26,9 +26,10 @@ interface WorkoutsClientProps {
     initialTotalCount: number;
     userId: string;
     baseUrl?: string;
+    isSessionLoading?: boolean;
 }
 
-export default function WorkoutsClient({ initialWorkouts, initialTotalCount, userId, baseUrl = '/workouts' }: WorkoutsClientProps) {
+export default function WorkoutsClient({ initialWorkouts, initialTotalCount, userId, baseUrl = '/workouts', isSessionLoading = false }: WorkoutsClientProps) {
     const { startWorkout } = useSessionActions();
     const locale = useLocale();
 
@@ -149,7 +150,7 @@ export default function WorkoutsClient({ initialWorkouts, initialTotalCount, use
 
             {/* Grid de Treinos */}
             <main className="px-6 space-y-4 pt-4">
-                {loading ? (
+                {loading || isSessionLoading ? (
                     <ListSkeleton count={4} />
                 ) : visibleData.length > 0 ? (
                     visibleData.map((workout, index) => (

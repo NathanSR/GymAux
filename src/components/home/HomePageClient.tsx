@@ -5,7 +5,7 @@ import { useDexieActiveSchedule, useDexieHistory, useDexieWorkouts } from '@/hoo
 import { useDataPreloader } from '@/hooks/useDataPreloader';
 import { HomeHeader as HomeUIHeader, HomeWorkoutBanner as HomeUIWorkoutBanner, HomeLists } from '@/components/home/HomeClient';
 import HomeMenuTabHandler from '@/components/home/HomeMenuTabHandler';
-import { BannerSkeleton, HeaderSkeleton, ListSkeleton, Skeleton } from '@/components/ui/Skeleton';
+import { BannerSkeleton, ListSkeleton, Skeleton } from '@/components/ui/Skeleton';
 import { getBrazilToday, getBrazilDayRange } from '@/utils/dateUtil';
 import { useEffect, useState } from 'react';
 import { Workout, History } from '@/config/types';
@@ -70,21 +70,6 @@ export function HomePageClient() {
         }
     }, [activeUser?.id, activeSchedule, userWorkouts, historyList]);
 
-    if (sessionLoading && !activeUser) {
-        return (
-            <div className="min-h-screen bg-white dark:bg-zinc-950 text-zinc-900 dark:text-white p-6 pb-32 font-sans space-y-6">
-                <HeaderSkeleton />
-                <BannerSkeleton />
-                <div className="mt-12 space-y-4">
-                    <Skeleton className="h-8 w-40 mb-4" />
-                    <ListSkeleton count={2} />
-                </div>
-            </div>
-        );
-    }
-
-    if (!activeUser) return null;
-
     const locale = 'pt';
     const today = new Date();
     const formattedDate = new Intl.DateTimeFormat(locale, {
@@ -97,13 +82,26 @@ export function HomePageClient() {
     return (
         <div className="min-h-screen bg-white dark:bg-zinc-950 text-zinc-900 dark:text-white p-6 pb-32 transition-colors duration-300 font-sans">
             <HomeUIHeader activeUser={activeUser} formattedDate={formattedDate} />
-            <HomeUIWorkoutBanner todayWorkout={todayWorkout} todayHistory={todayHistory} />
-            <HomeLists
-                historyList={historyList}
-                sessionList={activeSessions || []}
-                activeUserId={activeUser.id!}
-            />
-            <HomeMenuTabHandler todayWorkout={todayWorkout} todayHistory={todayHistory} />
+            
+            {sessionLoading && !activeUser ? (
+                <div className="space-y-6">
+                    <BannerSkeleton />
+                    <div className="mt-8 space-y-4">
+                        <Skeleton className="h-8 w-40 mb-4" />
+                        <ListSkeleton count={2} />
+                    </div>
+                </div>
+            ) : (
+                <>
+                    <HomeUIWorkoutBanner todayWorkout={todayWorkout} todayHistory={todayHistory} />
+                    <HomeLists
+                        historyList={historyList}
+                        sessionList={activeSessions || []}
+                        activeUserId={activeUser?.id || ''}
+                    />
+                    <HomeMenuTabHandler todayWorkout={todayWorkout} todayHistory={todayHistory} />
+                </>
+            )}
         </div>
     );
 }

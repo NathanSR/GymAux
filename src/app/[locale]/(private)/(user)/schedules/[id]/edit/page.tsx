@@ -53,13 +53,14 @@ export default function EditSchedulePage({ params }: EditSchedulePageProps) {
         };
     }, [id, router]);
 
-    if ((sessionLoading || fetchingSchedule) && !formattedData) {
-        return <FormSkeleton />;
-    }
-
-    if (!activeUser || !formattedData) return null;
+    const isFetching = (sessionLoading || fetchingSchedule) && !formattedData;
 
     return (
-        <EditScheduleClient initialData={formattedData} scheduleId={id} callerId={activeUser.id!} />
+        <EditScheduleClient 
+            initialData={formattedData} 
+            scheduleId={id} 
+            callerId={activeUser?.id || ''} 
+            isFetching={isFetching}
+        />
     );
 }

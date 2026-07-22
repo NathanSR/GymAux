@@ -44,18 +44,15 @@ export default function EditWorkoutPage({ params }: EditWorkoutPageProps) {
         };
     }, [id, router]);
 
-    if ((sessionLoading || fetchingWorkout) && !workout) {
-        return <FormSkeleton />;
-    }
-
-    if (!activeUser || !workout) return null;
+    const isFetching = (sessionLoading || fetchingWorkout) && !workout;
 
     return (
         <EditWorkoutClient
             initialWorkout={workout}
             availableExercises={availableExercises}
             workoutId={id}
-            callerId={activeUser.id!}
+            callerId={activeUser?.id || ''}
+            isFetching={isFetching}
         />
     );
 }
