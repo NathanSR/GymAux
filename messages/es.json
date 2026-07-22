@@ -1972,5 +1972,17 @@
     "title": "404 - Ruta no Encontrada",
     "description": "Esta página o ruta de entrenamiento no existe en tu plan actual. Por favor verifica la ruta.",
     "backToHome": "Volver al Inicio"
+  },
+  "NavigationLoading": {
+    "returningToWorkout": "Volviendo al entrenamiento...",
+    "returningToWorkoutSubtext": "Cargando el progreso de tu sesión",
+    "startingWorkout": "Iniciando Entrenamiento...",
+    "startingWorkoutSubtext": "Preparando ejercicios y series",
+    "exitingSession": "Saliendo de la Sesión de Entrenamiento...",
+    "exitingSessionSubtext": "Guardando el estado y volviendo a inicio",
+    "returningToHome": "Volviendo al Inicio...",
+    "returningToHomeSubtext": "Cargando tu panel de estadísticas",
+    "loadingStudentSession": "Cargando Sesión del Alumno...",
+    "loadingStudentSessionSubtext": "Conectando al seguimiento en tiempo real"
   }
 }

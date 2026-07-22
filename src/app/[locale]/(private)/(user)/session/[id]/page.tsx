@@ -6,7 +6,8 @@ import { SessionService } from '@/services/sessionService';
 import { useSession } from '@/hooks/useSession';
 import { useRouter } from '@/i18n/routing';
 import { Session } from '@/config/types';
-import { startTopLoader, stopTopLoader } from '@/utils/topLoader';
+import { stopTopLoader } from '@/utils/topLoader';
+import { useNavigationLoading } from '@/context/NavigationLoadingContext';
 
 import { SessionSkeleton } from '@/components/ui/Skeleton';
 
@@ -14,16 +15,17 @@ export default function SessionPage({ params }: { params: Promise<{ id: string, 
     const { id } = use(params);
     const router = useRouter();
     const { activeUser, loading: sessionLoading } = useSession();
+    const { showLoading } = useNavigationLoading();
 
     const [sessionData, setSessionData] = useState<Session | null>(null);
     const [fetchingSession, setFetchingSession] = useState(true);
 
     useEffect(() => {
         if (!sessionLoading && !activeUser) {
-            startTopLoader();
+            showLoading('returningToHome', 'returningToHomeSubtext', 'home');
             router.push('/home');
         }
-    }, [sessionLoading, activeUser, router]);
+    }, [sessionLoading, activeUser, router, showLoading]);
 
     useEffect(() => {
         let isMounted = true;
@@ -32,14 +34,14 @@ export default function SessionPage({ params }: { params: Promise<{ id: string, 
         SessionService.getSessionById(id).then(fetched => {
             if (!isMounted) return;
             if (!fetched) {
-                startTopLoader();
+                showLoading('returningToHome', 'returningToHomeSubtext', 'home');
                 router.push('/home');
             } else {
                 setSessionData(fetched);
             }
         }).catch(() => {
             if (isMounted) {
-                startTopLoader();
+                showLoading('returningToHome', 'returningToHomeSubtext', 'home');
                 router.push('/home');
             }
         }).finally(() => {

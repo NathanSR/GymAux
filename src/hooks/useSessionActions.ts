@@ -3,13 +3,14 @@ import { useAlerts } from './useAlerts';
 import { SessionService } from '@/services/sessionService';
 import { Workout, Session } from '@/config/types';
 import { useTranslations } from 'next-intl';
-import { startTopLoader } from '@/utils/topLoader';
+import { useNavigationLoading } from '@/context/NavigationLoadingContext';
 
 export const useSessionActions = () => {
     const router = useRouter();
     const { confirm } = useAlerts();
     const t = useTranslations('Session');
     const th = useTranslations('Home');
+    const { showLoading, navigateWithLoading } = useNavigationLoading();
 
     const startWorkout = async (workout: Workout) => {
         const result = await confirm({
@@ -21,8 +22,8 @@ export const useSessionActions = () => {
         });
 
         if (result.isConfirmed) {
+            showLoading('startingWorkout', 'startingWorkoutSubtext', 'sparkles');
             const session = await SessionService.startSession(workout);
-            startTopLoader();
             router.push(`/session/${session.id}`);
         }
     };
@@ -38,15 +39,15 @@ export const useSessionActions = () => {
         });
 
         if (result.isConfirmed) {
+            showLoading('returningToWorkout', 'returningToWorkoutSubtext', 'dumbbell');
             await SessionService.resumeSession(sessionId);
-            startTopLoader();
             router.push(`/session/${sessionId}`);
         }
     };
 
     const exitSession = async (sessionId: string) => {
         if (!sessionId) {
-            startTopLoader();
+            showLoading('exitingSession', 'exitingSessionSubtext', 'home');
             router.replace('/home');
             return;
         }
@@ -59,8 +60,8 @@ export const useSessionActions = () => {
         });
 
         if (result.isConfirmed) {
+            showLoading('exitingSession', 'exitingSessionSubtext', 'home');
             await SessionService.pauseSession(sessionId);
-            startTopLoader();
             setTimeout(() => {
                 router.replace('/home');
             }, 50);

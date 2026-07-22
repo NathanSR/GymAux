@@ -1972,5 +1972,17 @@
     "title": "404 - Rota Não Encontrada",
     "description": "Esta página ou treino não existe no seu planejamento atual. Verifique o caminho ou volte para a base.",
     "backToHome": "Voltar para o Início"
+  },
+  "NavigationLoading": {
+    "returningToWorkout": "Retornando para o treino...",
+    "returningToWorkoutSubtext": "Carregando o progresso da sua sessão",
+    "startingWorkout": "Iniciando Treino...",
+    "startingWorkoutSubtext": "Preparando os exercícios e séries",
+    "exitingSession": "Saindo da Sessão de Treino...",
+    "exitingSessionSubtext": "Salvando o estado e retornando à home",
+    "returningToHome": "Retornando para a Home...",
+    "returningToHomeSubtext": "Carregando o seu painel de estatísticas",
+    "loadingStudentSession": "Carregando Sessão do Aluno...",
+    "loadingStudentSessionSubtext": "Conectando ao acompanhamento em tempo real"
   }
 }

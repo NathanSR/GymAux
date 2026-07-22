@@ -118,8 +118,10 @@ export const useWorkoutDrawer = (
                 if (session.id) {
                     await SessionService.deleteSession(session.id);
                     // Force a hard redirect to bypass any Next.js router unmount/lifecycle issues
-                    startTopLoader();
-                    window.location.href = '/home';
+                    if (typeof window !== 'undefined') {
+                        startTopLoader();
+                        window.location.href = '/home';
+                    }
                 }
             } catch (error) {
                 console.error('Error deleting session:', error);

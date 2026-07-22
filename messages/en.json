@@ -1972,5 +1972,17 @@
     "title": "404 - Route Not Found",
     "description": "This page or workout routine does not exist in your current planning. Please verify the path.",
     "backToHome": "Back to Home"
+  },
+  "NavigationLoading": {
+    "returningToWorkout": "Returning to workout...",
+    "returningToWorkoutSubtext": "Loading your session progress",
+    "startingWorkout": "Starting Workout...",
+    "startingWorkoutSubtext": "Preparing exercises and sets",
+    "exitingSession": "Exiting Workout Session...",
+    "exitingSessionSubtext": "Saving state and returning home",
+    "returningToHome": "Returning to Home...",
+    "returningToHomeSubtext": "Loading your dashboard stats",
+    "loadingStudentSession": "Loading Student Session...",
+    "loadingStudentSessionSubtext": "Connecting to real-time monitoring"
   }
 }

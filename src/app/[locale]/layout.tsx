@@ -9,6 +9,7 @@ import { routing } from '@/i18n/routing';
 import { ThemeProvider } from "@/context/ThemeContext";
 import { DialogProvider } from "@/context/DialogContext";
 import { OfflineSyncProvider } from "@/context/OfflineSyncProvider";
+import { NavigationLoadingProvider } from "@/context/NavigationLoadingContext";
 import { ToastContainer } from 'react-toastify';
 import NextTopLoader from 'nextjs-toploader';
 
@@ -56,8 +57,10 @@ export default async function RootLayout(props: {
 					<ThemeProvider>
 						<DialogProvider>
 							<OfflineSyncProvider>
-								<AppSplashScreen />
-								{children}
+								<NavigationLoadingProvider>
+									<AppSplashScreen />
+									{children}
+								</NavigationLoadingProvider>
 							</OfflineSyncProvider>
 						</DialogProvider>
 					</ThemeProvider>

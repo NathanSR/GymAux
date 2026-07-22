@@ -10,7 +10,7 @@ import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { toast } from 'react-toastify';
 import { useOnlineStatus } from '@/hooks/useOnlineStatus';
-import { startTopLoader } from '@/utils/topLoader';
+import { useNavigationLoading } from '@/context/NavigationLoadingContext';
 
 interface CompletedSessionProps {
     session: Session;
@@ -26,6 +26,7 @@ export function CompletedSession({ session }: CompletedSessionProps) {
     const t = useTranslations('Session');
     const router = useRouter();
     const isOnline = useOnlineStatus();
+    const { showLoading } = useNavigationLoading();
 
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
@@ -69,7 +70,7 @@ export function CompletedSession({ session }: CompletedSessionProps) {
 
             // Small delay to allow the user to see the success feedback
             setTimeout(() => {
-                startTopLoader();
+                showLoading('returningToHome', 'returningToHomeSubtext', 'home');
                 router.replace('/home');
             }, 3000);
         } catch (error: any) {
@@ -110,7 +111,7 @@ export function CompletedSession({ session }: CompletedSessionProps) {
                 <div className="w-full space-y-3">
                     <button
                         onClick={() => {
-                            startTopLoader();
+                            showLoading('returningToHome', 'returningToHomeSubtext', 'home');
                             router.replace('/home');
                         }}
                         className="w-full py-5 bg-lime-400 text-zinc-950 rounded-[28px] font-black uppercase tracking-widest text-xs hover:bg-lime-500 transition-all shadow-lg shadow-lime-500/10 active:scale-95 cursor-pointer"
