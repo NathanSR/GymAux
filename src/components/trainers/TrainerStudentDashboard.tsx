@@ -117,7 +117,7 @@ export default function TrainerStudentDashboard({
                             </h2>
                             <p className="text-zinc-900/60 font-bold uppercase text-[10px] tracking-widest flex items-center gap-2">
                                 <Clock className="w-4 h-4" />
-                                {t('lastActive')}: {getRelativeTime(activeSession.createdAt, locale)}
+                                {t('lastActive')}: {getRelativeTime(new Date(activeSession.createdAt), locale)}
                             </p>
                         </div>
 

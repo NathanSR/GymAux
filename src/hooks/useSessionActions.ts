@@ -79,7 +79,7 @@ export const useSessionActions = () => {
 
         if (result.isConfirmed) {
             if (!session.pausedAt && session.resumedAt) {
-                const finalSegment = new Date().getTime() - session.resumedAt.getTime();
+                const finalSegment = new Date().getTime() - new Date(session.resumedAt).getTime();
                 session.duration += finalSegment;
             }
 

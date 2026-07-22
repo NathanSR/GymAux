@@ -57,7 +57,7 @@ export function Modal({
     isPopStateTriggeredRef.current = false;
 
     if (typeof window !== 'undefined' && !isPushedRef.current) {
-      window.history.pushState({ ...window.history.state, __modalId: modalId }, '');
+      window.history.pushState({ ...window.history.state, __modalId: modalId, __currentOverlayId: modalId }, '');
       isPushedRef.current = true;
     }
 
@@ -95,11 +95,7 @@ export function Modal({
       }
       window.removeEventListener('keydown', handleEscape, true);
       window.removeEventListener('popstate', handlePopState);
-
-      if (typeof window !== 'undefined' && isPushedRef.current && !isPopStateTriggeredRef.current) {
-        isPushedRef.current = false;
-        window.history.back();
-      }
+      isPushedRef.current = false;
     };
   }, [isOpen]);
 

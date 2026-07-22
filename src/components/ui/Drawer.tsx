@@ -156,7 +156,7 @@ export function Drawer({
 
     // Push history state on open if not already pushed
     if (typeof window !== 'undefined' && !isPushedRef.current) {
-      window.history.pushState({ ...window.history.state, __drawerId: drawerId }, '');
+      window.history.pushState({ ...window.history.state, __drawerId: drawerId, __currentOverlayId: drawerId }, '');
       isPushedRef.current = true;
     }
 
@@ -190,7 +190,7 @@ export function Drawer({
         setIsExpandedRef.current(false);
         // Push state back so next back press will close the drawer
         if (typeof window !== 'undefined') {
-          window.history.pushState({ ...window.history.state, __drawerId: drawerId }, '');
+          window.history.pushState({ ...window.history.state, __drawerId: drawerId, __currentOverlayId: drawerId }, '');
           isPushedRef.current = true;
         }
       } else {
@@ -206,15 +206,8 @@ export function Drawer({
       document.body.classList.remove('drawer-open');
       window.removeEventListener('keydown', handleEscape, true);
       window.removeEventListener('popstate', handlePopState);
-
-      // Clean up pushed history entry if drawer closed via UI action (backdrop, close btn, ESC)
-      if (typeof window !== 'undefined' && isPushedRef.current && !isPopStateTriggeredRef.current) {
-        isPushedRef.current = false;
-        if (window.history.state?.__drawerId === drawerId) {
-          window.history.back();
-        }
-      }
       isPopStateTriggeredRef.current = false;
+      isPushedRef.current = false;
     };
   }, [isOpen, drawerId]);
 

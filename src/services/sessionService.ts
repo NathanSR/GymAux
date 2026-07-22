@@ -72,18 +72,24 @@ const mapSessionFromSupabase = (s: any): Session => ({
     resumedAt: s.resumed_at ? new Date(s.resumed_at) : null,
 });
 
+const toISOString = (d: Date | string | null | undefined): string | null => {
+    if (!d) return null;
+    if (d instanceof Date) return d.toISOString();
+    return new Date(d).toISOString();
+};
+
 const mapSessionToSupabase = (s: Session): any => ({
     id: s.id,
     user_id: s.userId,
     workout_id: s.workoutId,
     workout_name: s.workoutName,
-    created_at: s.createdAt.toISOString(),
+    created_at: toISOString(s.createdAt) || new Date().toISOString(),
     exercises_to_do: s.exercisesToDo,
     exercises_done: s.exercisesDone,
     current_step: s.current,
     duration: s.duration,
-    paused_at: s.pausedAt?.toISOString() || null,
-    resumed_at: s.resumedAt?.toISOString() || null,
+    paused_at: toISOString(s.pausedAt),
+    resumed_at: toISOString(s.resumedAt),
 });
 
 export const SessionService = {
@@ -136,7 +142,7 @@ export const SessionService = {
                 await SyncManager.enqueue('UPDATE', 'SESSION', sessionId, {
                     id: sessionId,
                     paused_at: null,
-                    resumed_at: localSession.resumedAt.toISOString()
+                    resumed_at: toISOString(localSession.resumedAt)
                 }, localSession.userId);
                 return;
             }
@@ -176,7 +182,7 @@ export const SessionService = {
 
         const supabase = supabaseInput || createClient();
         const now = new Date();
-        const additionalDuration = now.getTime() - session.resumedAt.getTime();
+        const additionalDuration = now.getTime() - new Date(session.resumedAt).getTime();
 
         const { error } = await withTimeout(
             supabase.from('sessions').update({
@@ -262,7 +268,7 @@ export const SessionService = {
                     .equals(userId)
                     .and(s => !s.isFinishedLocally) // Filter out locally finished
                     .toArray();
-                localSessions.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+                localSessions.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
                 return localSessions;
             }
             return [];
@@ -316,8 +322,8 @@ export const SessionService = {
                 if (updates.exercisesToDo) dbUpdates.exercises_to_do = updates.exercisesToDo;
                 if (updates.current) dbUpdates.current_step = updates.current;
                 if (updates.duration !== undefined) dbUpdates.duration = updates.duration;
-                if (updates.pausedAt !== undefined) dbUpdates.paused_at = updates.pausedAt?.toISOString() || null;
-                if (updates.resumedAt !== undefined) dbUpdates.resumed_at = updates.resumedAt?.toISOString() || null;
+                if (updates.pausedAt !== undefined) dbUpdates.paused_at = toISOString(updates.pausedAt);
+                if (updates.resumedAt !== undefined) dbUpdates.resumed_at = toISOString(updates.resumedAt);
 
                 await SyncManager.enqueue('UPDATE', 'SESSION', sessionId, dbUpdates, localSession.userId);
                 return;
@@ -330,8 +336,8 @@ export const SessionService = {
         if (updates.exercisesToDo) dbUpdates.exercises_to_do = updates.exercisesToDo;
         if (updates.current) dbUpdates.current_step = updates.current;
         if (updates.duration !== undefined) dbUpdates.duration = updates.duration;
-        if (updates.pausedAt !== undefined) dbUpdates.paused_at = updates.pausedAt?.toISOString() || null;
-        if (updates.resumedAt !== undefined) dbUpdates.resumed_at = updates.resumedAt?.toISOString() || null;
+        if (updates.pausedAt !== undefined) dbUpdates.paused_at = toISOString(updates.pausedAt);
+        if (updates.resumedAt !== undefined) dbUpdates.resumed_at = toISOString(updates.resumedAt);
 
         const { error } = await withTimeout(
             supabase.from('sessions').update(dbUpdates).eq('id', sessionId),
@@ -350,7 +356,7 @@ export const SessionService = {
             user_id: session.userId,
             workout_id: session.workoutId,
             workout_name: session.workoutName,
-            date: session.createdAt.toISOString(),
+            date: toISOString(session.createdAt) || new Date().toISOString(),
             end_date: new Date().toISOString(),
             duration: session.duration,
             weight: additionalData?.weight,
@@ -366,7 +372,7 @@ export const SessionService = {
                 userId: session.userId,
                 workoutId: session.workoutId,
                 workoutName: session.workoutName,
-                date: session.createdAt,
+                date: new Date(session.createdAt),
                 endDate: new Date(),
                 duration: session.duration,
                 weight: additionalData?.weight,

@@ -128,7 +128,7 @@ export function useSessionClient({ initialSession, isReadOnly = false, watchValu
         if (isLastActionInWorkout) {
             newSession.current.step = 'completion';
             if (!session.pausedAt && session.resumedAt) {
-                const finalSegment = new Date().getTime() - session.resumedAt.getTime();
+                const finalSegment = new Date().getTime() - new Date(session.resumedAt).getTime();
                 newSession.duration += finalSegment;
             }
         } else {
@@ -202,7 +202,7 @@ export function useSessionClient({ initialSession, isReadOnly = false, watchValu
             danger: true
         });
         if (result.isConfirmed) {
-            const newSession = { ...session };
+            const newSession: Session = JSON.parse(JSON.stringify(session));
             const nextGroupIndex = currentGroupIndex + 1;
 
             if (nextGroupIndex < session.exercisesToDo.length) {
@@ -223,7 +223,7 @@ export function useSessionClient({ initialSession, isReadOnly = false, watchValu
     }, [forceFinishWorkout, session, synchronizeProgress]);
 
     const handleAddSet = useCallback(() => {
-        const newSession = { ...session };
+        const newSession: Session = JSON.parse(JSON.stringify(session));
         const group = newSession.exercisesToDo[currentGroupIndex];
         if (!group) return;
 
@@ -248,16 +248,18 @@ export function useSessionClient({ initialSession, isReadOnly = false, watchValu
     const handleSubstituteExercise = useCallback((newEx: Exercise) => {
         if (!session || !currentExercise || !currentGroup) return;
 
-        const newSession = { ...session };
+        const newSession: Session = JSON.parse(JSON.stringify(session));
         
         // 1. Atualizar o exercício em exercisesToDo (planejados)
-        newSession.exercisesToDo[currentGroupIndex].exercises[currentExerciseIndex] = {
-            ...currentExercise,
-            exerciseId: newEx.id as number,
-            exerciseName: newEx.name,
-            variation: undefined,
-            executionMode: undefined
-        };
+        if (newSession.exercisesToDo?.[currentGroupIndex]?.exercises?.[currentExerciseIndex]) {
+            newSession.exercisesToDo[currentGroupIndex].exercises[currentExerciseIndex] = {
+                ...currentExercise,
+                exerciseId: newEx.id as number,
+                exerciseName: newEx.name,
+                variation: undefined,
+                executionMode: undefined
+            };
+        }
 
         // 2. Se já tiver feito alguma execução desse exercício na sessão atual, atualiza também em exercisesDone
         if (newSession.exercisesDone?.[currentGroupIndex]) {
@@ -277,13 +279,13 @@ export function useSessionClient({ initialSession, isReadOnly = false, watchValu
         setRestDuration(seconds);
         if (!session || !currentExercise || !currentGroup) return;
 
-        const newSession = { ...session };
+        const newSession: Session = JSON.parse(JSON.stringify(session));
         const group = newSession.exercisesToDo[currentGroupIndex];
         if (group) {
             if (group.groupType === 'straight') {
                 const ex = group.exercises[currentExerciseIndex];
                 if (ex) {
-                    ex.sets.forEach(s => {
+                    ex.sets.forEach((s: any) => {
                         s.restTime = seconds;
                     });
                 }

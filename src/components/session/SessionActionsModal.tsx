@@ -105,8 +105,8 @@ export function SessionActionsModal({
                 <button
                     type="button"
                     onClick={() => {
-                        onClose();
                         onOpenStandaloneTimer();
+                        onClose();
                     }}
                     className="w-full py-4 px-4 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-lime-600 dark:text-lime-400 hover:bg-zinc-100 dark:hover:bg-zinc-850 rounded-2xl flex items-center gap-3 text-xs font-black uppercase tracking-widest transition-all active:scale-[0.98] shadow-xs cursor-pointer"
                 >

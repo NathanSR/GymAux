@@ -191,7 +191,7 @@ export interface Session {
     userId: string;
     workoutId: string;
     workoutName: string;
-    createdAt: Date;
+    createdAt: Date | string;
     exercisesToDo: ExerciseGroup[];
     exercisesDone: ExecutedGroup[];
     current: {
@@ -202,8 +202,8 @@ export interface Session {
         roundIndex: number;     // Round atual (para circuits)
     };
     duration: number;
-    pausedAt: Date | null;
-    resumedAt: Date | null;
+    pausedAt: Date | string | null;
+    resumedAt: Date | string | null;
     isFinishedLocally?: boolean;
 }
 
