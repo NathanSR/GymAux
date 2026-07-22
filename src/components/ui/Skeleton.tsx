@@ -1,5 +1,7 @@
 'use client';
 
+import { motion, Variants } from 'framer-motion';
+
 /**
  * Skeleton Components
  * 
@@ -152,35 +154,98 @@ export const FormSkeleton = () => (
   </div>
 );
 
-export const SessionSkeleton = () => (
-  <div className="min-h-screen bg-white dark:bg-zinc-950 p-6 space-y-6 font-sans transition-colors duration-300">
-    <div className="flex justify-between items-center mb-4">
-      <Skeleton className="w-10 h-10 rounded-2xl" />
-      <Skeleton className="h-6 w-32 rounded-full" />
-      <Skeleton className="w-10 h-10 rounded-2xl" />
-    </div>
-    <div className="bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 rounded-[32px] p-6 space-y-6 shadow-sm">
-      <div className="flex justify-between items-start">
-        <div className="space-y-2">
+export const SessionSkeleton = () => {
+  const containerVariants: Variants = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.08,
+        delayChildren: 0.05,
+      },
+    },
+  };
+
+  const itemVariants: Variants = {
+    hidden: { opacity: 0, y: 12 },
+    show: { 
+      opacity: 1, 
+      y: 0, 
+      transition: { 
+        duration: 0.35, 
+        ease: 'easeOut'
+      } 
+    },
+  };
+
+  return (
+    <motion.div
+      variants={containerVariants}
+      initial="hidden"
+      animate="show"
+      className="h-[100dvh] bg-zinc-50 dark:bg-zinc-950 p-5 flex flex-col justify-between font-sans transition-colors duration-300 overflow-hidden select-none"
+    >
+      {/* Session Header Skeleton */}
+      <motion.div variants={itemVariants} className="flex justify-between items-center py-2 border-b border-zinc-200/50 dark:border-zinc-800/60">
+        <Skeleton className="w-10 h-10 rounded-2xl shrink-0" />
+        <div className="flex flex-col items-center gap-1.5">
+          <Skeleton className="h-5 w-36 rounded-full" />
           <Skeleton className="h-3 w-20 rounded-full" />
-          <Skeleton className="h-7 w-48" />
         </div>
-        <Skeleton className="w-14 h-14 rounded-2xl" />
-      </div>
-      <div className="space-y-3 pt-2">
-        {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className="flex justify-between items-center p-3 bg-zinc-50 dark:bg-zinc-800/50 rounded-2xl">
-            <Skeleton className="h-4 w-12" />
-            <Skeleton className="h-4 w-16" />
-            <Skeleton className="h-4 w-16" />
-            <Skeleton className="w-6 h-6 rounded-full" />
+        <Skeleton className="w-10 h-10 rounded-2xl shrink-0" />
+      </motion.div>
+
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col justify-between py-4 space-y-4 overflow-hidden">
+        {/* Exercise Info Header */}
+        <motion.div variants={itemVariants} className="space-y-3">
+          <div className="flex justify-between items-center">
+            <Skeleton className="h-6 w-32 rounded-full" />
+            <Skeleton className="w-9 h-9 rounded-xl" />
           </div>
-        ))}
+          
+          <Skeleton className="h-8 w-3/4 rounded-2xl" />
+
+          <div className="flex items-center gap-2 pt-1">
+            <Skeleton className="h-6 w-24 rounded-xl" />
+            <Skeleton className="h-6 w-20 rounded-xl" />
+            <Skeleton className="h-6 w-16 rounded-xl" />
+          </div>
+        </motion.div>
+
+        {/* Set Table / Form Skeleton Card */}
+        <motion.div variants={itemVariants} className="bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800/80 rounded-[32px] p-5 shadow-sm space-y-4">
+          <div className="grid grid-cols-4 gap-3 pb-2 border-b border-zinc-100 dark:border-zinc-800/60 text-center">
+            <Skeleton className="h-3 w-10 justify-self-center rounded-full" />
+            <Skeleton className="h-3 w-14 justify-self-center rounded-full" />
+            <Skeleton className="h-3 w-12 justify-self-center rounded-full" />
+            <Skeleton className="h-3 w-12 justify-self-center rounded-full" />
+          </div>
+
+          <div className="space-y-3">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="grid grid-cols-4 gap-3 items-center p-2.5 bg-zinc-50/80 dark:bg-zinc-800/40 rounded-2xl border border-zinc-100 dark:border-zinc-800/40">
+                <Skeleton className="h-4 w-8 justify-self-center rounded-md" />
+                <Skeleton className="h-10 w-full rounded-xl" />
+                <Skeleton className="h-10 w-full rounded-xl" />
+                <Skeleton className="h-10 w-10 justify-self-center rounded-xl" />
+              </div>
+            ))}
+          </div>
+        </motion.div>
+
+        {/* Action Controls Skeleton */}
+        <motion.div variants={itemVariants} className="space-y-3">
+          <div className="flex gap-2">
+            <Skeleton className="h-12 flex-1 rounded-2xl" />
+            <Skeleton className="h-12 flex-1 rounded-2xl" />
+          </div>
+          <Skeleton className="h-14 w-full rounded-2xl" />
+        </motion.div>
       </div>
-    </div>
-    <Skeleton className="h-16 w-full rounded-2xl" />
-  </div>
-);
+    </motion.div>
+  );
+};
 
 export const MyIdCardSkeleton = () => (
   <div className="w-full max-w-sm bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 rounded-[32px] p-8 flex flex-col items-center shadow-2xl space-y-6 animate-pulse">

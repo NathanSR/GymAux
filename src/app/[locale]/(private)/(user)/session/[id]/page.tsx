@@ -1,6 +1,7 @@
 'use client';
 
 import { use, useEffect, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import SessionClient from '@/components/session/SessionClient';
 import { SessionService } from '@/services/sessionService';
 import { useSession } from '@/hooks/useSession';
@@ -56,15 +57,37 @@ export default function SessionPage({ params }: { params: Promise<{ id: string, 
         };
     }, [id, router]);
 
-    if ((sessionLoading || fetchingSession) && !sessionData) {
-        return <SessionSkeleton />;
-    }
+    const isLoading = (sessionLoading || fetchingSession) && !sessionData;
 
-    if (!activeUser || !sessionData) return null;
+    if (!activeUser && !isLoading) return null;
 
-    const isReadOnly = sessionData.current?.step === 'completion';
+    const isReadOnly = sessionData?.current?.step === 'completion';
 
     return (
-        <SessionClient initialSession={sessionData} isReadOnly={isReadOnly} />
+        <AnimatePresence mode="wait">
+            {isLoading || !sessionData ? (
+                <motion.div
+                    key="session-skeleton"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0, scale: 0.98 }}
+                    transition={{ duration: 0.25 }}
+                    className="h-full w-full"
+                >
+                    <SessionSkeleton />
+                </motion.div>
+            ) : (
+                <motion.div
+                    key="session-content"
+                    initial={{ opacity: 0, scale: 0.98 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+                    className="h-full w-full"
+                >
+                    <SessionClient initialSession={sessionData} isReadOnly={isReadOnly} />
+                </motion.div>
+            )}
+        </AnimatePresence>
     );
 }
