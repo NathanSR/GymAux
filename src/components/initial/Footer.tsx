@@ -63,7 +63,7 @@ export default function Footer() {
                     <h4 className="text-[10px] font-black tracking-widest uppercase text-zinc-500 italic">{t('Footer.platform.title')}</h4>
                     <ul className="space-y-4 font-bold text-sm text-zinc-400">
                         <li><Link href="#features" className="hover:text-brand transition-colors uppercase italic tracking-tight">{t('Footer.platform.features')}</Link></li>
-                        <li><Link href="#pricing" className="hover:text-brand transition-colors uppercase italic tracking-tight">{t('Footer.platform.pricing')}</Link></li>
+                        {/* <li><Link href="#pricing" className="hover:text-brand transition-colors uppercase italic tracking-tight">{t('Footer.platform.pricing')}</Link></li> */}
                         <li><Link href="#" className="hover:text-brand transition-colors uppercase italic tracking-tight">{t('Footer.platform.trainerDashboard')}</Link></li>
                         <li><Link href="#" className="hover:text-brand transition-colors uppercase italic tracking-tight">{t('Footer.platform.webApp')}</Link></li>
                     </ul>
@@ -145,7 +145,7 @@ export default function Footer() {
                                 {locale}
                                 <ChevronUp className={`w-3 h-3 transition-transform ${isLangOpen ? '' : 'rotate-180'}`} />
                             </button>
-                            
+
                             <AnimatePresence>
                                 {isLangOpen && (
                                     <motion.div
@@ -159,11 +159,10 @@ export default function Footer() {
                                             <button
                                                 key={lang.id}
                                                 onClick={() => handleLanguageChange(lang.id)}
-                                                className={`px-4 py-3 text-xs font-bold text-left transition-all flex items-center justify-between ${
-                                                    locale === lang.id 
-                                                        ? 'bg-brand/10 text-brand border-l-2 border-brand' 
+                                                className={`px-4 py-3 text-xs font-bold text-left transition-all flex items-center justify-between ${locale === lang.id
+                                                        ? 'bg-brand/10 text-brand border-l-2 border-brand'
                                                         : 'text-zinc-500 hover:bg-white/5 hover:text-zinc-300 border-l-2 border-transparent'
-                                                }`}
+                                                    }`}
                                             >
                                                 {lang.label}
                                                 {locale === lang.id && <Check className="w-3 h-3" />}

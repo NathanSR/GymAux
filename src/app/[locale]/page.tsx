@@ -32,7 +32,7 @@ export default function HomePage() {
                 <WhySection />
                 <SessionControlSection />
                 <StatsSection />
-                <PricingSection />
+                {/* <PricingSection /> */}
                 <FAQSection />
                 <CTASection />
             </main>
