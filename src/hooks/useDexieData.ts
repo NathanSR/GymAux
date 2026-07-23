@@ -74,7 +74,11 @@ export function useDexieHistory(userId?: string | null, limit = 20): History[] {
                 .where('userId')
                 .equals(userId)
                 .toArray();
-            return all.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, limit);
+            return all.sort((a, b) => {
+                const dateA = a.endDate ? new Date(a.endDate).getTime() : new Date(a.date).getTime();
+                const dateB = b.endDate ? new Date(b.endDate).getTime() : new Date(b.date).getTime();
+                return dateB - dateA;
+            }).slice(0, limit);
         },
         [userId, limit]
     );

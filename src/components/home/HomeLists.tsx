@@ -65,9 +65,13 @@ export function HomeLists({
         }
     });
 
-    // Sort combined history by date descending and limit to display count
+    // Sort combined history by realization date (endDate || date) descending and limit to display count
     const historyList = combinedHistory
-        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+        .sort((a, b) => {
+            const dateA = a.endDate ? new Date(a.endDate).getTime() : new Date(a.date).getTime();
+            const dateB = b.endDate ? new Date(b.endDate).getTime() : new Date(b.date).getTime();
+            return dateB - dateA;
+        })
         .slice(0, 4);
 
     // 2. Reconciliation Logic for Sessions:
@@ -91,7 +95,7 @@ export function HomeLists({
             // the server session is definitely stale (already finished).
             const hasHistoryToday = historyList.find(h => {
                 if (h.workoutId !== serverSession.workoutId) return false;
-                const hDate = new Date(h.date);
+                const hDate = new Date(h.endDate || h.date);
                 const today = new Date();
                 return hDate.getDate() === today.getDate() &&
                     hDate.getMonth() === today.getMonth() &&
@@ -250,13 +254,14 @@ export function HomeLists({
 
                 <div className="grid gap-3">
                     {historyList.map((item) => {
-                        const timeAgo = item.endDate ? getRelativeTime(item.endDate as Date, locale) : "";
+                        const itemDate = item.endDate ? new Date(item.endDate) : new Date(item.date);
+                        const timeAgo = itemDate ? getRelativeTime(itemDate, locale) : "";
                         const durationDisplay = formatDuration(item.duration || 0);
 
                         return (
                             <Link
                                 key={item.id}
-                                href={`/history?date=${new Date(item.date).toISOString()}&workoutId=${item.workoutId}`}
+                                href={`/history?date=${itemDate.toISOString()}&workoutId=${item.workoutId}`}
                                 className="group relative flex items-center gap-3 sm:gap-4 p-4 sm:p-5 bg-white dark:bg-zinc-900 rounded-[24px] sm:rounded-[28px] border border-zinc-100 dark:border-zinc-800/80 hover:border-lime-500/30 hover:shadow-md transition-all duration-300 cursor-pointer active:scale-[0.98]"
                             >
                                 <div className="shrink-0 w-11 h-11 sm:w-14 sm:h-14 bg-zinc-50 dark:bg-zinc-800/50 rounded-lg sm:rounded-2xl flex items-center justify-center text-lime-500 transition-colors group-hover:bg-lime-500/10">
@@ -281,7 +286,7 @@ export function HomeLists({
                                         <span className="hidden sm:block w-1 h-1 rounded-full bg-zinc-200 dark:bg-zinc-800" />
                                         <div className="flex items-center gap-1.5 text-[9px] sm:text-[10px] text-zinc-400 font-bold uppercase">
                                             <Calendar size={11} className="sm:w-3 sm:h-3" />
-                                            {item.endDate && item.endDate.toLocaleDateString(locale, { day: '2-digit', month: 'short' })}
+                                            {itemDate.toLocaleDateString(locale, { day: '2-digit', month: 'short' })}
                                         </div>
                                     </div>
                                 </div>
