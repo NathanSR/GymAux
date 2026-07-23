@@ -1,6 +1,6 @@
 'use client';
 
-import { Trophy, Scale, MessageSquare, Zap, Save, Loader2 } from 'lucide-react';
+import { Trophy, Scale, MessageSquare, Zap, Save, Loader2, Share2 } from 'lucide-react';
 import { useForm, Controller } from 'react-hook-form';
 import { Session } from '@/config/types';
 import { numberInputUtils } from '../../utils/numberUtil';
@@ -11,6 +11,8 @@ import { useState } from 'react';
 import { toast } from 'react-toastify';
 import { useOnlineStatus } from '@/hooks/useOnlineStatus';
 import { useNavigationLoading } from '@/context/NavigationLoadingContext';
+import { WorkoutShareModal } from '@/components/share/WorkoutShareModal';
+import { mapSessionToShareData } from '@/utils/shareUtil';
 
 interface CompletedSessionProps {
     session: Session;
@@ -24,12 +26,14 @@ interface CompletionFormData {
 
 export function CompletedSession({ session }: CompletedSessionProps) {
     const t = useTranslations('Session');
+    const tShare = useTranslations('Share');
     const router = useRouter();
     const isOnline = useOnlineStatus();
     const { showLoading } = useNavigationLoading();
 
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
+    const [isShareOpen, setIsShareOpen] = useState(false);
 
     const { register, handleSubmit, watch, setValue, control } = useForm<CompletionFormData>({
         defaultValues: {
@@ -67,12 +71,6 @@ export function CompletedSession({ session }: CompletedSessionProps) {
                     style: { background: '#27272a', color: '#fff', borderRadius: '16px' }
                 });
             }
-
-            // Small delay to allow the user to see the success feedback
-            setTimeout(() => {
-                showLoading('returningToHome', 'returningToHomeSubtext', 'home');
-                router.replace('/home');
-            }, 3000);
         } catch (error: any) {
             console.error('[CompletedSession] Error finishing workout:', error?.message || error);
             toast.error(t('saveError'), {
@@ -110,6 +108,15 @@ export function CompletedSession({ session }: CompletedSessionProps) {
 
                 <div className="w-full space-y-3">
                     <button
+                        type="button"
+                        onClick={() => setIsShareOpen(true)}
+                        className="w-full py-4 bg-zinc-900 border border-lime-400/40 text-lime-400 rounded-[28px] font-black uppercase tracking-widest text-xs hover:bg-zinc-800 transition-all shadow-lg active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
+                    >
+                        <Share2 className="w-4 h-4" />
+                        <span>{tShare('shareWorkout')}</span>
+                    </button>
+
+                    <button
                         onClick={() => {
                             showLoading('returningToHome', 'returningToHomeSubtext', 'home');
                             router.replace('/home');
@@ -128,6 +135,12 @@ export function CompletedSession({ session }: CompletedSessionProps) {
                         </div>
                     )}
                 </div>
+
+                <WorkoutShareModal
+                    isOpen={isShareOpen}
+                    onClose={() => setIsShareOpen(false)}
+                    data={mapSessionToShareData(session, watch('userWeight'))}
+                />
             </div>
         );
     }

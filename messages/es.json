@@ -1984,5 +1984,24 @@
     "returningToHomeSubtext": "Cargando tu panel de estadísticas",
     "loadingStudentSession": "Cargando Sesión del Alumno...",
     "loadingStudentSessionSubtext": "Conectando al seguimiento en tiempo real"
+  },
+  "Share": {
+    "shareWorkout": "Compartir Entrenamiento",
+    "shareModalTitle": "Compartir Entrenamiento",
+    "generatingCard": "Generando tarjeta de entrenamiento...",
+    "saveToGallery": "Guardar en Galería",
+    "copyImage": "Copiar Imagen",
+    "shareViaApp": "Compartir",
+    "workoutCompleted": "ENTRENAMIENTO COMPLETADO",
+    "tagline": "GYMAUX • SUPERACIÓN DIARIA",
+    "totalVolume": "Volumen Total",
+    "duration": "Duración",
+    "exercisesCount": "Ejercicios",
+    "totalSets": "Series",
+    "weight": "Peso Corporal",
+    "imageCopied": "¡Imagen copiada al portapapeles!",
+    "imageDownloaded": "¡Imagen guardada con éxito!",
+    "sharedSuccess": "¡Entrenamiento compartido!",
+    "shareError": "No se pudo compartir la imagen."
   }
 }

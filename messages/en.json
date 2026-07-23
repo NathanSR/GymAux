@@ -1984,5 +1984,24 @@
     "returningToHomeSubtext": "Loading your dashboard stats",
     "loadingStudentSession": "Loading Student Session...",
     "loadingStudentSessionSubtext": "Connecting to real-time monitoring"
+  },
+  "Share": {
+    "shareWorkout": "Share Workout",
+    "shareModalTitle": "Share Workout",
+    "generatingCard": "Generating workout card...",
+    "saveToGallery": "Save to Gallery",
+    "copyImage": "Copy Image",
+    "shareViaApp": "Share",
+    "workoutCompleted": "WORKOUT COMPLETED",
+    "tagline": "GYMAUX • DAILY SUPREMACY",
+    "totalVolume": "Total Volume",
+    "duration": "Duration",
+    "exercisesCount": "Exercises",
+    "totalSets": "Sets",
+    "weight": "Body Weight",
+    "imageCopied": "Image copied to clipboard!",
+    "imageDownloaded": "Image saved successfully!",
+    "sharedSuccess": "Workout shared!",
+    "shareError": "Failed to share image."
   }
 }

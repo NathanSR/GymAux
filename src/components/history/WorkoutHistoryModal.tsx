@@ -1,11 +1,13 @@
-'use client'
+'use client';
 
 import { History } from "@/config/types";
-import { Activity, Clock, MessageSquare, RefreshCw, Scale, Trophy, X } from "lucide-react";
+import { Activity, Clock, MessageSquare, RefreshCw, Scale, Share2, Trophy, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import { formatDuration } from "@/utils/dateUtil";
 import { useTranslations, useLocale } from "next-intl";
 import { Modal } from "@/components/ui/Modal";
+import { WorkoutShareModal } from "@/components/share/WorkoutShareModal";
+import { mapHistoryToShareData } from "@/utils/shareUtil";
 
 interface WorkoutHistoryModalProps {
     selectedWorkouts?: History[] | null;
@@ -15,6 +17,7 @@ interface WorkoutHistoryModalProps {
 
 export function WorkoutHistoryModal({ selectedWorkouts, onClose, initialActiveWorkoutId }: WorkoutHistoryModalProps) {
     const language = useLocale();
+    const [isShareOpen, setIsShareOpen] = useState(false);
 
     const isOpen = Boolean(selectedWorkouts && selectedWorkouts.length > 0);
 
@@ -73,6 +76,7 @@ export function WorkoutHistoryModal({ selectedWorkouts, onClose, initialActiveWo
     const executionGroups = currentWorkout.executions || [];
 
     return (
+        <>
         <Modal
             isOpen={isOpen}
             onClose={handleClose}
@@ -110,14 +114,25 @@ export function WorkoutHistoryModal({ selectedWorkouts, onClose, initialActiveWo
                             {currentWorkout.workoutName}
                         </h2>
                     </div>
-                    <button
-                        type="button"
-                        onClick={handleClose}
-                        className="p-3 bg-zinc-100 dark:bg-zinc-800 rounded-full text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 active:scale-90 transition-all shrink-0 cursor-pointer"
-                        aria-label="Close"
-                    >
-                        <X size={20} />
-                    </button>
+                    <div className="flex items-center gap-2 shrink-0">
+                        <button
+                            type="button"
+                            onClick={() => setIsShareOpen(true)}
+                            className="p-3 bg-lime-400/10 border border-lime-400/30 text-lime-500 hover:bg-lime-400 hover:text-zinc-950 rounded-full active:scale-90 transition-all cursor-pointer"
+                            title="Compartilhar Treino"
+                            aria-label="Compartilhar Treino"
+                        >
+                            <Share2 size={18} />
+                        </button>
+                        <button
+                            type="button"
+                            onClick={handleClose}
+                            className="p-3 bg-zinc-100 dark:bg-zinc-800 rounded-full text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 active:scale-90 transition-all cursor-pointer"
+                            aria-label="Close"
+                        >
+                            <X size={20} />
+                        </button>
+                    </div>
                 </div>
 
                 {/* Quick Stats */}
@@ -261,5 +276,12 @@ export function WorkoutHistoryModal({ selectedWorkouts, onClose, initialActiveWo
                 </div>
             </div>
         </Modal>
+
+        <WorkoutShareModal
+            isOpen={isShareOpen}
+            onClose={() => setIsShareOpen(false)}
+            data={currentWorkout ? mapHistoryToShareData(currentWorkout) : null}
+        />
+        </>
     );
 }
