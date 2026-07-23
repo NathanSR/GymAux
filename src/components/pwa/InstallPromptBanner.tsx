@@ -65,7 +65,7 @@ export function InstallPromptBanner() {
     if (!isVisible || isInstalled) return null;
 
     return (
-        <div className="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-6 sm:max-w-md z-50 animate-in fade-in slide-in-from-bottom-5 duration-300">
+        <div className="fixed bottom-[calc(1rem+env(safe-area-inset-bottom,0px))] left-4 right-4 sm:left-auto sm:right-6 sm:max-w-md z-50 animate-in fade-in slide-in-from-bottom-5 duration-300">
             <div className="bg-zinc-900/95 backdrop-blur-md border border-lime-500/30 rounded-2xl p-4 shadow-2xl shadow-lime-500/10 flex flex-col gap-3 relative text-white">
                 <button
                     onClick={handleDismiss}

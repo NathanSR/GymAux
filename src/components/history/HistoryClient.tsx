@@ -155,7 +155,7 @@ export default function HistoryClient({
     };
 
     return (
-        <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white pb-10 transition-colors duration-300">
+        <div className="min-h-dvh bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white pb-10 transition-colors duration-300">
             <PageHeader
                 title={t('title')}
                 variant="minimal"

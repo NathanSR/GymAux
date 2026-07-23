@@ -92,8 +92,10 @@ html.dark,
   /* gray-600 */
 }
 
-/* ---------------------- NATIVE PWA UX ---------------------- */
+/* ---------------------- NATIVE PWA UX & EDGE-TO-EDGE ---------------------- */
 html, body {
+  min-height: 100dvh;
+  min-height: -webkit-fill-available;
   overscroll-behavior-y: auto;
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
@@ -114,11 +116,19 @@ button, a, [role="button"] {
   user-select: none;
 }
 
-/* Safe areas para notch em celulares e barras de tarefas no desktop */
+/* Safe areas para notch em celulares e barras de tarefas no desktop/dispositivos móveis */
 .safe-area-top {
   padding-top: env(safe-area-inset-top, 0px);
 }
 
 .safe-area-bottom {
+  padding-bottom: max(1rem, env(safe-area-inset-bottom, 0px));
+}
+
+.pb-safe {
   padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.mb-safe {
+  margin-bottom: env(safe-area-inset-bottom, 0px);
 }

@@ -47,7 +47,7 @@ export default function HomeClient({
     const { isCompleted, isRestDay } = useTodayWorkoutStatus(initialTodayWorkout, initialTodayHistory);
 
     return (
-        <div className="min-h-screen bg-white dark:bg-zinc-950 text-zinc-900 dark:text-white p-6 pb-32 transition-colors duration-300 font-sans">
+        <div className="min-h-dvh bg-white dark:bg-zinc-950 text-zinc-900 dark:text-white p-6 pb-32 transition-colors duration-300 font-sans">
             <HomeHeader activeUser={activeUser} formattedDate={formattedDate} />
             <HomeWorkoutBanner todayWorkout={initialTodayWorkout} todayHistory={initialTodayHistory} />
             <HomeLists historyList={initialHistoryList} sessionList={initialSessionList} activeUserId={activeUser?.id!} />

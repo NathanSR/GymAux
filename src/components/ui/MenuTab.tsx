@@ -47,7 +47,7 @@ export const MenuTab = ({ onPlay, completed }: MenuTabProps) => {
     };
 
     return (
-        <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[92%] max-w-md bg-white/80 dark:bg-zinc-900/80 backdrop-blur-2xl border border-zinc-200/50 dark:border-zinc-800/50 px-6 py-3 rounded-[32px] flex justify-between items-center shadow-2xl z-50 shadow-black/10">
+        <nav className="fixed bottom-[calc(1.5rem+env(safe-area-inset-bottom,0px))] left-1/2 -translate-x-1/2 w-[92%] max-w-md bg-white/80 dark:bg-zinc-900/80 backdrop-blur-2xl border border-zinc-200/50 dark:border-zinc-800/50 px-6 py-3 rounded-[32px] flex justify-between items-center shadow-2xl z-50 shadow-black/10">
 
             <NavItem href="/exercises" icon={BookCheck} />
             <NavItem href="/workouts" icon={Dumbbell} />

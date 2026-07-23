@@ -9,7 +9,7 @@ const withPWA = withPWAInit({
   register: true,
   extendDefaultRuntimeCaching: true,
   fallbacks: {
-    document: "/pt/home",
+    document: "/pt/offline",
   },
   workboxOptions: {
     disableDevLogs: true,

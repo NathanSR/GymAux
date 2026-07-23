@@ -12,7 +12,7 @@
     },
     "orientation": "portrait",
     "background_color": "#09090b",
-    "theme_color": "#a3e635",
+    "theme_color": "#09090b",
     "categories": ["health", "fitness", "sports", "lifestyle"],
     "shortcuts": [
         {
@@ -351,11 +351,13 @@
         },
         {
             "src": "android/android-launchericon-512-512.png",
-            "sizes": "512x512"
+            "sizes": "512x512",
+            "purpose": "any maskable"
         },
         {
             "src": "android/android-launchericon-192-192.png",
-            "sizes": "192x192"
+            "sizes": "192x192",
+            "purpose": "any maskable"
         },
         {
             "src": "android/android-launchericon-144-144.png",

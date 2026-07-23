@@ -130,7 +130,7 @@ export default function ExercisesClient({ initialExercises, initialTotalCount, i
     });
 
     return (
-        <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white transition-colors duration-300 font-sans pb-32">
+        <div className="min-h-dvh bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white transition-colors duration-300 font-sans pb-32">
             {/* Header */}
             <PageHeader
                 title={t('title')}

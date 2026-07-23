@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "../globals.css";
 
@@ -28,11 +28,39 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
 	title: "Gym Aux",
 	description: "Meu Treino Diário",
-	manifest: "/manifest.json", 
+	manifest: "/manifest.json",
+	appleWebApp: {
+		capable: true,
+		statusBarStyle: "black-translucent",
+		title: "GymAux",
+	},
+	icons: {
+		icon: [
+			{ url: "/favicon.ico" },
+			{ url: "/ios/32.png", sizes: "32x32", type: "image/png" },
+			{ url: "/ios/192.png", sizes: "192x192", type: "image/png" },
+		],
+		apple: [
+			{ url: "/ios/180.png", sizes: "180x180", type: "image/png" },
+			{ url: "/ios/192.png", sizes: "192x192", type: "image/png" },
+			{ url: "/ios/512.png", sizes: "512x512", type: "image/png" },
+		],
+	},
+	other: {
+		"mobile-web-app-capable": "yes",
+	},
 };
 
-export const viewport = {
-	themeColor: "#3b82f6",
+export const viewport: Viewport = {
+	themeColor: [
+		{ media: "(prefers-color-scheme: light)", color: "#ffffff" },
+		{ media: "(prefers-color-scheme: dark)", color: "#09090b" },
+	],
+	width: "device-width",
+	initialScale: 1,
+	maximumScale: 1,
+	userScalable: false,
+	viewportFit: "cover",
 };
 
 export default async function RootLayout(props: {
@@ -48,7 +76,7 @@ export default async function RootLayout(props: {
 	const messages = await getMessages();
 
 	return (
-		<html lang="en" suppressHydrationWarning>
+		<html lang={locale} suppressHydrationWarning>
 			<body
 				className={`${geistSans.variable} ${geistMono.variable} antialiased`}
 			>
