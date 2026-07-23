@@ -317,39 +317,52 @@ export function useSessionClient({ initialSession, isReadOnly = false, watchValu
         return null;
     }, [session.exercisesDone, currentExercise?.exerciseId]);
 
-    const lastExecutedSetRpe = useMemo(() => {
-        if (!currentExercise?.exerciseId) return 7;
-        for (let i = session.exercisesDone.length - 1; i >= 0; i--) {
-            const group = session.exercisesDone[i];
-            if (!group) continue;
-            const ex = group.exercises.find(e => e.exerciseId === currentExercise.exerciseId);
-            if (ex && ex.sets.length > 0) {
-                const lastSet = ex.sets[ex.sets.length - 1];
-                if (lastSet && lastSet.rpe !== undefined) {
-                    return lastSet.rpe;
+    const getLastExecutedSetInfo = useCallback(() => {
+        if (!session.exercisesDone || session.exercisesDone.length === 0) return null;
+        for (let gIdx = session.exercisesDone.length - 1; gIdx >= 0; gIdx--) {
+            const group = session.exercisesDone[gIdx];
+            if (!group || !group.exercises || group.exercises.length === 0) continue;
+            for (let exIdx = group.exercises.length - 1; exIdx >= 0; exIdx--) {
+                const ex = group.exercises[exIdx];
+                if (ex && ex.sets && ex.sets.length > 0) {
+                    const lastSetIndex = ex.sets.length - 1;
+                    return {
+                        groupIndex: gIdx,
+                        exerciseIndex: exIdx,
+                        setIndex: lastSetIndex,
+                        set: ex.sets[lastSetIndex]
+                    };
                 }
             }
         }
+        return null;
+    }, [session.exercisesDone]);
+
+    const lastExecutedSetRpe = useMemo(() => {
+        const info = getLastExecutedSetInfo();
+        if (info && info.set && info.set.rpe !== undefined) {
+            return info.set.rpe;
+        }
         return 7;
-    }, [session.exercisesDone, currentExercise?.exerciseId]);
+    }, [getLastExecutedSetInfo]);
 
     const handleUpdateLastSetRpe = useCallback(async (newRpe: number) => {
-        if (!currentExercise?.exerciseId) return;
+        const info = getLastExecutedSetInfo();
+        if (!info) return;
+
         const updatedSession = { ...session };
         const updatedExecutions = [...updatedSession.exercisesDone];
-
-        if (updatedExecutions[currentGroupIndex]) {
-            const group = updatedExecutions[currentGroupIndex];
-            const ex = group.exercises.find(e => e.exerciseId === currentExercise.exerciseId);
-            if (ex && ex.sets.length > 0) {
-                const lastSetIndex = ex.sets.length - 1;
-                ex.sets[lastSetIndex] = { ...ex.sets[lastSetIndex], rpe: newRpe };
+        const group = updatedExecutions[info.groupIndex];
+        if (group && group.exercises[info.exerciseIndex]) {
+            const ex = group.exercises[info.exerciseIndex];
+            if (ex.sets[info.setIndex]) {
+                ex.sets[info.setIndex] = { ...ex.sets[info.setIndex], rpe: newRpe };
                 updatedSession.exercisesDone = updatedExecutions;
                 setSession(updatedSession);
                 await synchronizeProgress(updatedSession);
             }
         }
-    }, [currentExercise?.exerciseId, currentGroupIndex, session, synchronizeProgress]);
+    }, [getLastExecutedSetInfo, session, synchronizeProgress]);
 
     return {
         session,

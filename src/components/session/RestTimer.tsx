@@ -34,11 +34,6 @@ export const RestTimer = ({
     }, []);
 
     useEffect(() => {
-        setTimeLeft(seconds);
-        setTotalSeconds(seconds);
-    }, [seconds]);
-
-    useEffect(() => {
         if (timeLeft === 3 && audioRef.current) {
             audioRef.current.play().catch(e => console.log("Audio error:", e));
         }
@@ -53,9 +48,11 @@ export const RestTimer = ({
     }, [timeLeft, onFinish]);
 
     const handleAdjust = (delta: number) => {
-        const newTime = Math.max(1, timeLeft + delta);
-        setTimeLeft(newTime);
-        setTotalSeconds(prev => Math.max(newTime, prev + delta));
+        setTimeLeft(prev => {
+            const newTime = Math.max(1, prev + delta);
+            setTotalSeconds(prevTotal => Math.max(newTime, prevTotal + delta));
+            return newTime;
+        });
         if (onAdjustTime) {
             onAdjustTime(delta);
         }
