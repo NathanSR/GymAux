@@ -14,10 +14,12 @@ import {
     Users,
     User,
     ShieldCheck,
-    Globe
+    Globe,
+    Cookie
 } from "lucide-react";
 import { useRouter, usePathname } from '@/i18n/routing';
 import { useTheme } from '@/context/ThemeContext';
+import { useCookieConsent } from '@/context/CookieConsentContext';
 import { useTranslations, useLocale } from 'next-intl';
 import { LANGUAGES } from '@/config/constants';
 import { User as AppUser } from '@/config/types';
@@ -49,6 +51,7 @@ const ProfileMenu: React.FC<ProfileMenuProps> = ({
     const pathname = usePathname();
     const supabase = createClient();
     const { toggleTheme, resolvedTheme } = useTheme();
+    const { openModal } = useCookieConsent();
 
     // --- PWA Installation Logic ---
     const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
@@ -234,6 +237,16 @@ const ProfileMenu: React.FC<ProfileMenuProps> = ({
                                             label={t('editProfile')}
                                             href="/profile/edit"
                                             onClick={() => setShowProfileMenu(false)}
+                                            showChevron
+                                        />
+
+                                        <ProfileMenuButton
+                                            icon={<Cookie size={18} className="text-amber-500" />}
+                                            label="Privacidade & Cookies"
+                                            onClick={() => {
+                                                setShowProfileMenu(false);
+                                                openModal();
+                                            }}
                                             showChevron
                                         />
 

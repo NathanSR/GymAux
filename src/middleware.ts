@@ -60,7 +60,7 @@ export default async function middleware(request: NextRequest) {
     const pathname = request.nextUrl.pathname;
 
     // Páginas que não requerem autenticação
-    const publicPages = ['/', '/login', '/register', '/admin/login'];
+    const publicPages = ['/', '/login', '/register', '/admin/login', '/privacy', '/terms', '/cookies'];
 
     const isPublicPage = publicPages.some((page) => {
         const locales = routing.locales.join('|');

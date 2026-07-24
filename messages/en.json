@@ -35,6 +35,10 @@
     "updatePasswordDescription": "Create a strong and secure password for your account.",
     "newPasswordLabel": "New Password",
     "updatePasswordButton": "Update Password",
+    "termsNotice": "By continuing, you agree to our",
+    "termsOfService": "Terms of Service",
+    "andText": "and acknowledge our",
+    "privacyPolicy": "Privacy Policy",
     "errors": {
       "mismatch": "Passwords do not match",
       "required": "This field is required",
@@ -2003,5 +2007,31 @@
     "imageDownloaded": "Image saved successfully!",
     "sharedSuccess": "Workout shared!",
     "shareError": "Failed to share image."
+  },
+  "CookieBanner": {
+    "title": "We Value Your Privacy",
+    "description": "We use cookies and local storage technologies to customize your experience, save offline progress, and guarantee account security in compliance with data privacy regulations (LGPD/GDPR).",
+    "privacyLink": "Privacy Policy",
+    "cookiesLink": "Cookie Policy",
+    "and": "and",
+    "acceptAllBtn": "Accept All",
+    "essentialOnlyBtn": "Essential Only",
+    "customizeBtn": "Customize"
+  },
+  "CookieModal": {
+    "title": "Cookie & Privacy Preferences",
+    "subtitle": "Manage how GymAux processes your data and storage technologies.",
+    "lgpdDescription": "Under data protection laws, you have the right to choose which categories of optional cookies and storage you allow on your device. Learn more in our",
+    "privacyPolicyLink": "full Privacy Policy",
+    "essentialTitle": "Essential Cookies (Required)",
+    "alwaysActive": "Always Active",
+    "essentialDesc": "Required for Supabase login, PWA offline resilience, account security, and storing your preferred theme and language.",
+    "analyticsTitle": "Analytics & Telemetry Cookies",
+    "analyticsDesc": "Help us understand how the app is used, identifying loading errors and optimizing platform speed.",
+    "functionalTitle": "Advanced Features & UX",
+    "functionalDesc": "Enable custom animations and local interface optimizations to speed up workout initialization.",
+    "lgpdProtected": "Protected under Data Protection Laws (LGPD)",
+    "savePreferencesBtn": "Save My Choices",
+    "acceptAllBtn": "Accept All"
   }
 }

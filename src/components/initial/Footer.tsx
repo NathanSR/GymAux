@@ -6,6 +6,7 @@ import { Link, useRouter, usePathname } from '@/i18n/routing';
 import { Dumbbell, Sparkles, Sun, Moon, Languages, Check, ChevronUp } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from '@/context/ThemeContext';
+import { useCookieConsent } from '@/context/CookieConsentContext';
 
 export default function Footer() {
     const t = useTranslations('Marketing');
@@ -13,6 +14,7 @@ export default function Footer() {
     const router = useRouter();
     const pathname = usePathname();
     const { toggleTheme, resolvedTheme } = useTheme();
+    const { openModal } = useCookieConsent();
 
     const [isLangOpen, setIsLangOpen] = useState(false);
     const langRef = useRef<HTMLDivElement>(null);
@@ -74,8 +76,18 @@ export default function Footer() {
                     <ul className="space-y-4 font-bold text-sm text-zinc-400">
                         <li><Link href="#" className="hover:text-brand transition-colors uppercase italic tracking-tight">{t('Footer.company.about')}</Link></li>
                         <li><Link href="#" className="hover:text-brand transition-colors uppercase italic tracking-tight">{t('Footer.company.support')}</Link></li>
-                        <li><Link href="#" className="hover:text-brand transition-colors uppercase italic tracking-tight">{t('Footer.company.privacy')}</Link></li>
-                        <li><Link href="#" className="hover:text-brand transition-colors uppercase italic tracking-tight">{t('Footer.company.terms')}</Link></li>
+                        <li><Link href="/privacy" className="hover:text-brand transition-colors uppercase italic tracking-tight">{t('Footer.company.privacy')}</Link></li>
+                        <li><Link href="/terms" className="hover:text-brand transition-colors uppercase italic tracking-tight">{t('Footer.company.terms')}</Link></li>
+                        <li><Link href="/cookies" className="hover:text-brand transition-colors uppercase italic tracking-tight">Cookies</Link></li>
+                        <li>
+                            <button
+                                type="button"
+                                onClick={openModal}
+                                className="hover:text-brand transition-colors uppercase italic tracking-tight text-left cursor-pointer"
+                            >
+                                Preferências de Cookies
+                            </button>
+                        </li>
                     </ul>
                 </div>
 

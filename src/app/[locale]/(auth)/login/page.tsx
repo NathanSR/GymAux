@@ -251,6 +251,17 @@ export default function LoginPage() {
               </>
             )}
           </motion.button>
+
+          <p className="text-[11px] text-zinc-500 dark:text-zinc-400 text-center leading-relaxed px-2 pt-2">
+            {t('termsNotice')}{' '}
+            <Link href="/terms" className="text-lime-600 dark:text-lime-400 hover:underline font-bold">
+              {t('termsOfService')}
+            </Link>{' '}
+            {t('andText')}{' '}
+            <Link href="/privacy" className="text-lime-600 dark:text-lime-400 hover:underline font-bold">
+              {t('privacyPolicy')}
+            </Link>.
+          </p>
         </form>
 
         <div className="text-center pt-2">

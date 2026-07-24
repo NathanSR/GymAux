@@ -35,6 +35,10 @@
     "updatePasswordDescription": "Crie uma senha forte e segura para sua conta.",
     "newPasswordLabel": "Nova Senha",
     "updatePasswordButton": "Atualizar Senha",
+    "termsNotice": "Ao continuar, você concorda com nossos",
+    "termsOfService": "Termos de Uso",
+    "andText": "e",
+    "privacyPolicy": "Política de Privacidade",
     "errors": {
       "mismatch": "As senhas não coincidem",
       "required": "Este campo é obrigatório",
@@ -2003,5 +2007,31 @@
     "imageDownloaded": "Imagem salva com sucesso!",
     "sharedSuccess": "Treino compartilhado!",
     "shareError": "Não foi possível compartilhar a imagem."
+  },
+  "CookieBanner": {
+    "title": "Valorizamos sua Privacidade",
+    "description": "Utilizamos cookies e tecnologias locais para personalizar sua experiência, salvar seu progresso offline e garantir a segurança da conta em conformidade com a LGPD.",
+    "privacyLink": "Política de Privacidade",
+    "cookiesLink": "Política de Cookies",
+    "and": "e",
+    "acceptAllBtn": "Aceitar Todos",
+    "essentialOnlyBtn": "Apenas Essenciais",
+    "customizeBtn": "Personalizar"
+  },
+  "CookieModal": {
+    "title": "Preferências de Cookies & Privacidade",
+    "subtitle": "Gerencie como o GymAux utiliza seus dados e tecnologias de armazenamento.",
+    "lgpdDescription": "Sob a Lei Geral de Proteção de Dados (LGPD - Lei 13.709/2018), você tem o direito de escolher quais categorias de cookies e dados não-essenciais permite em seu dispositivo. Saiba mais em nossa",
+    "privacyPolicyLink": "Política de Privacidade completa",
+    "essentialTitle": "Cookies Essenciais (Obrigatórios)",
+    "alwaysActive": "Sempre Ativo",
+    "essentialDesc": "Necessários para o login via Supabase, resiliência offline PWA, segurança de conta e salvamento do seu tema e idioma preferidos.",
+    "analyticsTitle": "Cookies Analíticos & Telemetria",
+    "analyticsDesc": "Nos ajudam a compreender como o aplicativo é utilizado, identificando erros de carregamento e otimizando a velocidade da plataforma.",
+    "functionalTitle": "Funcionalidades Avançadas & UX",
+    "functionalDesc": "Permitem animações personalizadas e otimizações locais de interface para acelerar a inicialização do seu treino.",
+    "lgpdProtected": "Protegido sob LGPD (Lei nº 13.709/2018)",
+    "savePreferencesBtn": "Salvar Minhas Escolhas",
+    "acceptAllBtn": "Aceitar Todos"
   }
 }

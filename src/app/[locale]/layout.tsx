@@ -10,6 +10,9 @@ import { ThemeProvider } from "@/context/ThemeContext";
 import { DialogProvider } from "@/context/DialogContext";
 import { OfflineSyncProvider } from "@/context/OfflineSyncProvider";
 import { NavigationLoadingProvider } from "@/context/NavigationLoadingContext";
+import { CookieConsentProvider } from "@/context/CookieConsentContext";
+import { CookieBanner } from "@/components/legal/CookieBanner";
+import { CookieModal } from "@/components/legal/CookieModal";
 import { ToastContainer } from 'react-toastify';
 import NextTopLoader from 'nextjs-toploader';
 
@@ -86,8 +89,12 @@ export default async function RootLayout(props: {
 						<DialogProvider>
 							<OfflineSyncProvider>
 								<NavigationLoadingProvider>
-									<AppSplashScreen />
-									{children}
+									<CookieConsentProvider>
+										<AppSplashScreen />
+										{children}
+										<CookieBanner />
+										<CookieModal />
+									</CookieConsentProvider>
 								</NavigationLoadingProvider>
 							</OfflineSyncProvider>
 						</DialogProvider>
