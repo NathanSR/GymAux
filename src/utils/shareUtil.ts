@@ -100,18 +100,24 @@ export function downloadImageBlob(blob: Blob, filename: string = 'gymaux-treino.
 }
 
 import { Session, History } from '@/config/types';
-import { WorkoutShareData, ShareExerciseItem } from '@/components/share/WorkoutShareCard';
+import { WorkoutShareData, ShareExerciseItem, ShareExerciseGroup } from '@/components/share/WorkoutShareCard';
 
 export function mapSessionToShareData(session: Session, userWeight?: number): WorkoutShareData {
     const exercises: ShareExerciseItem[] = [];
+    const groups: ShareExerciseGroup[] = [];
     let totalVolume = 0;
 
-    const groups = session.exercisesDone || [];
-    groups.forEach((group) => {
+    const rawGroups = session.exercisesDone || [];
+    rawGroups.forEach((group) => {
+        const groupType = group.groupType || 'straight';
+        const groupExercises: ShareExerciseItem[] = [];
+
         (group.exercises || []).forEach((ex) => {
             const validSets = (ex.sets || []).filter((s) => !s.skipped);
             let bestWeight = 0;
             let bestReps = 0;
+            let hasDropset = false;
+            let mainTechnique: string | undefined = undefined;
 
             validSets.forEach((s) => {
                 const w = s.weight || 0;
@@ -119,17 +125,42 @@ export function mapSessionToShareData(session: Session, userWeight?: number): Wo
                 totalVolume += w * r;
                 if (w > bestWeight) bestWeight = w;
                 if (r > bestReps) bestReps = r;
+
+                if (s.technique && s.technique !== 'normal') {
+                    mainTechnique = s.technique;
+                }
+
+                if (s.technique === 'drop_set' || (s.dropset && s.dropset.length > 0)) {
+                    hasDropset = true;
+                    if (s.dropset) {
+                        s.dropset.forEach((d) => {
+                            totalVolume += (d.weight || 0) * (d.reps || 0);
+                        });
+                    }
+                }
             });
 
             if (validSets.length > 0) {
-                exercises.push({
+                const item: ShareExerciseItem = {
                     name: ex.exerciseName,
                     setsCount: validSets.length,
                     bestWeight: bestWeight > 0 ? bestWeight : undefined,
-                    bestReps: bestReps > 0 ? bestReps : undefined
-                });
+                    bestReps: bestReps > 0 ? bestReps : undefined,
+                    hasDropset,
+                    technique: mainTechnique,
+                    groupType
+                };
+                groupExercises.push(item);
+                exercises.push(item);
             }
         });
+
+        if (groupExercises.length > 0) {
+            groups.push({
+                groupType,
+                exercises: groupExercises
+            });
+        }
     });
 
     return {
@@ -138,20 +169,27 @@ export function mapSessionToShareData(session: Session, userWeight?: number): Wo
         duration: session.duration || 0,
         weight: userWeight,
         totalVolume: totalVolume > 0 ? Math.round(totalVolume) : undefined,
-        exercises
+        exercises,
+        groups
     };
 }
 
 export function mapHistoryToShareData(history: History): WorkoutShareData {
     const exercises: ShareExerciseItem[] = [];
+    const groups: ShareExerciseGroup[] = [];
     let totalVolume = 0;
 
-    const groups = history.executions || [];
-    groups.forEach((group) => {
+    const rawGroups = history.executions || [];
+    rawGroups.forEach((group) => {
+        const groupType = group.groupType || 'straight';
+        const groupExercises: ShareExerciseItem[] = [];
+
         (group.exercises || []).forEach((ex) => {
             const validSets = (ex.sets || []).filter((s) => !s.skipped);
             let bestWeight = 0;
             let bestReps = 0;
+            let hasDropset = false;
+            let mainTechnique: string | undefined = undefined;
 
             validSets.forEach((s) => {
                 const w = s.weight || 0;
@@ -159,17 +197,42 @@ export function mapHistoryToShareData(history: History): WorkoutShareData {
                 totalVolume += w * r;
                 if (w > bestWeight) bestWeight = w;
                 if (r > bestReps) bestReps = r;
+
+                if (s.technique && s.technique !== 'normal') {
+                    mainTechnique = s.technique;
+                }
+
+                if (s.technique === 'drop_set' || (s.dropset && s.dropset.length > 0)) {
+                    hasDropset = true;
+                    if (s.dropset) {
+                        s.dropset.forEach((d) => {
+                            totalVolume += (d.weight || 0) * (d.reps || 0);
+                        });
+                    }
+                }
             });
 
             if (validSets.length > 0) {
-                exercises.push({
+                const item: ShareExerciseItem = {
                     name: ex.exerciseName,
                     setsCount: validSets.length,
                     bestWeight: bestWeight > 0 ? bestWeight : undefined,
-                    bestReps: bestReps > 0 ? bestReps : undefined
-                });
+                    bestReps: bestReps > 0 ? bestReps : undefined,
+                    hasDropset,
+                    technique: mainTechnique,
+                    groupType
+                };
+                groupExercises.push(item);
+                exercises.push(item);
             }
         });
+
+        if (groupExercises.length > 0) {
+            groups.push({
+                groupType,
+                exercises: groupExercises
+            });
+        }
     });
 
     return {
@@ -178,7 +241,8 @@ export function mapHistoryToShareData(history: History): WorkoutShareData {
         duration: history.duration || 0,
         weight: history.weight,
         totalVolume: totalVolume > 0 ? Math.round(totalVolume) : undefined,
-        exercises
+        exercises,
+        groups
     };
 }
 
