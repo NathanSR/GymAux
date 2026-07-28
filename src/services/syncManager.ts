@@ -24,6 +24,9 @@ export class SyncManager {
                 !(source[key] instanceof Date)
             ) {
                 merged[key] = this.mergePayloads(target[key], source[key]);
+            } else if (Array.isArray(source[key]) && Array.isArray(target[key])) {
+                // Preserve richer execution/set array if target has more items
+                merged[key] = source[key].length >= target[key].length ? source[key] : target[key];
             } else {
                 merged[key] = source[key];
             }

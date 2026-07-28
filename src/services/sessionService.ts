@@ -355,8 +355,46 @@ export const SessionService = {
         if (error) throw error;
     },
 
-    async finishSession(sessionId: string, additionalData?: { weight?: number, description?: string, usingCreatine?: boolean }, supabaseInput?: any) {
-        const session = await this.getSessionById(sessionId, supabaseInput);
+    async finishSession(
+        sessionId: string,
+        additionalData?: { weight?: number; description?: string; usingCreatine?: boolean },
+        supabaseInput?: any,
+        sessionInput?: Session
+    ) {
+        let session = sessionInput || await this.getSessionById(sessionId, supabaseInput);
+
+        if (typeof window !== 'undefined') {
+            const localSession = await db.sessions.get(sessionId);
+            if (localSession) {
+                const countSets = (exs: any[]) => (exs || []).reduce((acc, g) => acc + (g.exercises || []).reduce((eAcc: number, ex: any) => eAcc + (ex.sets || []).length, 0), 0);
+                const inputSets = countSets(session?.exercisesDone || []);
+                const localSets = countSets(localSession.exercisesDone || []);
+
+                if (localSets > inputSets) {
+                    session = { ...localSession };
+                } else if (session && localSession.exercisesDone) {
+                    const mergedExecutions = [...(session.exercisesDone || [])];
+                    (localSession.exercisesDone || []).forEach((localGroup, groupIdx) => {
+                        if (!mergedExecutions[groupIdx]) {
+                            mergedExecutions[groupIdx] = localGroup;
+                        } else {
+                            const targetGroup = { ...mergedExecutions[groupIdx], exercises: [...(mergedExecutions[groupIdx].exercises || [])] };
+                            (localGroup.exercises || []).forEach(localEx => {
+                                const targetExIdx = targetGroup.exercises.findIndex(e => e.exerciseId === localEx.exerciseId);
+                                if (targetExIdx === -1) {
+                                    targetGroup.exercises.push(localEx);
+                                } else if ((localEx.sets?.length || 0) > (targetGroup.exercises[targetExIdx].sets?.length || 0)) {
+                                    targetGroup.exercises[targetExIdx] = localEx;
+                                }
+                            });
+                            mergedExecutions[groupIdx] = targetGroup;
+                        }
+                    });
+                    session.exercisesDone = mergedExecutions;
+                }
+            }
+        }
+
         if (!session) throw new Error("Sessão não encontrada");
 
         const historyId = crypto.randomUUID();

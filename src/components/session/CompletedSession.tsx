@@ -55,7 +55,7 @@ export function CompletedSession({ session }: CompletedSessionProps) {
                 weight: data.userWeight,
                 description: data.description,
                 usingCreatine: data.usingCreatine
-            });
+            }, undefined, session);
 
             setIsSuccess(true);
 

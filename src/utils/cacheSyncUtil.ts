@@ -40,6 +40,28 @@ export async function safeBulkPut<T extends { id?: string | number; updatedAt?: 
 
             // Check existing local record for timestamp comparison
             const localRecord = await table.get(item.id as any);
+
+            // Defensive protection for HISTORY: Do not overwrite a richer local history record with a remote one that has fewer completed sets
+            if (entityType === 'HISTORY' && localRecord) {
+                const countSets = (executions: any) => {
+                    if (!Array.isArray(executions)) return 0;
+                    return executions.reduce((acc, group) => {
+                        if (!group || !Array.isArray(group.exercises)) return acc;
+                        return acc + group.exercises.reduce((exAcc: number, ex: any) => {
+                            return exAcc + (Array.isArray(ex?.sets) ? ex.sets.length : 0);
+                        }, 0);
+                    }, 0);
+                };
+
+                const localSetsCount = countSets((localRecord as any).executions);
+                const remoteSetsCount = countSets((item as any).executions);
+
+                if (localSetsCount > remoteSetsCount) {
+                    console.warn(`[safeBulkPut] Preserving richer local history ${item.id} (${localSetsCount} sets) over remote (${remoteSetsCount} sets)`);
+                    continue;
+                }
+            }
+
             if (localRecord && localRecord.updatedAt) {
                 const localTime = new Date(localRecord.updatedAt).getTime();
                 const remoteTime = item.updatedAt ? new Date(item.updatedAt).getTime() : 0;
