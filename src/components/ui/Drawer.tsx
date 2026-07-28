@@ -192,6 +192,7 @@ export function Drawer({
         if (typeof window !== 'undefined') {
           window.history.pushState({ ...window.history.state, __drawerId: drawerId, __currentOverlayId: drawerId }, '');
           isPushedRef.current = true;
+          isPopStateTriggeredRef.current = false;
         }
       } else {
         onCloseRef.current();
@@ -206,8 +207,20 @@ export function Drawer({
       document.body.classList.remove('drawer-open');
       window.removeEventListener('keydown', handleEscape, true);
       window.removeEventListener('popstate', handlePopState);
+
+      if (
+        isPushedRef.current &&
+        !isPopStateTriggeredRef.current &&
+        typeof window !== 'undefined' &&
+        window.history.state &&
+        (window.history.state.__drawerId === drawerId || window.history.state.__currentOverlayId === drawerId)
+      ) {
+        isPushedRef.current = false;
+        window.history.back();
+      } else {
+        isPushedRef.current = false;
+      }
       isPopStateTriggeredRef.current = false;
-      isPushedRef.current = false;
     };
   }, [isOpen, drawerId]);
 

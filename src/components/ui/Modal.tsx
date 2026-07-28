@@ -95,7 +95,23 @@ export function Modal({
       }
       window.removeEventListener('keydown', handleEscape, true);
       window.removeEventListener('popstate', handlePopState);
-      isPushedRef.current = false;
+
+      // Se o modal foi fechado pela UI (botão X, backdrop, ESC ou alteração de isOpen)
+      // e o estado no topo da pilha do browser ainda for o histórico DESTE modal,
+      // realizamos o history.back() para desempilhar a entrada fantasma.
+      if (
+        isPushedRef.current &&
+        !isPopStateTriggeredRef.current &&
+        typeof window !== 'undefined' &&
+        window.history.state &&
+        (window.history.state.__modalId === modalId || window.history.state.__currentOverlayId === modalId)
+      ) {
+        isPushedRef.current = false;
+        window.history.back();
+      } else {
+        isPushedRef.current = false;
+      }
+      isPopStateTriggeredRef.current = false;
     };
   }, [isOpen]);
 
