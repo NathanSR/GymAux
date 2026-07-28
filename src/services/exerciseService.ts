@@ -4,6 +4,7 @@ import { db } from '@/config/db';
 import { SyncManager } from './syncManager';
 import { withTimeout } from '@/lib/utils/timeout';
 import { userService } from './userService';
+import { safeBulkPut } from '@/utils/cacheSyncUtil';
 
 const inferEquipmentFromTags = (tags: string[], name: string): 'barbell' | 'dumbbell' | 'machine' | 'cable' | 'bodyweight' | 'smith' | 'kettlebell' | 'none' => {
     const t = tags.map(tag => tag.toLowerCase());
@@ -123,9 +124,7 @@ export const ExerciseService = {
                 if (typeof window !== 'undefined') {
                     const userExercises = exercises.filter((ex: Exercise) => ex.created_by_type !== 'system' && Boolean(ex.id && ex.name && ex.category));
                     if (userExercises.length > 0) {
-                        await db.exercises.bulkPut(userExercises).catch(err => {
-                            console.error('[ExerciseService] getAllExercises Dexie bulkPut failed:', err);
-                        });
+                        await safeBulkPut(db.exercises, userExercises, 'EXERCISE');
                     }
                 }
             } catch (error) {

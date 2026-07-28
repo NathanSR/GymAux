@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/client';
 import { History, ExecutedGroup } from '@/config/types';
 import { db } from '@/config/db';
 import { withTimeout } from '@/lib/utils/timeout';
+import { safeBulkPut } from '@/utils/cacheSyncUtil';
 
 const mapExecutedGroupFromSupabase = (g: any): ExecutedGroup => ({
     groupType: g.groupType || 'straight',
@@ -65,9 +66,7 @@ export const HistoryService = {
             if (typeof window !== 'undefined' && history.length > 0) {
                 const validHistory = history.filter((h: History) => Boolean(h.id && h.userId));
                 if (validHistory.length > 0) {
-                    await db.history.bulkPut(validHistory).catch(err => {
-                        console.error('[HistoryService] getUserHistory Dexie bulkPut failed:', err);
-                    });
+                    await safeBulkPut(db.history, validHistory, 'HISTORY');
                 }
             }
 
@@ -117,9 +116,7 @@ export const HistoryService = {
             if (typeof window !== 'undefined' && history.length > 0) {
                 const validHistory = history.filter((h: History) => Boolean(h.id && h.userId));
                 if (validHistory.length > 0) {
-                    await db.history.bulkPut(validHistory).catch(err => {
-                        console.error('[HistoryService] getHistoryByRange Dexie bulkPut failed:', err);
-                    });
+                    await safeBulkPut(db.history, validHistory, 'HISTORY');
                 }
             }
 

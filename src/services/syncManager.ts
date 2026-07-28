@@ -334,6 +334,15 @@ export class SyncManager {
         return false;
     }
 
+    private static cleanUpdatePayload(payload: any): any {
+        if (!payload || typeof payload !== 'object') return payload;
+        const cleaned = { ...payload };
+        delete cleaned.id;
+        delete cleaned.user_id;
+        delete cleaned.created_by;
+        return cleaned;
+    }
+
     // --- Private Sync Implementations per Entity ---
 
     private static async syncHistory(op: SyncOperation, supabase: any): Promise<boolean> {
@@ -342,7 +351,8 @@ export class SyncManager {
             // 23505 = unique_violation — already exists, safe to drop
             if (error && error.code !== '23505') throw error;
         } else if (op.action === 'UPDATE') {
-            const { error } = await withTimeout(supabase.from('history').update(op.payload).eq('id', op.entityId), 5000);
+            const payload = this.cleanUpdatePayload(op.payload);
+            const { error } = await withTimeout(supabase.from('history').update(payload).eq('id', op.entityId), 5000);
             if (error && error.code !== 'PGRST116') throw error;
         } else if (op.action === 'DELETE') {
             const { error } = await withTimeout(supabase.from('history').delete().eq('id', op.entityId), 5000);
@@ -356,7 +366,8 @@ export class SyncManager {
             const { error } = await withTimeout(supabase.from('sessions').insert(op.payload), 5000);
             if (error && error.code !== '23505') throw error;
         } else if (op.action === 'UPDATE') {
-            const { error } = await withTimeout(supabase.from('sessions').update(op.payload).eq('id', op.entityId), 5000);
+            const payload = this.cleanUpdatePayload(op.payload);
+            const { error } = await withTimeout(supabase.from('sessions').update(payload).eq('id', op.entityId), 5000);
             // 404 / PGRST116 = row not found; session may have been deleted already — safe to drop
             if (error && error.code !== 'PGRST116') throw error;
         } else if (op.action === 'DELETE') {
@@ -377,7 +388,8 @@ export class SyncManager {
             const { error } = await withTimeout(supabase.from('workouts').insert(op.payload), 5000);
             if (error && error.code !== '23505') throw error;
         } else if (op.action === 'UPDATE') {
-            const { error } = await withTimeout(supabase.from('workouts').update(op.payload).eq('id', op.entityId), 5000);
+            const payload = this.cleanUpdatePayload(op.payload);
+            const { error } = await withTimeout(supabase.from('workouts').update(payload).eq('id', op.entityId), 5000);
             if (error && error.code !== 'PGRST116') throw error;
         } else if (op.action === 'DELETE') {
             const { error } = await withTimeout(supabase.from('workouts').delete().eq('id', op.entityId), 5000);
@@ -391,7 +403,8 @@ export class SyncManager {
             const { error } = await withTimeout(supabase.from('schedules').insert(op.payload), 5000);
             if (error && error.code !== '23505') throw error;
         } else if (op.action === 'UPDATE') {
-            const { error } = await withTimeout(supabase.from('schedules').update(op.payload).eq('id', op.entityId), 5000);
+            const payload = this.cleanUpdatePayload(op.payload);
+            const { error } = await withTimeout(supabase.from('schedules').update(payload).eq('id', op.entityId), 5000);
             if (error && error.code !== 'PGRST116') throw error;
         } else if (op.action === 'DELETE') {
             const { error } = await withTimeout(supabase.from('schedules').delete().eq('id', op.entityId), 5000);
@@ -405,7 +418,8 @@ export class SyncManager {
             const { error } = await withTimeout(supabase.from('exercises').insert(op.payload), 5000);
             if (error && error.code !== '23505') throw error;
         } else if (op.action === 'UPDATE') {
-            const { error } = await withTimeout(supabase.from('exercises').update(op.payload).eq('id', op.entityId), 5000);
+            const payload = this.cleanUpdatePayload(op.payload);
+            const { error } = await withTimeout(supabase.from('exercises').update(payload).eq('id', op.entityId), 5000);
             if (error && error.code !== 'PGRST116') throw error;
         } else if (op.action === 'DELETE') {
             const { error } = await withTimeout(supabase.from('exercises').delete().eq('id', op.entityId), 5000);
@@ -414,3 +428,4 @@ export class SyncManager {
         return true;
     }
 }
+

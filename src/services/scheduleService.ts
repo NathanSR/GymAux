@@ -5,6 +5,7 @@ import { SyncManager } from './syncManager';
 import { connectionService } from './connectionService';
 import { withTimeout } from '@/lib/utils/timeout';
 import { getEffectiveTime, sortByNewest } from '@/utils/dateUtil';
+import { safeBulkPut } from '@/utils/cacheSyncUtil';
 
 const mapScheduleFromSupabase = (s: any): Schedule => ({
     id: s.id || crypto.randomUUID(),
@@ -75,9 +76,7 @@ export const ScheduleService = {
             if (typeof window !== 'undefined' && schedules.length > 0) {
                 const validSchedules = schedules.filter((s: Schedule) => Boolean(s.id && s.userId));
                 if (validSchedules.length > 0) {
-                    await db.schedules.bulkPut(validSchedules).catch(err => {
-                        console.error('[ScheduleService] getSchedulesByUserId Dexie bulkPut failed:', err);
-                    });
+                    await safeBulkPut(db.schedules, validSchedules, 'SCHEDULE');
                 }
             }
         } catch (error) {
@@ -124,7 +123,7 @@ export const ScheduleService = {
 
             const schedule = data && data.length > 0 ? mapScheduleFromSupabase(data[0]) : null;
             if (typeof window !== 'undefined' && schedule) {
-                await db.schedules.put(schedule).catch(() => {});
+                await safeBulkPut(db.schedules, [schedule], 'SCHEDULE');
             }
             return schedule;
         } catch (error) {
@@ -228,14 +227,14 @@ export const ScheduleService = {
                 await SyncManager.enqueue('UPDATE', 'SCHEDULE', s.id!, {
                     id: s.id,
                     active: false,
-                });
+                }, scheduleData.userId);
             }
         }
 
         // Save locally first
         if (typeof window !== 'undefined') {
             await db.schedules.put(newSchedule);
-            await SyncManager.enqueue('CREATE', 'SCHEDULE', id, mapScheduleToSupabase(newSchedule));
+            await SyncManager.enqueue('CREATE', 'SCHEDULE', id, mapScheduleToSupabase(newSchedule), scheduleData.userId);
             return newSchedule;
         }
 
@@ -286,10 +285,11 @@ export const ScheduleService = {
         // Local-first write
         if (typeof window !== 'undefined') {
             const current = await db.schedules.get(id);
+            const targetUserId = scheduleData.userId || current?.userId || callerId;
             if (current) {
                 // If activating, deactivate others locally
                 if (scheduleData.active === true) {
-                    const userId = scheduleData.userId || current.userId;
+                    const userId = targetUserId;
                     const otherActive = await db.schedules
                         .where('userId')
                         .equals(userId)
@@ -302,13 +302,13 @@ export const ScheduleService = {
                         await SyncManager.enqueue('UPDATE', 'SCHEDULE', s.id!, {
                             id: s.id,
                             active: false,
-                        });
+                        }, userId);
                     }
                 }
 
                 const updated = { ...current, ...scheduleData, updatedAt: now };
                 await db.schedules.put(updated);
-                await SyncManager.enqueue('UPDATE', 'SCHEDULE', id, { id, ...updates });
+                await SyncManager.enqueue('UPDATE', 'SCHEDULE', id, { id, ...updates }, targetUserId);
                 return updated;
             }
         }
@@ -366,8 +366,10 @@ export const ScheduleService = {
     async deleteSchedule(id: string, callerId: string, supabaseInput?: any) {
         // Local-first delete
         if (typeof window !== 'undefined') {
+            const local = await db.schedules.get(id);
+            const targetUserId = local?.userId || callerId;
             await db.schedules.delete(id);
-            await SyncManager.enqueue('DELETE', 'SCHEDULE', id, { id });
+            await SyncManager.enqueue('DELETE', 'SCHEDULE', id, { id }, targetUserId);
             return;
         }
 

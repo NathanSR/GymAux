@@ -5,6 +5,7 @@ import { SyncManager } from './syncManager';
 import { connectionService } from './connectionService';
 import { withTimeout } from '@/lib/utils/timeout';
 import { getEffectiveTime, sortByNewest } from '@/utils/dateUtil';
+import { safeBulkPut } from '@/utils/cacheSyncUtil';
 
 const mapGroupFromSupabase = (g: any): ExerciseGroup => ({
     groupType: g.groupType || 'straight',
@@ -83,9 +84,7 @@ export const WorkoutService = {
             if (typeof window !== 'undefined' && workouts.length > 0) {
                 const validWorkouts = workouts.filter((w: Workout) => Boolean(w.id && w.userId));
                 if (validWorkouts.length > 0) {
-                    await db.workouts.bulkPut(validWorkouts).catch(err => {
-                        console.error('[WorkoutService] getAllWorkouts Dexie bulkPut failed:', err);
-                    });
+                    await safeBulkPut(db.workouts, validWorkouts, 'WORKOUT');
                 }
             }
         } catch (error) {
@@ -134,9 +133,7 @@ export const WorkoutService = {
             if (typeof window !== 'undefined' && workouts.length > 0) {
                 const validWorkouts = workouts.filter((w: Workout) => Boolean(w.id && w.userId));
                 if (validWorkouts.length > 0) {
-                    await db.workouts.bulkPut(validWorkouts).catch(err => {
-                        console.error('[WorkoutService] getWorkoutsByUserId Dexie bulkPut failed:', err);
-                    });
+                    await safeBulkPut(db.workouts, validWorkouts, 'WORKOUT');
                 }
             }
         } catch (error) {

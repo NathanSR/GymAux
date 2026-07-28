@@ -3,6 +3,7 @@ import { Session, Workout, ExerciseGroup, ExecutedGroup } from '@/config/types';
 import { db } from '@/config/db';
 import { SyncManager } from './syncManager';
 import { withTimeout } from '@/lib/utils/timeout';
+import { safeBulkPut } from '@/utils/cacheSyncUtil';
 
 const mapGroupFromSupabase = (g: any): ExerciseGroup => {
     if (!g) return null as any;
@@ -226,9 +227,7 @@ export const SessionService = {
                 if (!session.userId && userId) session.userId = userId;
                 // Cache to Dexie for offline access
                 if (typeof window !== 'undefined' && session.id && session.userId) {
-                    await db.sessions.put(session).catch(err => {
-                        console.error('[SessionService] getActiveSessionByUserId Dexie put failed:', err);
-                    });
+                    await safeBulkPut(db.sessions, [session], 'SESSION');
                 }
                 return session;
             }
@@ -265,9 +264,7 @@ export const SessionService = {
             if (typeof window !== 'undefined' && sessions.length > 0) {
                 const validSessions = sessions.filter((s: Session) => Boolean(s.id && s.userId));
                 if (validSessions.length > 0) {
-                    await db.sessions.bulkPut(validSessions).catch(err => {
-                        console.error('[SessionService] getSessionsByUserId Dexie bulkPut failed:', err);
-                    });
+                    await safeBulkPut(db.sessions, validSessions, 'SESSION');
                 }
             }
 
