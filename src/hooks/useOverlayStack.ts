@@ -14,11 +14,16 @@ interface OverlayItem {
 class Manager {
     private stack: OverlayItem[] = [];
     private ignoreNextPopState = false;
+    private isCleaningUp = false;
     private initialized = false;
     private pushedIds: string[] = [];
 
     public hasOpenOverlays(): boolean {
         return this.stack.length > 0;
+    }
+
+    public isCleaningUpHistory(): boolean {
+        return this.isCleaningUp;
     }
 
     public register(item: OverlayItem) {
@@ -60,8 +65,14 @@ class Manager {
             // Se o overlay foi fechado pela UI (não pelo back button),
             // precisamos limpar a entrada correspondente no histórico.
             if (!isPopState && window.history.state && window.history.state.__overlayId === id) {
+                this.isCleaningUp = true;
                 this.ignoreNextPopState = true;
                 window.history.back();
+                
+                // Reseta a flag de cleanup logo após o popstate ser processado
+                setTimeout(() => {
+                    this.isCleaningUp = false;
+                }, 50);
             }
         }
     }

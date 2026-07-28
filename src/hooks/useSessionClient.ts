@@ -61,6 +61,9 @@ export function useSessionClient({ initialSession, isReadOnly = false, watchValu
             window.history.pushState({ ...window.history.state, __sessionTrap: true }, '', window.location.href);
         }
         const handleBackButton = (event: PopStateEvent) => {
+            if (OverlayStackManager.isCleaningUpHistory()) {
+                return;
+            }
             const hasOverlayOpen = showPreview || OverlayStackManager.hasOpenOverlays();
             if (hasOverlayOpen) {
                 return;
