@@ -2,7 +2,7 @@
 
 import { History } from "@/config/types";
 import { Activity, Clock, MessageSquare, RefreshCw, Scale, Share2, Trophy, X } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { formatDuration } from "@/utils/dateUtil";
 import { useTranslations, useLocale } from "next-intl";
 import { Modal } from "@/components/ui/Modal";
@@ -17,11 +17,15 @@ interface WorkoutHistoryModalProps {
 
 export function WorkoutHistoryModal({ selectedWorkouts, onClose, initialActiveWorkoutId }: WorkoutHistoryModalProps) {
     const language = useLocale();
-    const [isShareOpen, setIsShareOpen] = useState(false);
+    const t = useTranslations('History');
+    const te = useTranslations('Exercises');
+    const tw = useTranslations('WorkoutForm');
 
+    const [isShareOpen, setIsShareOpen] = useState(false);
     const isOpen = Boolean(selectedWorkouts && selectedWorkouts.length > 0);
 
     const handleClose = () => {
+        setIsShareOpen(false);
         onClose();
     };
 
@@ -33,11 +37,20 @@ export function WorkoutHistoryModal({ selectedWorkouts, onClose, initialActiveWo
         return String(found?.id || found?.workoutId || selectedWorkouts[0]?.id || selectedWorkouts[0]?.workoutId || '');
     });
 
+    const workoutKeys = useMemo(() => {
+        if (!selectedWorkouts) return '';
+        return selectedWorkouts.map(w => String(w.id || w.workoutId)).join(',');
+    }, [selectedWorkouts]);
+
     useEffect(() => {
         if (!selectedWorkouts || selectedWorkouts.length === 0) {
             setActiveId('');
+            setIsShareOpen(false);
             return;
         }
+
+        const exists = selectedWorkouts.some(w => String(w.id || w.workoutId) === activeId);
+        if (exists) return;
 
         const found = initialActiveWorkoutId
             ? selectedWorkouts.find(w => String(w.workoutId) === String(initialActiveWorkoutId) || String(w.id) === String(initialActiveWorkoutId))
@@ -51,13 +64,18 @@ export function WorkoutHistoryModal({ selectedWorkouts, onClose, initialActiveWo
         } else {
             setActiveId(firstKey);
         }
-    }, [initialActiveWorkoutId, selectedWorkouts]);
+    }, [initialActiveWorkoutId, workoutKeys]);
 
-    const t = useTranslations('History');
-    const te = useTranslations('Exercises');
-    const tw = useTranslations('WorkoutForm');
+    const currentWorkout = useMemo(() => {
+        if (!selectedWorkouts || selectedWorkouts.length === 0) return null;
+        return selectedWorkouts.find(w => String(w.id || w.workoutId) === activeId) || selectedWorkouts[0] || null;
+    }, [selectedWorkouts, activeId]);
 
-    if (!selectedWorkouts || selectedWorkouts.length === 0) {
+    const shareData = useMemo(() => {
+        return currentWorkout ? mapHistoryToShareData(currentWorkout) : null;
+    }, [currentWorkout]);
+
+    if (!selectedWorkouts || selectedWorkouts.length === 0 || !currentWorkout) {
         return (
             <Modal isOpen={false} onClose={handleClose} title="" maxWidth="max-w-md">
                 {null}
@@ -65,9 +83,10 @@ export function WorkoutHistoryModal({ selectedWorkouts, onClose, initialActiveWo
         );
     }
 
-    const currentWorkout = selectedWorkouts.find(w => String(w.id || w.workoutId) === activeId) || selectedWorkouts[0];
+    const rawDate = currentWorkout.date ? new Date(currentWorkout.date) : new Date();
+    const validDate = isNaN(rawDate.getTime()) ? new Date() : rawDate;
 
-    const formattedDate = new Date(currentWorkout.date).toLocaleDateString(language, {
+    const formattedDate = validDate.toLocaleDateString(language, {
         day: '2-digit',
         month: '2-digit',
         year: 'numeric'
@@ -117,7 +136,10 @@ export function WorkoutHistoryModal({ selectedWorkouts, onClose, initialActiveWo
                     <div className="flex items-center gap-2 shrink-0">
                         <button
                             type="button"
-                            onClick={() => setIsShareOpen(true)}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                setIsShareOpen(true);
+                            }}
                             className="p-3 bg-lime-400/10 border border-lime-400/30 text-lime-500 hover:bg-lime-400 hover:text-zinc-950 rounded-full active:scale-90 transition-all cursor-pointer"
                             title="Compartilhar Treino"
                             aria-label="Compartilhar Treino"
@@ -280,7 +302,7 @@ export function WorkoutHistoryModal({ selectedWorkouts, onClose, initialActiveWo
         <WorkoutShareModal
             isOpen={isShareOpen}
             onClose={() => setIsShareOpen(false)}
-            data={currentWorkout ? mapHistoryToShareData(currentWorkout) : null}
+            data={shareData}
         />
         </>
     );

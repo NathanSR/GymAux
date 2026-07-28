@@ -6,6 +6,7 @@ import { connectionService } from './connectionService';
 import { withTimeout } from '@/lib/utils/timeout';
 import { getEffectiveTime, sortByNewest } from '@/utils/dateUtil';
 import { safeBulkPut } from '@/utils/cacheSyncUtil';
+import { safeParseArray } from '@/utils/jsonUtil';
 
 const mapScheduleFromSupabase = (s: any): Schedule => ({
     id: s.id || crypto.randomUUID(),
@@ -13,7 +14,7 @@ const mapScheduleFromSupabase = (s: any): Schedule => ({
     userId: s.user_id || s.userId || '',
     createdBy: s.created_by || s.createdBy,
     createdByType: s.created_by_type || s.createdByType,
-    workouts: (s.workouts || []) as (string | null)[],
+    workouts: safeParseArray<string | null>(s.workouts),
     startDate: new Date(s.start_date || s.startDate || new Date()),
     endDate: s.end_date ? new Date(s.end_date) : (s.endDate ? new Date(s.endDate) : undefined),
     active: Boolean(s.active),
@@ -52,7 +53,6 @@ export const ScheduleService = {
                 .from('schedules')
                 .select('*', { count: 'exact' })
                 .eq('user_id', userId)
-                .order('updated_at', { ascending: false, nullsFirst: false })
                 .order('created_at', { ascending: false });
 
             if (searchQuery.trim()) {

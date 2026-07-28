@@ -4,74 +4,103 @@ import { db } from '@/config/db';
 import { SyncManager } from './syncManager';
 import { withTimeout } from '@/lib/utils/timeout';
 import { safeBulkPut } from '@/utils/cacheSyncUtil';
+import { safeParseJson, safeParseArray, safeParseNumber, safeParseObject } from '@/utils/jsonUtil';
 
 const mapGroupFromSupabase = (g: any): ExerciseGroup => {
     if (!g) return null as any;
+    const parsedGroup = safeParseObject(g);
+    const exercisesList = safeParseArray(parsedGroup.exercises);
+
     return {
-        groupType: g.groupType || 'straight',
-        rounds: g.rounds ?? 1,
-        restBetweenRounds: g.restBetweenRounds ?? 0,
-        restAfterGroup: g.restAfterGroup ?? 60,
-        exercises: (g.exercises || []).map((ex: any) => ({
-            exerciseId: ex.exerciseId,
-            exerciseName: ex.exerciseName,
-            sets: (ex.sets || []).map((s: any) => ({
-                reps: s.reps ?? 10,
-                weight: s.weight,
-                restTime: s.restTime ?? 60,
-                technique: s.technique || 'normal',
-                notes: s.notes,
-            })),
-            restAfterExercise: ex.restAfterExercise ?? 0,
-            notes: ex.notes,
-            variation: ex.variation || 'none',
-            executionMode: ex.executionMode || 'bilateral',
-        })),
-        notes: g.notes,
+        groupType: parsedGroup.groupType || 'straight',
+        rounds: safeParseNumber(parsedGroup.rounds, 1),
+        restBetweenRounds: safeParseNumber(parsedGroup.restBetweenRounds, 0),
+        restAfterGroup: safeParseNumber(parsedGroup.restAfterGroup, 60),
+        exercises: exercisesList.map((ex: any) => {
+            const parsedEx = safeParseObject(ex);
+            const setsList = safeParseArray(parsedEx.sets);
+
+            return {
+                exerciseId: safeParseNumber(parsedEx.exerciseId, 0),
+                exerciseName: parsedEx.exerciseName || '',
+                sets: setsList.map((s: any) => {
+                    const parsedSet = safeParseObject(s);
+                    return {
+                        reps: safeParseNumber(parsedSet.reps, 10),
+                        weight: parsedSet.weight !== undefined && parsedSet.weight !== null && parsedSet.weight !== '' ? safeParseNumber(parsedSet.weight, 0) : undefined,
+                        restTime: safeParseNumber(parsedSet.restTime, 60),
+                        technique: parsedSet.technique || 'normal',
+                        notes: parsedSet.notes,
+                    };
+                }),
+                restAfterExercise: safeParseNumber(parsedEx.restAfterExercise, 0),
+                notes: parsedEx.notes,
+                variation: parsedEx.variation || 'none',
+                executionMode: parsedEx.executionMode || 'bilateral',
+            };
+        }),
+        notes: parsedGroup.notes,
     };
 };
 
 const mapExecutedGroupFromSupabase = (g: any): ExecutedGroup => {
     if (!g) return null as any;
+    const parsedGroup = safeParseObject(g);
+    const exercisesList = safeParseArray(parsedGroup.exercises);
+
     return {
-        groupType: g.groupType || 'straight',
-        exercises: (g.exercises || []).map((ex: any) => ({
-            exerciseId: ex.exerciseId,
-            exerciseName: ex.exerciseName,
-            variation: ex.variation || 'none',
-            executionMode: ex.executionMode || 'bilateral',
-            sets: (ex.sets || []).map((s: any) => ({
-                reps: s.reps,
-                weight: s.weight,
-                rpe: s.rpe,
-                skipped: s.skipped,
-                technique: s.technique,
-                notes: s.notes,
-                dropset: s.dropset,
-            })),
-        })),
+        groupType: parsedGroup.groupType || 'straight',
+        exercises: exercisesList.map((ex: any) => {
+            const parsedEx = safeParseObject(ex);
+            const setsList = safeParseArray(parsedEx.sets);
+
+            return {
+                exerciseId: safeParseNumber(parsedEx.exerciseId, 0),
+                exerciseName: parsedEx.exerciseName || '',
+                variation: parsedEx.variation || 'none',
+                executionMode: parsedEx.executionMode || 'bilateral',
+                sets: setsList.map((s: any) => {
+                    const parsedSet = safeParseObject(s);
+                    return {
+                        reps: safeParseNumber(parsedSet.reps, 0),
+                        weight: parsedSet.weight !== undefined && parsedSet.weight !== null && parsedSet.weight !== '' ? safeParseNumber(parsedSet.weight, 0) : undefined,
+                        rpe: parsedSet.rpe !== undefined && parsedSet.rpe !== null ? safeParseNumber(parsedSet.rpe, 0) : undefined,
+                        skipped: Boolean(parsedSet.skipped),
+                        technique: parsedSet.technique,
+                        notes: parsedSet.notes,
+                        dropset: safeParseArray(parsedSet.dropset),
+                    };
+                }),
+            };
+        }),
     };
 };
 
-const mapSessionFromSupabase = (s: any): Session => ({
-    id: s.id || crypto.randomUUID(),
-    userId: s.user_id || s.userId || '',
-    workoutId: s.workout_id || s.workoutId || '',
-    workoutName: s.workout_name || s.workoutName || 'Treino sem nome',
-    createdAt: new Date(s.created_at || s.createdAt || new Date()),
-    exercisesToDo: (s.exercises_to_do || []).map(mapGroupFromSupabase),
-    exercisesDone: (s.exercises_done || []).map(mapExecutedGroupFromSupabase),
-    current: s.current_step || {
-        step: 'executing',
+const mapSessionFromSupabase = (s: any): Session => {
+    const rawToDo = safeParseArray(s.exercises_to_do);
+    const rawDone = safeParseArray(s.exercises_done);
+    const defaultStep = {
+        step: 'executing' as const,
         groupIndex: 0,
         exerciseIndex: 0,
         setIndex: 0,
         roundIndex: 0,
-    },
-    duration: s.duration || 0,
-    pausedAt: s.paused_at ? new Date(s.paused_at) : null,
-    resumedAt: s.resumed_at ? new Date(s.resumed_at) : null,
-});
+    };
+
+    return {
+        id: s.id || crypto.randomUUID(),
+        userId: s.user_id || s.userId || '',
+        workoutId: s.workout_id || s.workoutId || '',
+        workoutName: s.workout_name || s.workoutName || 'Treino sem nome',
+        createdAt: new Date(s.created_at || s.createdAt || new Date()),
+        exercisesToDo: rawToDo.map(mapGroupFromSupabase).filter(Boolean),
+        exercisesDone: rawDone.map(mapExecutedGroupFromSupabase).filter(Boolean),
+        current: safeParseObject(s.current_step, defaultStep),
+        duration: safeParseNumber(s.duration, 0),
+        pausedAt: s.paused_at ? new Date(s.paused_at) : null,
+        resumedAt: s.resumed_at ? new Date(s.resumed_at) : null,
+    };
+};
 
 const toISOString = (d: Date | string | null | undefined): string | null => {
     if (!d) return null;

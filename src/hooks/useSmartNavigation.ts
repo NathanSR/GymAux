@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect } from 'react';
 import { useRouter, usePathname } from '@/i18n/routing';
+import { OverlayStackManager } from './useOverlayStack';
 
 const HISTORY_STORAGE_KEY = 'gymaux_spa_history';
 
@@ -246,14 +247,7 @@ export function useSmartNavigation(options: UseSmartNavigationOptions = {}) {
                 }
             }
 
-            // Se houver algum modal ou drawer aberto no DOM, não disparar navegação de página
-            const hasOpenOverlay =
-                document.querySelector('[role="dialog"]:not([data-state="closed"])') !== null ||
-                document.querySelector('[aria-modal="true"]:not([data-state="closed"])') !== null ||
-                document.querySelector('[data-overlay="true"]:not([data-state="closed"])') !== null ||
-                document.querySelector('.drawer-content:not([data-state="closed"])') !== null;
-
-            if (hasOpenOverlay) return;
+            if (OverlayStackManager.hasOpenOverlays()) return;
 
             e.preventDefault();
             goBack();

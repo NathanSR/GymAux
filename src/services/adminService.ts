@@ -86,7 +86,6 @@ export const adminService = {
         const { data, error } = await supabase
             .from('workouts')
             .select('*, profiles(name, avatar)')
-            .order('updated_at', { ascending: false, nullsFirst: false })
             .order('created_at', { ascending: false });
 
         if (error) {

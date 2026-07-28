@@ -3,6 +3,7 @@ import { Session, ExecutedSet, Exercise } from '@/config/types';
 import { useSessionNavigation } from '@/hooks/useSessionNavigation';
 import { useSessionActions } from '@/hooks/useSessionActions';
 import { useAlerts } from '@/hooks/useAlerts';
+import { OverlayStackManager } from './useOverlayStack';
 import { useTranslations } from 'next-intl';
 import { SessionService } from '@/services/sessionService';
 import { ExerciseService } from '@/services/exerciseService';
@@ -60,10 +61,7 @@ export function useSessionClient({ initialSession, isReadOnly = false, watchValu
             window.history.pushState({ ...window.history.state, __sessionTrap: true }, '', window.location.href);
         }
         const handleBackButton = (event: PopStateEvent) => {
-            if (event.state && (event.state.__modalId || event.state.__drawerId)) {
-                return;
-            }
-            const hasOverlayOpen = showPreview || document.querySelector('[role="dialog"]:not([data-state="closed"])') !== null;
+            const hasOverlayOpen = showPreview || OverlayStackManager.hasOpenOverlays();
             if (hasOverlayOpen) {
                 return;
             }

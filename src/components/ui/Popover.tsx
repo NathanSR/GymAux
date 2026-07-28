@@ -4,6 +4,7 @@ import React, { useEffect, useState, useRef, useCallback, useLayoutEffect } from
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/utils/cn';
+import { useOverlayStack } from '@/hooks/useOverlayStack';
 
 export type PopoverSide = 'bottom' | 'top' | 'left' | 'right';
 export type PopoverAlign = 'start' | 'center' | 'end';
@@ -62,15 +63,19 @@ export function Popover({
 
   const containerRef = useRef<HTMLDivElement>(null);
   const popoverContentRef = useRef<HTMLDivElement>(null);
-  const onCloseRef = useRef(onClose);
+  const popoverIdRef = useRef(`popover-${Math.random().toString(36).substring(2, 9)}`);
+
+  useOverlayStack({
+    id: popoverIdRef.current,
+    isOpen,
+    onClose,
+    type: 'popover',
+    pushHistory: false
+  });
 
   useEffect(() => {
     setMounted(true);
   }, []);
-
-  useEffect(() => {
-    onCloseRef.current = onClose;
-  }, [onClose]);
 
   // Recalculate position relative to triggerRef
   const updatePosition = useCallback(() => {
@@ -171,29 +176,7 @@ export function Popover({
     };
   }, [isOpen, updatePosition]);
 
-  // Handle ESC key
-  useEffect(() => {
-    if (!isOpen) return;
 
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        const dialogs = document.querySelectorAll('[role="dialog"]:not([data-state="closed"])');
-        const isTopmost = dialogs.length === 0 || dialogs[dialogs.length - 1] === containerRef.current;
-        if (!isTopmost) return;
-
-        e.preventDefault();
-        e.stopPropagation();
-        e.stopImmediatePropagation();
-        onCloseRef.current();
-      }
-    };
-
-    window.addEventListener('keydown', handleEscape, true);
-
-    return () => {
-      window.removeEventListener('keydown', handleEscape, true);
-    };
-  }, [isOpen]);
 
   if (!mounted) return null;
 

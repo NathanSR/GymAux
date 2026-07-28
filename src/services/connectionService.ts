@@ -3,6 +3,7 @@ import { db } from '@/config/db';
 import { Connection } from '@/config/types';
 import { Student } from '@/components/trainers/StudentCard';
 import { withTimeout } from '@/lib/utils/timeout';
+import { safeParseObject } from '@/utils/jsonUtil';
 
 export type ConnectionStatus = 'pending' | 'active' | 'revoked';
 
@@ -213,15 +214,18 @@ export const connectionService = {
             if (error) throw error;
             if (!data) return false;
 
+            const perms = safeParseObject(data.permissions);
+
             if (typeof window !== 'undefined') {
                 await db.connections.put({
                     trainer_id: trainerId,
                     student_id: studentId,
-                    ...data
+                    ...data,
+                    permissions: perms
                 } as any);
             }
 
-            return !!data.permissions[permission];
+            return !!perms[permission];
         } catch (error) {
             console.warn('[connectionService] checkPermission failed, assuming false or relying on local:', error);
             return false;

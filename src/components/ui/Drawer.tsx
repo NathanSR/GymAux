@@ -6,6 +6,7 @@ import { motion, AnimatePresence, useDragControls, PanInfo } from 'framer-motion
 import { X, ChevronDown, ArrowLeft, Maximize2, Minimize2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/utils/cn';
+import { useOverlayStack } from '@/hooks/useOverlayStack';
 
 export type DrawerSide = 'top' | 'bottom' | 'left' | 'right';
 
@@ -136,93 +137,21 @@ export function Drawer({
     }
   }, [isOpen]);
 
-  const onCloseRef = React.useRef(onClose);
-  const isExpandedRef = React.useRef(isExpanded);
-  const setIsExpandedRef = React.useRef(setIsExpanded);
-
-  useEffect(() => {
-    onCloseRef.current = onClose;
-    isExpandedRef.current = isExpanded;
-    setIsExpandedRef.current = setIsExpanded;
-  }, [onClose, isExpanded, setIsExpanded]);
-
-  // Handle ESC key, mobile back button (popstate), and body scroll lock
-  useEffect(() => {
-    if (!isOpen) return;
-
-    // Lock body scroll and pull-to-refresh
-    document.body.style.overflow = 'hidden';
-    document.body.classList.add('drawer-open');
-
-    // Push history state on open if not already pushed
-    if (typeof window !== 'undefined' && !isPushedRef.current) {
-      window.history.pushState({ ...window.history.state, __drawerId: drawerId, __currentOverlayId: drawerId }, '');
-      isPushedRef.current = true;
+  const handleOverlayClose = useCallback(() => {
+    if (isExpanded) {
+      setIsExpanded(false);
+    } else {
+      onClose();
     }
+  }, [isExpanded, setIsExpanded, onClose]);
 
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        const dialogs = document.querySelectorAll('[role="dialog"]:not([data-state="closed"])');
-        const isTopmost = dialogs.length === 0 || dialogs[dialogs.length - 1] === containerRef.current;
-        if (!isTopmost) return;
-
-        e.preventDefault();
-        e.stopPropagation();
-        e.stopImmediatePropagation();
-        if (isExpandedRef.current) {
-          setIsExpandedRef.current(false);
-        } else {
-          onCloseRef.current();
-        }
-      }
-    };
-
-    const handlePopState = (e: PopStateEvent) => {
-      if (e.state && e.state.__modalId) {
-        return;
-      }
-      if (e.state && e.state.__drawerId === drawerId) {
-        return;
-      }
-      isPopStateTriggeredRef.current = true;
-      isPushedRef.current = false;
-      if (isExpandedRef.current) {
-        setIsExpandedRef.current(false);
-        // Push state back so next back press will close the drawer
-        if (typeof window !== 'undefined') {
-          window.history.pushState({ ...window.history.state, __drawerId: drawerId, __currentOverlayId: drawerId }, '');
-          isPushedRef.current = true;
-          isPopStateTriggeredRef.current = false;
-        }
-      } else {
-        onCloseRef.current();
-      }
-    };
-
-    window.addEventListener('keydown', handleEscape, true);
-    window.addEventListener('popstate', handlePopState);
-
-    return () => {
-      document.body.style.overflow = 'unset';
-      document.body.classList.remove('drawer-open');
-      window.removeEventListener('keydown', handleEscape, true);
-      window.removeEventListener('popstate', handlePopState);
-
-      if (
-        isPushedRef.current &&
-        !isPopStateTriggeredRef.current &&
-        typeof window !== 'undefined' &&
-        window.history.state &&
-        (window.history.state.__drawerId === drawerId || window.history.state.__currentOverlayId === drawerId)
-      ) {
-        isPushedRef.current = false;
-        window.history.back();
-      } else {
-        isPushedRef.current = false;
-      }
-      isPopStateTriggeredRef.current = false;
-    };
-  }, [isOpen, drawerId]);
+  useOverlayStack({
+    id: drawerIdRef.current,
+    isOpen,
+    onClose: handleOverlayClose,
+    type: 'drawer',
+    pushHistory: true
+  });
 
   const handleDragEnd = (_: any, info: PanInfo) => {
     if (side !== 'bottom' || !enableDrag) return;

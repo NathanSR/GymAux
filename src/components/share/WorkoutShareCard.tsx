@@ -48,7 +48,10 @@ export const WorkoutShareCard = forwardRef<HTMLDivElement, WorkoutShareCardProps
         return rawUrl.replace(/^https?:\/\//, '').replace(/\/.*$/, '').toLowerCase();
     };
 
-    const formattedDate = new Date(data.date).toLocaleDateString(locale, {
+    const rawDate = data?.date ? new Date(data.date) : new Date();
+    const validDate = isNaN(rawDate.getTime()) ? new Date() : rawDate;
+
+    const formattedDate = validDate.toLocaleDateString(locale, {
         day: '2-digit',
         month: 'short',
         year: 'numeric'

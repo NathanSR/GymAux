@@ -6,41 +6,70 @@ import { connectionService } from './connectionService';
 import { withTimeout } from '@/lib/utils/timeout';
 import { getEffectiveTime, sortByNewest } from '@/utils/dateUtil';
 import { safeBulkPut } from '@/utils/cacheSyncUtil';
+import { safeParseJson, safeParseArray, safeParseNumber, safeParseObject } from '@/utils/jsonUtil';
 
-const mapGroupFromSupabase = (g: any): ExerciseGroup => ({
-    groupType: g.groupType || 'straight',
-    rounds: g.rounds ?? 1,
-    restBetweenRounds: g.restBetweenRounds ?? 0,
-    restAfterGroup: g.restAfterGroup ?? 60,
-    exercises: (g.exercises || []).map((ex: any) => ({
-        exerciseId: ex.exerciseId,
-        exerciseName: ex.exerciseName,
-        sets: (ex.sets || []).map((s: any) => ({
-            reps: s.reps ?? 10,
-            weight: s.weight,
-            restTime: s.restTime ?? 60,
-            technique: s.technique || 'normal',
-            notes: s.notes,
-        })),
-        restAfterExercise: ex.restAfterExercise ?? 0,
-        notes: ex.notes,
-        variation: ex.variation || 'none',
-        executionMode: ex.executionMode || 'bilateral',
-    })),
-    notes: g.notes,
-});
+const mapGroupFromSupabase = (g: any): ExerciseGroup => {
+    if (!g) {
+        return {
+            groupType: 'straight',
+            rounds: 1,
+            restBetweenRounds: 0,
+            restAfterGroup: 60,
+            exercises: [],
+        };
+    }
 
-const mapWorkoutFromSupabase = (workout: any): Workout => ({
-    id: workout.id || crypto.randomUUID(),
-    userId: workout.user_id || workout.userId || '',
-    createdBy: workout.created_by || workout.createdBy,
-    createdByType: workout.created_by_type || workout.createdByType,
-    name: workout.name || 'Treino sem nome',
-    description: workout.description || undefined,
-    createdAt: workout.created_at ? new Date(workout.created_at) : (workout.createdAt ? new Date(workout.createdAt) : new Date()),
-    updatedAt: workout.updated_at ? new Date(workout.updated_at) : (workout.updatedAt ? new Date(workout.updatedAt) : undefined),
-    exercises: (workout.exercises || []).map(mapGroupFromSupabase),
-});
+    const parsedGroup = safeParseObject(g);
+    const exercisesList = safeParseArray(parsedGroup.exercises);
+
+    return {
+        groupType: parsedGroup.groupType || 'straight',
+        rounds: safeParseNumber(parsedGroup.rounds, 1),
+        restBetweenRounds: safeParseNumber(parsedGroup.restBetweenRounds, 0),
+        restAfterGroup: safeParseNumber(parsedGroup.restAfterGroup, 60),
+        exercises: exercisesList.map((ex: any) => {
+            const parsedEx = safeParseObject(ex);
+            const setsList = safeParseArray(parsedEx.sets);
+
+            return {
+                exerciseId: safeParseNumber(parsedEx.exerciseId, 0),
+                exerciseName: parsedEx.exerciseName || '',
+                sets: setsList.map((s: any) => {
+                    const parsedSet = safeParseObject(s);
+                    return {
+                        reps: safeParseNumber(parsedSet.reps, 10),
+                        weight: parsedSet.weight !== undefined && parsedSet.weight !== null && parsedSet.weight !== '' ? safeParseNumber(parsedSet.weight, 0) : undefined,
+                        restTime: safeParseNumber(parsedSet.restTime, 60),
+                        technique: parsedSet.technique || 'normal',
+                        notes: parsedSet.notes,
+                    };
+                }),
+                restAfterExercise: safeParseNumber(parsedEx.restAfterExercise, 0),
+                notes: parsedEx.notes,
+                variation: parsedEx.variation || 'none',
+                executionMode: parsedEx.executionMode || 'bilateral',
+            };
+        }),
+        notes: parsedGroup.notes,
+    };
+};
+
+const mapWorkoutFromSupabase = (workout: any): Workout => {
+    if (!workout) return null as any;
+    const exercisesList = safeParseArray(workout.exercises);
+
+    return {
+        id: workout.id || crypto.randomUUID(),
+        userId: workout.user_id || workout.userId || '',
+        createdBy: workout.created_by || workout.createdBy,
+        createdByType: workout.created_by_type || workout.createdByType,
+        name: workout.name || 'Treino sem nome',
+        description: workout.description || undefined,
+        createdAt: workout.created_at ? new Date(workout.created_at) : (workout.createdAt ? new Date(workout.createdAt) : new Date()),
+        updatedAt: workout.updated_at ? new Date(workout.updated_at) : (workout.updatedAt ? new Date(workout.updatedAt) : undefined),
+        exercises: exercisesList.map(mapGroupFromSupabase).filter(Boolean),
+    };
+};
 
 const serializeGroups = (groups: ExerciseGroup[]) =>
     groups.map(g => ({
@@ -106,7 +135,6 @@ export const WorkoutService = {
                 .from('workouts')
                 .select('*', { count: 'exact' })
                 .eq('user_id', userId)
-                .order('updated_at', { ascending: false, nullsFirst: false })
                 .order('created_at', { ascending: false });
 
             if (searchQuery.trim()) {

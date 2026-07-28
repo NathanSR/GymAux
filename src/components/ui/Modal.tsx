@@ -5,6 +5,7 @@ import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 import { cn } from '@/utils/cn';
+import { useOverlayStack } from '@/hooks/useOverlayStack';
 
 interface ModalProps {
   isOpen: boolean;
@@ -40,80 +41,14 @@ export function Modal({
 
   const modalIdRef = React.useRef<string>(`modal-${Math.random().toString(36).substring(2, 9)}`);
   const containerRef = React.useRef<HTMLDivElement>(null);
-  const isPushedRef = React.useRef(false);
-  const isPopStateTriggeredRef = React.useRef(false);
-  const onCloseRef = React.useRef(onClose);
 
-  useEffect(() => {
-    onCloseRef.current = onClose;
-  }, [onClose]);
-
-  useEffect(() => {
-    if (!isOpen) return;
-
-    document.body.style.overflow = 'hidden';
-    document.body.classList.add('modal-open');
-    const modalId = modalIdRef.current;
-    isPopStateTriggeredRef.current = false;
-
-    if (typeof window !== 'undefined' && !isPushedRef.current) {
-      window.history.pushState({ ...window.history.state, __modalId: modalId, __currentOverlayId: modalId }, '');
-      isPushedRef.current = true;
-    }
-
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        const dialogs = document.querySelectorAll('[role="dialog"]:not([data-state="closed"])');
-        const isTopmost = dialogs.length === 0 || dialogs[dialogs.length - 1] === containerRef.current;
-        if (!isTopmost) return;
-
-        e.preventDefault();
-        e.stopPropagation();
-        e.stopImmediatePropagation();
-        onCloseRef.current();
-      }
-    };
-
-    const handlePopState = (e: PopStateEvent) => {
-      // Se a navegação retornou para o histórico DESTE modal, ele deve PERMANECER aberto!
-      if (e.state && e.state.__modalId === modalId) {
-        return;
-      }
-      isPopStateTriggeredRef.current = true;
-      isPushedRef.current = false;
-      onCloseRef.current();
-    };
-
-    window.addEventListener('keydown', handleEscape, true);
-    window.addEventListener('popstate', handlePopState);
-
-    return () => {
-      const remainingDialogs = document.querySelectorAll('[role="dialog"][data-state="open"]');
-      if (remainingDialogs.length <= 1) {
-        document.body.style.overflow = 'unset';
-        document.body.classList.remove('modal-open');
-      }
-      window.removeEventListener('keydown', handleEscape, true);
-      window.removeEventListener('popstate', handlePopState);
-
-      // Se o modal foi fechado pela UI (botão X, backdrop, ESC ou alteração de isOpen)
-      // e o estado no topo da pilha do browser ainda for o histórico DESTE modal,
-      // realizamos o history.back() para desempilhar a entrada fantasma.
-      if (
-        isPushedRef.current &&
-        !isPopStateTriggeredRef.current &&
-        typeof window !== 'undefined' &&
-        window.history.state &&
-        (window.history.state.__modalId === modalId || window.history.state.__currentOverlayId === modalId)
-      ) {
-        isPushedRef.current = false;
-        window.history.back();
-      } else {
-        isPushedRef.current = false;
-      }
-      isPopStateTriggeredRef.current = false;
-    };
-  }, [isOpen]);
+  useOverlayStack({
+    id: modalIdRef.current,
+    isOpen,
+    onClose,
+    type: 'modal',
+    pushHistory: true
+  });
 
   if (!mounted) return null;
 

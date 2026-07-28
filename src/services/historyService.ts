@@ -3,39 +3,59 @@ import { History, ExecutedGroup } from '@/config/types';
 import { db } from '@/config/db';
 import { withTimeout } from '@/lib/utils/timeout';
 import { safeBulkPut } from '@/utils/cacheSyncUtil';
+import { safeParseJson, safeParseArray, safeParseNumber, safeParseObject } from '@/utils/jsonUtil';
 
-const mapExecutedGroupFromSupabase = (g: any): ExecutedGroup => ({
-    groupType: g.groupType || 'straight',
-    exercises: (g.exercises || []).map((ex: any) => ({
-        exerciseId: ex.exerciseId,
-        exerciseName: ex.exerciseName,
-        variation: ex.variation || 'none',
-        executionMode: ex.executionMode || 'bilateral',
-        sets: (ex.sets || []).map((s: any) => ({
-            reps: s.reps,
-            weight: s.weight,
-            rpe: s.rpe,
-            skipped: s.skipped,
-            technique: s.technique,
-            notes: s.notes,
-            dropset: s.dropset,
-        })),
-    })),
-});
+const mapExecutedGroupFromSupabase = (g: any): ExecutedGroup => {
+    if (!g) return null as any;
+    const parsedGroup = safeParseObject(g);
+    const exercisesList = safeParseArray(parsedGroup.exercises);
 
-const mapHistoryFromSupabase = (h: any): History => ({
-    id: h.id || crypto.randomUUID(),
-    userId: h.user_id || h.userId || '',
-    workoutId: h.workout_id || h.workoutId || '',
-    workoutName: h.workout_name || h.workoutName || 'Treino sem nome',
-    date: new Date(h.date || new Date()),
-    endDate: h.end_date ? new Date(h.end_date) : (h.endDate ? new Date(h.endDate) : undefined),
-    duration: h.duration ?? undefined,
-    weight: h.weight ?? undefined,
-    description: h.description || undefined,
-    usingCreatine: h.using_creatine ?? undefined,
-    executions: (h.executions || []).map(mapExecutedGroupFromSupabase),
-});
+    return {
+        groupType: parsedGroup.groupType || 'straight',
+        exercises: exercisesList.map((ex: any) => {
+            const parsedEx = safeParseObject(ex);
+            const setsList = safeParseArray(parsedEx.sets);
+
+            return {
+                exerciseId: safeParseNumber(parsedEx.exerciseId, 0),
+                exerciseName: parsedEx.exerciseName || '',
+                variation: parsedEx.variation || 'none',
+                executionMode: parsedEx.executionMode || 'bilateral',
+                sets: setsList.map((s: any) => {
+                    const parsedSet = safeParseObject(s);
+                    return {
+                        reps: safeParseNumber(parsedSet.reps, 0),
+                        weight: parsedSet.weight !== undefined && parsedSet.weight !== null && parsedSet.weight !== '' ? safeParseNumber(parsedSet.weight, 0) : undefined,
+                        rpe: parsedSet.rpe !== undefined && parsedSet.rpe !== null ? safeParseNumber(parsedSet.rpe, 0) : undefined,
+                        skipped: Boolean(parsedSet.skipped),
+                        technique: parsedSet.technique,
+                        notes: parsedSet.notes,
+                        dropset: safeParseArray(parsedSet.dropset),
+                    };
+                }),
+            };
+        }),
+    };
+};
+
+const mapHistoryFromSupabase = (h: any): History => {
+    if (!h) return null as any;
+    const rawExecutions = safeParseArray(h.executions);
+
+    return {
+        id: h.id || crypto.randomUUID(),
+        userId: h.user_id || h.userId || '',
+        workoutId: h.workout_id || h.workoutId || '',
+        workoutName: h.workout_name || h.workoutName || 'Treino sem nome',
+        date: new Date(h.date || new Date()),
+        endDate: h.end_date ? new Date(h.end_date) : (h.endDate ? new Date(h.endDate) : undefined),
+        duration: h.duration !== undefined && h.duration !== null ? safeParseNumber(h.duration, 0) : undefined,
+        weight: h.weight !== undefined && h.weight !== null ? safeParseNumber(h.weight, 0) : undefined,
+        description: h.description || undefined,
+        usingCreatine: h.using_creatine ?? undefined,
+        executions: rawExecutions.map(mapExecutedGroupFromSupabase).filter(Boolean),
+    };
+};
 
 export const HistoryService = {
     async getUserHistory(userId: string, page: number = 1, limit: number = 12, supabaseInput?: any) {

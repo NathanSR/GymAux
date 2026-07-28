@@ -5,6 +5,7 @@ import { SyncManager } from './syncManager';
 import { withTimeout } from '@/lib/utils/timeout';
 import { userService } from './userService';
 import { safeBulkPut } from '@/utils/cacheSyncUtil';
+import { safeParseArray } from '@/utils/jsonUtil';
 
 const inferEquipmentFromTags = (tags: string[], name: string): 'barbell' | 'dumbbell' | 'machine' | 'cable' | 'bodyweight' | 'smith' | 'kettlebell' | 'none' => {
     const t = tags.map(tag => tag.toLowerCase());
@@ -42,7 +43,7 @@ const inferExecutionModeFromTags = (tags: string[], name: string): 'bilateral' |
 };
 
 const mapExerciseFromSupabase = (ex: any): Exercise => {
-    const tags = ex.tags || [];
+    const tags = safeParseArray<string>(ex.tags);
     const name = ex.name || 'Exercício sem nome';
     return {
         id: ex.id,
@@ -56,7 +57,7 @@ const mapExerciseFromSupabase = (ex: any): Exercise => {
         mediaUrl: ex.media_url || undefined,
         level: ex.level as any,
         visibility: ex.visibility || (ex.created_by_type === 'system' || (ex.id && ex.id < 1000) ? 'public' : (ex.is_public ? 'public' : 'private')),
-        shared_with: ex.shared_with || [],
+        shared_with: safeParseArray<string>(ex.shared_with),
         equipment: ex.equipment || inferEquipmentFromTags(tags, name),
         executionMode: ex.execution_mode || inferExecutionModeFromTags(tags, name),
         mechanics: ex.mechanics || inferMechanicsFromTags(tags, name),

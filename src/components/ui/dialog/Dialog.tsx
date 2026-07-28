@@ -35,6 +35,7 @@ export function Dialog({
       onClose={onClose}
       title=""
       maxWidth="max-w-md"
+      zIndex="z-[200]"
     >
       <div className="p-6 sm:p-8 flex flex-col items-center text-center">
         <motion.div

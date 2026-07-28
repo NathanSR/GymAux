@@ -7,8 +7,9 @@ export async function generateWorkoutImageBlob(element: HTMLElement): Promise<Bl
     try {
         const blob = await toBlob(element, {
             pixelRatio: 2,
-            cacheBust: true,
+            cacheBust: false,
             backgroundColor: '#09090b', // zinc-950
+            imagePlaceholder: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=',
             style: {
                 transform: 'scale(1)',
                 transformOrigin: 'top left'
@@ -101,27 +102,44 @@ export function downloadImageBlob(blob: Blob, filename: string = 'gymaux-treino.
 
 import { Session, History } from '@/config/types';
 import { WorkoutShareData, ShareExerciseItem, ShareExerciseGroup } from '@/components/share/WorkoutShareCard';
+import { safeParseArray, safeParseObject, safeParseNumber } from '@/utils/jsonUtil';
 
 export function mapSessionToShareData(session: Session, userWeight?: number): WorkoutShareData {
+    if (!session) {
+        return {
+            workoutName: 'Treino Finalizado',
+            date: new Date(),
+            duration: 0,
+            weight: userWeight,
+            exercises: [],
+            groups: []
+        };
+    }
+
     const exercises: ShareExerciseItem[] = [];
     const groups: ShareExerciseGroup[] = [];
     let totalVolume = 0;
 
-    const rawGroups = session.exercisesDone || [];
-    rawGroups.forEach((group) => {
+    const rawGroups = safeParseArray(session.exercisesDone);
+    rawGroups.forEach((g: any) => {
+        const group = safeParseObject(g);
         const groupType = group.groupType || 'straight';
         const groupExercises: ShareExerciseItem[] = [];
 
-        (group.exercises || []).forEach((ex) => {
-            const validSets = (ex.sets || []).filter((s) => !s.skipped);
+        const exercisesList = safeParseArray(group.exercises);
+        exercisesList.forEach((e: any) => {
+            const ex = safeParseObject(e);
+            const setsList = safeParseArray(ex.sets);
+            const validSets = setsList.filter((s: any) => !s?.skipped);
             let bestWeight = 0;
             let bestReps = 0;
             let hasDropset = false;
             let mainTechnique: string | undefined = undefined;
 
-            validSets.forEach((s) => {
-                const w = s.weight || 0;
-                const r = s.reps || 0;
+            validSets.forEach((st: any) => {
+                const s = safeParseObject(st);
+                const w = safeParseNumber(s.weight, 0);
+                const r = safeParseNumber(s.reps, 0);
                 totalVolume += w * r;
                 if (w > bestWeight) bestWeight = w;
                 if (r > bestReps) bestReps = r;
@@ -130,19 +148,19 @@ export function mapSessionToShareData(session: Session, userWeight?: number): Wo
                     mainTechnique = s.technique;
                 }
 
-                if (s.technique === 'drop_set' || (s.dropset && s.dropset.length > 0)) {
+                const dropsetList = safeParseArray(s.dropset);
+                if (s.technique === 'drop_set' || dropsetList.length > 0) {
                     hasDropset = true;
-                    if (s.dropset) {
-                        s.dropset.forEach((d) => {
-                            totalVolume += (d.weight || 0) * (d.reps || 0);
-                        });
-                    }
+                    dropsetList.forEach((d: any) => {
+                        const drop = safeParseObject(d);
+                        totalVolume += safeParseNumber(drop.weight, 0) * safeParseNumber(drop.reps, 0);
+                    });
                 }
             });
 
             if (validSets.length > 0) {
                 const item: ShareExerciseItem = {
-                    name: ex.exerciseName,
+                    name: ex.exerciseName || 'Exercício',
                     setsCount: validSets.length,
                     bestWeight: bestWeight > 0 ? bestWeight : undefined,
                     bestReps: bestReps > 0 ? bestReps : undefined,
@@ -163,9 +181,12 @@ export function mapSessionToShareData(session: Session, userWeight?: number): Wo
         }
     });
 
+    const rawDate = session?.createdAt ? new Date(session.createdAt) : new Date();
+    const validDate = isNaN(rawDate.getTime()) ? new Date() : rawDate;
+
     return {
         workoutName: session.workoutName || 'Treino Finalizado',
-        date: session.createdAt || new Date(),
+        date: validDate,
         duration: session.duration || 0,
         weight: userWeight,
         totalVolume: totalVolume > 0 ? Math.round(totalVolume) : undefined,
@@ -175,25 +196,40 @@ export function mapSessionToShareData(session: Session, userWeight?: number): Wo
 }
 
 export function mapHistoryToShareData(history: History): WorkoutShareData {
+    if (!history) {
+        return {
+            workoutName: 'Treino Finalizado',
+            date: new Date(),
+            duration: 0,
+            exercises: [],
+            groups: []
+        };
+    }
+
     const exercises: ShareExerciseItem[] = [];
     const groups: ShareExerciseGroup[] = [];
     let totalVolume = 0;
 
-    const rawGroups = history.executions || [];
-    rawGroups.forEach((group) => {
+    const rawGroups = safeParseArray(history.executions);
+    rawGroups.forEach((g: any) => {
+        const group = safeParseObject(g);
         const groupType = group.groupType || 'straight';
         const groupExercises: ShareExerciseItem[] = [];
 
-        (group.exercises || []).forEach((ex) => {
-            const validSets = (ex.sets || []).filter((s) => !s.skipped);
+        const exercisesList = safeParseArray(group.exercises);
+        exercisesList.forEach((e: any) => {
+            const ex = safeParseObject(e);
+            const setsList = safeParseArray(ex.sets);
+            const validSets = setsList.filter((s: any) => !s?.skipped);
             let bestWeight = 0;
             let bestReps = 0;
             let hasDropset = false;
             let mainTechnique: string | undefined = undefined;
 
-            validSets.forEach((s) => {
-                const w = s.weight || 0;
-                const r = s.reps || 0;
+            validSets.forEach((st: any) => {
+                const s = safeParseObject(st);
+                const w = safeParseNumber(s.weight, 0);
+                const r = safeParseNumber(s.reps, 0);
                 totalVolume += w * r;
                 if (w > bestWeight) bestWeight = w;
                 if (r > bestReps) bestReps = r;
@@ -202,19 +238,19 @@ export function mapHistoryToShareData(history: History): WorkoutShareData {
                     mainTechnique = s.technique;
                 }
 
-                if (s.technique === 'drop_set' || (s.dropset && s.dropset.length > 0)) {
+                const dropsetList = safeParseArray(s.dropset);
+                if (s.technique === 'drop_set' || dropsetList.length > 0) {
                     hasDropset = true;
-                    if (s.dropset) {
-                        s.dropset.forEach((d) => {
-                            totalVolume += (d.weight || 0) * (d.reps || 0);
-                        });
-                    }
+                    dropsetList.forEach((d: any) => {
+                        const drop = safeParseObject(d);
+                        totalVolume += safeParseNumber(drop.weight, 0) * safeParseNumber(drop.reps, 0);
+                    });
                 }
             });
 
             if (validSets.length > 0) {
                 const item: ShareExerciseItem = {
-                    name: ex.exerciseName,
+                    name: ex.exerciseName || 'Exercício',
                     setsCount: validSets.length,
                     bestWeight: bestWeight > 0 ? bestWeight : undefined,
                     bestReps: bestReps > 0 ? bestReps : undefined,
@@ -235,9 +271,12 @@ export function mapHistoryToShareData(history: History): WorkoutShareData {
         }
     });
 
+    const rawDate = history?.date ? new Date(history.date) : new Date();
+    const validDate = isNaN(rawDate.getTime()) ? new Date() : rawDate;
+
     return {
         workoutName: history.workoutName || 'Treino Finalizado',
-        date: history.date || new Date(),
+        date: validDate,
         duration: history.duration || 0,
         weight: history.weight,
         totalVolume: totalVolume > 0 ? Math.round(totalVolume) : undefined,
@@ -245,4 +284,5 @@ export function mapHistoryToShareData(history: History): WorkoutShareData {
         groups
     };
 }
+
 

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect, useMemo } from 'react';
 import { Share2, Download, Copy, Loader2, Sparkles, Check } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Modal } from '@/components/ui/Modal';
@@ -28,9 +28,31 @@ export function WorkoutShareModal({ isOpen, onClose, data }: WorkoutShareModalPr
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
     const [copied, setCopied] = useState(false);
 
-    // Gerar a imagem quando o modal for aberto com dados válidos
+    const activeData: WorkoutShareData = data || {
+        workoutName: 'Treino Finalizado',
+        date: new Date(),
+        duration: 0,
+        exercises: [],
+        groups: []
+    };
+
+    const dataKey = useMemo(() => {
+        if (!data) return '';
+        return `${data.workoutName}-${new Date(data.date).getTime()}-${data.exercises?.length || 0}`;
+    }, [data?.workoutName, data?.date, data?.exercises?.length]);
+
+    // Cleanup de URLs de objeto de preview para evitar memory leaks
     useEffect(() => {
-        if (!isOpen || !data) {
+        return () => {
+            if (previewUrl) {
+                URL.revokeObjectURL(previewUrl);
+            }
+        };
+    }, [previewUrl]);
+
+    // Gerar a imagem quando o modal for aberto
+    useEffect(() => {
+        if (!isOpen) {
             setImageBlob(null);
             setPreviewUrl(null);
             setCopied(false);
@@ -43,16 +65,16 @@ export function WorkoutShareModal({ isOpen, onClose, data }: WorkoutShareModalPr
             try {
                 setIsGenerating(true);
                 // Pequeno delay para garantir que o DOM do cardRef foi completamente renderizado com estilos
-                await new Promise((res) => setTimeout(res, 150));
+                await new Promise((res) => setTimeout(res, 200));
 
-                if (!cardRef.current) return;
+                if (!cardRef.current || !isMounted) return;
 
                 const blob = await generateWorkoutImageBlob(cardRef.current);
                 if (!isMounted) return;
 
+                const createdUrl = URL.createObjectURL(blob);
                 setImageBlob(blob);
-                const url = URL.createObjectURL(blob);
-                setPreviewUrl(url);
+                setPreviewUrl(createdUrl);
             } catch (err) {
                 console.error('[WorkoutShareModal] Erro ao gerar preview da imagem:', err);
                 toast.error(t('shareError'));
@@ -67,13 +89,10 @@ export function WorkoutShareModal({ isOpen, onClose, data }: WorkoutShareModalPr
 
         return () => {
             isMounted = false;
-            if (previewUrl) {
-                URL.revokeObjectURL(previewUrl);
-            }
         };
-    }, [isOpen, data]);
+    }, [isOpen, dataKey]);
 
-    if (!isOpen || !data) return null;
+    if (!isOpen) return null;
 
     const handleShare = async () => {
         if (!imageBlob) return;
@@ -81,8 +100,8 @@ export function WorkoutShareModal({ isOpen, onClose, data }: WorkoutShareModalPr
         const file = new File([imageBlob], `treino-${Date.now()}.png`, { type: 'image/png' });
         const shared = await shareWorkoutImageFile(
             file,
-            `GymAux - ${data.workoutName}`,
-            `Acabei de concluir o treino ${data.workoutName} no GymAux! 💪🔥`
+            `GymAux - ${activeData.workoutName}`,
+            `Acabei de concluir o treino ${activeData.workoutName} no GymAux! 💪🔥`
         );
 
         if (shared) {
@@ -93,7 +112,7 @@ export function WorkoutShareModal({ isOpen, onClose, data }: WorkoutShareModalPr
             if (copiedSuccess) {
                 toast.info(t('imageCopied'));
             } else {
-                downloadImageBlob(imageBlob, `gymaux-${data.workoutName.toLowerCase().replace(/\s+/g, '-')}.png`);
+                downloadImageBlob(imageBlob, `gymaux-${activeData.workoutName.toLowerCase().replace(/\s+/g, '-')}.png`);
                 toast.success(t('imageDownloaded'));
             }
         }
@@ -113,7 +132,7 @@ export function WorkoutShareModal({ isOpen, onClose, data }: WorkoutShareModalPr
 
     const handleDownload = () => {
         if (!imageBlob) return;
-        const filename = `gymaux-${data.workoutName.toLowerCase().replace(/\s+/g, '-')}.png`;
+        const filename = `gymaux-${activeData.workoutName.toLowerCase().replace(/\s+/g, '-')}.png`;
         downloadImageBlob(imageBlob, filename);
         toast.success(t('imageDownloaded'));
     };
@@ -122,7 +141,7 @@ export function WorkoutShareModal({ isOpen, onClose, data }: WorkoutShareModalPr
         <>
             {/* Elemento Oculto Renderizado para Captura do html-to-image */}
             <div className="fixed top-[-9999px] left-[-9999px] pointer-events-none z-[-1]">
-                <WorkoutShareCard ref={cardRef} data={data} />
+                <WorkoutShareCard ref={cardRef} data={activeData} />
             </div>
 
             {/* Modal Interativo de Preview & Ações */}
@@ -131,6 +150,7 @@ export function WorkoutShareModal({ isOpen, onClose, data }: WorkoutShareModalPr
                 onClose={onClose}
                 title={t('shareModalTitle')}
                 maxWidth="max-w-md"
+                zIndex="z-[250]"
             >
                 <div className="p-6 space-y-6 flex flex-col items-center">
                     {/* Área de Preview da Imagem Gerada */}
