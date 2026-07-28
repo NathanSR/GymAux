@@ -23,12 +23,12 @@ const mapExecutedGroupFromSupabase = (g: any): ExecutedGroup => ({
 });
 
 const mapHistoryFromSupabase = (h: any): History => ({
-    id: h.id,
-    userId: h.user_id,
-    workoutId: h.workout_id,
-    workoutName: h.workout_name,
-    date: new Date(h.date),
-    endDate: h.end_date ? new Date(h.end_date) : undefined,
+    id: h.id || crypto.randomUUID(),
+    userId: h.user_id || h.userId || '',
+    workoutId: h.workout_id || h.workoutId || '',
+    workoutName: h.workout_name || h.workoutName || 'Treino sem nome',
+    date: new Date(h.date || new Date()),
+    endDate: h.end_date ? new Date(h.end_date) : (h.endDate ? new Date(h.endDate) : undefined),
     duration: h.duration ?? undefined,
     weight: h.weight ?? undefined,
     description: h.description || undefined,
@@ -55,11 +55,20 @@ export const HistoryService = {
 
             if (error) throw error;
 
-            const history = (data || []).map(mapHistoryFromSupabase);
+            const history = (data || []).map((h: any) => {
+                const mapped = mapHistoryFromSupabase(h);
+                if (!mapped.userId && userId) mapped.userId = userId;
+                return mapped;
+            });
 
             // Cache to Dexie for offline access
             if (typeof window !== 'undefined' && history.length > 0) {
-                await db.history.bulkPut(history).catch(() => {});
+                const validHistory = history.filter((h: History) => Boolean(h.id && h.userId));
+                if (validHistory.length > 0) {
+                    await db.history.bulkPut(validHistory).catch(err => {
+                        console.error('[HistoryService] getUserHistory Dexie bulkPut failed:', err);
+                    });
+                }
             }
 
             return history;
@@ -98,11 +107,20 @@ export const HistoryService = {
 
             if (error) throw error;
 
-            const history = (data || []).map(mapHistoryFromSupabase);
+            const history = (data || []).map((h: any) => {
+                const mapped = mapHistoryFromSupabase(h);
+                if (!mapped.userId && userId) mapped.userId = userId;
+                return mapped;
+            });
 
             // Cache to Dexie
             if (typeof window !== 'undefined' && history.length > 0) {
-                await db.history.bulkPut(history).catch(() => {});
+                const validHistory = history.filter((h: History) => Boolean(h.id && h.userId));
+                if (validHistory.length > 0) {
+                    await db.history.bulkPut(validHistory).catch(err => {
+                        console.error('[HistoryService] getHistoryByRange Dexie bulkPut failed:', err);
+                    });
+                }
             }
 
             return history;

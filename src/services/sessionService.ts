@@ -53,11 +53,11 @@ const mapExecutedGroupFromSupabase = (g: any): ExecutedGroup => {
 };
 
 const mapSessionFromSupabase = (s: any): Session => ({
-    id: s.id,
-    userId: s.user_id,
-    workoutId: s.workout_id,
-    workoutName: s.workout_name,
-    createdAt: new Date(s.created_at || new Date()),
+    id: s.id || crypto.randomUUID(),
+    userId: s.user_id || s.userId || '',
+    workoutId: s.workout_id || s.workoutId || '',
+    workoutName: s.workout_name || s.workoutName || 'Treino sem nome',
+    createdAt: new Date(s.created_at || s.createdAt || new Date()),
     exercisesToDo: (s.exercises_to_do || []).map(mapGroupFromSupabase),
     exercisesDone: (s.exercises_done || []).map(mapExecutedGroupFromSupabase),
     current: s.current_step || {
@@ -223,9 +223,12 @@ export const SessionService = {
 
             if (data) {
                 const session = mapSessionFromSupabase(data);
+                if (!session.userId && userId) session.userId = userId;
                 // Cache to Dexie for offline access
-                if (typeof window !== 'undefined') {
-                    await db.sessions.put(session).catch(() => {});
+                if (typeof window !== 'undefined' && session.id && session.userId) {
+                    await db.sessions.put(session).catch(err => {
+                        console.error('[SessionService] getActiveSessionByUserId Dexie put failed:', err);
+                    });
                 }
                 return session;
             }
@@ -252,11 +255,20 @@ export const SessionService = {
 
             if (error) throw error;
 
-            const sessions = (data || []).map(mapSessionFromSupabase);
+            const sessions = (data || []).map((s: any) => {
+                const mapped = mapSessionFromSupabase(s);
+                if (!mapped.userId && userId) mapped.userId = userId;
+                return mapped;
+            });
 
             // Cache to Dexie
             if (typeof window !== 'undefined' && sessions.length > 0) {
-                await db.sessions.bulkPut(sessions).catch(() => {});
+                const validSessions = sessions.filter((s: Session) => Boolean(s.id && s.userId));
+                if (validSessions.length > 0) {
+                    await db.sessions.bulkPut(validSessions).catch(err => {
+                        console.error('[SessionService] getSessionsByUserId Dexie bulkPut failed:', err);
+                    });
+                }
             }
 
             return sessions;

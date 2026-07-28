@@ -7,15 +7,15 @@ import { withTimeout } from '@/lib/utils/timeout';
 import { getEffectiveTime, sortByNewest } from '@/utils/dateUtil';
 
 const mapScheduleFromSupabase = (s: any): Schedule => ({
-    id: s.id,
-    name: s.name,
-    userId: s.user_id || s.userId,
+    id: s.id || crypto.randomUUID(),
+    name: s.name || 'Cronograma sem nome',
+    userId: s.user_id || s.userId || '',
     createdBy: s.created_by || s.createdBy,
     createdByType: s.created_by_type || s.createdByType,
-    workouts: s.workouts as (string | null)[],
-    startDate: new Date(s.start_date || s.startDate),
+    workouts: (s.workouts || []) as (string | null)[],
+    startDate: new Date(s.start_date || s.startDate || new Date()),
     endDate: s.end_date ? new Date(s.end_date) : (s.endDate ? new Date(s.endDate) : undefined),
-    active: s.active,
+    active: Boolean(s.active),
     lastCompleted: s.last_completed ?? s.lastCompleted ?? undefined,
     createdAt: s.created_at ? new Date(s.created_at) : (s.createdAt ? new Date(s.createdAt) : undefined),
     updatedAt: s.updated_at ? new Date(s.updated_at) : (s.updatedAt ? new Date(s.updatedAt) : undefined),
@@ -65,28 +65,36 @@ export const ScheduleService = {
 
             if (error) throw error;
 
-            schedules = sortByNewest((data || []).map(mapScheduleFromSupabase));
+            schedules = sortByNewest((data || []).map((s: any) => {
+                const mapped = mapScheduleFromSupabase(s);
+                if (!mapped.userId && userId) mapped.userId = userId;
+                return mapped;
+            }));
             totalCount = count || 0;
 
             if (typeof window !== 'undefined' && schedules.length > 0) {
-                await db.schedules.bulkPut(schedules).catch(() => {});
+                const validSchedules = schedules.filter((s: Schedule) => Boolean(s.id && s.userId));
+                if (validSchedules.length > 0) {
+                    await db.schedules.bulkPut(validSchedules).catch(err => {
+                        console.error('[ScheduleService] getSchedulesByUserId Dexie bulkPut failed:', err);
+                    });
+                }
             }
         } catch (error) {
             console.warn('[ScheduleService] getSchedulesByUserId failed, falling back to local DB:', error);
-        }
-
-        if (typeof window !== 'undefined') {
-            const allLocal = await db.schedules.where('userId').equals(userId).toArray();
-            let filtered = allLocal;
-            if (searchQuery.trim()) {
-                const q = searchQuery.toLowerCase().trim();
-                filtered = allLocal.filter(s => s.name.toLowerCase().includes(q));
+            if (typeof window !== 'undefined') {
+                const allLocal = await db.schedules.where('userId').equals(userId).toArray();
+                let filtered = allLocal;
+                if (searchQuery.trim()) {
+                    const q = searchQuery.toLowerCase().trim();
+                    filtered = allLocal.filter(s => s.name.toLowerCase().includes(q));
+                }
+                filtered = sortByNewest(filtered);
+                totalCount = filtered.length;
+                const from = (pagination.page - 1) * pagination.limit;
+                const to = from + pagination.limit;
+                schedules = filtered.slice(from, to);
             }
-            filtered = sortByNewest(filtered);
-            totalCount = filtered.length;
-            const from = (pagination.page - 1) * pagination.limit;
-            const to = from + pagination.limit;
-            schedules = filtered.slice(from, to);
         }
 
         return {

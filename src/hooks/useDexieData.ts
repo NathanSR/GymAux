@@ -31,7 +31,9 @@ export function useDexieWorkouts(userId?: string | null): Workout[] {
 
     useEffect(() => {
         if (!userId || typeof window === 'undefined' || !navigator.onLine) return;
-        WorkoutService.getWorkoutsByUserId(userId, '', { page: 1, limit: 100 }).catch(() => {});
+        WorkoutService.getWorkoutsByUserId(userId, '', { page: 1, limit: 100 }).catch(err => {
+            console.warn('[useDexieWorkouts] Background sync failed:', err);
+        });
     }, [userId]);
 
     return workouts ?? [];
@@ -57,7 +59,9 @@ export function useDexieActiveSchedule(userId?: string | null): Schedule | null 
 
     useEffect(() => {
         if (!userId || typeof window === 'undefined' || !navigator.onLine) return;
-        ScheduleService.getActiveSchedule(userId).catch(() => {});
+        ScheduleService.getActiveSchedule(userId).catch(err => {
+            console.warn('[useDexieActiveSchedule] Background sync failed:', err);
+        });
     }, [userId]);
 
     return schedule ?? null;
@@ -85,7 +89,9 @@ export function useDexieHistory(userId?: string | null, limit = 20): History[] {
 
     useEffect(() => {
         if (!userId || typeof window === 'undefined' || !navigator.onLine) return;
-        HistoryService.getUserHistory(userId, 1, limit).catch(() => {});
+        HistoryService.getUserHistory(userId, 1, limit).catch(err => {
+            console.warn('[useDexieHistory] Background sync failed:', err);
+        });
     }, [userId, limit]);
 
     return history ?? [];
@@ -114,7 +120,9 @@ export function useDexieActiveSession(userId?: string | null): Session | null {
 
     useEffect(() => {
         if (!userId || typeof window === 'undefined' || !navigator.onLine) return;
-        SessionService.getActiveSessionByUserId(userId).catch(() => {});
+        SessionService.getActiveSessionByUserId(userId).catch(err => {
+            console.warn('[useDexieActiveSession] Background sync failed:', err);
+        });
     }, [userId]);
 
     return session ?? null;
@@ -133,7 +141,9 @@ export function useDexieExercises(): Exercise[] {
 
     useEffect(() => {
         if (typeof window === 'undefined' || !navigator.onLine) return;
-        ExerciseService.getAllExercises({ pagination: { page: 1, limit: 200 } }).catch(() => {});
+        ExerciseService.getAllExercises({ pagination: { page: 1, limit: 200 } }).catch(err => {
+            console.warn('[useDexieExercises] Background sync failed:', err);
+        });
     }, []);
 
     return exercises ?? [];

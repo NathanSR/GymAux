@@ -30,11 +30,11 @@ const mapGroupFromSupabase = (g: any): ExerciseGroup => ({
 });
 
 const mapWorkoutFromSupabase = (workout: any): Workout => ({
-    id: workout.id,
-    userId: workout.user_id || workout.userId,
+    id: workout.id || crypto.randomUUID(),
+    userId: workout.user_id || workout.userId || '',
     createdBy: workout.created_by || workout.createdBy,
     createdByType: workout.created_by_type || workout.createdByType,
-    name: workout.name,
+    name: workout.name || 'Treino sem nome',
     description: workout.description || undefined,
     createdAt: workout.created_at ? new Date(workout.created_at) : (workout.createdAt ? new Date(workout.createdAt) : new Date()),
     updatedAt: workout.updated_at ? new Date(workout.updated_at) : (workout.updatedAt ? new Date(workout.updatedAt) : undefined),
@@ -81,7 +81,12 @@ export const WorkoutService = {
             workouts = sortByNewest((data || []).map(mapWorkoutFromSupabase));
 
             if (typeof window !== 'undefined' && workouts.length > 0) {
-                await db.workouts.bulkPut(workouts).catch(() => {});
+                const validWorkouts = workouts.filter((w: Workout) => Boolean(w.id && w.userId));
+                if (validWorkouts.length > 0) {
+                    await db.workouts.bulkPut(validWorkouts).catch(err => {
+                        console.error('[WorkoutService] getAllWorkouts Dexie bulkPut failed:', err);
+                    });
+                }
             }
         } catch (error) {
             console.warn('[WorkoutService] getAllWorkouts failed, falling back to local DB:', error);
@@ -119,11 +124,20 @@ export const WorkoutService = {
 
             if (error) throw error;
 
-            workouts = sortByNewest((data || []).map(mapWorkoutFromSupabase));
+            workouts = sortByNewest((data || []).map((w: any) => {
+                const mapped = mapWorkoutFromSupabase(w);
+                if (!mapped.userId && userId) mapped.userId = userId;
+                return mapped;
+            }));
             totalCount = count || 0;
 
             if (typeof window !== 'undefined' && workouts.length > 0) {
-                await db.workouts.bulkPut(workouts).catch(() => {});
+                const validWorkouts = workouts.filter((w: Workout) => Boolean(w.id && w.userId));
+                if (validWorkouts.length > 0) {
+                    await db.workouts.bulkPut(validWorkouts).catch(err => {
+                        console.error('[WorkoutService] getWorkoutsByUserId Dexie bulkPut failed:', err);
+                    });
+                }
             }
         } catch (error) {
             console.warn('[WorkoutService] getWorkoutsByUserId failed, falling back to local DB:', error);

@@ -78,18 +78,10 @@ export default function WorkoutsClient({ initialWorkouts, initialTotalCount, use
     useEffect(() => {
         if (!debouncedSearch.trim()) {
             setInitialData(sortByNewest(initialWorkouts));
+        } else {
+            fetchFirstPage();
         }
-    }, [initialWorkouts, debouncedSearch]);
-
-    useEffect(() => {
-        // Se a busca estiver vazia, os dados iniciais providos por props/Dexie já são utilizados
-        if (!debouncedSearch.trim()) {
-            setInitialData(initialWorkouts);
-            return;
-        }
-
-        fetchFirstPage();
-    }, [debouncedSearch, fetchFirstPage]);
+    }, [initialWorkouts, debouncedSearch, fetchFirstPage]);
 
     // Handle online/visibility recovery (somente se houver busca ativa)
     useEffect(() => {

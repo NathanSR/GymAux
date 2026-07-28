@@ -42,14 +42,14 @@ const inferExecutionModeFromTags = (tags: string[], name: string): 'bilateral' |
 
 const mapExerciseFromSupabase = (ex: any): Exercise => {
     const tags = ex.tags || [];
-    const name = ex.name || '';
+    const name = ex.name || 'Exercício sem nome';
     return {
         id: ex.id,
         created_by: ex.created_by,
         created_by_type: ex.created_by_type || "system",
-        name: ex.name,
+        name: name,
         description: ex.description || undefined,
-        category: ex.category as any,
+        category: ex.category || 'core',
         tags: tags,
         howTo: ex.how_to || undefined,
         mediaUrl: ex.media_url || undefined,
@@ -121,9 +121,11 @@ export const ExerciseService = {
 
                 // Sync to local DB for cache (only user/trainer exercises, system ones are seeded)
                 if (typeof window !== 'undefined') {
-                    const userExercises = exercises.filter(ex => ex.created_by_type !== 'system');
+                    const userExercises = exercises.filter((ex: Exercise) => ex.created_by_type !== 'system' && Boolean(ex.id && ex.name && ex.category));
                     if (userExercises.length > 0) {
-                        await db.exercises.bulkPut(userExercises).catch(() => {});
+                        await db.exercises.bulkPut(userExercises).catch(err => {
+                            console.error('[ExerciseService] getAllExercises Dexie bulkPut failed:', err);
+                        });
                     }
                 }
             } catch (error) {
