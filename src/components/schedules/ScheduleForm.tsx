@@ -12,6 +12,7 @@ import { useTranslations } from 'next-intl';
 import { useSession } from '@/hooks/useSession';
 import { WorkoutService } from '@/services/workoutService';
 import { Workout } from '@/config/types';
+import { ScheduleDaysSkeleton } from '@/components/ui/Skeleton';
 
 export const ScheduleForm = ({ initialData, onSubmit, isLoading, userId }: { initialData?: any; onSubmit: (data: any) => void; isLoading?: boolean; userId?: string; }) => {
     const t = useTranslations('ScheduleForm');
@@ -38,13 +39,19 @@ export const ScheduleForm = ({ initialData, onSubmit, isLoading, userId }: { ini
 
     const { activeUser } = useSession();
     const [workouts, setWorkouts] = useState<Workout[]>([]);
+    const [isFetchingWorkouts, setIsFetchingWorkouts] = useState(true);
 
     useEffect(() => {
         const fetchWorkouts = async () => {
+            setIsFetchingWorkouts(true);
             const targetId = userId || activeUser?.id;
-            if (!targetId) return;
+            if (!targetId) {
+                setIsFetchingWorkouts(false);
+                return;
+            }
             const list = await WorkoutService.getWorkoutsByUserId(targetId);
             setWorkouts(list as any);
+            setIsFetchingWorkouts(false);
         };
         fetchWorkouts();
     }, [userId, activeUser?.id]);
@@ -112,37 +119,41 @@ export const ScheduleForm = ({ initialData, onSubmit, isLoading, userId }: { ini
                 <h3 className="text-[10px] font-black uppercase text-zinc-400 px-1 flex items-center gap-2 tracking-[0.2em]">
                     <Dumbbell size={14} className="text-lime-500" /> {t('workoutsTitle')}
                 </h3>
-                <div className="grid grid-cols-1 gap-3">
-                    {daysOfWeek.map((day, index) => (
-                        <div key={day} className="flex items-center gap-4 bg-white dark:bg-zinc-900 p-4 rounded-[24px] border border-zinc-100 dark:border-zinc-800 transition-all hover:border-lime-200 dark:hover:border-lime-900/30">
-                            <div className="w-12 h-12 rounded-2xl bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center font-black text-sm text-zinc-500 dark:text-zinc-400 border border-transparent dark:border-zinc-700/50">
-                                {day.substring(0, 1)}
+                {isFetchingWorkouts ? (
+                    <ScheduleDaysSkeleton />
+                ) : (
+                    <div className="grid grid-cols-1 gap-3">
+                        {daysOfWeek.map((day, index) => (
+                            <div key={day} className="flex items-center gap-4 bg-white dark:bg-zinc-900 p-4 rounded-[24px] border border-zinc-100 dark:border-zinc-800 transition-all hover:border-lime-200 dark:hover:border-lime-900/30">
+                                <div className="w-12 h-12 rounded-2xl bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center font-black text-sm text-zinc-500 dark:text-zinc-400 border border-transparent dark:border-zinc-700/50">
+                                    {day.substring(0, 1)}
+                                </div>
+                                <div className="flex-1">
+                                    <p className="text-[10px] font-black uppercase text-zinc-400 tracking-widest mb-1">{day}</p>
+                                    <select
+                                        value={currentWorkouts[index] || ''}
+                                        onChange={(e) => handleWorkoutChange(index, e.target.value)}
+                                        className="w-full bg-transparent border-none text-sm font-bold focus:ring-0 p-0 text-zinc-900 dark:text-white cursor-pointer appearance-none"
+                                    >
+                                        <option value="" className="dark:bg-zinc-900">{t('noWorkout')}</option>
+                                        {workouts.map(w => (
+                                            <option key={w.id} value={w.id} className="dark:bg-zinc-900">{w.name}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                                {currentWorkouts[index] && (
+                                    <button
+                                        type="button"
+                                        onClick={() => handleWorkoutChange(index, null)}
+                                        className="p-3 bg-zinc-50 dark:bg-zinc-800 text-zinc-400 hover:text-red-500 rounded-xl transition-all cursor-pointer"
+                                    >
+                                        <X size={18} />
+                                    </button>
+                                )}
                             </div>
-                            <div className="flex-1">
-                                <p className="text-[10px] font-black uppercase text-zinc-400 tracking-widest mb-1">{day}</p>
-                                <select
-                                    value={currentWorkouts[index] || ''}
-                                    onChange={(e) => handleWorkoutChange(index, e.target.value)}
-                                    className="w-full bg-transparent border-none text-sm font-bold focus:ring-0 p-0 text-zinc-900 dark:text-white cursor-pointer appearance-none"
-                                >
-                                    <option value="" className="dark:bg-zinc-900">{t('noWorkout')}</option>
-                                    {workouts.map(w => (
-                                        <option key={w.id} value={w.id} className="dark:bg-zinc-900">{w.name}</option>
-                                    ))}
-                                </select>
-                            </div>
-                            {currentWorkouts[index] && (
-                                <button
-                                    type="button"
-                                    onClick={() => handleWorkoutChange(index, null)}
-                                    className="p-3 bg-zinc-50 dark:bg-zinc-800 text-zinc-400 hover:text-red-500 rounded-xl transition-all cursor-pointer"
-                                >
-                                    <X size={18} />
-                                </button>
-                            )}
-                        </div>
-                    ))}
-                </div>
+                        ))}
+                    </div>
+                )}
             </section>
 
             <button

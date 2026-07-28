@@ -127,25 +127,102 @@ export const BannerSkeleton = () => (
   </div>
 );
 
-export const FormFieldsSkeleton = () => (
-  <div className="max-w-3xl mx-auto space-y-6 w-full animate-in fade-in duration-300">
-    <div className="space-y-2">
-      <Skeleton className="h-3 w-28 rounded-full" />
-      <Skeleton className="h-14 w-full rounded-2xl" />
-    </div>
-    <div className="space-y-2">
-      <Skeleton className="h-3 w-24 rounded-full" />
-      <Skeleton className="h-28 w-full rounded-2xl" />
-    </div>
-    <div className="space-y-2">
-      <Skeleton className="h-3 w-36 rounded-full" />
-      <Skeleton className="h-14 w-full rounded-2xl" />
-    </div>
-    <div className="pt-4">
-      <Skeleton className="h-14 w-full rounded-2xl" />
-    </div>
-  </div>
-);
+export const FormFieldsSkeleton = () => {
+  const containerVariants: Variants = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+        delayChildren: 0.05,
+      },
+    },
+  };
+
+  const itemVariants: Variants = {
+    hidden: { opacity: 0, y: 15 },
+    show: { 
+      opacity: 1, 
+      y: 0, 
+      transition: { 
+        duration: 0.4, 
+        ease: 'easeOut'
+      } 
+    },
+  };
+
+  return (
+    <motion.div 
+      variants={containerVariants}
+      initial="hidden"
+      animate="show"
+      className="max-w-3xl mx-auto space-y-6 w-full"
+    >
+      {/* Text Input Skeleton */}
+      <motion.div variants={itemVariants} className="space-y-2">
+        <Skeleton className="h-3 w-28 rounded-full" />
+        <Skeleton className="h-14 w-full rounded-2xl" />
+      </motion.div>
+      
+      {/* Grid Inputs Skeleton (e.g., Date/Time or Weight/Height) */}
+      <motion.div variants={itemVariants} className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Skeleton className="h-3 w-16 rounded-full" />
+          <Skeleton className="h-14 w-full rounded-2xl" />
+        </div>
+        <div className="space-y-2">
+          <Skeleton className="h-3 w-20 rounded-full" />
+          <Skeleton className="h-14 w-full rounded-2xl" />
+        </div>
+      </motion.div>
+
+      {/* Textarea/Large Input Skeleton */}
+      <motion.div variants={itemVariants} className="space-y-2">
+        <Skeleton className="h-3 w-24 rounded-full" />
+        <Skeleton className="h-28 w-full rounded-2xl" />
+      </motion.div>
+
+      {/* Submit Button Skeleton */}
+      <motion.div variants={itemVariants} className="pt-4">
+        <Skeleton className="h-14 w-full rounded-2xl" />
+      </motion.div>
+    </motion.div>
+  );
+};
+
+export const ScheduleDaysSkeleton = () => {
+  const containerVariants: Variants = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: { staggerChildren: 0.08, delayChildren: 0.05 },
+    },
+  };
+
+  const itemVariants: Variants = {
+    hidden: { opacity: 0, y: 10 },
+    show: { opacity: 1, y: 0, transition: { duration: 0.35, ease: 'easeOut' } },
+  };
+
+  return (
+    <motion.div 
+      variants={containerVariants}
+      initial="hidden"
+      animate="show"
+      className="grid grid-cols-1 gap-3"
+    >
+      {Array.from({ length: 7 }).map((_, i) => (
+        <motion.div key={i} variants={itemVariants} className="flex items-center gap-4 bg-white dark:bg-zinc-900 p-4 rounded-[24px] border border-zinc-100 dark:border-zinc-800 shadow-sm">
+          <Skeleton className="w-12 h-12 rounded-2xl shrink-0" />
+          <div className="flex-1 space-y-2">
+            <Skeleton className="h-2 w-16 rounded-full" />
+            <Skeleton className="h-4 w-32 rounded-full" />
+          </div>
+        </motion.div>
+      ))}
+    </motion.div>
+  );
+};
 
 export const FormSkeleton = () => (
   <div className="min-h-screen bg-white dark:bg-zinc-950 p-6 space-y-8 font-sans transition-colors duration-300">
