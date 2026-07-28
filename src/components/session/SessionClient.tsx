@@ -204,14 +204,23 @@ export default function SessionClient({ initialSession, isReadOnly = false }: Se
                             onClose={() => setShowSubstitute(false)}
                             exerciseId={currentExercise?.exerciseId || null}
                             exerciseName={currentExercise?.exerciseName || null}
-                            onSelectSubstitute={handleSubstituteExercise}
-                            onOpenFullSelector={() => setShowFullSelector(true)}
+                            onSelectSubstitute={(exercise) => {
+                                handleSubstituteExercise(exercise);
+                                setShowSubstitute(false);
+                            }}
+                            onOpenFullSelector={() => {
+                                setShowSubstitute(false);
+                                setShowFullSelector(true);
+                            }}
                         />
 
                         <ExerciseSelector
                             isOpen={showFullSelector}
                             onClose={() => setShowFullSelector(false)}
-                            onSelect={handleSubstituteExercise}
+                            onSelect={(exercise) => {
+                                handleSubstituteExercise(exercise);
+                                setShowFullSelector(false);
+                            }}
                         />
                     </motion.div>
                 )}

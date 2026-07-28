@@ -1624,6 +1624,16 @@
       "clear": "Limpar Dropset",
       "confirm": "Confirmar",
       "infoTip": "Dropset consiste em realizar o exercício até a falha e reduzir a carga imediatamente sem pausa."
+    },
+    "substituteModal": {
+      "title": "Substituir Exercício",
+      "substituteFor": "Substituto para: {name}",
+      "searching": "Buscando alternativas...",
+      "errorLoading": "Falha ao carregar alternativas",
+      "recommendedTitle": "Substitutos Recomendados (Mesmo Músculo)",
+      "noSuggestionsTitle": "Nenhuma sugestão encontrada",
+      "noSuggestionsDesc": "Não encontramos nenhum exercício composto na mesma categoria para substituição automática.",
+      "searchFullCatalog": "Buscar no Catálogo Completo"
     }
   },
   "RestTimer": {
@@ -2041,5 +2051,10 @@
     "lgpdProtected": "Protegido sob LGPD (Lei nº 13.709/2018)",
     "savePreferencesBtn": "Salvar Minhas Escolhas",
     "acceptAllBtn": "Aceitar Todos"
+  },
+  "Levels": {
+    "beginner": "Iniciante",
+    "intermediate": "Intermediário",
+    "advanced": "Avançado"
   }
 }

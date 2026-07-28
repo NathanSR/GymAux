@@ -1624,6 +1624,16 @@
       "clear": "Limpiar Dropset",
       "confirm": "Confirmar",
       "infoTip": "Un dropset consiste en realizar el ejercicio hasta el fallo y reducir el peso inmediatamente sin descanso."
+    },
+    "substituteModal": {
+      "title": "Sustituir Ejercicio",
+      "substituteFor": "Sustituto para: {name}",
+      "searching": "Buscando alternativas...",
+      "errorLoading": "Error al cargar alternativas",
+      "recommendedTitle": "Sustitutos Recomendados (Mismo Músculo)",
+      "noSuggestionsTitle": "No se encontraron sugerencias",
+      "noSuggestionsDesc": "No encontramos ningún ejercicio compuesto en la misma categoría para la sustitución automática.",
+      "searchFullCatalog": "Buscar en el Catálogo Completo"
     }
   },
   "RestTimer": {
@@ -2041,5 +2051,10 @@
     "lgpdProtected": "Protegido bajo la LGPD (Ley nº 13.709/2018)",
     "savePreferencesBtn": "Guardar Mis Elecciones",
     "acceptAllBtn": "Aceptar Todos"
+  },
+  "Levels": {
+    "beginner": "Principiante",
+    "intermediate": "Intermedio",
+    "advanced": "Avanzado"
   }
 }

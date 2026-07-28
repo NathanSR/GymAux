@@ -1624,6 +1624,16 @@
       "clear": "Clear Dropset",
       "confirm": "Confirm",
       "infoTip": "A dropset involves performing an exercise to failure and immediately reducing weight without rest."
+    },
+    "substituteModal": {
+      "title": "Substitute Exercise",
+      "substituteFor": "Substitute for: {name}",
+      "searching": "Searching for alternatives...",
+      "errorLoading": "Failed to load alternatives",
+      "recommendedTitle": "Recommended Substitutes (Same Muscle)",
+      "noSuggestionsTitle": "No suggestions found",
+      "noSuggestionsDesc": "We could not find any compound exercises in the same category for automatic substitution.",
+      "searchFullCatalog": "Search Full Catalog"
     }
   },
   "RestTimer": {
@@ -2041,5 +2051,10 @@
     "lgpdProtected": "Protected under Data Protection Laws (LGPD)",
     "savePreferencesBtn": "Save My Choices",
     "acceptAllBtn": "Accept All"
+  },
+  "Levels": {
+    "beginner": "Beginner",
+    "intermediate": "Intermediate",
+    "advanced": "Advanced"
   }
 }
