@@ -8,7 +8,12 @@ export const CHEST_EXERCISES: any[] = [
         description: "standard_push_up_desc",
         category: "chest",
         tags: ["bodyweight", "compound", "home", "basics"],
-        howTo: "standard_push_up_howto"
+        howTo: "standard_push_up_howto",
+        mediaUrl: "/exercises/peitoral/flexão_pushup.png",
+        equipment: "bodyweight",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "beginner"
     },
     {
         id: 2,
@@ -16,7 +21,12 @@ export const CHEST_EXERCISES: any[] = [
         description: "decline_push_up_desc",
         category: "chest",
         tags: ["bodyweight", "upper_chest", "home"],
-        howTo: "decline_push_up_howto"
+        howTo: "decline_push_up_howto",
+        equipment: "bodyweight",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "beginner",
+        parentId: 1
     },
     {
         id: 3,
@@ -24,7 +34,12 @@ export const CHEST_EXERCISES: any[] = [
         description: "incline_push_up_desc",
         category: "chest",
         tags: ["bodyweight", "lower_chest", "home"],
-        howTo: "incline_push_up_howto"
+        howTo: "incline_push_up_howto",
+        equipment: "bodyweight",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "beginner",
+        parentId: 1
     },
     {
         id: 4,
@@ -32,7 +47,13 @@ export const CHEST_EXERCISES: any[] = [
         description: "diamond_push_up_desc",
         category: "chest",
         tags: ["bodyweight", "triceps", "inner_chest"],
-        howTo: "diamond_push_up_howto"
+        howTo: "diamond_push_up_howto",
+        mediaUrl: "/exercises/peitoral/flexao_diamante.png",
+        equipment: "bodyweight",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate",
+        parentId: 1
     },
     {
         id: 5,
@@ -40,7 +61,12 @@ export const CHEST_EXERCISES: any[] = [
         description: "wide_push_up_desc",
         category: "chest",
         tags: ["bodyweight", "outer_chest", "home"],
-        howTo: "wide_push_up_howto"
+        howTo: "wide_push_up_howto",
+        equipment: "bodyweight",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "beginner",
+        parentId: 1
     },
     {
         id: 6,
@@ -48,7 +74,12 @@ export const CHEST_EXERCISES: any[] = [
         description: "archer_push_up_desc",
         category: "chest",
         tags: ["bodyweight", "unilateral", "advanced"],
-        howTo: "archer_push_up_howto"
+        howTo: "archer_push_up_howto",
+        equipment: "bodyweight",
+        mechanics: "compound",
+        executionMode: "unilateral",
+        level: "advanced",
+        parentId: 1
     },
     {
         id: 7,
@@ -56,7 +87,12 @@ export const CHEST_EXERCISES: any[] = [
         description: "explosive_push_up_desc",
         category: "chest",
         tags: ["bodyweight", "power", "plyometric"],
-        howTo: "explosive_push_up_howto"
+        howTo: "explosive_push_up_howto",
+        equipment: "bodyweight",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate",
+        parentId: 1
     },
     {
         id: 8,
@@ -64,7 +100,11 @@ export const CHEST_EXERCISES: any[] = [
         description: "chest_dips_desc",
         category: "chest",
         tags: ["bodyweight", "compound", "lower_chest", "advanced"],
-        howTo: "chest_dips_howto"
+        howTo: "chest_dips_howto",
+        equipment: "bodyweight",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "advanced"
     },
     {
         id: 9,
@@ -72,7 +112,13 @@ export const CHEST_EXERCISES: any[] = [
         description: "spiderman_push_up_desc",
         category: "chest",
         tags: ["bodyweight", "core", "mobility"],
-        howTo: "spiderman_push_up_howto"
+        howTo: "spiderman_push_up_howto",
+        mediaUrl: "/exercises/core/prancha_spiderman.png",
+        equipment: "bodyweight",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate",
+        parentId: 1
     },
 
     // --- SUPINOS COM BARRA ---
@@ -82,7 +128,12 @@ export const CHEST_EXERCISES: any[] = [
         description: "barbell_bench_press_desc",
         category: "chest",
         tags: ["barbell", "compound", "power", "mass"],
-        howTo: "barbell_bench_press_howto"
+        howTo: "barbell_bench_press_howto",
+        mediaUrl: "/exercises/peitoral/supino_reto_barra.png",
+        equipment: "barbell",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 11,
@@ -90,7 +141,13 @@ export const CHEST_EXERCISES: any[] = [
         description: "incline_barbell_press_desc",
         category: "chest",
         tags: ["barbell", "upper_chest", "compound"],
-        howTo: "incline_barbell_press_howto"
+        howTo: "incline_barbell_press_howto",
+        mediaUrl: "/exercises/peitoral/supino_inclinado_barra.png",
+        equipment: "barbell",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate",
+        parentId: 10
     },
     {
         id: 12,
@@ -98,7 +155,13 @@ export const CHEST_EXERCISES: any[] = [
         description: "decline_barbell_press_desc",
         category: "chest",
         tags: ["barbell", "lower_chest", "compound"],
-        howTo: "decline_barbell_press_howto"
+        howTo: "decline_barbell_press_howto",
+        mediaUrl: "/exercises/peitoral/suplino_declinado_barra.png",
+        equipment: "barbell",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate",
+        parentId: 10
     },
     {
         id: 13,
@@ -106,7 +169,13 @@ export const CHEST_EXERCISES: any[] = [
         description: "close_grip_barbell_press_desc",
         category: "chest",
         tags: ["barbell", "triceps", "inner_chest"],
-        howTo: "close_grip_barbell_press_howto"
+        howTo: "close_grip_barbell_press_howto",
+        mediaUrl: "/exercises/triceps/supino_fechado_barra.png",
+        equipment: "barbell",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate",
+        parentId: 10
     },
     {
         id: 14,
@@ -114,7 +183,12 @@ export const CHEST_EXERCISES: any[] = [
         description: "barbell_floor_press_desc",
         category: "chest",
         tags: ["barbell", "power", "limited_range"],
-        howTo: "barbell_floor_press_howto"
+        howTo: "barbell_floor_press_howto",
+        equipment: "barbell",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate",
+        parentId: 10
     },
 
     // --- SUPINOS COM HALTERES ---
@@ -124,7 +198,11 @@ export const CHEST_EXERCISES: any[] = [
         description: "dumbbell_bench_press_desc",
         category: "chest",
         tags: ["dumbbells", "compound", "unilateral_balance"],
-        howTo: "dumbbell_bench_press_howto"
+        howTo: "dumbbell_bench_press_howto",
+        equipment: "dumbbell",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 16,
@@ -132,7 +210,13 @@ export const CHEST_EXERCISES: any[] = [
         description: "incline_dumbbell_press_desc",
         category: "chest",
         tags: ["dumbbells", "upper_chest", "compound"],
-        howTo: "incline_dumbbell_press_howto"
+        howTo: "incline_dumbbell_press_howto",
+        mediaUrl: "/exercises/peitoral/supino_inclinado_halteres.png",
+        equipment: "dumbbell",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate",
+        parentId: 15
     },
     {
         id: 17,
@@ -140,7 +224,13 @@ export const CHEST_EXERCISES: any[] = [
         description: "decline_dumbbell_press_desc",
         category: "chest",
         tags: ["dumbbells", "lower_chest", "compound"],
-        howTo: "decline_dumbbell_press_howto"
+        howTo: "decline_dumbbell_press_howto",
+        mediaUrl: "/exercises/peitoral/supino_declinado_halteres.png",
+        equipment: "dumbbell",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate",
+        parentId: 15
     },
     {
         id: 18,
@@ -148,7 +238,12 @@ export const CHEST_EXERCISES: any[] = [
         description: "dumbbell_rotation_press_desc",
         category: "chest",
         tags: ["dumbbells", "isolation_focus", "mobility"],
-        howTo: "dumbbell_rotation_press_howto"
+        howTo: "dumbbell_rotation_press_howto",
+        equipment: "dumbbell",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate",
+        parentId: 15
     },
     {
         id: 19,
@@ -156,7 +251,13 @@ export const CHEST_EXERCISES: any[] = [
         description: "squeeze_press_desc",
         category: "chest",
         tags: ["dumbbells", "inner_chest", "isolation"],
-        howTo: "squeeze_press_howto"
+        howTo: "squeeze_press_howto",
+        mediaUrl: "/exercises/peitoral/squeeze_press_halteres.png",
+        equipment: "dumbbell",
+        mechanics: "isolation",
+        executionMode: "bilateral",
+        level: "intermediate",
+        parentId: 15
     },
 
     // --- ISOLADORES (CRUCIFIXOS / VOADOR) ---
@@ -166,7 +267,12 @@ export const CHEST_EXERCISES: any[] = [
         description: "flat_dumbbell_fly_desc",
         category: "chest",
         tags: ["dumbbells", "isolation", "stretch"],
-        howTo: "flat_dumbbell_fly_howto"
+        howTo: "flat_dumbbell_fly_howto",
+        mediaUrl: "/exercises/peitoral/crucifixo_halteres.png",
+        equipment: "dumbbell",
+        mechanics: "isolation",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 21,
@@ -174,7 +280,12 @@ export const CHEST_EXERCISES: any[] = [
         description: "incline_dumbbell_fly_desc",
         category: "chest",
         tags: ["dumbbells", "upper_chest", "isolation"],
-        howTo: "incline_dumbbell_fly_howto"
+        howTo: "incline_dumbbell_fly_howto",
+        equipment: "dumbbell",
+        mechanics: "isolation",
+        executionMode: "bilateral",
+        level: "intermediate",
+        parentId: 20
     },
     {
         id: 22,
@@ -182,7 +293,12 @@ export const CHEST_EXERCISES: any[] = [
         description: "cable_crossover_high_desc",
         category: "chest",
         tags: ["cables", "lower_chest", "isolation"],
-        howTo: "cable_crossover_high_howto"
+        howTo: "cable_crossover_high_howto",
+        mediaUrl: "/exercises/peitoral/crucifixo_crossover_polia.png",
+        equipment: "cable",
+        mechanics: "isolation",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 23,
@@ -190,7 +306,12 @@ export const CHEST_EXERCISES: any[] = [
         description: "cable_crossover_mid_desc",
         category: "chest",
         tags: ["cables", "middle_chest", "isolation"],
-        howTo: "cable_crossover_mid_howto"
+        howTo: "cable_crossover_mid_howto",
+        equipment: "cable",
+        mechanics: "isolation",
+        executionMode: "bilateral",
+        level: "intermediate",
+        parentId: 22
     },
     {
         id: 24,
@@ -198,7 +319,13 @@ export const CHEST_EXERCISES: any[] = [
         description: "cable_crossover_low_desc",
         category: "chest",
         tags: ["cables", "upper_chest", "isolation"],
-        howTo: "cable_crossover_low_howto"
+        howTo: "cable_crossover_low_howto",
+        mediaUrl: "/exercises/peitoral/crossover_pullover_polia.png",
+        equipment: "cable",
+        mechanics: "isolation",
+        executionMode: "bilateral",
+        level: "intermediate",
+        parentId: 22
     },
     {
         id: 25,
@@ -206,7 +333,12 @@ export const CHEST_EXERCISES: any[] = [
         description: "pec_deck_fly_desc",
         category: "chest",
         tags: ["machine", "isolation", "safety"],
-        howTo: "pec_deck_fly_howto"
+        howTo: "pec_deck_fly_howto",
+        mediaUrl: "/exercises/peitoral/voador_peckdeck.png",
+        equipment: "machine",
+        mechanics: "isolation",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 26,
@@ -214,7 +346,11 @@ export const CHEST_EXERCISES: any[] = [
         description: "machine_fly_desc",
         category: "chest",
         tags: ["machine", "isolation", "constant_tension"],
-        howTo: "machine_fly_howto"
+        howTo: "machine_fly_howto",
+        equipment: "machine",
+        mechanics: "isolation",
+        executionMode: "bilateral",
+        level: "beginner"
     },
 
     // --- MÁQUINAS E OUTROS ---
@@ -224,7 +360,11 @@ export const CHEST_EXERCISES: any[] = [
         description: "machine_chest_press_desc",
         category: "chest",
         tags: ["machine", "compound", "safety", "failure"],
-        howTo: "machine_chest_press_howto"
+        howTo: "machine_chest_press_howto",
+        equipment: "machine",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "beginner"
     },
     {
         id: 28,
@@ -232,7 +372,11 @@ export const CHEST_EXERCISES: any[] = [
         description: "smith_machine_press_desc",
         category: "chest",
         tags: ["machine", "smith", "compound", "stability"],
-        howTo: "smith_machine_press_howto"
+        howTo: "smith_machine_press_howto",
+        equipment: "smith",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "beginner"
     },
     {
         id: 29,
@@ -240,7 +384,12 @@ export const CHEST_EXERCISES: any[] = [
         description: "landmine_press_desc",
         category: "chest",
         tags: ["barbell", "upper_chest", "shoulder_health"],
-        howTo: "landmine_press_howto"
+        howTo: "landmine_press_howto",
+        mediaUrl: "/exercises/costas/prensa_unilateral_barra.png",
+        equipment: "barbell",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 30,
@@ -248,7 +397,11 @@ export const CHEST_EXERCISES: any[] = [
         description: "dumbbell_pullover_desc",
         category: "chest",
         tags: ["dumbbells", "stretch", "ribcage"],
-        howTo: "dumbbell_pullover_howto"
+        howTo: "dumbbell_pullover_howto",
+        equipment: "dumbbell",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 31,
@@ -256,7 +409,11 @@ export const CHEST_EXERCISES: any[] = [
         description: "svendsen_press_desc",
         category: "chest",
         tags: ["plate", "isometric", "inner_chest"],
-        howTo: "svendsen_press_howto"
+        howTo: "svendsen_press_howto",
+        equipment: "machine",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     }
 ];
 
@@ -268,7 +425,12 @@ export const BACK_EXERCISES: any[] = [
         description: "pull_up_desc",
         category: "back",
         tags: ["bodyweight", "compound", "vertical_pull", "latissimus"],
-        howTo: "pull_up_howto"
+        howTo: "pull_up_howto",
+        mediaUrl: "/exercises/costas/barra_fixa.png",
+        equipment: "bodyweight",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 51,
@@ -276,7 +438,13 @@ export const BACK_EXERCISES: any[] = [
         description: "chin_up_desc",
         category: "back",
         tags: ["bodyweight", "compound", "biceps", "vertical_pull"],
-        howTo: "chin_up_howto"
+        howTo: "chin_up_howto",
+        mediaUrl: "/exercises/costas/puxada_supinada.png",
+        equipment: "bodyweight",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate",
+        parentId: 50
     },
     {
         id: 52,
@@ -284,7 +452,12 @@ export const BACK_EXERCISES: any[] = [
         description: "neutral_grip_pull_up_desc",
         category: "back",
         tags: ["bodyweight", "compound", "vertical_pull", "safe_shoulders"],
-        howTo: "neutral_grip_pull_up_howto"
+        howTo: "neutral_grip_pull_up_howto",
+        equipment: "bodyweight",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate",
+        parentId: 50
     },
     {
         id: 53,
@@ -292,7 +465,12 @@ export const BACK_EXERCISES: any[] = [
         description: "inverted_row_desc",
         category: "back",
         tags: ["bodyweight", "horizontal_pull", "basics", "home"],
-        howTo: "inverted_row_howto"
+        howTo: "inverted_row_howto",
+        equipment: "bodyweight",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "beginner",
+        parentId: 50
     },
     {
         id: 54,
@@ -300,7 +478,12 @@ export const BACK_EXERCISES: any[] = [
         description: "superman_exercise_desc",
         category: "back",
         tags: ["bodyweight", "isolation", "lower_back", "home"],
-        howTo: "superman_exercise_howto"
+        howTo: "superman_exercise_howto",
+        mediaUrl: "/exercises/cardio_e_multiarticulares/prancha_superman.png",
+        equipment: "bodyweight",
+        mechanics: "isolation",
+        executionMode: "bilateral",
+        level: "beginner"
     },
 
     // --- REMADAS COM BARRA E HALTERES (HORIZONTAIS) ---
@@ -310,7 +493,12 @@ export const BACK_EXERCISES: any[] = [
         description: "barbell_bent_over_row_desc",
         category: "back",
         tags: ["barbell", "compound", "thickness", "mass"],
-        howTo: "barbell_bent_over_row_howto"
+        howTo: "barbell_bent_over_row_howto",
+        mediaUrl: "/exercises/costas/remada_curvada_barra.png",
+        equipment: "barbell",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 56,
@@ -318,7 +506,12 @@ export const BACK_EXERCISES: any[] = [
         description: "pendlay_row_desc",
         category: "back",
         tags: ["barbell", "power", "explosive", "compound"],
-        howTo: "pendlay_row_howto"
+        howTo: "pendlay_row_howto",
+        mediaUrl: "/exercises/costas/remada_meadows.png",
+        equipment: "barbell",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 57,
@@ -326,7 +519,12 @@ export const BACK_EXERCISES: any[] = [
         description: "t_bar_row_desc",
         category: "back",
         tags: ["barbell", "compound", "thickness", "classic"],
-        howTo: "t_bar_row_howto"
+        howTo: "t_bar_row_howto",
+        mediaUrl: "/exercises/costas/remada_cavalinho_barra.png",
+        equipment: "barbell",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 58,
@@ -334,7 +532,12 @@ export const BACK_EXERCISES: any[] = [
         description: "one_arm_dumbbell_row_desc",
         category: "back",
         tags: ["dumbbells", "unilateral", "isolation_focus", "mass"],
-        howTo: "one_arm_dumbbell_row_howto"
+        howTo: "one_arm_dumbbell_row_howto",
+        mediaUrl: "/exercises/costas/remada_unilateral_halter.png",
+        equipment: "dumbbell",
+        mechanics: "compound",
+        executionMode: "unilateral",
+        level: "intermediate"
     },
     {
         id: 59,
@@ -342,7 +545,11 @@ export const BACK_EXERCISES: any[] = [
         description: "seal_row_desc",
         category: "back",
         tags: ["barbell", "dumbbells", "strict_form", "no_swing"],
-        howTo: "seal_row_howto"
+        howTo: "seal_row_howto",
+        equipment: "barbell",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 60,
@@ -350,7 +557,11 @@ export const BACK_EXERCISES: any[] = [
         description: "renegade_row_desc",
         category: "back",
         tags: ["dumbbells", "core", "stability", "compound"],
-        howTo: "renegade_row_howto"
+        howTo: "renegade_row_howto",
+        equipment: "dumbbell",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
 
     // --- PUXADAS EM POLIA (VERTICAIS) ---
@@ -360,7 +571,12 @@ export const BACK_EXERCISES: any[] = [
         description: "lat_pulldown_wide_grip_desc",
         category: "back",
         tags: ["machine", "cables", "width", "latissimus"],
-        howTo: "lat_pulldown_wide_grip_howto"
+        howTo: "lat_pulldown_wide_grip_howto",
+        mediaUrl: "/exercises/costas/puxada_alta_polia.png",
+        equipment: "cable",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 62,
@@ -368,7 +584,12 @@ export const BACK_EXERCISES: any[] = [
         description: "lat_pulldown_close_grip_desc",
         category: "back",
         tags: ["machine", "cables", "inner_back", "vertical_pull"],
-        howTo: "lat_pulldown_close_grip_howto"
+        howTo: "lat_pulldown_close_grip_howto",
+        mediaUrl: "/exercises/costas/puxada_polia.png",
+        equipment: "cable",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 63,
@@ -376,7 +597,11 @@ export const BACK_EXERCISES: any[] = [
         description: "lat_pulldown_behind_neck_desc",
         category: "back",
         tags: ["machine", "cables", "advanced", "mobility"],
-        howTo: "lat_pulldown_behind_neck_howto"
+        howTo: "lat_pulldown_behind_neck_howto",
+        equipment: "cable",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "advanced"
     },
     {
         id: 64,
@@ -384,7 +609,12 @@ export const BACK_EXERCISES: any[] = [
         description: "straight_arm_pulldown_desc",
         category: "back",
         tags: ["cables", "isolation", "latissimus", "stretch"],
-        howTo: "straight_arm_pulldown_howto"
+        howTo: "straight_arm_pulldown_howto",
+        mediaUrl: "/exercises/costas/pulldown_polia_alta.png",
+        equipment: "cable",
+        mechanics: "isolation",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 65,
@@ -392,7 +622,12 @@ export const BACK_EXERCISES: any[] = [
         description: "single_arm_lat_pulldown_desc",
         category: "back",
         tags: ["cables", "unilateral", "symmetry", "vertical_pull"],
-        howTo: "single_arm_lat_pulldown_howto"
+        howTo: "single_arm_lat_pulldown_howto",
+        mediaUrl: "/exercises/costas/pulldown_unilateral_polia.png",
+        equipment: "cable",
+        mechanics: "compound",
+        executionMode: "unilateral",
+        level: "intermediate"
     },
 
     // --- REMADAS EM POLIA E MÁQUINAS ---
@@ -402,7 +637,12 @@ export const BACK_EXERCISES: any[] = [
         description: "seated_cable_row_desc",
         category: "back",
         tags: ["machine", "cables", "thickness", "compound"],
-        howTo: "seated_cable_row_howto"
+        howTo: "seated_cable_row_howto",
+        mediaUrl: "/exercises/costas/remada_baixa_sentada.png",
+        equipment: "cable",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 67,
@@ -410,7 +650,12 @@ export const BACK_EXERCISES: any[] = [
         description: "one_arm_cable_row_desc",
         category: "back",
         tags: ["cables", "unilateral", "rotation", "isolation"],
-        howTo: "one_arm_cable_row_howto"
+        howTo: "one_arm_cable_row_howto",
+        mediaUrl: "/exercises/costas/serrote_polia.png",
+        equipment: "cable",
+        mechanics: "isolation",
+        executionMode: "unilateral",
+        level: "intermediate"
     },
     {
         id: 68,
@@ -418,7 +663,12 @@ export const BACK_EXERCISES: any[] = [
         description: "face_pull_desc",
         category: "back",
         tags: ["cables", "rear_delts", "posture", "upper_back"],
-        howTo: "face_pull_howto"
+        howTo: "face_pull_howto",
+        mediaUrl: "/exercises/costas/voador_reverso_maquina.png",
+        equipment: "cable",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 69,
@@ -426,7 +676,12 @@ export const BACK_EXERCISES: any[] = [
         description: "machine_chest_supported_row_desc",
         category: "back",
         tags: ["machine", "thickness", "isolation_focus", "safety"],
-        howTo: "machine_chest_supported_row_howto"
+        howTo: "machine_chest_supported_row_howto",
+        mediaUrl: "/exercises/costas/remada_inclinada_maquina.png",
+        equipment: "machine",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "beginner"
     },
 
     // --- CADEIA POSTERIOR E LOMBAR ---
@@ -436,7 +691,12 @@ export const BACK_EXERCISES: any[] = [
         description: "deadlift_conventional_desc",
         category: "back",
         tags: ["barbell", "compound", "power", "full_body"],
-        howTo: "deadlift_conventional_howto"
+        howTo: "deadlift_conventional_howto",
+        mediaUrl: "/exercises/posterior de coxa/levantamento_terra_barra.png",
+        equipment: "barbell",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 71,
@@ -444,7 +704,11 @@ export const BACK_EXERCISES: any[] = [
         description: "rack_pull_desc",
         category: "back",
         tags: ["barbell", "power", "traps", "limited_range"],
-        howTo: "rack_pull_howto"
+        howTo: "rack_pull_howto",
+        equipment: "barbell",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 72,
@@ -452,7 +716,12 @@ export const BACK_EXERCISES: any[] = [
         description: "back_extension_desc",
         category: "back",
         tags: ["machine", "bodyweight", "lower_back", "isolation"],
-        howTo: "back_extension_howto"
+        howTo: "back_extension_howto",
+        mediaUrl: "/exercises/core/extensao_lombar.png",
+        equipment: "machine",
+        mechanics: "isolation",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 73,
@@ -460,7 +729,11 @@ export const BACK_EXERCISES: any[] = [
         description: "good_morning_desc",
         category: "back",
         tags: ["barbell", "lower_back", "hamstrings", "posterior_chain"],
-        howTo: "good_morning_howto"
+        howTo: "good_morning_howto",
+        equipment: "barbell",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
 
     // --- TRAPÉZIO (VARIANCE) ---
@@ -470,7 +743,12 @@ export const BACK_EXERCISES: any[] = [
         description: "barbell_shrug_desc",
         category: "back",
         tags: ["barbell", "traps", "isolation", "power"],
-        howTo: "barbell_shrug_howto"
+        howTo: "barbell_shrug_howto",
+        mediaUrl: "/exercises/costas/encolhimento_barra.png",
+        equipment: "barbell",
+        mechanics: "isolation",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 75,
@@ -478,7 +756,12 @@ export const BACK_EXERCISES: any[] = [
         description: "dumbbell_shrug_desc",
         category: "back",
         tags: ["dumbbells", "traps", "isolation", "symmetry"],
-        howTo: "dumbbell_shrug_howto"
+        howTo: "dumbbell_shrug_howto",
+        mediaUrl: "/exercises/costas/encolhimento_halteres.png",
+        equipment: "dumbbell",
+        mechanics: "isolation",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 76,
@@ -486,7 +769,11 @@ export const BACK_EXERCISES: any[] = [
         description: "cable_shrug_desc",
         category: "back",
         tags: ["cables", "traps", "constant_tension"],
-        howTo: "cable_shrug_howto"
+        howTo: "cable_shrug_howto",
+        equipment: "cable",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     }
 ];
 
@@ -498,7 +785,11 @@ export const SHOULDERS_EXERCISES: any[] = [
         description: "overhead_barbell_press_desc",
         category: "shoulders",
         tags: ["barbell", "compound", "power", "deltoid_anterior"],
-        howTo: "overhead_barbell_press_howto"
+        howTo: "overhead_barbell_press_howto",
+        equipment: "barbell",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 91,
@@ -506,7 +797,12 @@ export const SHOULDERS_EXERCISES: any[] = [
         description: "dumbbell_shoulder_press_desc",
         category: "shoulders",
         tags: ["dumbbells", "compound", "symmetry", "stability"],
-        howTo: "dumbbell_shoulder_press_howto"
+        howTo: "dumbbell_shoulder_press_howto",
+        mediaUrl: "/exercises/ombros/desenvolvimento_halteres.png",
+        equipment: "dumbbell",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 92,
@@ -514,7 +810,12 @@ export const SHOULDERS_EXERCISES: any[] = [
         description: "arnold_press_desc",
         category: "shoulders",
         tags: ["dumbbells", "compound", "rotation", "full_shoulder"],
-        howTo: "arnold_press_howto"
+        howTo: "arnold_press_howto",
+        mediaUrl: "/exercises/ombros/desenvolvimento_arnold_halteres.png",
+        equipment: "dumbbell",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 93,
@@ -522,7 +823,11 @@ export const SHOULDERS_EXERCISES: any[] = [
         description: "smith_machine_shoulder_press_desc",
         category: "shoulders",
         tags: ["machine", "stability", "safety", "failure"],
-        howTo: "smith_machine_shoulder_press_howto"
+        howTo: "smith_machine_shoulder_press_howto",
+        equipment: "smith",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "beginner"
     },
     {
         id: 94,
@@ -530,7 +835,12 @@ export const SHOULDERS_EXERCISES: any[] = [
         description: "seated_military_press_desc",
         category: "shoulders",
         tags: ["barbell", "compound", "strict_form", "strength"],
-        howTo: "seated_military_press_howto"
+        howTo: "seated_military_press_howto",
+        mediaUrl: "/exercises/ombros/desenvolvimento_militar_barra.png",
+        equipment: "barbell",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
 
     // --- ELEVAÇÕES LATERAIS (FOCO EM LARGURA) ---
@@ -540,7 +850,12 @@ export const SHOULDERS_EXERCISES: any[] = [
         description: "dumbbell_lateral_raise_desc",
         category: "shoulders",
         tags: ["dumbbells", "isolation", "medial_deltoid", "width"],
-        howTo: "dumbbell_lateral_raise_howto"
+        howTo: "dumbbell_lateral_raise_howto",
+        mediaUrl: "/exercises/ombros/elevação_lateral_halteres.png",
+        equipment: "dumbbell",
+        mechanics: "isolation",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 96,
@@ -548,7 +863,12 @@ export const SHOULDERS_EXERCISES: any[] = [
         description: "cable_lateral_raise_desc",
         category: "shoulders",
         tags: ["cables", "constant_tension", "isolation", "medial_deltoid"],
-        howTo: "cable_lateral_raise_howto"
+        howTo: "cable_lateral_raise_howto",
+        mediaUrl: "/exercises/ombros/elevacao_unilateral_polia.png",
+        equipment: "cable",
+        mechanics: "isolation",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 97,
@@ -556,7 +876,11 @@ export const SHOULDERS_EXERCISES: any[] = [
         description: "machine_lateral_raise_desc",
         category: "shoulders",
         tags: ["machine", "isolation", "safety", "easy_to_learn"],
-        howTo: "machine_lateral_raise_howto"
+        howTo: "machine_lateral_raise_howto",
+        equipment: "machine",
+        mechanics: "isolation",
+        executionMode: "bilateral",
+        level: "beginner"
     },
     {
         id: 98,
@@ -564,7 +888,11 @@ export const SHOULDERS_EXERCISES: any[] = [
         description: "lean_away_lateral_raise_desc",
         category: "shoulders",
         tags: ["cables", "stretch", "advanced", "isolation"],
-        howTo: "lean_away_lateral_raise_howto"
+        howTo: "lean_away_lateral_raise_howto",
+        equipment: "cable",
+        mechanics: "isolation",
+        executionMode: "bilateral",
+        level: "advanced"
     },
 
     // --- ELEVAÇÕES FRONTAIS (FOCO EM PORÇÃO ANTERIOR) ---
@@ -574,7 +902,12 @@ export const SHOULDERS_EXERCISES: any[] = [
         description: "dumbbell_front_raise_desc",
         category: "shoulders",
         tags: ["dumbbells", "isolation", "anterior_deltoid"],
-        howTo: "dumbbell_front_raise_howto"
+        howTo: "dumbbell_front_raise_howto",
+        mediaUrl: "/exercises/ombros/elevacao_frontal_alteres.png",
+        equipment: "dumbbell",
+        mechanics: "isolation",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 100,
@@ -582,7 +915,12 @@ export const SHOULDERS_EXERCISES: any[] = [
         description: "barbell_front_raise_desc",
         category: "shoulders",
         tags: ["barbell", "isolation", "power", "anterior_deltoid"],
-        howTo: "barbell_front_raise_howto"
+        howTo: "barbell_front_raise_howto",
+        mediaUrl: "/exercises/ombros/elevacao_frontal_barra.png",
+        equipment: "barbell",
+        mechanics: "isolation",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 101,
@@ -590,7 +928,11 @@ export const SHOULDERS_EXERCISES: any[] = [
         description: "cable_front_raise_desc",
         category: "shoulders",
         tags: ["cables", "constant_tension", "isolation"],
-        howTo: "cable_front_raise_howto"
+        howTo: "cable_front_raise_howto",
+        equipment: "cable",
+        mechanics: "isolation",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 102,
@@ -598,7 +940,12 @@ export const SHOULDERS_EXERCISES: any[] = [
         description: "plate_front_raise_desc",
         category: "shoulders",
         tags: ["plate", "isolation", "grip_strength"],
-        howTo: "plate_front_raise_howto"
+        howTo: "plate_front_raise_howto",
+        mediaUrl: "/exercises/ombros/elevacao_frontal_anilha.png",
+        equipment: "none",
+        mechanics: "isolation",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
 
     // --- PORÇÃO POSTERIOR (DELTOIDE POSTERIOR) ---
@@ -608,7 +955,12 @@ export const SHOULDERS_EXERCISES: any[] = [
         description: "rear_delt_dumbbell_fly_desc",
         category: "shoulders",
         tags: ["dumbbells", "isolation", "posterior_deltoid", "posture"],
-        howTo: "rear_delt_dumbbell_fly_howto"
+        howTo: "rear_delt_dumbbell_fly_howto",
+        mediaUrl: "/exercises/ombros/crucifixo_invertido_anilha.png",
+        equipment: "dumbbell",
+        mechanics: "isolation",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 104,
@@ -616,7 +968,12 @@ export const SHOULDERS_EXERCISES: any[] = [
         description: "rear_delt_machine_fly_desc",
         category: "shoulders",
         tags: ["machine", "isolation", "safety", "posterior_deltoid"],
-        howTo: "rear_delt_machine_fly_howto"
+        howTo: "rear_delt_machine_fly_howto",
+        mediaUrl: "/exercises/costas/voador_inverso_maquina.png",
+        equipment: "machine",
+        mechanics: "isolation",
+        executionMode: "bilateral",
+        level: "beginner"
     },
     {
         id: 105,
@@ -624,7 +981,11 @@ export const SHOULDERS_EXERCISES: any[] = [
         description: "cable_rear_delt_fly_desc",
         category: "shoulders",
         tags: ["cables", "constant_tension", "isolation", "posterior_deltoid"],
-        howTo: "cable_rear_delt_fly_howto"
+        howTo: "cable_rear_delt_fly_howto",
+        equipment: "cable",
+        mechanics: "isolation",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
 
     // --- REMADAS ALTAS (TRAPÉZIO E OMBROS) ---
@@ -634,7 +995,12 @@ export const SHOULDERS_EXERCISES: any[] = [
         description: "barbell_upright_row_desc",
         category: "shoulders",
         tags: ["barbell", "compound", "traps", "shoulders"],
-        howTo: "barbell_upright_row_howto"
+        howTo: "barbell_upright_row_howto",
+        mediaUrl: "/exercises/costas/remada_alta_barra.png",
+        equipment: "barbell",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 107,
@@ -642,7 +1008,11 @@ export const SHOULDERS_EXERCISES: any[] = [
         description: "dumbbell_upright_row_desc",
         category: "shoulders",
         tags: ["dumbbells", "compound", "joint_health"],
-        howTo: "dumbbell_upright_row_howto"
+        howTo: "dumbbell_upright_row_howto",
+        equipment: "dumbbell",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 108,
@@ -650,7 +1020,11 @@ export const SHOULDERS_EXERCISES: any[] = [
         description: "cable_upright_row_desc",
         category: "shoulders",
         tags: ["cables", "constant_tension", "compound"],
-        howTo: "cable_upright_row_howto"
+        howTo: "cable_upright_row_howto",
+        equipment: "cable",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
 
     // --- CALISTENIA / PESO DO CORPO ---
@@ -660,7 +1034,11 @@ export const SHOULDERS_EXERCISES: any[] = [
         description: "pike_push_up_desc",
         category: "shoulders",
         tags: ["bodyweight", "home", "strength", "basics"],
-        howTo: "pike_push_up_howto"
+        howTo: "pike_push_up_howto",
+        equipment: "bodyweight",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "beginner"
     },
     {
         id: 110,
@@ -668,7 +1046,11 @@ export const SHOULDERS_EXERCISES: any[] = [
         description: "handstand_push_up_desc",
         category: "shoulders",
         tags: ["bodyweight", "advanced", "power", "balance"],
-        howTo: "handstand_push_up_howto"
+        howTo: "handstand_push_up_howto",
+        equipment: "bodyweight",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "advanced"
     },
 
     // --- SAÚDE ARTICULAR (MANGUITO ROTADOR) ---
@@ -678,7 +1060,11 @@ export const SHOULDERS_EXERCISES: any[] = [
         description: "cable_external_rotation_desc",
         category: "shoulders",
         tags: ["cables", "rehab", "shoulder_health", "rotator_cuff"],
-        howTo: "cable_external_rotation_howto"
+        howTo: "cable_external_rotation_howto",
+        equipment: "cable",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 112,
@@ -686,7 +1072,11 @@ export const SHOULDERS_EXERCISES: any[] = [
         description: "dumbbell_external_rotation_desc",
         category: "shoulders",
         tags: ["dumbbells", "rehab", "prehab", "rotator_cuff"],
-        howTo: "dumbbell_external_rotation_howto"
+        howTo: "dumbbell_external_rotation_howto",
+        equipment: "dumbbell",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     }
 ];
 
@@ -697,7 +1087,12 @@ export const BICEPS_EXERCISES: any[] = [
         description: "barbell_curl_straight_bar_desc",
         category: "biceps",
         tags: ["barbell", "mass", "isolation", "heavy"],
-        howTo: "barbell_curl_straight_bar_howto"
+        howTo: "barbell_curl_straight_bar_howto",
+        mediaUrl: "/exercises/biceps/rosca_direta_barra.png",
+        equipment: "barbell",
+        mechanics: "isolation",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 131,
@@ -705,7 +1100,12 @@ export const BICEPS_EXERCISES: any[] = [
         description: "ez_bar_curl_desc",
         category: "biceps",
         tags: ["ez_bar", "joint_friendly", "isolation"],
-        howTo: "ez_bar_curl_howto"
+        howTo: "ez_bar_curl_howto",
+        equipment: "none",
+        mechanics: "isolation",
+        executionMode: "bilateral",
+        level: "intermediate",
+        parentId: 130
     },
     {
         id: 132,
@@ -713,7 +1113,13 @@ export const BICEPS_EXERCISES: any[] = [
         description: "barbell_preacher_curl_desc",
         category: "biceps",
         tags: ["barbell", "preacher_bench", "strict_form", "peak_contraction"],
-        howTo: "barbell_preacher_curl_howto"
+        howTo: "barbell_preacher_curl_howto",
+        mediaUrl: "/exercises/biceps/rosca_scott_barra.png",
+        equipment: "barbell",
+        mechanics: "isolation",
+        executionMode: "bilateral",
+        level: "intermediate",
+        parentId: 130
     },
     {
         id: 133,
@@ -721,7 +1127,12 @@ export const BICEPS_EXERCISES: any[] = [
         description: "drag_curl_desc",
         category: "biceps",
         tags: ["barbell", "long_head", "external_focus"],
-        howTo: "drag_curl_howto"
+        howTo: "drag_curl_howto",
+        equipment: "barbell",
+        mechanics: "isolation",
+        executionMode: "bilateral",
+        level: "intermediate",
+        parentId: 130
     },
     {
         id: 134,
@@ -729,7 +1140,13 @@ export const BICEPS_EXERCISES: any[] = [
         description: "spider_curl_barbell_desc",
         category: "biceps",
         tags: ["barbell", "incline_bench", "no_momentum", "peak"],
-        howTo: "spider_curl_barbell_howto"
+        howTo: "spider_curl_barbell_howto",
+        mediaUrl: "/exercises/biceps/rosca_aranha_barra.png",
+        equipment: "barbell",
+        mechanics: "isolation",
+        executionMode: "bilateral",
+        level: "intermediate",
+        parentId: 130
     },
     {
         id: 135,
@@ -737,7 +1154,12 @@ export const BICEPS_EXERCISES: any[] = [
         description: "dumbbell_alternate_curl_desc",
         category: "biceps",
         tags: ["dumbbells", "symmetry", "supination"],
-        howTo: "dumbbell_alternate_curl_howto"
+        howTo: "dumbbell_alternate_curl_howto",
+        mediaUrl: "/exercises/biceps/rosca_alternada_halteres.png",
+        equipment: "dumbbell",
+        mechanics: "isolation",
+        executionMode: "alternating",
+        level: "intermediate"
     },
     {
         id: 136,
@@ -745,7 +1167,12 @@ export const BICEPS_EXERCISES: any[] = [
         description: "dumbbell_hammer_curl_desc",
         category: "biceps",
         tags: ["dumbbells", "brachialis", "thickness", "neutral_grip"],
-        howTo: "dumbbell_hammer_curl_howto"
+        howTo: "dumbbell_hammer_curl_howto",
+        equipment: "dumbbell",
+        mechanics: "isolation",
+        executionMode: "bilateral",
+        level: "intermediate",
+        parentId: 135
     },
     {
         id: 137,
@@ -753,7 +1180,12 @@ export const BICEPS_EXERCISES: any[] = [
         description: "incline_dumbbell_curl_desc",
         category: "biceps",
         tags: ["dumbbells", "maximum_stretch", "long_head"],
-        howTo: "incline_dumbbell_curl_howto"
+        howTo: "incline_dumbbell_curl_howto",
+        equipment: "dumbbell",
+        mechanics: "isolation",
+        executionMode: "bilateral",
+        level: "intermediate",
+        parentId: 135
     },
     {
         id: 138,
@@ -761,7 +1193,13 @@ export const BICEPS_EXERCISES: any[] = [
         description: "concentration_curl_desc",
         category: "biceps",
         tags: ["dumbbells", "peak_contraction", "unilateral"],
-        howTo: "concentration_curl_howto"
+        howTo: "concentration_curl_howto",
+        mediaUrl: "/exercises/biceps/rosca_concentrada_halteres.png",
+        equipment: "dumbbell",
+        mechanics: "isolation",
+        executionMode: "unilateral",
+        level: "intermediate",
+        parentId: 135
     },
     {
         id: 139,
@@ -769,7 +1207,12 @@ export const BICEPS_EXERCISES: any[] = [
         description: "dumbbell_preacher_curl_desc",
         category: "biceps",
         tags: ["dumbbells", "preacher_bench", "unilateral", "strict_form"],
-        howTo: "dumbbell_preacher_curl_howto"
+        howTo: "dumbbell_preacher_curl_howto",
+        equipment: "dumbbell",
+        mechanics: "isolation",
+        executionMode: "unilateral",
+        level: "intermediate",
+        parentId: 135
     },
     {
         id: 140,
@@ -777,7 +1220,12 @@ export const BICEPS_EXERCISES: any[] = [
         description: "zotterman_curl_desc",
         category: "biceps",
         tags: ["dumbbells", "advanced", "biceps_forearm"],
-        howTo: "zotterman_curl_howto"
+        howTo: "zotterman_curl_howto",
+        mediaUrl: "/exercises/antebracos/rosca_zottman.png",
+        equipment: "dumbbell",
+        mechanics: "isolation",
+        executionMode: "bilateral",
+        level: "advanced"
     },
     {
         id: 141,
@@ -785,7 +1233,11 @@ export const BICEPS_EXERCISES: any[] = [
         description: "cross_body_hammer_curl_desc",
         category: "biceps",
         tags: ["dumbbells", "brachialis", "inner_focus"],
-        howTo: "cross_body_hammer_curl_howto"
+        howTo: "cross_body_hammer_curl_howto",
+        equipment: "dumbbell",
+        mechanics: "isolation",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 142,
@@ -793,7 +1245,11 @@ export const BICEPS_EXERCISES: any[] = [
         description: "cable_biceps_curl_straight_bar_desc",
         category: "biceps",
         tags: ["cables", "constant_tension", "pump"],
-        howTo: "cable_biceps_curl_straight_bar_howto"
+        howTo: "cable_biceps_curl_straight_bar_howto",
+        equipment: "cable",
+        mechanics: "isolation",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 143,
@@ -801,7 +1257,11 @@ export const BICEPS_EXERCISES: any[] = [
         description: "cable_rope_hammer_curl_desc",
         category: "biceps",
         tags: ["cables", "rope", "brachialis", "stability"],
-        howTo: "cable_rope_hammer_curl_howto"
+        howTo: "cable_rope_hammer_curl_howto",
+        equipment: "cable",
+        mechanics: "isolation",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 144,
@@ -809,7 +1269,11 @@ export const BICEPS_EXERCISES: any[] = [
         description: "high_cable_biceps_curl_desc",
         category: "biceps",
         tags: ["cables", "double_biceps", "maximum_peak"],
-        howTo: "high_cable_biceps_curl_howto"
+        howTo: "high_cable_biceps_curl_howto",
+        equipment: "cable",
+        mechanics: "isolation",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 145,
@@ -817,7 +1281,11 @@ export const BICEPS_EXERCISES: any[] = [
         description: "bayesian_curl_desc",
         category: "biceps",
         tags: ["cables", "stretch", "advanced"],
-        howTo: "bayesian_curl_howto"
+        howTo: "bayesian_curl_howto",
+        equipment: "cable",
+        mechanics: "isolation",
+        executionMode: "bilateral",
+        level: "advanced"
     },
     {
         id: 146,
@@ -825,7 +1293,11 @@ export const BICEPS_EXERCISES: any[] = [
         description: "cable_single_arm_curl_desc",
         category: "biceps",
         tags: ["cables", "unilateral", "symmetry"],
-        howTo: "cable_single_arm_curl_howto"
+        howTo: "cable_single_arm_curl_howto",
+        equipment: "cable",
+        mechanics: "isolation",
+        executionMode: "unilateral",
+        level: "intermediate"
     },
     {
         id: 147,
@@ -833,7 +1305,11 @@ export const BICEPS_EXERCISES: any[] = [
         description: "machine_biceps_curl_desc",
         category: "biceps",
         tags: ["machine", "beginner", "safety"],
-        howTo: "machine_biceps_curl_howto"
+        howTo: "machine_biceps_curl_howto",
+        equipment: "machine",
+        mechanics: "isolation",
+        executionMode: "bilateral",
+        level: "beginner"
     },
     {
         id: 148,
@@ -841,7 +1317,11 @@ export const BICEPS_EXERCISES: any[] = [
         description: "chin_up_biceps_focus_desc",
         category: "biceps",
         tags: ["bodyweight", "compound", "strength"],
-        howTo: "chin_up_biceps_focus_howto"
+        howTo: "chin_up_biceps_focus_howto",
+        equipment: "bodyweight",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     }
 ];
 
@@ -852,7 +1332,11 @@ export const TRICEPS_EXERCISES: any[] = [
         description: "cable_triceps_pushdown_straight_bar_desc",
         category: "triceps",
         tags: ["cables", "isolation", "straight_bar"],
-        howTo: "cable_triceps_pushdown_straight_bar_howto"
+        howTo: "cable_triceps_pushdown_straight_bar_howto",
+        equipment: "cable",
+        mechanics: "isolation",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 161,
@@ -860,7 +1344,11 @@ export const TRICEPS_EXERCISES: any[] = [
         description: "cable_triceps_pushdown_v_bar_desc",
         category: "triceps",
         tags: ["cables", "isolation", "v_bar"],
-        howTo: "cable_triceps_pushdown_v_bar_howto"
+        howTo: "cable_triceps_pushdown_v_bar_howto",
+        equipment: "cable",
+        mechanics: "isolation",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 162,
@@ -868,7 +1356,11 @@ export const TRICEPS_EXERCISES: any[] = [
         description: "cable_rope_pushdown_desc",
         category: "triceps",
         tags: ["cables", "rope", "peak_contraction"],
-        howTo: "cable_rope_pushdown_howto"
+        howTo: "cable_rope_pushdown_howto",
+        equipment: "cable",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 163,
@@ -876,7 +1368,11 @@ export const TRICEPS_EXERCISES: any[] = [
         description: "overhead_cable_extension_rope_desc",
         category: "triceps",
         tags: ["cables", "long_head", "stretch"],
-        howTo: "overhead_cable_extension_rope_howto"
+        howTo: "overhead_cable_extension_rope_howto",
+        equipment: "cable",
+        mechanics: "isolation",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 164,
@@ -884,7 +1380,11 @@ export const TRICEPS_EXERCISES: any[] = [
         description: "single_arm_cable_pushdown_desc",
         category: "triceps",
         tags: ["cables", "unilateral", "symmetry"],
-        howTo: "single_arm_cable_pushdown_howto"
+        howTo: "single_arm_cable_pushdown_howto",
+        equipment: "cable",
+        mechanics: "compound",
+        executionMode: "unilateral",
+        level: "intermediate"
     },
     {
         id: 165,
@@ -892,7 +1392,12 @@ export const TRICEPS_EXERCISES: any[] = [
         description: "cable_skull_crusher_desc",
         category: "triceps",
         tags: ["cables", "skull_crusher", "constant_tension"],
-        howTo: "cable_skull_crusher_howto"
+        howTo: "cable_skull_crusher_howto",
+        mediaUrl: "/exercises/triceps/mergulho_graviton.png",
+        equipment: "cable",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 166,
@@ -900,7 +1405,12 @@ export const TRICEPS_EXERCISES: any[] = [
         description: "barbell_skull_crusher_desc",
         category: "triceps",
         tags: ["barbell", "mass", "skull_crusher"],
-        howTo: "barbell_skull_crusher_howto"
+        howTo: "barbell_skull_crusher_howto",
+        mediaUrl: "/exercises/triceps/mergulho_banco.png",
+        equipment: "barbell",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 167,
@@ -908,7 +1418,12 @@ export const TRICEPS_EXERCISES: any[] = [
         description: "ez_bar_skull_crusher_desc",
         category: "triceps",
         tags: ["ez_bar", "joint_friendly", "skull_crusher"],
-        howTo: "ez_bar_skull_crusher_howto"
+        howTo: "ez_bar_skull_crusher_howto",
+        mediaUrl: "/exercises/triceps/triceps_testa_barra.png",
+        equipment: "none",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 168,
@@ -916,7 +1431,11 @@ export const TRICEPS_EXERCISES: any[] = [
         description: "dumbbell_skull_crusher_desc",
         category: "triceps",
         tags: ["dumbbells", "symmetry", "skull_crusher"],
-        howTo: "dumbbell_skull_crusher_howto"
+        howTo: "dumbbell_skull_crusher_howto",
+        equipment: "dumbbell",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 169,
@@ -924,7 +1443,11 @@ export const TRICEPS_EXERCISES: any[] = [
         description: "close_grip_barbell_bench_press_desc",
         category: "triceps",
         tags: ["barbell", "compound", "heavy_load"],
-        howTo: "close_grip_barbell_bench_press_howto"
+        howTo: "close_grip_barbell_bench_press_howto",
+        equipment: "barbell",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 170,
@@ -932,7 +1455,12 @@ export const TRICEPS_EXERCISES: any[] = [
         description: "overhead_dumbbell_extension_seated_desc",
         category: "triceps",
         tags: ["dumbbells", "long_head", "mass"],
-        howTo: "overhead_dumbbell_extension_seated_howto"
+        howTo: "overhead_dumbbell_extension_seated_howto",
+        mediaUrl: "/exercises/triceps/triceps_frances_halteres.png",
+        equipment: "dumbbell",
+        mechanics: "isolation",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 171,
@@ -940,7 +1468,11 @@ export const TRICEPS_EXERCISES: any[] = [
         description: "overhead_dumbbell_extension_single_arm_desc",
         category: "triceps",
         tags: ["dumbbells", "unilateral", "stretch"],
-        howTo: "overhead_dumbbell_extension_single_arm_howto"
+        howTo: "overhead_dumbbell_extension_single_arm_howto",
+        equipment: "dumbbell",
+        mechanics: "isolation",
+        executionMode: "unilateral",
+        level: "intermediate"
     },
     {
         id: 172,
@@ -948,7 +1480,12 @@ export const TRICEPS_EXERCISES: any[] = [
         description: "dumbbell_kickback_desc",
         category: "triceps",
         tags: ["dumbbells", "kickback", "isolation"],
-        howTo: "dumbbell_kickback_howto"
+        howTo: "dumbbell_kickback_howto",
+        mediaUrl: "/exercises/triceps/triceps_coice_polia.png",
+        equipment: "dumbbell",
+        mechanics: "isolation",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 173,
@@ -956,7 +1493,12 @@ export const TRICEPS_EXERCISES: any[] = [
         description: "tate_press_desc",
         category: "triceps",
         tags: ["dumbbells", "advanced", "lateral_head"],
-        howTo: "tate_press_howto"
+        howTo: "tate_press_howto",
+        mediaUrl: "/exercises/triceps/triceps_testa_polia.png",
+        equipment: "dumbbell",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "advanced"
     },
     {
         id: 174,
@@ -964,7 +1506,12 @@ export const TRICEPS_EXERCISES: any[] = [
         description: "triceps_dips_parallel_bars_desc",
         category: "triceps",
         tags: ["bodyweight", "compound", "power"],
-        howTo: "triceps_dips_parallel_bars_howto"
+        howTo: "triceps_dips_parallel_bars_howto",
+        mediaUrl: "/exercises/triceps/triceps_pulley_corda.png",
+        equipment: "bodyweight",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 175,
@@ -972,7 +1519,11 @@ export const TRICEPS_EXERCISES: any[] = [
         description: "bench_dips_desc",
         category: "triceps",
         tags: ["bodyweight", "bench", "beginner"],
-        howTo: "bench_dips_howto"
+        howTo: "bench_dips_howto",
+        equipment: "bodyweight",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "beginner"
     },
     {
         id: 176,
@@ -980,7 +1531,12 @@ export const TRICEPS_EXERCISES: any[] = [
         description: "diamond_push_ups_desc",
         category: "triceps",
         tags: ["bodyweight", "push_up", "home"],
-        howTo: "diamond_push_ups_howto"
+        howTo: "diamond_push_ups_howto",
+        mediaUrl: "/exercises/triceps/triceps_frances_polia.png",
+        equipment: "bodyweight",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "beginner"
     },
     {
         id: 177,
@@ -988,7 +1544,12 @@ export const TRICEPS_EXERCISES: any[] = [
         description: "machine_triceps_extension_desc",
         category: "triceps",
         tags: ["machine", "isolation", "safety"],
-        howTo: "machine_triceps_extension_howto"
+        howTo: "machine_triceps_extension_howto",
+        mediaUrl: "/exercises/triceps/triceps_katana_polia.png",
+        equipment: "machine",
+        mechanics: "isolation",
+        executionMode: "bilateral",
+        level: "beginner"
     },
     {
         id: 178,
@@ -996,7 +1557,11 @@ export const TRICEPS_EXERCISES: any[] = [
         description: "machine_triceps_dip_desc",
         category: "triceps",
         tags: ["machine", "compound", "stability"],
-        howTo: "machine_triceps_dip_howto"
+        howTo: "machine_triceps_dip_howto",
+        equipment: "machine",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "beginner"
     }
 ];
 
@@ -1008,7 +1573,12 @@ export const FOREARM_EXERCISES: any[] = [
         description: "barbell_wrist_curl_desc",
         category: "forearms",
         tags: ["barbell", "flexors", "isolation", "mass"],
-        howTo: "barbell_wrist_curl_howto"
+        howTo: "barbell_wrist_curl_howto",
+        mediaUrl: "/exercises/antebracos/flexao_punho_supinado_barra.png",
+        equipment: "barbell",
+        mechanics: "isolation",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 191,
@@ -1016,7 +1586,11 @@ export const FOREARM_EXERCISES: any[] = [
         description: "barbell_reverse_wrist_curl_desc",
         category: "forearms",
         tags: ["barbell", "extensors", "isolation"],
-        howTo: "barbell_reverse_wrist_curl_howto"
+        howTo: "barbell_reverse_wrist_curl_howto",
+        equipment: "barbell",
+        mechanics: "isolation",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 192,
@@ -1024,7 +1598,11 @@ export const FOREARM_EXERCISES: any[] = [
         description: "dumbbell_wrist_curl_desc",
         category: "forearms",
         tags: ["dumbbells", "flexors", "unilateral", "symmetry"],
-        howTo: "dumbbell_wrist_curl_howto"
+        howTo: "dumbbell_wrist_curl_howto",
+        equipment: "dumbbell",
+        mechanics: "isolation",
+        executionMode: "unilateral",
+        level: "intermediate"
     },
     {
         id: 193,
@@ -1032,7 +1610,11 @@ export const FOREARM_EXERCISES: any[] = [
         description: "dumbbell_reverse_wrist_curl_desc",
         category: "forearms",
         tags: ["dumbbells", "extensors", "unilateral"],
-        howTo: "dumbbell_reverse_wrist_curl_howto"
+        howTo: "dumbbell_reverse_wrist_curl_howto",
+        equipment: "dumbbell",
+        mechanics: "isolation",
+        executionMode: "unilateral",
+        level: "intermediate"
     },
     {
         id: 194,
@@ -1040,7 +1622,12 @@ export const FOREARM_EXERCISES: any[] = [
         description: "standing_behind_back_wrist_curl_desc",
         category: "forearms",
         tags: ["barbell", "flexors", "heavy"],
-        howTo: "standing_behind_back_wrist_curl_howto"
+        howTo: "standing_behind_back_wrist_curl_howto",
+        mediaUrl: "/exercises/antebracos/rosca_inversa_polia.png",
+        equipment: "barbell",
+        mechanics: "isolation",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 195,
@@ -1048,7 +1635,11 @@ export const FOREARM_EXERCISES: any[] = [
         description: "dumbbell_radial_deviation_desc",
         category: "forearms",
         tags: ["dumbbells", "stability", "rehab"],
-        howTo: "dumbbell_radial_deviation_howto"
+        howTo: "dumbbell_radial_deviation_howto",
+        equipment: "dumbbell",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 196,
@@ -1056,7 +1647,11 @@ export const FOREARM_EXERCISES: any[] = [
         description: "dumbbell_ulnar_deviation_desc",
         category: "forearms",
         tags: ["dumbbells", "stability", "strength"],
-        howTo: "dumbbell_ulnar_deviation_howto"
+        howTo: "dumbbell_ulnar_deviation_howto",
+        equipment: "dumbbell",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
 
     // --- CABOS E ACESSÓRIOS ---
@@ -1066,7 +1661,11 @@ export const FOREARM_EXERCISES: any[] = [
         description: "cable_wrist_curl_desc",
         category: "forearms",
         tags: ["cables", "flexors", "constant_tension"],
-        howTo: "cable_wrist_curl_howto"
+        howTo: "cable_wrist_curl_howto",
+        equipment: "cable",
+        mechanics: "isolation",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 198,
@@ -1074,7 +1673,11 @@ export const FOREARM_EXERCISES: any[] = [
         description: "cable_reverse_wrist_curl_desc",
         category: "forearms",
         tags: ["cables", "extensors", "constant_tension"],
-        howTo: "cable_reverse_wrist_curl_howto"
+        howTo: "cable_reverse_wrist_curl_howto",
+        equipment: "cable",
+        mechanics: "isolation",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 199,
@@ -1082,7 +1685,11 @@ export const FOREARM_EXERCISES: any[] = [
         description: "wrist_roller_desc",
         category: "forearms",
         tags: ["accessory", "endurance", "pump", "mass"],
-        howTo: "wrist_roller_howto"
+        howTo: "wrist_roller_howto",
+        equipment: "none",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
 
     // --- PEGADA E SUSTENTAÇÃO (GRIP STRENGTH) ---
@@ -1092,7 +1699,12 @@ export const FOREARM_EXERCISES: any[] = [
         description: "farmers_walk_desc",
         category: "forearms",
         tags: ["dumbbells", "grip_strength", "compound", "functional"],
-        howTo: "farmers_walk_howto"
+        howTo: "farmers_walk_howto",
+        mediaUrl: "/exercises/cardio_e_multiarticulares/farmer_walker.png",
+        equipment: "dumbbell",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 201,
@@ -1100,7 +1712,11 @@ export const FOREARM_EXERCISES: any[] = [
         description: "plate_pinch_hold_desc",
         category: "forearms",
         tags: ["plates", "grip_strength", "fingers"],
-        howTo: "plate_pinch_hold_howto"
+        howTo: "plate_pinch_hold_howto",
+        equipment: "none",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 202,
@@ -1108,7 +1724,12 @@ export const FOREARM_EXERCISES: any[] = [
         description: "dead_hang_desc",
         category: "forearms",
         tags: ["bodyweight", "grip_strength", "endurance"],
-        howTo: "dead_hang_howto"
+        howTo: "dead_hang_howto",
+        mediaUrl: "/exercises/cardio_e_multiarticulares/suspensao_barra.png",
+        equipment: "bodyweight",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 203,
@@ -1116,7 +1737,11 @@ export const FOREARM_EXERCISES: any[] = [
         description: "towel_pull_up_hang_desc",
         category: "forearms",
         tags: ["bodyweight", "towel", "advanced", "grip"],
-        howTo: "towel_pull_up_hang_howto"
+        howTo: "towel_pull_up_hang_howto",
+        equipment: "bodyweight",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "advanced"
     },
 
     // --- ROTAÇÃO ---
@@ -1126,7 +1751,11 @@ export const FOREARM_EXERCISES: any[] = [
         description: "dumbbell_pronation_supination_desc",
         category: "forearms",
         tags: ["dumbbells", "rotation", "mobility"],
-        howTo: "dumbbell_pronation_supination_howto"
+        howTo: "dumbbell_pronation_supination_howto",
+        equipment: "dumbbell",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     }
 ];
 
@@ -1138,7 +1767,12 @@ export const QUADRICEPS_EXERCISES: any[] = [
         description: "barbell_back_squat_desc",
         category: "quadriceps",
         tags: ["barbell", "compound", "mass", "strength"],
-        howTo: "barbell_back_squat_howto"
+        howTo: "barbell_back_squat_howto",
+        mediaUrl: "/exercises/quadriceps/agachamento_livre_barra.png",
+        equipment: "barbell",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 221,
@@ -1146,7 +1780,12 @@ export const QUADRICEPS_EXERCISES: any[] = [
         description: "barbell_front_squat_desc",
         category: "quadriceps",
         tags: ["barbell", "compound", "quad_dominant", "core"],
-        howTo: "barbell_front_squat_howto"
+        howTo: "barbell_front_squat_howto",
+        mediaUrl: "/exercises/quadriceps/agachamento_livre_halteres.png",
+        equipment: "barbell",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 222,
@@ -1154,7 +1793,12 @@ export const QUADRICEPS_EXERCISES: any[] = [
         description: "dumbbell_goblet_squat_desc",
         category: "quadriceps",
         tags: ["dumbbells", "beginner", "mobility"],
-        howTo: "dumbbell_goblet_squat_howto"
+        howTo: "dumbbell_goblet_squat_howto",
+        mediaUrl: "/exercises/quadriceps/agachamento_taca_globet.png",
+        equipment: "dumbbell",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "beginner"
     },
     {
         id: 223,
@@ -1162,7 +1806,11 @@ export const QUADRICEPS_EXERCISES: any[] = [
         description: "smith_machine_squat_desc",
         category: "quadriceps",
         tags: ["smith_machine", "stability", "isolation_focus"],
-        howTo: "smith_machine_squat_howto"
+        howTo: "smith_machine_squat_howto",
+        equipment: "smith",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "beginner"
     },
 
     // --- PRENSAS E MÁQUINAS ---
@@ -1172,7 +1820,12 @@ export const QUADRICEPS_EXERCISES: any[] = [
         description: "leg_press_45_desc",
         category: "quadriceps",
         tags: ["machine", "heavy", "mass"],
-        howTo: "leg_press_45_howto"
+        howTo: "leg_press_45_howto",
+        mediaUrl: "/exercises/quadriceps/agachamento_smith2.png",
+        equipment: "machine",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 225,
@@ -1180,7 +1833,12 @@ export const QUADRICEPS_EXERCISES: any[] = [
         description: "hack_squat_machine_desc",
         category: "quadriceps",
         tags: ["machine", "quad_dominant", "mechanical_advantage"],
-        howTo: "hack_squat_machine_howto"
+        howTo: "hack_squat_machine_howto",
+        mediaUrl: "/exercises/quadriceps/agachamento_hack.png",
+        equipment: "machine",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "beginner"
     },
     {
         id: 226,
@@ -1188,7 +1846,12 @@ export const QUADRICEPS_EXERCISES: any[] = [
         description: "leg_extension_desc",
         category: "quadriceps",
         tags: ["machine", "isolation", "definition", "pump"],
-        howTo: "leg_extension_howto"
+        howTo: "leg_extension_howto",
+        mediaUrl: "/exercises/quadriceps/legpress_90.png",
+        equipment: "machine",
+        mechanics: "isolation",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 227,
@@ -1196,7 +1859,12 @@ export const QUADRICEPS_EXERCISES: any[] = [
         description: "v_squat_machine_desc",
         category: "quadriceps",
         tags: ["machine", "compound", "power"],
-        howTo: "v_squat_machine_howto"
+        howTo: "v_squat_machine_howto",
+        mediaUrl: "/exercises/quadriceps/cadeira_extensora.png",
+        equipment: "machine",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "beginner"
     },
 
     // --- UNILATERAIS E AVANÇOS ---
@@ -1206,7 +1874,11 @@ export const QUADRICEPS_EXERCISES: any[] = [
         description: "bulgarian_split_squat_desc",
         category: "quadriceps",
         tags: ["dumbbells", "unilateral", "advanced", "hypertrophy"],
-        howTo: "bulgarian_split_squat_howto"
+        howTo: "bulgarian_split_squat_howto",
+        equipment: "dumbbell",
+        mechanics: "compound",
+        executionMode: "unilateral",
+        level: "advanced"
     },
     {
         id: 229,
@@ -1214,7 +1886,11 @@ export const QUADRICEPS_EXERCISES: any[] = [
         description: "barbell_walking_lunge_desc",
         category: "quadriceps",
         tags: ["barbell", "unilateral", "functional", "balance"],
-        howTo: "barbell_walking_lunge_howto"
+        howTo: "barbell_walking_lunge_howto",
+        equipment: "barbell",
+        mechanics: "compound",
+        executionMode: "unilateral",
+        level: "intermediate"
     },
     {
         id: 230,
@@ -1222,7 +1898,12 @@ export const QUADRICEPS_EXERCISES: any[] = [
         description: "dumbbell_walking_lunge_desc",
         category: "quadriceps",
         tags: ["dumbbells", "unilateral", "stability"],
-        howTo: "dumbbell_walking_lunge_howto"
+        howTo: "dumbbell_walking_lunge_howto",
+        mediaUrl: "/exercises/quadriceps/afundo_halteres.png",
+        equipment: "dumbbell",
+        mechanics: "compound",
+        executionMode: "unilateral",
+        level: "intermediate"
     },
     {
         id: 231,
@@ -1230,7 +1911,12 @@ export const QUADRICEPS_EXERCISES: any[] = [
         description: "step_up_desc",
         category: "quadriceps",
         tags: ["dumbbells", "unilateral", "strength", "box"],
-        howTo: "step_up_howto"
+        howTo: "step_up_howto",
+        mediaUrl: "/exercises/posterior de coxa/agachamento_bulgaro.png",
+        equipment: "dumbbell",
+        mechanics: "compound",
+        executionMode: "unilateral",
+        level: "intermediate"
     },
     {
         id: 232,
@@ -1238,7 +1924,11 @@ export const QUADRICEPS_EXERCISES: any[] = [
         description: "sissy_squat_desc",
         category: "quadriceps",
         tags: ["bodyweight", "isolation", "stretch"],
-        howTo: "sissy_squat_howto"
+        howTo: "sissy_squat_howto",
+        equipment: "bodyweight",
+        mechanics: "isolation",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
 
     // --- VARIAÇÕES DE FORÇA E POTÊNCIA ---
@@ -1248,7 +1938,11 @@ export const QUADRICEPS_EXERCISES: any[] = [
         description: "zercher_squat_desc",
         category: "quadriceps",
         tags: ["barbell", "advanced", "core_strength"],
-        howTo: "zercher_squat_howto"
+        howTo: "zercher_squat_howto",
+        equipment: "barbell",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "advanced"
     },
     {
         id: 234,
@@ -1256,7 +1950,11 @@ export const QUADRICEPS_EXERCISES: any[] = [
         description: "landmine_squat_desc",
         category: "quadriceps",
         tags: ["landmine", "joint_friendly", "stability"],
-        howTo: "landmine_squat_howto"
+        howTo: "landmine_squat_howto",
+        equipment: "none",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 235,
@@ -1264,7 +1962,11 @@ export const QUADRICEPS_EXERCISES: any[] = [
         description: "dumbbell_reverse_lunge_desc",
         category: "quadriceps",
         tags: ["dumbbells", "unilateral", "knee_friendly"],
-        howTo: "dumbbell_reverse_lunge_howto"
+        howTo: "dumbbell_reverse_lunge_howto",
+        equipment: "dumbbell",
+        mechanics: "compound",
+        executionMode: "unilateral",
+        level: "intermediate"
     }
 ];
 
@@ -1276,7 +1978,11 @@ export const HAMSTRING_EXERCISES: any[] = [
         description: "barbell_stiff_leg_deadlift_desc",
         category: "hamstrings",
         tags: ["barbell", "mass", "stretch", "compound"],
-        howTo: "barbell_stiff_leg_deadlift_howto"
+        howTo: "barbell_stiff_leg_deadlift_howto",
+        equipment: "barbell",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 251,
@@ -1284,7 +1990,11 @@ export const HAMSTRING_EXERCISES: any[] = [
         description: "dumbbell_stiff_leg_deadlift_desc",
         category: "hamstrings",
         tags: ["dumbbells", "symmetry", "stretch"],
-        howTo: "dumbbell_stiff_leg_deadlift_howto"
+        howTo: "dumbbell_stiff_leg_deadlift_howto",
+        equipment: "dumbbell",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 252,
@@ -1292,7 +2002,11 @@ export const HAMSTRING_EXERCISES: any[] = [
         description: "barbell_romanian_deadlift_desc",
         category: "hamstrings",
         tags: ["barbell", "heavy", "posterior_chain"],
-        howTo: "barbell_romanian_deadlift_howto"
+        howTo: "barbell_romanian_deadlift_howto",
+        equipment: "barbell",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 253,
@@ -1300,7 +2014,11 @@ export const HAMSTRING_EXERCISES: any[] = [
         description: "good_morning_barbell_desc",
         category: "hamstrings",
         tags: ["barbell", "stretch", "advanced"],
-        howTo: "good_morning_barbell_howto"
+        howTo: "good_morning_barbell_howto",
+        equipment: "barbell",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "advanced"
     },
 
     // --- FLEXÃO DE JOELHO (MÁQUINAS) ---
@@ -1310,7 +2028,11 @@ export const HAMSTRING_EXERCISES: any[] = [
         description: "lying_leg_curl_machine_desc",
         category: "hamstrings",
         tags: ["machine", "isolation", "pump"],
-        howTo: "lying_leg_curl_machine_howto"
+        howTo: "lying_leg_curl_machine_howto",
+        equipment: "machine",
+        mechanics: "isolation",
+        executionMode: "bilateral",
+        level: "beginner"
     },
     {
         id: 255,
@@ -1318,7 +2040,11 @@ export const HAMSTRING_EXERCISES: any[] = [
         description: "seated_leg_curl_machine_desc",
         category: "hamstrings",
         tags: ["machine", "isolation", "maximum_contraction"],
-        howTo: "seated_leg_curl_machine_howto"
+        howTo: "seated_leg_curl_machine_howto",
+        equipment: "machine",
+        mechanics: "isolation",
+        executionMode: "bilateral",
+        level: "beginner"
     },
     {
         id: 256,
@@ -1326,7 +2052,11 @@ export const HAMSTRING_EXERCISES: any[] = [
         description: "standing_single_leg_curl_machine_desc",
         category: "hamstrings",
         tags: ["machine", "unilateral", "isolation"],
-        howTo: "standing_single_leg_curl_machine_howto"
+        howTo: "standing_single_leg_curl_machine_howto",
+        equipment: "machine",
+        mechanics: "isolation",
+        executionMode: "unilateral",
+        level: "beginner"
     },
 
     // --- PESO CORPORAL E CALISTENIA ---
@@ -1336,7 +2066,12 @@ export const HAMSTRING_EXERCISES: any[] = [
         description: "nordic_hamstring_curl_desc",
         category: "hamstrings",
         tags: ["bodyweight", "advanced", "eccentric_strength"],
-        howTo: "nordic_hamstring_curl_howto"
+        howTo: "nordic_hamstring_curl_howto",
+        mediaUrl: "/exercises/posterior de coxa/stiff.png",
+        equipment: "bodyweight",
+        mechanics: "isolation",
+        executionMode: "bilateral",
+        level: "advanced"
     },
     {
         id: 258,
@@ -1344,7 +2079,12 @@ export const HAMSTRING_EXERCISES: any[] = [
         description: "sliding_leg_curl_towel_desc",
         category: "hamstrings",
         tags: ["bodyweight", "home", "isolation"],
-        howTo: "sliding_leg_curl_towel_howto"
+        howTo: "sliding_leg_curl_towel_howto",
+        mediaUrl: "/exercises/posterior de coxa/levantamento_terra_sumo.png",
+        equipment: "bodyweight",
+        mechanics: "isolation",
+        executionMode: "bilateral",
+        level: "beginner"
     },
     {
         id: 259,
@@ -1352,7 +2092,11 @@ export const HAMSTRING_EXERCISES: any[] = [
         description: "stability_ball_leg_curl_desc",
         category: "hamstrings",
         tags: ["accessory", "stability", "core"],
-        howTo: "stability_ball_leg_curl_howto"
+        howTo: "stability_ball_leg_curl_howto",
+        equipment: "none",
+        mechanics: "isolation",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 260,
@@ -1360,7 +2104,12 @@ export const HAMSTRING_EXERCISES: any[] = [
         description: "glute_ham_raise_desc",
         category: "hamstrings",
         tags: ["machine", "bodyweight", "power"],
-        howTo: "glute_ham_raise_howto"
+        howTo: "glute_ham_raise_howto",
+        mediaUrl: "/exercises/posterior de coxa/mesa_flexora.png",
+        equipment: "machine",
+        mechanics: "isolation",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
 
     // --- UNILATERAIS E VARIAÇÕES ---
@@ -1370,7 +2119,12 @@ export const HAMSTRING_EXERCISES: any[] = [
         description: "single_leg_romanian_deadlift_dumbbell_desc",
         category: "hamstrings",
         tags: ["dumbbells", "unilateral", "balance"],
-        howTo: "single_leg_romanian_deadlift_dumbbell_howto"
+        howTo: "single_leg_romanian_deadlift_dumbbell_howto",
+        mediaUrl: "/exercises/posterior de coxa/elevacao_quadril_unilateral.png",
+        equipment: "dumbbell",
+        mechanics: "compound",
+        executionMode: "unilateral",
+        level: "intermediate"
     },
     {
         id: 262,
@@ -1378,7 +2132,12 @@ export const HAMSTRING_EXERCISES: any[] = [
         description: "cable_pull_through_desc",
         category: "hamstrings",
         tags: ["cables", "glutes_hamstrings", "constant_tension"],
-        howTo: "cable_pull_through_howto"
+        howTo: "cable_pull_through_howto",
+        mediaUrl: "/exercises/posterior de coxa/elevacao_pelvica_maquina.png",
+        equipment: "cable",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 263,
@@ -1386,7 +2145,11 @@ export const HAMSTRING_EXERCISES: any[] = [
         description: "dumbbell_leg_curl_lying_desc",
         category: "hamstrings",
         tags: ["dumbbells", "home", "isolation"],
-        howTo: "dumbbell_leg_curl_lying_howto"
+        howTo: "dumbbell_leg_curl_lying_howto",
+        equipment: "dumbbell",
+        mechanics: "isolation",
+        executionMode: "bilateral",
+        level: "beginner"
     },
     {
         id: 264,
@@ -1394,7 +2157,12 @@ export const HAMSTRING_EXERCISES: any[] = [
         description: "kettlebell_swing_desc",
         category: "hamstrings",
         tags: ["kettlebell", "explosive", "posterior_chain"],
-        howTo: "kettlebell_swing_howto"
+        howTo: "kettlebell_swing_howto",
+        mediaUrl: "/exercises/posterior de coxa/kettlebell_swing.png",
+        equipment: "kettlebell",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     }
 ];
 
@@ -1406,7 +2174,11 @@ export const GLUTE_EXERCISES: any[] = [
         description: "barbell_hip_thrust_desc",
         category: "glutes",
         tags: ["barbell", "heavy", "mass", "power"],
-        howTo: "barbell_hip_thrust_howto"
+        howTo: "barbell_hip_thrust_howto",
+        equipment: "barbell",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 281,
@@ -1414,7 +2186,11 @@ export const GLUTE_EXERCISES: any[] = [
         description: "dumbbell_hip_thrust_desc",
         category: "glutes",
         tags: ["dumbbells", "hypertrophy", "home"],
-        howTo: "dumbbell_hip_thrust_howto"
+        howTo: "dumbbell_hip_thrust_howto",
+        equipment: "dumbbell",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "beginner"
     },
     {
         id: 282,
@@ -1422,7 +2198,11 @@ export const GLUTE_EXERCISES: any[] = [
         description: "barbell_glute_bridge_desc",
         category: "glutes",
         tags: ["barbell", "isolation", "shorter_range"],
-        howTo: "barbell_glute_bridge_howto"
+        howTo: "barbell_glute_bridge_howto",
+        equipment: "barbell",
+        mechanics: "isolation",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 283,
@@ -1430,7 +2210,11 @@ export const GLUTE_EXERCISES: any[] = [
         description: "machine_hip_thrust_desc",
         category: "glutes",
         tags: ["machine", "stability", "constant_tension"],
-        howTo: "machine_hip_thrust_howto"
+        howTo: "machine_hip_thrust_howto",
+        equipment: "machine",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "beginner"
     },
 
     // --- ABDUÇÃO E GLÚTEO MÉDIO/MÍNIMO ---
@@ -1440,7 +2224,12 @@ export const GLUTE_EXERCISES: any[] = [
         description: "seated_hip_abduction_machine_desc",
         category: "glutes",
         tags: ["machine", "isolation", "outer_glute"],
-        howTo: "seated_hip_abduction_machine_howto"
+        howTo: "seated_hip_abduction_machine_howto",
+        mediaUrl: "/exercises/posterior de coxa/cadeira_abdutora.png",
+        equipment: "machine",
+        mechanics: "isolation",
+        executionMode: "bilateral",
+        level: "beginner"
     },
     {
         id: 285,
@@ -1448,7 +2237,12 @@ export const GLUTE_EXERCISES: any[] = [
         description: "cable_hip_abduction_desc",
         category: "glutes",
         tags: ["cables", "unilateral", "stability"],
-        howTo: "cable_hip_abduction_howto"
+        howTo: "cable_hip_abduction_howto",
+        mediaUrl: "/exercises/posterior de coxa/abdução_polia.png",
+        equipment: "cable",
+        mechanics: "compound",
+        executionMode: "unilateral",
+        level: "intermediate"
     },
     {
         id: 286,
@@ -1456,7 +2250,11 @@ export const GLUTE_EXERCISES: any[] = [
         description: "banded_clamshells_desc",
         category: "glutes",
         tags: ["resistance_band", "rehab", "activation", "home"],
-        howTo: "banded_clamshells_howto"
+        howTo: "banded_clamshells_howto",
+        equipment: "none",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "beginner"
     },
     {
         id: 287,
@@ -1464,7 +2262,11 @@ export const GLUTE_EXERCISES: any[] = [
         description: "lateral_band_walk_desc",
         category: "glutes",
         tags: ["resistance_band", "activation", "functional"],
-        howTo: "lateral_band_walk_howto"
+        howTo: "lateral_band_walk_howto",
+        equipment: "none",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
 
     // --- CHUTES E EXTENSÕES (KICKBACKS) ---
@@ -1474,7 +2276,12 @@ export const GLUTE_EXERCISES: any[] = [
         description: "cable_glute_kickback_desc",
         category: "glutes",
         tags: ["cables", "unilateral", "shaping"],
-        howTo: "cable_glute_kickback_howto"
+        howTo: "cable_glute_kickback_howto",
+        mediaUrl: "/exercises/posterior de coxa/gluteo_coice_polia.png",
+        equipment: "cable",
+        mechanics: "isolation",
+        executionMode: "unilateral",
+        level: "intermediate"
     },
     {
         id: 289,
@@ -1482,7 +2289,11 @@ export const GLUTE_EXERCISES: any[] = [
         description: "machine_glute_kickback_desc",
         category: "glutes",
         tags: ["machine", "unilateral", "strength"],
-        howTo: "machine_glute_kickback_howto"
+        howTo: "machine_glute_kickback_howto",
+        equipment: "machine",
+        mechanics: "isolation",
+        executionMode: "unilateral",
+        level: "beginner"
     },
     {
         id: 290,
@@ -1490,7 +2301,11 @@ export const GLUTE_EXERCISES: any[] = [
         description: "quadruped_hip_extension_donkey_kicks_desc",
         category: "glutes",
         tags: ["bodyweight", "home", "activation"],
-        howTo: "quadruped_hip_extension_donkey_kicks_howto"
+        howTo: "quadruped_hip_extension_donkey_kicks_howto",
+        equipment: "bodyweight",
+        mechanics: "isolation",
+        executionMode: "bilateral",
+        level: "beginner"
     },
     {
         id: 291,
@@ -1498,7 +2313,11 @@ export const GLUTE_EXERCISES: any[] = [
         description: "fire_hydrants_desc",
         category: "glutes",
         tags: ["bodyweight", "outer_glute", "home"],
-        howTo: "fire_hydrants_howto"
+        howTo: "fire_hydrants_howto",
+        equipment: "bodyweight",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "beginner"
     },
 
     // --- VARIAÇÕES COMPOSTAS E FUNCIONAIS ---
@@ -1508,7 +2327,11 @@ export const GLUTE_EXERCISES: any[] = [
         description: "barbell_sumo_deadlift_desc",
         category: "glutes",
         tags: ["barbell", "heavy", "compound", "power"],
-        howTo: "barbell_sumo_deadlift_howto"
+        howTo: "barbell_sumo_deadlift_howto",
+        equipment: "barbell",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 293,
@@ -1516,7 +2339,11 @@ export const GLUTE_EXERCISES: any[] = [
         description: "dumbbell_sumo_squat_desc",
         category: "glutes",
         tags: ["dumbbells", "inner_thigh", "glutes"],
-        howTo: "dumbbell_sumo_squat_howto"
+        howTo: "dumbbell_sumo_squat_howto",
+        equipment: "dumbbell",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 294,
@@ -1524,7 +2351,11 @@ export const GLUTE_EXERCISES: any[] = [
         description: "cable_glute_medially_rotated_kickback_desc",
         category: "glutes",
         tags: ["cables", "advanced", "upper_glute"],
-        howTo: "cable_glute_medially_rotated_kickback_howto"
+        howTo: "cable_glute_medially_rotated_kickback_howto",
+        equipment: "cable",
+        mechanics: "isolation",
+        executionMode: "bilateral",
+        level: "advanced"
     },
     {
         id: 295,
@@ -1532,7 +2363,11 @@ export const GLUTE_EXERCISES: any[] = [
         description: "frog_pumps_desc",
         category: "glutes",
         tags: ["bodyweight", "high_rep", "pump"],
-        howTo: "frog_pumps_howto"
+        howTo: "frog_pumps_howto",
+        equipment: "bodyweight",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 296,
@@ -1540,7 +2375,11 @@ export const GLUTE_EXERCISES: any[] = [
         description: "curtsy_lunge_desc",
         category: "glutes",
         tags: ["dumbbells", "bodyweight", "unilateral", "functional"],
-        howTo: "curtsy_lunge_howto"
+        howTo: "curtsy_lunge_howto",
+        equipment: "dumbbell",
+        mechanics: "compound",
+        executionMode: "unilateral",
+        level: "intermediate"
     },
     {
         id: 297,
@@ -1548,7 +2387,11 @@ export const GLUTE_EXERCISES: any[] = [
         description: "hyperextension_45_degree_glute_focus_desc",
         category: "glutes",
         tags: ["machine", "posterior_chain", "stretch"],
-        howTo: "hyperextension_45_degree_glute_focus_howto"
+        howTo: "hyperextension_45_degree_glute_focus_howto",
+        equipment: "machine",
+        mechanics: "isolation",
+        executionMode: "bilateral",
+        level: "intermediate"
     }
 ];
 
@@ -1560,7 +2403,11 @@ export const CALF_EXERCISES: any[] = [
         description: "standing_barbell_calf_raise_desc",
         category: "calves",
         tags: ["barbell", "heavy", "mass"],
-        howTo: "standing_barbell_calf_raise_howto"
+        howTo: "standing_barbell_calf_raise_howto",
+        equipment: "barbell",
+        mechanics: "isolation",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 311,
@@ -1568,7 +2415,12 @@ export const CALF_EXERCISES: any[] = [
         description: "standing_machine_calf_raise_desc",
         category: "calves",
         tags: ["machine", "isolation", "strength"],
-        howTo: "standing_machine_calf_raise_howto"
+        howTo: "standing_machine_calf_raise_howto",
+        mediaUrl: "/exercises/panturrilhas/gemeos_panturrilha_maquina.png",
+        equipment: "machine",
+        mechanics: "isolation",
+        executionMode: "bilateral",
+        level: "beginner"
     },
     {
         id: 312,
@@ -1576,7 +2428,11 @@ export const CALF_EXERCISES: any[] = [
         description: "dumbbell_single_leg_calf_raise_desc",
         category: "calves",
         tags: ["dumbbells", "unilateral", "symmetry"],
-        howTo: "dumbbell_single_leg_calf_raise_howto"
+        howTo: "dumbbell_single_leg_calf_raise_howto",
+        equipment: "dumbbell",
+        mechanics: "isolation",
+        executionMode: "unilateral",
+        level: "intermediate"
     },
     {
         id: 313,
@@ -1584,7 +2440,11 @@ export const CALF_EXERCISES: any[] = [
         description: "smith_machine_calf_raise_desc",
         category: "calves",
         tags: ["smith_machine", "stability", "mass"],
-        howTo: "smith_machine_calf_raise_howto"
+        howTo: "smith_machine_calf_raise_howto",
+        equipment: "smith",
+        mechanics: "isolation",
+        executionMode: "bilateral",
+        level: "beginner"
     },
 
     // --- SENTADO (FOCO NO SÓLEO) ---
@@ -1594,7 +2454,12 @@ export const CALF_EXERCISES: any[] = [
         description: "seated_machine_calf_raise_desc",
         category: "calves",
         tags: ["machine", "isolation", "soleus"],
-        howTo: "seated_machine_calf_raise_howto"
+        howTo: "seated_machine_calf_raise_howto",
+        mediaUrl: "/exercises/panturrilhas/gemeos_sentado_maquina.png",
+        equipment: "machine",
+        mechanics: "isolation",
+        executionMode: "bilateral",
+        level: "beginner"
     },
     {
         id: 315,
@@ -1602,7 +2467,11 @@ export const CALF_EXERCISES: any[] = [
         description: "seated_dumbbell_calf_raise_desc",
         category: "calves",
         tags: ["dumbbells", "home", "isolation"],
-        howTo: "seated_dumbbell_calf_raise_howto"
+        howTo: "seated_dumbbell_calf_raise_howto",
+        equipment: "dumbbell",
+        mechanics: "isolation",
+        executionMode: "bilateral",
+        level: "beginner"
     },
     {
         id: 316,
@@ -1610,7 +2479,11 @@ export const CALF_EXERCISES: any[] = [
         description: "seated_barbell_calf_raise_desc",
         category: "calves",
         tags: ["barbell", "strength", "soleus"],
-        howTo: "seated_barbell_calf_raise_howto"
+        howTo: "seated_barbell_calf_raise_howto",
+        equipment: "barbell",
+        mechanics: "isolation",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
 
     // --- PRENSAS E VARIAÇÕES ---
@@ -1620,7 +2493,12 @@ export const CALF_EXERCISES: any[] = [
         description: "leg_press_calf_press_desc",
         category: "calves",
         tags: ["machine", "heavy", "constant_tension"],
-        howTo: "leg_press_calf_press_howto"
+        howTo: "leg_press_calf_press_howto",
+        mediaUrl: "/exercises/panturrilhas/extensao_panturrilha_maquina.png",
+        equipment: "machine",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 318,
@@ -1628,7 +2506,11 @@ export const CALF_EXERCISES: any[] = [
         description: "donkey_calf_raise_desc",
         category: "calves",
         tags: ["machine", "bodyweight", "old_school", "stretch"],
-        howTo: "donkey_calf_raise_howto"
+        howTo: "donkey_calf_raise_howto",
+        equipment: "machine",
+        mechanics: "isolation",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 319,
@@ -1636,7 +2518,11 @@ export const CALF_EXERCISES: any[] = [
         description: "hack_squat_calf_press_desc",
         category: "calves",
         tags: ["machine", "isolation", "strength"],
-        howTo: "hack_squat_calf_press_howto"
+        howTo: "hack_squat_calf_press_howto",
+        equipment: "machine",
+        mechanics: "isolation",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
 
     // --- PESO CORPORAL E FUNCIONAL ---
@@ -1646,7 +2532,11 @@ export const CALF_EXERCISES: any[] = [
         description: "bodyweight_standing_calf_raise_desc",
         category: "calves",
         tags: ["bodyweight", "beginner", "home"],
-        howTo: "bodyweight_standing_calf_raise_howto"
+        howTo: "bodyweight_standing_calf_raise_howto",
+        equipment: "bodyweight",
+        mechanics: "isolation",
+        executionMode: "bilateral",
+        level: "beginner"
     },
     {
         id: 321,
@@ -1654,7 +2544,11 @@ export const CALF_EXERCISES: any[] = [
         description: "stair_calf_raise_desc",
         category: "calves",
         tags: ["bodyweight", "stretch", "home"],
-        howTo: "stair_calf_raise_howto"
+        howTo: "stair_calf_raise_howto",
+        equipment: "bodyweight",
+        mechanics: "isolation",
+        executionMode: "bilateral",
+        level: "beginner"
     },
     {
         id: 322,
@@ -1662,7 +2556,12 @@ export const CALF_EXERCISES: any[] = [
         description: "tibialis_raise_desc",
         category: "calves",
         tags: ["bodyweight", "prehab", "shin"],
-        howTo: "tibialis_raise_howto"
+        howTo: "tibialis_raise_howto",
+        mediaUrl: "/exercises/panturrilhas/tibial_anterior.png",
+        equipment: "bodyweight",
+        mechanics: "isolation",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 323,
@@ -1670,7 +2569,11 @@ export const CALF_EXERCISES: any[] = [
         description: "farmer_walk_on_toes_desc",
         category: "calves",
         tags: ["dumbbells", "functional", "endurance"],
-        howTo: "farmer_walk_on_toes_howto"
+        howTo: "farmer_walk_on_toes_howto",
+        equipment: "dumbbell",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     }
 ];
 
@@ -1682,7 +2585,12 @@ export const ADDUCTOR_EXERCISES: any[] = [
         description: "seated_adduction_machine_desc",
         category: "adductors",
         tags: ["machine", "isolation", "inner_thigh"],
-        howTo: "seated_adduction_machine_howto"
+        howTo: "seated_adduction_machine_howto",
+        mediaUrl: "/exercises/quadriceps/cadeira_adutora.png",
+        equipment: "machine",
+        mechanics: "isolation",
+        executionMode: "bilateral",
+        level: "beginner"
     },
     {
         id: 341,
@@ -1690,7 +2598,12 @@ export const ADDUCTOR_EXERCISES: any[] = [
         description: "cable_hip_adduction_desc",
         category: "adductors",
         tags: ["cables", "unilateral", "stability"],
-        howTo: "cable_hip_adduction_howto"
+        howTo: "cable_hip_adduction_howto",
+        mediaUrl: "/exercises/quadriceps/adutor_unilateral_polia.png",
+        equipment: "cable",
+        mechanics: "compound",
+        executionMode: "unilateral",
+        level: "intermediate"
     },
     {
         id: 342,
@@ -1698,7 +2611,11 @@ export const ADDUCTOR_EXERCISES: any[] = [
         description: "standing_adduction_machine_desc",
         category: "adductors",
         tags: ["machine", "unilateral", "standing"],
-        howTo: "standing_adduction_machine_howto"
+        howTo: "standing_adduction_machine_howto",
+        equipment: "machine",
+        mechanics: "compound",
+        executionMode: "unilateral",
+        level: "beginner"
     },
 
     // --- PESO LIVRE (COMPOSTOS COM FOCO EM ADUTOR) ---
@@ -1708,7 +2625,11 @@ export const ADDUCTOR_EXERCISES: any[] = [
         description: "barbell_sumo_squat_adductor_focus_desc",
         category: "adductors",
         tags: ["barbell", "heavy", "compound"],
-        howTo: "barbell_sumo_squat_adductor_focus_howto"
+        howTo: "barbell_sumo_squat_adductor_focus_howto",
+        equipment: "barbell",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 344,
@@ -1716,7 +2637,11 @@ export const ADDUCTOR_EXERCISES: any[] = [
         description: "barbell_sumo_deadlift_adductor_focus_desc",
         category: "adductors",
         tags: ["barbell", "heavy", "compound", "posterior_chain", "power"],
-        howTo: "barbell_sumo_deadlift_adductor_focus_howto"
+        howTo: "barbell_sumo_deadlift_adductor_focus_howto",
+        equipment: "barbell",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 345,
@@ -1724,7 +2649,11 @@ export const ADDUCTOR_EXERCISES: any[] = [
         description: "side_lunge_desc",
         category: "adductors",
         tags: ["bodyweight", "dumbbells", "functional", "stretch"],
-        howTo: "side_lunge_howto"
+        howTo: "side_lunge_howto",
+        equipment: "dumbbell",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
 
     // --- PESO CORPORAL E SOLO (CALISTENIA / PILATES) ---
@@ -1734,7 +2663,11 @@ export const ADDUCTOR_EXERCISES: any[] = [
         description: "copenhagen_plank_desc",
         category: "adductors",
         tags: ["bodyweight", "advanced", "stability"],
-        howTo: "copenhagen_plank_howto"
+        howTo: "copenhagen_plank_howto",
+        equipment: "bodyweight",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "advanced"
     },
     {
         id: 347,
@@ -1742,7 +2675,11 @@ export const ADDUCTOR_EXERCISES: any[] = [
         description: "lying_leg_adduction_side_lying_desc",
         category: "adductors",
         tags: ["bodyweight", "home", "isolation"],
-        howTo: "lying_leg_adduction_side_lying_howto"
+        howTo: "lying_leg_adduction_side_lying_howto",
+        equipment: "bodyweight",
+        mechanics: "isolation",
+        executionMode: "bilateral",
+        level: "beginner"
     },
     {
         id: 348,
@@ -1750,7 +2687,11 @@ export const ADDUCTOR_EXERCISES: any[] = [
         description: "seated_band_adduction_desc",
         category: "adductors",
         tags: ["resistance_band", "home", "activation"],
-        howTo: "seated_band_adduction_howto"
+        howTo: "seated_band_adduction_howto",
+        equipment: "none",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "beginner"
     },
     {
         id: 349,
@@ -1758,7 +2699,11 @@ export const ADDUCTOR_EXERCISES: any[] = [
         description: "ball_squeeze_bridge_desc",
         category: "adductors",
         tags: ["accessory", "stability", "activation"],
-        howTo: "ball_squeeze_bridge_howto"
+        howTo: "ball_squeeze_bridge_howto",
+        equipment: "none",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     }
 ];
 
@@ -1770,7 +2715,11 @@ export const ABDUCTOR_EXERCISES: any[] = [
         description: "seated_abduction_machine_desc",
         category: "abductors",
         tags: ["machine", "isolation", "glute_medius"],
-        howTo: "seated_abduction_machine_howto"
+        howTo: "seated_abduction_machine_howto",
+        equipment: "machine",
+        mechanics: "isolation",
+        executionMode: "bilateral",
+        level: "beginner"
     },
     {
         id: 361,
@@ -1778,7 +2727,11 @@ export const ABDUCTOR_EXERCISES: any[] = [
         description: "cable_standing_hip_abduction_desc",
         category: "abductors",
         tags: ["cables", "unilateral", "stability"],
-        howTo: "cable_standing_hip_abduction_howto"
+        howTo: "cable_standing_hip_abduction_howto",
+        equipment: "cable",
+        mechanics: "compound",
+        executionMode: "unilateral",
+        level: "intermediate"
     },
     {
         id: 362,
@@ -1786,7 +2739,11 @@ export const ABDUCTOR_EXERCISES: any[] = [
         description: "cable_lying_hip_abduction_desc",
         category: "abductors",
         tags: ["cables", "isolation", "constant_tension"],
-        howTo: "cable_lying_hip_abduction_howto"
+        howTo: "cable_lying_hip_abduction_howto",
+        equipment: "cable",
+        mechanics: "isolation",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
 
     // --- PESO CORPORAL E SOLO ---
@@ -1796,7 +2753,11 @@ export const ABDUCTOR_EXERCISES: any[] = [
         description: "side_lying_leg_raise_desc",
         category: "abductors",
         tags: ["bodyweight", "home", "isolation"],
-        howTo: "side_lying_leg_raise_howto"
+        howTo: "side_lying_leg_raise_howto",
+        equipment: "bodyweight",
+        mechanics: "isolation",
+        executionMode: "bilateral",
+        level: "beginner"
     },
     {
         id: 364,
@@ -1804,7 +2765,11 @@ export const ABDUCTOR_EXERCISES: any[] = [
         description: "clamshells_desc",
         category: "abductors",
         tags: ["bodyweight", "rehab", "activation"],
-        howTo: "clamshells_howto"
+        howTo: "clamshells_howto",
+        equipment: "bodyweight",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     // {
     //     id: 365,
@@ -1822,7 +2787,11 @@ export const ABDUCTOR_EXERCISES: any[] = [
         description: "banded_lateral_walk_desc",
         category: "abductors",
         tags: ["bands", "activation", "functional"],
-        howTo: "banded_lateral_walk_howto"
+        howTo: "banded_lateral_walk_howto",
+        equipment: "none",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 367,
@@ -1830,7 +2799,11 @@ export const ABDUCTOR_EXERCISES: any[] = [
         description: "banded_monster_walk_desc",
         category: "abductors",
         tags: ["bands", "stability", "glutes"],
-        howTo: "banded_monster_walk_howto"
+        howTo: "banded_monster_walk_howto",
+        equipment: "none",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 368,
@@ -1838,7 +2811,11 @@ export const ABDUCTOR_EXERCISES: any[] = [
         description: "banded_seated_abduction_desc",
         category: "abductors",
         tags: ["bands", "isolation", "high_rep"],
-        howTo: "banded_seated_abduction_howto"
+        howTo: "banded_seated_abduction_howto",
+        equipment: "none",
+        mechanics: "isolation",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
 
     // --- VARIAÇÕES FUNCIONAIS E AVANÇADAS ---
@@ -1848,7 +2825,11 @@ export const ABDUCTOR_EXERCISES: any[] = [
         description: "curtsy_lunge_bodyweight_desc",
         category: "abductors",
         tags: ["bodyweight", "dynamic", "balance"],
-        howTo: "curtsy_lunge_bodyweight_howto"
+        howTo: "curtsy_lunge_bodyweight_howto",
+        equipment: "bodyweight",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 370,
@@ -1856,7 +2837,11 @@ export const ABDUCTOR_EXERCISES: any[] = [
         description: "side_plank_with_leg_lift_desc",
         category: "abductors",
         tags: ["bodyweight", "advanced", "core"],
-        howTo: "side_plank_with_leg_lift_howto"
+        howTo: "side_plank_with_leg_lift_howto",
+        equipment: "bodyweight",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "advanced"
     }
 ];
 
@@ -1868,7 +2853,12 @@ export const CORE_EXERCISES: any[] = [
         description: "plank_desc",
         category: "core",
         tags: ["bodyweight", "static", "beginner"],
-        howTo: "plank_howto"
+        howTo: "plank_howto",
+        mediaUrl: "/exercises/core/prancha_isometrica.png",
+        equipment: "bodyweight",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "beginner"
     },
     {
         id: 391,
@@ -1876,7 +2866,12 @@ export const CORE_EXERCISES: any[] = [
         description: "side_plank_desc",
         category: "core",
         tags: ["bodyweight", "obliques", "static"],
-        howTo: "side_plank_howto"
+        howTo: "side_plank_howto",
+        mediaUrl: "/exercises/cardio_e_multiarticulares/prancha_lateral_abducao_quadril.png",
+        equipment: "bodyweight",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 392,
@@ -1884,7 +2879,12 @@ export const CORE_EXERCISES: any[] = [
         description: "hollow_body_hold_desc",
         category: "core",
         tags: ["bodyweight", "gymnastics", "advanced"],
-        howTo: "hollow_body_hold_howto"
+        howTo: "hollow_body_hold_howto",
+        mediaUrl: "/exercises/core/prancha_copenhague.png",
+        equipment: "bodyweight",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "advanced"
     },
 
     // --- DINÂMICOS FLEXÃO (RETO ABDOMINAL) ---
@@ -1894,7 +2894,12 @@ export const CORE_EXERCISES: any[] = [
         description: "crunch_desc",
         category: "core",
         tags: ["bodyweight", "isolation", "beginner"],
-        howTo: "crunch_howto"
+        howTo: "crunch_howto",
+        mediaUrl: "/exercises/core/abdominal_supra.png",
+        equipment: "bodyweight",
+        mechanics: "isolation",
+        executionMode: "bilateral",
+        level: "beginner"
     },
     {
         id: 394,
@@ -1902,7 +2907,12 @@ export const CORE_EXERCISES: any[] = [
         description: "leg_raise_desc",
         category: "core",
         tags: ["bodyweight", "lower_abs", "dynamic"],
-        howTo: "leg_raise_howto"
+        howTo: "leg_raise_howto",
+        mediaUrl: "/exercises/core/elevacao_pernas.png",
+        equipment: "bodyweight",
+        mechanics: "isolation",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 395,
@@ -1910,7 +2920,12 @@ export const CORE_EXERCISES: any[] = [
         description: "hanging_knee_raise_desc",
         category: "core",
         tags: ["bodyweight", "pull_up_bar", "dynamic"],
-        howTo: "hanging_knee_raise_howto"
+        howTo: "hanging_knee_raise_howto",
+        mediaUrl: "/exercises/core/abdominal_obliquo.png",
+        equipment: "bodyweight",
+        mechanics: "isolation",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 396,
@@ -1918,7 +2933,11 @@ export const CORE_EXERCISES: any[] = [
         description: "v_ups_desc",
         category: "core",
         tags: ["bodyweight", "explosive", "advanced"],
-        howTo: "v_ups_howto"
+        howTo: "v_ups_howto",
+        equipment: "bodyweight",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "advanced"
     },
     {
         id: 397,
@@ -1926,7 +2945,11 @@ export const CORE_EXERCISES: any[] = [
         description: "bicycle_crunch_desc",
         category: "core",
         tags: ["bodyweight", "obliques", "dynamic"],
-        howTo: "bicycle_crunch_howto"
+        howTo: "bicycle_crunch_howto",
+        equipment: "bodyweight",
+        mechanics: "isolation",
+        executionMode: "bilateral",
+        level: "beginner"
     },
 
     // --- DINÂMICOS ROTACIONAIS E ANTI-ROTAÇÃO ---
@@ -1936,7 +2959,11 @@ export const CORE_EXERCISES: any[] = [
         description: "russian_twist_desc",
         category: "core",
         tags: ["bodyweight", "dumbbells", "rotation"],
-        howTo: "russian_twist_howto"
+        howTo: "russian_twist_howto",
+        equipment: "dumbbell",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 399,
@@ -1944,7 +2971,12 @@ export const CORE_EXERCISES: any[] = [
         description: "pallof_press_desc",
         category: "core",
         tags: ["cables", "anti_rotation", "stability"],
-        howTo: "pallof_press_howto"
+        howTo: "pallof_press_howto",
+        mediaUrl: "/exercises/core/pallof_press_polia.png",
+        equipment: "cable",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 400,
@@ -1952,7 +2984,11 @@ export const CORE_EXERCISES: any[] = [
         description: "cable_woodchop_desc",
         category: "core",
         tags: ["cables", "power", "rotation"],
-        howTo: "cable_woodchop_howto"
+        howTo: "cable_woodchop_howto",
+        equipment: "cable",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
 
     // --- ESTABILIZAÇÃO DINÂMICA (ANTI-EXTENSÃO) ---
@@ -1962,7 +2998,12 @@ export const CORE_EXERCISES: any[] = [
         description: "ab_wheel_rollout_desc",
         category: "core",
         tags: ["accessory", "anti_extension", "advanced"],
-        howTo: "ab_wheel_rollout_howto"
+        howTo: "ab_wheel_rollout_howto",
+        mediaUrl: "/exercises/core/abdominal_roda.png",
+        equipment: "none",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "advanced"
     },
     {
         id: 402,
@@ -1970,7 +3011,11 @@ export const CORE_EXERCISES: any[] = [
         description: "dead_bug_desc",
         category: "core",
         tags: ["bodyweight", "rehab", "coordination"],
-        howTo: "dead_bug_howto"
+        howTo: "dead_bug_howto",
+        equipment: "bodyweight",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 403,
@@ -1978,7 +3023,12 @@ export const CORE_EXERCISES: any[] = [
         description: "bird_dog_desc",
         category: "core",
         tags: ["bodyweight", "back_health", "stability"],
-        howTo: "bird_dog_howto"
+        howTo: "bird_dog_howto",
+        mediaUrl: "/exercises/core/lenhador_polia.png",
+        equipment: "bodyweight",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 404,
@@ -1986,7 +3036,11 @@ export const CORE_EXERCISES: any[] = [
         description: "mountain_climbers_desc",
         category: "core",
         tags: ["bodyweight", "cardio", "dynamic"],
-        howTo: "mountain_climbers_howto"
+        howTo: "mountain_climbers_howto",
+        equipment: "bodyweight",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
 
     // --- MÁQUINAS E PESOS ---
@@ -1996,7 +3050,12 @@ export const CORE_EXERCISES: any[] = [
         description: "cable_crunch_desc",
         category: "core",
         tags: ["cables", "heavy", "hypertrophy"],
-        howTo: "cable_crunch_howto"
+        howTo: "cable_crunch_howto",
+        mediaUrl: "/exercises/core/abdominal_polia.png",
+        equipment: "cable",
+        mechanics: "isolation",
+        executionMode: "bilateral",
+        level: "beginner"
     },
     {
         id: 406,
@@ -2004,7 +3063,11 @@ export const CORE_EXERCISES: any[] = [
         description: "machine_torso_rotation_desc",
         category: "core",
         tags: ["machine", "obliques", "isolation"],
-        howTo: "machine_torso_rotation_howto"
+        howTo: "machine_torso_rotation_howto",
+        equipment: "machine",
+        mechanics: "isolation",
+        executionMode: "bilateral",
+        level: "beginner"
     },
 
     // --- LOMBAR (EXTENSÃO) ---
@@ -2014,7 +3077,11 @@ export const CORE_EXERCISES: any[] = [
         description: "superman_desc",
         category: "core",
         tags: ["bodyweight", "lower_back", "home"],
-        howTo: "superman_howto"
+        howTo: "superman_howto",
+        equipment: "bodyweight",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "beginner"
     },
     {
         id: 408,
@@ -2022,7 +3089,11 @@ export const CORE_EXERCISES: any[] = [
         description: "back_extension_machine_desc",
         category: "core",
         tags: ["machine", "lower_back", "strength"],
-        howTo: "back_extension_machine_howto"
+        howTo: "back_extension_machine_howto",
+        equipment: "machine",
+        mechanics: "isolation",
+        executionMode: "bilateral",
+        level: "beginner"
     },
     {
         id: 409,
@@ -2030,7 +3101,11 @@ export const CORE_EXERCISES: any[] = [
         description: "toes_to_bar_desc",
         category: "core",
         tags: ["bodyweight", "crossfit", "advanced"],
-        howTo: "toes_to_bar_howto"
+        howTo: "toes_to_bar_howto",
+        equipment: "bodyweight",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "advanced"
     }
 ];
 
@@ -2042,7 +3117,12 @@ export const CARDIO_EXERCISES: any[] = [
         description: "treadmill_running_desc",
         category: "cardio",
         tags: ["machine", "running", "high_intensity"],
-        howTo: "treadmill_running_howto"
+        howTo: "treadmill_running_howto",
+        mediaUrl: "/exercises/cardio_e_multiarticulares/corrida_esteira.png",
+        equipment: "machine",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 421,
@@ -2050,7 +3130,12 @@ export const CARDIO_EXERCISES: any[] = [
         description: "treadmill_walking_desc",
         category: "cardio",
         tags: ["machine", "walking", "low_impact"],
-        howTo: "treadmill_walking_howto"
+        howTo: "treadmill_walking_howto",
+        mediaUrl: "/exercises/cardio_e_multiarticulares/corrida_bicicleta.png",
+        equipment: "machine",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 422,
@@ -2058,7 +3143,12 @@ export const CARDIO_EXERCISES: any[] = [
         description: "elliptical_trainer_desc",
         category: "cardio",
         tags: ["machine", "low_impact", "full_body"],
-        howTo: "elliptical_trainer_howto"
+        howTo: "elliptical_trainer_howto",
+        mediaUrl: "/exercises/cardio_e_multiarticulares/eliptico.png",
+        equipment: "machine",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 423,
@@ -2066,7 +3156,11 @@ export const CARDIO_EXERCISES: any[] = [
         description: "stationary_bike_desc",
         category: "cardio",
         tags: ["machine", "cycling", "low_impact"],
-        howTo: "stationary_bike_howto"
+        howTo: "stationary_bike_howto",
+        equipment: "machine",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 424,
@@ -2074,7 +3168,12 @@ export const CARDIO_EXERCISES: any[] = [
         description: "stair_climber_desc",
         category: "cardio",
         tags: ["machine", "glutes", "high_intensity"],
-        howTo: "stair_climber_howto"
+        howTo: "stair_climber_howto",
+        mediaUrl: "/exercises/cardio_e_multiarticulares/subir_escada.png",
+        equipment: "machine",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 425,
@@ -2082,7 +3181,11 @@ export const CARDIO_EXERCISES: any[] = [
         description: "rowing_machine_desc",
         category: "cardio",
         tags: ["machine", "full_body", "stamina"],
-        howTo: "rowing_machine_howto"
+        howTo: "rowing_machine_howto",
+        equipment: "machine",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "beginner"
     },
     {
         id: 426,
@@ -2090,7 +3193,11 @@ export const CARDIO_EXERCISES: any[] = [
         description: "assault_bike_desc",
         category: "cardio",
         tags: ["machine", "hiit", "explosive"],
-        howTo: "assault_bike_howto"
+        howTo: "assault_bike_howto",
+        equipment: "machine",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
 
     // --- PESO CORPORAL / HIIT ---
@@ -2100,7 +3207,11 @@ export const CARDIO_EXERCISES: any[] = [
         description: "jumping_jacks_desc",
         category: "cardio",
         tags: ["bodyweight", "home", "warm_up"],
-        howTo: "jumping_jacks_howto"
+        howTo: "jumping_jacks_howto",
+        equipment: "bodyweight",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "beginner"
     },
     {
         id: 428,
@@ -2108,7 +3219,12 @@ export const CARDIO_EXERCISES: any[] = [
         description: "burpees_desc",
         category: "cardio",
         tags: ["bodyweight", "full_body", "hiit"],
-        howTo: "burpees_howto"
+        howTo: "burpees_howto",
+        mediaUrl: "/exercises/cardio_e_multiarticulares/burpee.png",
+        equipment: "bodyweight",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 429,
@@ -2116,7 +3232,11 @@ export const CARDIO_EXERCISES: any[] = [
         description: "jump_rope_desc",
         category: "cardio",
         tags: ["accessory", "coordination", "agility"],
-        howTo: "jump_rope_howto"
+        howTo: "jump_rope_howto",
+        equipment: "none",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 430,
@@ -2124,7 +3244,11 @@ export const CARDIO_EXERCISES: any[] = [
         description: "high_knees_desc",
         category: "cardio",
         tags: ["bodyweight", "running", "dynamic"],
-        howTo: "high_knees_howto"
+        howTo: "high_knees_howto",
+        equipment: "bodyweight",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 431,
@@ -2132,7 +3256,11 @@ export const CARDIO_EXERCISES: any[] = [
         description: "box_jumps_desc",
         category: "cardio",
         tags: ["accessory", "explosive", "plyometrics"],
-        howTo: "box_jumps_howto"
+        howTo: "box_jumps_howto",
+        equipment: "none",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
 
     // --- AO AR LIVRE / OUTROS ---
@@ -2142,7 +3270,11 @@ export const CARDIO_EXERCISES: any[] = [
         description: "outdoor_running_desc",
         category: "cardio",
         tags: ["outdoor", "running", "endurance"],
-        howTo: "outdoor_running_howto"
+        howTo: "outdoor_running_howto",
+        equipment: "none",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 433,
@@ -2150,7 +3282,11 @@ export const CARDIO_EXERCISES: any[] = [
         description: "swimming_desc",
         category: "cardio",
         tags: ["outdoor", "full_body", "low_impact"],
-        howTo: "swimming_howto"
+        howTo: "swimming_howto",
+        equipment: "none",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 434,
@@ -2158,7 +3294,11 @@ export const CARDIO_EXERCISES: any[] = [
         description: "cycling_outdoor_desc",
         category: "cardio",
         tags: ["outdoor", "cycling", "legs"],
-        howTo: "cycling_outdoor_howto"
+        howTo: "cycling_outdoor_howto",
+        equipment: "none",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 435,
@@ -2166,7 +3306,11 @@ export const CARDIO_EXERCISES: any[] = [
         description: "battle_ropes_desc",
         category: "cardio",
         tags: ["accessory", "arms", "hiit"],
-        howTo: "battle_ropes_howto"
+        howTo: "battle_ropes_howto",
+        equipment: "none",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     }
 ];
 
@@ -2178,7 +3322,11 @@ export const STRETCHING_EXERCISES: any[] = [
         description: "neck_lateral_stretch_desc",
         category: "stretching",
         tags: ["neck", "static", "beginner"],
-        howTo: "neck_lateral_stretch_howto"
+        howTo: "neck_lateral_stretch_howto",
+        equipment: "none",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "beginner"
     },
     {
         id: 451,
@@ -2186,7 +3334,11 @@ export const STRETCHING_EXERCISES: any[] = [
         description: "neck_forward_flexion_desc",
         category: "stretching",
         tags: ["neck", "static", "relief"],
-        howTo: "neck_forward_flexion_howto"
+        howTo: "neck_forward_flexion_howto",
+        equipment: "none",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
 
     // --- OMBROS E PEITORAL ---
@@ -2196,7 +3348,11 @@ export const STRETCHING_EXERCISES: any[] = [
         description: "cross_body_shoulder_stretch_desc",
         category: "stretching",
         tags: ["shoulders", "static", "classic"],
-        howTo: "cross_body_shoulder_stretch_howto"
+        howTo: "cross_body_shoulder_stretch_howto",
+        equipment: "none",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 453,
@@ -2204,7 +3360,11 @@ export const STRETCHING_EXERCISES: any[] = [
         description: "doorway_chest_stretch_desc",
         category: "stretching",
         tags: ["chest", "posture", "static"],
-        howTo: "doorway_chest_stretch_howto"
+        howTo: "doorway_chest_stretch_howto",
+        equipment: "none",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 454,
@@ -2212,7 +3372,11 @@ export const STRETCHING_EXERCISES: any[] = [
         description: "overhead_triceps_stretch_desc",
         category: "stretching",
         tags: ["arms", "triceps", "static"],
-        howTo: "overhead_triceps_stretch_howto"
+        howTo: "overhead_triceps_stretch_howto",
+        equipment: "none",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
 
     // --- COSTAS E CORE ---
@@ -2222,7 +3386,11 @@ export const STRETCHING_EXERCISES: any[] = [
         description: "childs_pose_desc",
         category: "stretching",
         tags: ["back", "relaxation", "yoga"],
-        howTo: "childs_pose_howto"
+        howTo: "childs_pose_howto",
+        equipment: "none",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 456,
@@ -2230,7 +3398,11 @@ export const STRETCHING_EXERCISES: any[] = [
         description: "cat_cow_stretch_desc",
         category: "stretching",
         tags: ["spine", "mobility", "dynamic"],
-        howTo: "cat_cow_stretch_howto"
+        howTo: "cat_cow_stretch_howto",
+        equipment: "none",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 457,
@@ -2238,7 +3410,11 @@ export const STRETCHING_EXERCISES: any[] = [
         description: "cobra_stretch_desc",
         category: "stretching",
         tags: ["abs", "spine", "static"],
-        howTo: "cobra_stretch_howto"
+        howTo: "cobra_stretch_howto",
+        equipment: "none",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 458,
@@ -2246,7 +3422,11 @@ export const STRETCHING_EXERCISES: any[] = [
         description: "lying_spinal_twist_desc",
         category: "stretching",
         tags: ["back", "mobility", "static"],
-        howTo: "lying_spinal_twist_howto"
+        howTo: "lying_spinal_twist_howto",
+        equipment: "none",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
 
     // --- QUADRIL E GLÚTEOS ---
@@ -2256,7 +3436,11 @@ export const STRETCHING_EXERCISES: any[] = [
         description: "pigeon_pose_desc",
         category: "stretching",
         tags: ["glutes", "hips", "advanced"],
-        howTo: "pigeon_pose_howto"
+        howTo: "pigeon_pose_howto",
+        equipment: "none",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "advanced"
     },
     {
         id: 460,
@@ -2264,7 +3448,11 @@ export const STRETCHING_EXERCISES: any[] = [
         description: "kneeling_hip_flexor_stretch_desc",
         category: "stretching",
         tags: ["hips", "psoas", "posture"],
-        howTo: "kneeling_hip_flexor_stretch_howto"
+        howTo: "kneeling_hip_flexor_stretch_howto",
+        equipment: "none",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 461,
@@ -2272,7 +3460,11 @@ export const STRETCHING_EXERCISES: any[] = [
         description: "butterfly_stretch_desc",
         category: "stretching",
         tags: ["adductors", "hips", "seated"],
-        howTo: "butterfly_stretch_howto"
+        howTo: "butterfly_stretch_howto",
+        equipment: "none",
+        mechanics: "isolation",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
 
     // --- MEMBROS INFERIORES ---
@@ -2282,7 +3474,11 @@ export const STRETCHING_EXERCISES: any[] = [
         description: "standing_quadriceps_stretch_desc",
         category: "stretching",
         tags: ["quads", "legs", "static"],
-        howTo: "standing_quadriceps_stretch_howto"
+        howTo: "standing_quadriceps_stretch_howto",
+        equipment: "none",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 463,
@@ -2290,7 +3486,11 @@ export const STRETCHING_EXERCISES: any[] = [
         description: "seated_hamstring_stretch_desc",
         category: "stretching",
         tags: ["hamstrings", "legs", "seated"],
-        howTo: "seated_hamstring_stretch_howto"
+        howTo: "seated_hamstring_stretch_howto",
+        equipment: "none",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 464,
@@ -2298,7 +3498,11 @@ export const STRETCHING_EXERCISES: any[] = [
         description: "standing_calf_stretch_desc",
         category: "stretching",
         tags: ["calves", "legs", "static"],
-        howTo: "standing_calf_stretch_howto"
+        howTo: "standing_calf_stretch_howto",
+        equipment: "none",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 465,
@@ -2306,7 +3510,11 @@ export const STRETCHING_EXERCISES: any[] = [
         description: "worlds_greatest_stretch_desc",
         category: "stretching",
         tags: ["full_body", "mobility", "dynamic"],
-        howTo: "worlds_greatest_stretch_howto"
+        howTo: "worlds_greatest_stretch_howto",
+        equipment: "none",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
 
     // --- ANTEBRAÇO E MÃOS ---
@@ -2316,7 +3524,11 @@ export const STRETCHING_EXERCISES: any[] = [
         description: "wrist_extensor_stretch_desc",
         category: "stretching",
         tags: ["forearms", "wrists", "static"],
-        howTo: "wrist_extensor_stretch_howto"
+        howTo: "wrist_extensor_stretch_howto",
+        equipment: "none",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     }
 ];
 
@@ -2328,7 +3540,11 @@ export const FULL_BODY_EXERCISES: any[] = [
         description: "barbell_clean_and_press_desc",
         category: "full_body",
         tags: ["barbell", "power", "explosive"],
-        howTo: "barbell_clean_and_press_howto"
+        howTo: "barbell_clean_and_press_howto",
+        equipment: "barbell",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 481,
@@ -2336,7 +3552,11 @@ export const FULL_BODY_EXERCISES: any[] = [
         description: "barbell_snatch_desc",
         category: "full_body",
         tags: ["barbell", "olympic", "advanced"],
-        howTo: "barbell_snatch_howto"
+        howTo: "barbell_snatch_howto",
+        equipment: "barbell",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "advanced"
     },
     {
         id: 482,
@@ -2344,7 +3564,11 @@ export const FULL_BODY_EXERCISES: any[] = [
         description: "barbell_thruster_desc",
         category: "full_body",
         tags: ["barbell", "hiit", "metabolic"],
-        howTo: "barbell_thruster_howto"
+        howTo: "barbell_thruster_howto",
+        equipment: "barbell",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
 
     // --- DINÂMICOS COM HALTERES E KETTLEBELLS ---
@@ -2362,7 +3586,11 @@ export const FULL_BODY_EXERCISES: any[] = [
         description: "dumbbell_man_makers_desc",
         category: "full_body",
         tags: ["dumbbells", "advanced", "strength"],
-        howTo: "dumbbell_man_makers_howto"
+        howTo: "dumbbell_man_makers_howto",
+        equipment: "dumbbell",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "advanced"
     },
     {
         id: 485,
@@ -2370,7 +3598,11 @@ export const FULL_BODY_EXERCISES: any[] = [
         description: "dumbbell_snatch_unilateral_desc",
         category: "full_body",
         tags: ["dumbbells", "explosive", "unilateral"],
-        howTo: "dumbbell_snatch_unilateral_howto"
+        howTo: "dumbbell_snatch_unilateral_howto",
+        equipment: "dumbbell",
+        mechanics: "compound",
+        executionMode: "unilateral",
+        level: "intermediate"
     },
     {
         id: 486,
@@ -2378,7 +3610,11 @@ export const FULL_BODY_EXERCISES: any[] = [
         description: "turkish_get_up_desc",
         category: "full_body",
         tags: ["kettlebell", "stability", "advanced"],
-        howTo: "turkish_get_up_howto"
+        howTo: "turkish_get_up_howto",
+        equipment: "kettlebell",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "advanced"
     },
 
     // --- MOVIMENTOS DE CARGA E LOCOMOÇÃO ---
@@ -2396,7 +3632,11 @@ export const FULL_BODY_EXERCISES: any[] = [
         description: "bear_crawl_desc",
         category: "full_body",
         tags: ["bodyweight", "mobility", "core"],
-        howTo: "bear_crawl_howto"
+        howTo: "bear_crawl_howto",
+        equipment: "bodyweight",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 489,
@@ -2404,7 +3644,11 @@ export const FULL_BODY_EXERCISES: any[] = [
         description: "medicine_ball_slam_desc",
         category: "full_body",
         tags: ["medicine_ball", "explosive", "power"],
-        howTo: "medicine_ball_slam_howto"
+        howTo: "medicine_ball_slam_howto",
+        equipment: "none",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     },
     {
         id: 490,
@@ -2412,7 +3656,11 @@ export const FULL_BODY_EXERCISES: any[] = [
         description: "tire_flip_desc",
         category: "full_body",
         tags: ["heavy", "strongman", "functional"],
-        howTo: "tire_flip_howto"
+        howTo: "tire_flip_howto",
+        equipment: "none",
+        mechanics: "compound",
+        executionMode: "bilateral",
+        level: "intermediate"
     }
 ];
 
