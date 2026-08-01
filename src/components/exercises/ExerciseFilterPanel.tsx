@@ -3,8 +3,8 @@
 import { useState } from 'react';
 import { CATEGORIES, EQUIPMENT, CATEGORY_METADATA, EQUIPMENT_METADATA, CategoryType, EquipmentType } from '@/config/constants';
 import { useTranslations } from 'next-intl';
-import { SlidersHorizontal, RotateCcw, Dumbbell, Target } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { SlidersHorizontal, RotateCcw, Dumbbell, Target, Check, X } from 'lucide-react';
+import { Modal } from '@/components/ui/Modal';
 
 interface ExerciseFilterPanelProps {
     selectedCategory: string;
@@ -12,6 +12,7 @@ interface ExerciseFilterPanelProps {
     selectedEquipment: string;
     onEquipmentChange: (equipment: string) => void;
     className?: string;
+    zIndex?: string | number;
 }
 
 export function ExerciseFilterPanel({
@@ -19,9 +20,10 @@ export function ExerciseFilterPanel({
     onCategoryChange,
     selectedEquipment,
     onEquipmentChange,
-    className = ""
+    className = "",
+    zIndex = "z-[250]"
 }: ExerciseFilterPanelProps) {
-    const [isOpen, setIsOpen] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState(false);
     const tc = useTranslations('Categories');
     const te = useTranslations('Equipment');
 
@@ -38,17 +40,17 @@ export function ExerciseFilterPanel({
 
     return (
         <div className={`w-full ${className}`}>
-            {/* Filter Toggle and Summary Row */}
-            <div className="flex items-center justify-between gap-3 mb-2">
+            {/* Filter Toggle and Active Chips Bar */}
+            <div className="flex flex-wrap items-center gap-2">
                 <button
                     type="button"
-                    onClick={() => setIsOpen(!isOpen)}
-                    className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border text-xs font-black uppercase tracking-wider transition-all cursor-pointer active:scale-95 ${isOpen || hasActiveFilters
-                        ? 'bg-lime-400 text-zinc-950 border-lime-400 shadow-md shadow-lime-500/10'
-                        : 'bg-zinc-100 dark:bg-zinc-900/60 border-zinc-200/50 dark:border-zinc-800 text-zinc-500 dark:text-zinc-400 hover:border-zinc-300 dark:hover:border-zinc-700'
+                    onClick={() => setIsModalOpen(true)}
+                    className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border text-xs font-black uppercase tracking-wider transition-all cursor-pointer active:scale-95 ${hasActiveFilters
+                        ? 'bg-lime-400 text-zinc-950 border-lime-400 shadow-md shadow-lime-500/10 hover:bg-lime-500'
+                        : 'bg-zinc-100 dark:bg-zinc-900/60 border-zinc-200/50 dark:border-zinc-800 text-zinc-600 dark:text-zinc-300 hover:border-zinc-300 dark:hover:border-zinc-700'
                         }`}
                 >
-                    <SlidersHorizontal size={14} className={isOpen ? "rotate-90 transition-transform duration-300" : "transition-transform duration-300"} />
+                    <SlidersHorizontal size={14} />
                     <span>Filtros</span>
                     {activeFiltersCount > 0 && (
                         <span className="flex items-center justify-center w-5 h-5 rounded-full bg-zinc-950 text-lime-400 text-[10px] font-black leading-none">
@@ -57,11 +59,44 @@ export function ExerciseFilterPanel({
                     )}
                 </button>
 
+                {/* Active Category Chip */}
+                {selectedCategory !== 'all' && (
+                    <div className="flex items-center gap-1.5 pl-3 pr-2 py-1.5 rounded-xl bg-lime-400/10 dark:bg-lime-400/15 border border-lime-400/30 text-lime-600 dark:text-lime-400 text-[11px] font-bold">
+                        <Target size={12} />
+                        <span>{tc(selectedCategory)}</span>
+                        <button
+                            type="button"
+                            onClick={() => onCategoryChange('all')}
+                            className="p-1 hover:bg-lime-400/20 rounded-md transition-colors cursor-pointer"
+                            aria-label="Remover filtro de grupo muscular"
+                        >
+                            <X size={12} />
+                        </button>
+                    </div>
+                )}
+
+                {/* Active Equipment Chip */}
+                {selectedEquipment !== 'all' && (
+                    <div className="flex items-center gap-1.5 pl-3 pr-2 py-1.5 rounded-xl bg-lime-400/10 dark:bg-lime-400/15 border border-lime-400/30 text-lime-600 dark:text-lime-400 text-[11px] font-bold">
+                        <Dumbbell size={12} />
+                        <span>{te(selectedEquipment)}</span>
+                        <button
+                            type="button"
+                            onClick={() => onEquipmentChange('all')}
+                            className="p-1 hover:bg-lime-400/20 rounded-md transition-colors cursor-pointer"
+                            aria-label="Remover filtro de equipamento"
+                        >
+                            <X size={12} />
+                        </button>
+                    </div>
+                )}
+
+                {/* Clear All Button */}
                 {hasActiveFilters && (
                     <button
                         type="button"
                         onClick={handleClearAll}
-                        className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider text-zinc-500 hover:text-rose-500 transition-colors active:scale-95 cursor-pointer"
+                        className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider text-zinc-400 hover:text-rose-500 transition-colors active:scale-95 cursor-pointer ml-auto"
                     >
                         <RotateCcw size={12} />
                         <span>Limpar</span>
@@ -69,150 +104,214 @@ export function ExerciseFilterPanel({
                 )}
             </div>
 
-            {/* Expandable Filter Panel */}
-            <AnimatePresence initial={false}>
-                {isOpen && (
-                    <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: 'auto', opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.25, ease: 'easeInOut' }}
-                        className="overflow-hidden"
-                    >
-                        <div className="pt-3 pb-2 space-y-5 border-t border-zinc-900 dark:border-zinc-850 mt-2">
-                            {/* Category Filter */}
-                            <div className="space-y-2">
-                                <div className="flex items-center gap-1.5 text-[9px] font-black uppercase text-zinc-400 tracking-[0.15em] px-1">
-                                    <Target size={10} className="text-lime-500" />
+            {/* Filter Modal */}
+            <Modal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                title="Filtros de Exercício"
+                maxWidth="max-w-2xl"
+                zIndex={zIndex}
+                className="!rounded-[36px]"
+            >
+                <div className="flex flex-col h-full max-h-[80vh]">
+                    <div className="p-5 sm:p-6 space-y-7 overflow-y-auto flex-1">
+                        {/* Category Section */}
+                        <div className="space-y-3">
+                            <div className="flex items-center justify-between px-1">
+                                <div className="flex items-center gap-2 text-xs font-black uppercase text-zinc-900 dark:text-zinc-100 tracking-wider">
+                                    <Target size={14} className="text-lime-500" />
                                     <span>Grupo Muscular</span>
                                 </div>
-                                <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-zinc-200 dark:scrollbar-thumb-zinc-800 scrollbar-track-transparent">
-                                    {/* All Categories Card */}
+                                {selectedCategory !== 'all' && (
                                     <button
                                         type="button"
                                         onClick={() => onCategoryChange('all')}
-                                        className={`relative flex flex-col justify-end w-22 h-22 sm:w-24 sm:h-24 p-2.5 rounded-2xl border transition-all cursor-pointer flex-shrink-0 overflow-hidden group select-none ${selectedCategory === 'all'
-                                            ? 'bg-lime-400/5 border-lime-400/30 shadow-[0_4px_16px_rgba(163,230,71,0.06)]'
-                                            : 'bg-zinc-950 border-zinc-200/15 dark:border-zinc-900/50 hover:border-zinc-200/30 dark:hover:border-zinc-800/60'
-                                            }`}
+                                        className="text-[10px] font-bold text-lime-500 hover:underline uppercase tracking-wider cursor-pointer"
                                     >
-                                        <div className="absolute inset-0 flex items-center justify-center -translate-y-2">
-                                            <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-all ${selectedCategory === 'all'
-                                                ? 'bg-lime-400/20 text-lime-400 shadow-[0_0_15px_rgba(163,230,71,0.2)]'
-                                                : 'bg-zinc-900 text-zinc-500 border border-zinc-800'
-                                                }`}>
-                                                <Target size={20} className="opacity-80" />
-                                            </div>
-                                        </div>
-                                        {/* Bottom gradient overlay */}
-                                        <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/40 to-transparent z-10" />
-                                        <span className={`relative z-20 text-[8px] sm:text-[9px] font-black uppercase tracking-wider text-center truncate w-full ${selectedCategory === 'all' ? 'text-lime-400' : 'text-zinc-400 group-hover:text-white'
-                                            }`}>
-                                            Todos
-                                        </span>
+                                        Limpar Seleção
                                     </button>
-
-                                    {/* Categories Cards */}
-                                    {CATEGORIES.map(cat => {
-                                        const meta = CATEGORY_METADATA[cat];
-                                        const isSelected = selectedCategory === cat;
-                                        return (
-                                            <button
-                                                key={cat}
-                                                type="button"
-                                                onClick={() => onCategoryChange(cat)}
-                                                className={`relative flex flex-col justify-end w-22 h-22 sm:w-24 sm:h-24 p-2.5 rounded-2xl border transition-all cursor-pointer flex-shrink-0 overflow-hidden group select-none ${isSelected
-                                                    ? 'bg-lime-400/5 border-lime-400/30 shadow-[0_4px_16px_rgba(163,230,71,0.06)]'
-                                                    : 'bg-zinc-950 border-zinc-200/15 dark:border-zinc-900/50 hover:border-zinc-200/30 dark:hover:border-zinc-800/60'
-                                                    }`}
-                                            >
-                                                {/* Full image occupying the card */}
-                                                <img
-                                                    src={meta.imagePath}
-                                                    alt={tc(cat)}
-                                                    className={`absolute inset-0 w-full h-full object-contain p-2 pb-5 transition-transform duration-550 group-hover:scale-105 ${isSelected ? 'opacity-90 drop-shadow-[0_0_8px_rgba(163,230,71,0.35)]' : 'opacity-55 dark:opacity-65'
-                                                        }`}
-                                                />
-                                                {/* Bottom gradient overlay */}
-                                                <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/45 to-transparent z-10" />
-                                                <span className={`relative z-20 text-[8px] sm:text-[9px] font-black uppercase tracking-wider text-center truncate w-full ${isSelected ? 'text-lime-400 font-extrabold' : 'text-zinc-450 dark:text-zinc-400 group-hover:text-white'
-                                                    }`}>
-                                                    {tc(cat)}
-                                                </span>
-                                            </button>
-                                        );
-                                    })}
-                                </div>
+                                )}
                             </div>
 
-                            {/* Equipment Filter */}
-                            <div className="space-y-2">
-                                <div className="flex items-center gap-1.5 text-[9px] font-black uppercase text-zinc-400 tracking-[0.15em] px-1">
-                                    <Dumbbell size={10} className="text-lime-500" />
+                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                                {/* All Categories Card */}
+                                <button
+                                    type="button"
+                                    onClick={() => onCategoryChange('all')}
+                                    className={`relative flex flex-col justify-between h-28 sm:h-32 p-3 rounded-2xl border transition-all cursor-pointer overflow-hidden group select-none ${selectedCategory === 'all'
+                                        ? 'bg-lime-400/10 border-lime-400 shadow-[0_0_20px_rgba(163,230,71,0.15)] ring-2 ring-lime-400/40'
+                                        : 'bg-zinc-100 dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700'
+                                        }`}
+                                >
+                                    {selectedCategory === 'all' && (
+                                        <div className="absolute top-2.5 right-2.5 z-30 w-5 h-5 rounded-full bg-lime-400 text-zinc-950 flex items-center justify-center shadow-md">
+                                            <Check size={12} strokeWidth={3} />
+                                        </div>
+                                    )}
+                                    <div className="flex-1 flex items-center justify-center">
+                                        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all ${selectedCategory === 'all'
+                                            ? 'bg-lime-400/20 text-lime-400 shadow-[0_0_15px_rgba(163,230,71,0.25)] scale-110'
+                                            : 'bg-zinc-200/60 dark:bg-zinc-900 text-zinc-500 border border-zinc-300/40 dark:border-zinc-800'
+                                            }`}>
+                                            <Target size={22} />
+                                        </div>
+                                    </div>
+                                    <span className={`relative z-20 text-[10px] sm:text-xs font-black uppercase tracking-wider text-center truncate w-full ${selectedCategory === 'all' ? 'text-lime-400' : 'text-zinc-600 dark:text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-white'
+                                        }`}>
+                                        Todos
+                                    </span>
+                                </button>
+
+                                {/* Categories Cards */}
+                                {CATEGORIES.map(cat => {
+                                    const meta = CATEGORY_METADATA[cat];
+                                    const isSelected = selectedCategory === cat;
+                                    return (
+                                        <button
+                                            key={cat}
+                                            type="button"
+                                            onClick={() => onCategoryChange(cat)}
+                                            className={`relative flex flex-col justify-end h-28 sm:h-32 p-3 rounded-2xl border transition-all cursor-pointer overflow-hidden group select-none ${isSelected
+                                                ? 'bg-lime-400/10 border-lime-400 shadow-[0_0_20px_rgba(163,230,71,0.15)] ring-2 ring-lime-400/40'
+                                                : 'bg-zinc-100 dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700'
+                                                }`}
+                                        >
+                                            {isSelected && (
+                                                <div className="absolute top-2.5 right-2.5 z-30 w-5 h-5 rounded-full bg-lime-400 text-zinc-950 flex items-center justify-center shadow-md">
+                                                    <Check size={12} strokeWidth={3} />
+                                                </div>
+                                            )}
+                                            {/* Category Image */}
+                                            <img
+                                                src={meta.imagePath}
+                                                alt={tc(cat)}
+                                                className={`absolute inset-0 w-full h-full object-contain p-2 pb-7 transition-transform duration-300 group-hover:scale-105 ${isSelected ? 'opacity-100 drop-shadow-[0_0_10px_rgba(163,230,71,0.4)]' : 'opacity-70 dark:opacity-75 group-hover:opacity-100'
+                                                    }`}
+                                            />
+                                            {/* Bottom gradient overlay */}
+                                            <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/60 to-transparent z-10" />
+                                            <span className={`relative z-20 text-[10px] sm:text-xs font-black uppercase tracking-wider text-center truncate w-full ${isSelected ? 'text-lime-400 font-black' : 'text-zinc-200 group-hover:text-white'
+                                                }`}>
+                                                {tc(cat)}
+                                            </span>
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        </div>
+
+                        {/* Equipment Section */}
+                        <div className="space-y-3">
+                            <div className="flex items-center justify-between px-1">
+                                <div className="flex items-center gap-2 text-xs font-black uppercase text-zinc-900 dark:text-zinc-100 tracking-wider">
+                                    <Dumbbell size={14} className="text-lime-500" />
                                     <span>Equipamento</span>
                                 </div>
-                                <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-zinc-200 dark:scrollbar-thumb-zinc-800 scrollbar-track-transparent">
-                                    {/* All Equipment Card */}
+                                {selectedEquipment !== 'all' && (
                                     <button
                                         type="button"
                                         onClick={() => onEquipmentChange('all')}
-                                        className={`relative flex flex-col justify-end w-22 h-22 sm:w-24 sm:h-24 p-2.5 rounded-2xl border transition-all cursor-pointer flex-shrink-0 overflow-hidden group select-none ${selectedEquipment === 'all'
-                                            ? 'bg-lime-400/5 border-lime-400/30 shadow-[0_4px_16px_rgba(163,230,71,0.06)]'
-                                            : 'bg-zinc-950 border-zinc-200/15 dark:border-zinc-900/50 hover:border-zinc-200/30 dark:hover:border-zinc-800/60'
-                                            }`}
+                                        className="text-[10px] font-bold text-lime-500 hover:underline uppercase tracking-wider cursor-pointer"
                                     >
-                                        <div className="absolute inset-0 flex items-center justify-center -translate-y-2">
-                                            <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-all ${selectedEquipment === 'all'
-                                                ? 'bg-lime-400/20 text-lime-400 shadow-[0_0_15px_rgba(163,230,71,0.2)]'
-                                                : 'bg-zinc-900 text-zinc-500 border border-zinc-800'
-                                                }`}>
-                                                <Dumbbell size={20} className="opacity-80" />
-                                            </div>
-                                        </div>
-                                        {/* Bottom gradient overlay */}
-                                        <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/40 to-transparent z-10" />
-                                        <span className={`relative z-20 text-[8px] sm:text-[9px] font-black uppercase tracking-wider text-center truncate w-full ${selectedEquipment === 'all' ? 'text-lime-400' : 'text-zinc-400 group-hover:text-white'
-                                            }`}>
-                                            Todos
-                                        </span>
+                                        Limpar Seleção
                                     </button>
+                                )}
+                            </div>
 
-                                    {/* Equipment Cards */}
-                                    {EQUIPMENT.map(eq => {
-                                        const meta = EQUIPMENT_METADATA[eq];
-                                        const isSelected = selectedEquipment === eq;
-                                        return (
-                                            <button
-                                                key={eq}
-                                                type="button"
-                                                onClick={() => onEquipmentChange(eq)}
-                                                className={`relative flex flex-col justify-end w-22 h-22 sm:w-24 sm:h-24 p-2.5 rounded-2xl border transition-all cursor-pointer flex-shrink-0 overflow-hidden group select-none ${isSelected
-                                                    ? 'bg-lime-400/5 border-lime-400/30 shadow-[0_4px_16px_rgba(163,230,71,0.06)]'
-                                                    : 'bg-zinc-950 border-zinc-200/15 dark:border-zinc-900/50 hover:border-zinc-200/30 dark:hover:border-zinc-800/60'
+                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                                {/* All Equipment Card */}
+                                <button
+                                    type="button"
+                                    onClick={() => onEquipmentChange('all')}
+                                    className={`relative flex flex-col justify-between h-28 sm:h-32 p-3 rounded-2xl border transition-all cursor-pointer overflow-hidden group select-none ${selectedEquipment === 'all'
+                                        ? 'bg-lime-400/10 border-lime-400 shadow-[0_0_20px_rgba(163,230,71,0.15)] ring-2 ring-lime-400/40'
+                                        : 'bg-zinc-100 dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700'
+                                        }`}
+                                >
+                                    {selectedEquipment === 'all' && (
+                                        <div className="absolute top-2.5 right-2.5 z-30 w-5 h-5 rounded-full bg-lime-400 text-zinc-950 flex items-center justify-center shadow-md">
+                                            <Check size={12} strokeWidth={3} />
+                                        </div>
+                                    )}
+                                    <div className="flex-1 flex items-center justify-center">
+                                        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all ${selectedEquipment === 'all'
+                                            ? 'bg-lime-400/20 text-lime-400 shadow-[0_0_15px_rgba(163,230,71,0.25)] scale-110'
+                                            : 'bg-zinc-200/60 dark:bg-zinc-900 text-zinc-500 border border-zinc-300/40 dark:border-zinc-800'
+                                            }`}>
+                                            <Dumbbell size={22} />
+                                        </div>
+                                    </div>
+                                    <span className={`relative z-20 text-[10px] sm:text-xs font-black uppercase tracking-wider text-center truncate w-full ${selectedEquipment === 'all' ? 'text-lime-400' : 'text-zinc-600 dark:text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-white'
+                                        }`}>
+                                        Todos
+                                    </span>
+                                </button>
+
+                                {/* Equipment Cards */}
+                                {EQUIPMENT.map(eq => {
+                                    const meta = EQUIPMENT_METADATA[eq];
+                                    const isSelected = selectedEquipment === eq;
+                                    return (
+                                        <button
+                                            key={eq}
+                                            type="button"
+                                            onClick={() => onEquipmentChange(eq)}
+                                            className={`relative flex flex-col justify-end h-28 sm:h-32 p-3 rounded-2xl border transition-all cursor-pointer overflow-hidden group select-none ${isSelected
+                                                ? 'bg-lime-400/10 border-lime-400 shadow-[0_0_20px_rgba(163,230,71,0.15)] ring-2 ring-lime-400/40'
+                                                : 'bg-zinc-100 dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700'
+                                                }`}
+                                        >
+                                            {isSelected && (
+                                                <div className="absolute top-2.5 right-2.5 z-30 w-5 h-5 rounded-full bg-lime-400 text-zinc-950 flex items-center justify-center shadow-md">
+                                                    <Check size={12} strokeWidth={3} />
+                                                </div>
+                                            )}
+                                            {/* Equipment Image */}
+                                            <img
+                                                src={meta.imagePath}
+                                                alt={te(eq)}
+                                                className={`absolute inset-0 w-full h-full object-contain p-2 pb-7 transition-transform duration-300 group-hover:scale-105 ${isSelected ? 'opacity-100 drop-shadow-[0_0_10px_rgba(163,230,71,0.4)]' : 'opacity-70 dark:opacity-75 group-hover:opacity-100'
                                                     }`}
-                                            >
-                                                {/* Full image occupying the card */}
-                                                <img
-                                                    src={meta.imagePath}
-                                                    alt={te(eq)}
-                                                    className={`absolute inset-0 w-full h-full object-contain p-2 pb-5 transition-transform duration-550 group-hover:scale-105 ${isSelected ? 'opacity-90 drop-shadow-[0_0_8px_rgba(163,230,71,0.35)]' : 'opacity-55 dark:opacity-65'
-                                                        }`}
-                                                />
-                                                {/* Bottom gradient overlay */}
-                                                <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/45 to-transparent z-10" />
-                                                <span className={`relative z-20 text-[8px] sm:text-[9px] font-black uppercase tracking-wider text-center truncate w-full ${isSelected ? 'text-lime-400 font-extrabold' : 'text-zinc-450 dark:text-zinc-400 group-hover:text-white'
-                                                    }`}>
-                                                    {te(eq)}
-                                                </span>
-                                            </button>
-                                        );
-                                    })}
-                                </div>
+                                            />
+                                            {/* Bottom gradient overlay */}
+                                            <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/60 to-transparent z-10" />
+                                            <span className={`relative z-20 text-[10px] sm:text-xs font-black uppercase tracking-wider text-center truncate w-full ${isSelected ? 'text-lime-400 font-black' : 'text-zinc-200 group-hover:text-white'
+                                                }`}>
+                                                {te(eq)}
+                                            </span>
+                                        </button>
+                                    );
+                                })}
                             </div>
                         </div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
+                    </div>
+
+                    {/* Modal Footer */}
+                    <div className="sticky bottom-0 p-4 sm:p-5 bg-white dark:bg-zinc-900 border-t border-zinc-200/80 dark:border-zinc-800/80 flex items-center justify-between gap-3 z-20">
+                        {hasActiveFilters ? (
+                            <button
+                                type="button"
+                                onClick={handleClearAll}
+                                className="flex items-center gap-1.5 px-4 py-3 rounded-2xl border border-zinc-200 dark:border-zinc-700 text-xs font-black uppercase tracking-wider text-zinc-600 dark:text-zinc-400 hover:text-rose-500 dark:hover:text-rose-400 hover:border-rose-300 dark:hover:border-rose-900/50 transition-all cursor-pointer active:scale-95"
+                            >
+                                <RotateCcw size={14} />
+                                <span>Limpar Tudo</span>
+                            </button>
+                        ) : (
+                            <div />
+                        )}
+
+                        <button
+                            type="button"
+                            onClick={() => setIsModalOpen(false)}
+                            className="flex-1 sm:flex-initial flex items-center justify-center gap-2 px-8 py-3.5 rounded-2xl bg-lime-400 hover:bg-lime-500 text-zinc-950 font-black text-xs uppercase tracking-wider shadow-lg shadow-lime-500/20 active:scale-95 transition-all cursor-pointer"
+                        >
+                            <span>Aplicar Filtros</span>
+                        </button>
+                    </div>
+                </div>
+            </Modal>
         </div>
     );
 }
+

@@ -189,6 +189,7 @@ export const ExerciseSelector = ({ isOpen, onClose, onSelect }: {
                             onCategoryChange={setSelectedCategory}
                             selectedEquipment={selectedEquipment}
                             onEquipmentChange={setSelectedEquipment}
+                            zIndex="z-[250]"
                         />
                     </div>
 
