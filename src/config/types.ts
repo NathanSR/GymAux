@@ -22,23 +22,33 @@ export interface User {
 
 export type { CategoryType, EquipmentType };
 
+export interface GalleryItem {
+    url: string;
+    type: 'image' | 'video';
+    title?: string;
+    thumbnail?: string;
+}
+
 export interface Exercise {
     id?: number;
     created_by?: string;
-    created_by_type: "user" | "system" | "trainer";
+    created_by_type?: "user" | "system" | "trainer";
     name: string;
     description?: string;
     category: CategoryType;
+    secondaryMuscles?: CategoryType[];
     tags?: string[];
     howTo?: string;
-    mediaUrl?: string;
+    imageUrl?: string | null;
+    videoUrl?: string | null;
+    gallery?: GalleryItem[] | null;
     level?: "beginner" | "intermediate" | "advanced";
     visibility?: "public" | "private" | "students" | "restricted";
     shared_with?: string[];
     equipment?: EquipmentType;
     executionMode?: 'bilateral' | 'unilateral' | 'alternating';
     mechanics?: 'compound' | 'isolation';
-    parentId?: number;
+    parentId?: number | null;
 }
 
 // ========================

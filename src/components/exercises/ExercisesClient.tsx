@@ -198,7 +198,7 @@ export default function ExercisesClient({ initialExercises, initialTotalCount, i
                                         ) : (
                                             <Dumbbell size={24} className="text-zinc-300 dark:text-zinc-800" />
                                         )}
-                                        {exercise.mediaUrl && (
+                                        {(exercise.imageUrl || exercise.videoUrl) && (
                                             <div className="absolute right-1 bottom-1 w-5 h-5 bg-lime-400 text-zinc-950 rounded-full flex items-center justify-center shadow-md">
                                                 <PlayCircle size={12} className="fill-current text-zinc-950" />
                                             </div>

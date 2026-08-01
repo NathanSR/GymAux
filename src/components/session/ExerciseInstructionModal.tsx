@@ -16,8 +16,8 @@ export const ExerciseInstructionModal = ({ isOpen, onClose, exercise }: Exercise
 
     const fallbackImage = "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=1000&auto=format&fit=crop";
     const categoryMeta = exercise?.category ? CATEGORY_METADATA[exercise.category] : null;
-    const hasMedia = !!exercise?.mediaUrl;
-    const mediaSrc = exercise?.mediaUrl || categoryMeta?.imagePath || fallbackImage;
+    const hasMedia = !!(exercise?.imageUrl || exercise?.videoUrl);
+    const mediaSrc = exercise?.imageUrl || exercise?.videoUrl || categoryMeta?.imagePath || fallbackImage;
 
     const instructions = exercise?.howTo
         ? (te.has(exercise.howTo) ? te(exercise.howTo) : exercise.howTo)

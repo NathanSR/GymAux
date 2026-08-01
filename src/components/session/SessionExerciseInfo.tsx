@@ -41,7 +41,7 @@ export function SessionExerciseInfo({
     const tw = useTranslations('WorkoutForm');
     const tc = useTranslations('Categories');
 
-    const mediaUrl = currentExerciseDetails?.mediaUrl;
+    const mediaUrl = currentExerciseDetails?.imageUrl || currentExerciseDetails?.videoUrl;
     const category = currentExerciseDetails?.category;
 
     const groupStyle = GROUP_CONFIG[currentGroup?.groupType || 'straight'] || GROUP_CONFIG.straight;

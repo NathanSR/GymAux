@@ -44,6 +44,8 @@ const inferExecutionModeFromTags = (tags: string[], name: string): 'bilateral' |
 
 const mapExerciseFromSupabase = (ex: any): Exercise => {
     const tags = safeParseArray<string>(ex.tags);
+    const secondaryMuscles = safeParseArray<any>(ex.secondary_muscles);
+    const gallery = safeParseArray<any>(ex.gallery);
     const name = ex.name || 'Exercício sem nome';
     return {
         id: ex.id,
@@ -52,11 +54,14 @@ const mapExerciseFromSupabase = (ex: any): Exercise => {
         name: name,
         description: ex.description || undefined,
         category: ex.category || 'core',
+        secondaryMuscles: secondaryMuscles.length > 0 ? secondaryMuscles : undefined,
         tags: tags,
         howTo: ex.how_to || undefined,
-        mediaUrl: ex.media_url || undefined,
+        imageUrl: ex.image_url || undefined,
+        videoUrl: ex.video_url || undefined,
+        gallery: gallery.length > 0 ? gallery : undefined,
         level: ex.level as any,
-        visibility: ex.visibility || (ex.created_by_type === 'system' || (ex.id && ex.id < 1000) ? 'public' : (ex.is_public ? 'public' : 'private')),
+        visibility: ex.visibility || (ex.created_by_type === 'system' || (ex.id && ex.id < 1000) ? 'public' : 'private'),
         shared_with: safeParseArray<string>(ex.shared_with),
         equipment: ex.equipment || inferEquipmentFromTags(tags, name),
         executionMode: ex.execution_mode || inferExecutionModeFromTags(tags, name),
@@ -171,8 +176,8 @@ export const ExerciseService = {
         };
 
         exercises.sort((a: Exercise, b: Exercise) => {
-            const pA = typePriority[a.created_by_type] || 4;
-            const pB = typePriority[b.created_by_type] || 4;
+            const pA = typePriority[a.created_by_type || 'system'] || 4;
+            const pB = typePriority[b.created_by_type || 'system'] || 4;
             if (pA === pB) {
                 return (a.id || 0) - (b.id || 0);
             }
@@ -246,10 +251,17 @@ export const ExerciseService = {
             name: formattedName,
             description: exerciseData.description?.trim(),
             how_to: exerciseData.howTo,
-            media_url: exerciseData.mediaUrl?.trim() || null,
+            image_url: exerciseData.imageUrl?.trim() || null,
+            video_url: exerciseData.videoUrl?.trim() || null,
+            gallery: exerciseData.gallery || [],
+            secondary_muscles: exerciseData.secondaryMuscles || [],
             category: exerciseData.category,
             tags: exerciseData.tags,
             level: exerciseData.level,
+            equipment: exerciseData.equipment || 'none',
+            execution_mode: exerciseData.executionMode || 'bilateral',
+            mechanics: exerciseData.mechanics || 'compound',
+            parent_id: exerciseData.parentId || null,
             created_by: userId,
             created_by_type: 'user',
             visibility: exerciseData.visibility || 'private',
@@ -294,10 +306,17 @@ export const ExerciseService = {
         }
         if (updateData.description !== undefined) updates.description = updateData.description.trim();
         if (updateData.howTo !== undefined) updates.how_to = updateData.howTo;
-        if (updateData.mediaUrl !== undefined) updates.media_url = updateData.mediaUrl.trim() || null;
+        if (updateData.imageUrl !== undefined) updates.image_url = updateData.imageUrl?.trim() || null;
+        if (updateData.videoUrl !== undefined) updates.video_url = updateData.videoUrl?.trim() || null;
+        if (updateData.gallery !== undefined) updates.gallery = updateData.gallery;
+        if (updateData.secondaryMuscles !== undefined) updates.secondary_muscles = updateData.secondaryMuscles;
         if (updateData.category !== undefined) updates.category = updateData.category;
         if (updateData.tags !== undefined) updates.tags = updateData.tags;
         if (updateData.level !== undefined) updates.level = updateData.level;
+        if (updateData.equipment !== undefined) updates.equipment = updateData.equipment;
+        if (updateData.executionMode !== undefined) updates.execution_mode = updateData.executionMode;
+        if (updateData.mechanics !== undefined) updates.mechanics = updateData.mechanics;
+        if (updateData.parentId !== undefined) updates.parent_id = updateData.parentId;
         if (updateData.visibility !== undefined) updates.visibility = updateData.visibility;
         if (updateData.shared_with !== undefined) updates.shared_with = updateData.shared_with;
 

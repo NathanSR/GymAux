@@ -24,11 +24,14 @@ const mapExerciseFromSupabaseAdmin = (ex: any): Exercise & { createdByName?: str
         name: ex.name,
         description: ex.description || undefined,
         category: ex.category as any,
+        secondaryMuscles: ex.secondary_muscles || undefined,
         tags: tags,
         howTo: ex.how_to || undefined,
-        mediaUrl: ex.media_url || undefined,
+        imageUrl: ex.image_url || undefined,
+        videoUrl: ex.video_url || undefined,
+        gallery: ex.gallery || undefined,
         level: ex.level as any,
-        visibility: ex.visibility || (ex.created_by_type === 'system' || (ex.id && ex.id < 1000) ? 'public' : (ex.is_public ? 'public' : 'private')),
+        visibility: ex.visibility || (ex.created_by_type === 'system' || (ex.id && ex.id < 1000) ? 'public' : 'private'),
         shared_with: ex.shared_with || [],
         equipment: ex.equipment || 'none',
         executionMode: ex.execution_mode || 'bilateral',
@@ -186,7 +189,10 @@ export const adminService = {
             name: exerciseData.name.trim(),
             description: exerciseData.description?.trim() || null,
             how_to: exerciseData.howTo?.trim() || null,
-            media_url: exerciseData.mediaUrl?.trim() || null,
+            image_url: exerciseData.imageUrl?.trim() || null,
+            video_url: exerciseData.videoUrl?.trim() || null,
+            gallery: exerciseData.gallery || [],
+            secondary_muscles: exerciseData.secondaryMuscles || [],
             category: exerciseData.category,
             tags: exerciseData.tags || [],
             level: exerciseData.level || 'beginner',
@@ -196,7 +202,8 @@ export const adminService = {
             shared_with: exerciseData.shared_with || [],
             equipment: exerciseData.equipment || 'none',
             execution_mode: exerciseData.executionMode || 'bilateral',
-            mechanics: exerciseData.mechanics || 'compound'
+            mechanics: exerciseData.mechanics || 'compound',
+            parent_id: exerciseData.parentId || null,
         };
 
         const { data, error } = await supabase
@@ -220,7 +227,10 @@ export const adminService = {
             name: updateData.name?.trim(),
             description: updateData.description !== undefined ? (updateData.description?.trim() || null) : undefined,
             how_to: updateData.howTo !== undefined ? (updateData.howTo?.trim() || null) : undefined,
-            media_url: updateData.mediaUrl !== undefined ? (updateData.mediaUrl?.trim() || null) : undefined,
+            image_url: updateData.imageUrl !== undefined ? (updateData.imageUrl?.trim() || null) : undefined,
+            video_url: updateData.videoUrl !== undefined ? (updateData.videoUrl?.trim() || null) : undefined,
+            gallery: updateData.gallery,
+            secondary_muscles: updateData.secondaryMuscles,
             category: updateData.category,
             tags: updateData.tags,
             level: updateData.level,
@@ -230,7 +240,8 @@ export const adminService = {
             shared_with: updateData.shared_with,
             equipment: updateData.equipment,
             execution_mode: updateData.executionMode,
-            mechanics: updateData.mechanics
+            mechanics: updateData.mechanics,
+            parent_id: updateData.parentId,
         };
 
         // Remove chaves undefined para não sobrescrever com null no update

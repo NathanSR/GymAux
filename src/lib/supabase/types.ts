@@ -16,43 +16,67 @@ export type Database = {
     Tables: {
       exercises: {
         Row: {
-          category: string
-          created_by: string | null
-          created_by_type: string
-          description: string | null
-          how_to: string | null
           id: number
-          is_public: boolean
-          level: string | null
-          media_url: string | null
           name: string
+          description: string | null
+          category: string
+          secondary_muscles: string[] | null
           tags: string[] | null
+          how_to: string | null
+          image_url: string | null
+          video_url: string | null
+          gallery: Json | null
+          level: string | null
+          equipment: string | null
+          execution_mode: string | null
+          mechanics: string | null
+          parent_id: number | null
+          visibility: string | null
+          shared_with: string[] | null
+          created_by_type: string
+          created_by: string | null
         }
         Insert: {
-          category: string
-          created_by?: string | null
-          created_by_type?: string
-          description?: string | null
-          how_to?: string | null
           id?: number
-          is_public?: boolean
-          level?: string | null
-          media_url?: string | null
           name: string
+          description?: string | null
+          category: string
+          secondary_muscles?: string[] | null
           tags?: string[] | null
+          how_to?: string | null
+          image_url?: string | null
+          video_url?: string | null
+          gallery?: Json | null
+          level?: string | null
+          equipment?: string | null
+          execution_mode?: string | null
+          mechanics?: string | null
+          parent_id?: number | null
+          visibility?: string | null
+          shared_with?: string[] | null
+          created_by_type?: string
+          created_by?: string | null
         }
         Update: {
-          category?: string
-          created_by?: string | null
-          created_by_type?: string
-          description?: string | null
-          how_to?: string | null
           id?: number
-          is_public?: boolean
-          level?: string | null
-          media_url?: string | null
           name?: string
+          description?: string | null
+          category?: string
+          secondary_muscles?: string[] | null
           tags?: string[] | null
+          how_to?: string | null
+          image_url?: string | null
+          video_url?: string | null
+          gallery?: Json | null
+          level?: string | null
+          equipment?: string | null
+          execution_mode?: string | null
+          mechanics?: string | null
+          parent_id?: number | null
+          visibility?: string | null
+          shared_with?: string[] | null
+          created_by_type?: string
+          created_by?: string | null
         }
         Relationships: [
           {
@@ -60,6 +84,13 @@ export type Database = {
             columns: ["created_by"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "exercises_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "exercises"
             referencedColumns: ["id"]
           },
         ]

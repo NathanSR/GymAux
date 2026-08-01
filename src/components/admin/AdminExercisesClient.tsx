@@ -261,7 +261,7 @@ export default function AdminExercisesClient({ initialExercises, initialTotalCou
                     </div>
 
                     {/* Media indicator */}
-                    {ex.mediaUrl ? (
+                    {(ex.imageUrl || ex.videoUrl || (ex.gallery && ex.gallery.length > 0)) ? (
                       <span className="text-lime-400 text-xs flex items-center gap-1" title="Possui mídia demonstrativa">
                         <Video size={14} />
                       </span>

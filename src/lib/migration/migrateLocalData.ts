@@ -30,15 +30,22 @@ export async function migrateLocalData() {
       name: e.name,
       description: e.description,
       category: e.category,
+      secondary_muscles: e.secondaryMuscles || [],
       tags: e.tags,
       how_to: e.howTo,
-      media_url: e.mediaUrl,
+      image_url: e.imageUrl || null,
+      video_url: e.videoUrl || null,
+      gallery: e.gallery || [],
       level: e.level,
+      equipment: e.equipment || 'none',
+      execution_mode: e.executionMode || 'bilateral',
+      mechanics: e.mechanics || 'compound',
+      parent_id: e.parentId || null,
       created_by: user.id,
       created_by_type: 'user',
-      is_public: false
+      visibility: e.visibility || 'private'
     }));
-    await supabase.from("exercises").insert(exercisesForSupabase);
+    await supabase.from("exercises").insert(exercisesForSupabase as any);
   }
 
   // 3. Migrate Workouts (and collect ID mapping)
