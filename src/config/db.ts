@@ -1,6 +1,6 @@
 import Dexie, { type Table } from 'dexie';
 import { Exercise, History, User, Workout, Schedule, Session, SyncOperation, Connection, ExerciseCategory, ExerciseEquipment } from './types';
-import { DEFAULT_EXERCISES } from "./seeds";
+import { DEFAULT_EXERCISES, DEFAULT_CATEGORIES, DEFAULT_EQUIPMENT } from "./seeds";
 
 // --- Configuração do Banco ---
 
@@ -64,9 +64,16 @@ export class GymDatabase extends Dexie {
         // Evento profissional para sincronizar dados e travar IDs
         this.on('ready', async () => {
             await this.syncSystemExercises();
+            await this.syncTaxonomy();
             await this.reserveUserSpace();
         });
     }
+
+    private async syncTaxonomy() {
+        await this.categories.bulkPut(DEFAULT_CATEGORIES);
+        await this.equipment.bulkPut(DEFAULT_EQUIPMENT);
+    }
+
     /**
      * Insere ou atualiza exercícios da SEED (1 a 999).
      * Se você adicionar o id 501 amanhã no arquivo, ele entrará aqui.

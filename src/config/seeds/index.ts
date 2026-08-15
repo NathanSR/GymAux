@@ -32,6 +32,8 @@ export * from './core';
 export * from './cardio';
 export * from './stretching';
 export * from './fullBody';
+export * from './categories';
+export * from './equipments';
 
 export const DEFAULT_EXERCISES: Exercise[] = [
     ...CHEST_EXERCISES,
@@ -51,3 +53,4 @@ export const DEFAULT_EXERCISES: Exercise[] = [
     ...STRETCHING_EXERCISES,
     ...FULL_BODY_EXERCISES
 ];
+

@@ -1,27 +1,11 @@
 import { createClient } from '@/lib/supabase/client';
 import { db } from '@/config/db';
 import { ExerciseCategory, ExerciseEquipment } from '@/config/types';
-import { CATEGORIES, EQUIPMENT, CATEGORY_METADATA, EQUIPMENT_METADATA } from '@/config/constants';
+import { DEFAULT_CATEGORIES, DEFAULT_EQUIPMENT } from '@/config/seeds';
 import { withTimeout } from '@/lib/utils/timeout';
 
-// Fallback arrays generated from constants
-const FALLBACK_CATEGORIES: ExerciseCategory[] = CATEGORIES.map((slug, index) => ({
-    slug,
-    name: slug.charAt(0).toUpperCase() + slug.slice(1),
-    imageUrl: CATEGORY_METADATA[slug]?.imagePath || null,
-    displayOrder: index + 1,
-    isActive: true,
-    translations: {}
-}));
-
-const FALLBACK_EQUIPMENT: ExerciseEquipment[] = EQUIPMENT.map((slug, index) => ({
-    slug,
-    name: slug.charAt(0).toUpperCase() + slug.slice(1),
-    imageUrl: EQUIPMENT_METADATA[slug]?.imagePath || null,
-    displayOrder: index + 1,
-    isActive: true,
-    translations: {}
-}));
+const FALLBACK_CATEGORIES: ExerciseCategory[] = DEFAULT_CATEGORIES;
+const FALLBACK_EQUIPMENT: ExerciseEquipment[] = DEFAULT_EQUIPMENT;
 
 export const taxonomyService = {
     /**
