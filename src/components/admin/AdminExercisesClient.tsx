@@ -7,8 +7,9 @@ import { Link, useRouter } from '@/i18n/routing';
 import { motion, AnimatePresence } from 'framer-motion';
 import { adminService } from '@/services/adminService';
 import { useAlerts } from '@/hooks/useAlerts';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { CATEGORIES, EQUIPMENT } from '@/config/constants';
+import { getExerciseLocalized } from '@/utils/exerciseLocalization';
 
 interface AdminExercisesClientProps {
   initialExercises: (Exercise & { createdByName?: string })[];
@@ -16,6 +17,7 @@ interface AdminExercisesClientProps {
 }
 
 export default function AdminExercisesClient({ initialExercises, initialTotalCount }: AdminExercisesClientProps) {
+  const locale = useLocale();
   const router = useRouter();
   const alerts = useAlerts();
   const tc = useTranslations('Categories');
@@ -272,9 +274,12 @@ export default function AdminExercisesClient({ initialExercises, initialTotalCou
                     )}
                   </div>
 
-                  <h3 className="text-lg font-black uppercase italic tracking-tighter text-zinc-100 mb-2 truncate">
-                    {ex.name}
+                  <h3 className="text-lg font-black uppercase italic tracking-tighter text-zinc-100 mb-1 truncate">
+                    {getExerciseLocalized(ex, locale).name || ex.name}
                   </h3>
+                  <code className="text-[10px] text-zinc-500 font-mono block mb-2 truncate">
+                    slug: {ex.name}
+                  </code>
 
                   {ex.description ? (
                     <p className="text-xs text-zinc-400 leading-relaxed line-clamp-2 mb-4">

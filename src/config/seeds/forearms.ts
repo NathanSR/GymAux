@@ -3,7 +3,7 @@ import { Exercise } from '../types';
 export const FOREARM_EXERCISES: Exercise[] = [
     {
         "id": 190,
-        "name": "Rosca Direta (Barra)",
+        "name": "wrist_curl_barbell",
         "category": "forearms",
         "secondaryMuscles": [
             "biceps"
@@ -64,7 +64,7 @@ export const FOREARM_EXERCISES: Exercise[] = [
     },
     {
         "id": 191,
-        "name": "Rosca Inversa (Barra)",
+        "name": "reverse_wrist_curl_barbell",
         "category": "forearms",
         "secondaryMuscles": [
             "biceps"
@@ -125,7 +125,7 @@ export const FOREARM_EXERCISES: Exercise[] = [
     },
     {
         "id": 192,
-        "name": "Rosca Direta (Halteres)",
+        "name": "wrist_curl_dumbbell",
         "category": "forearms",
         "secondaryMuscles": [
             "biceps"
@@ -186,7 +186,7 @@ export const FOREARM_EXERCISES: Exercise[] = [
     },
     {
         "id": 193,
-        "name": "Rosca Inversa (Halteres)",
+        "name": "reverse_wrist_curl_dumbbell",
         "category": "forearms",
         "secondaryMuscles": [
             "biceps"
@@ -247,7 +247,7 @@ export const FOREARM_EXERCISES: Exercise[] = [
     },
     {
         "id": 194,
-        "name": "Rosca de Punho por Trás (Barra)",
+        "name": "standing_behind_back_wrist_curl_barbell",
         "category": "forearms",
         "secondaryMuscles": [
             "biceps"
@@ -308,7 +308,7 @@ export const FOREARM_EXERCISES: Exercise[] = [
     },
     {
         "id": 195,
-        "name": "Desvio Radial (Halteres)",
+        "name": "radial_deviation_dumbbell",
         "category": "forearms",
         "secondaryMuscles": [
             "biceps"
@@ -363,7 +363,7 @@ export const FOREARM_EXERCISES: Exercise[] = [
     },
     {
         "id": 196,
-        "name": "Desvio Ulnar (Halteres)",
+        "name": "ulnar_deviation_dumbbell",
         "category": "forearms",
         "secondaryMuscles": [
             "biceps"
@@ -418,7 +418,7 @@ export const FOREARM_EXERCISES: Exercise[] = [
     },
     {
         "id": 197,
-        "name": "Rosca Direta (Polia)",
+        "name": "wrist_curl_cable",
         "category": "forearms",
         "secondaryMuscles": [
             "biceps"
@@ -476,7 +476,7 @@ export const FOREARM_EXERCISES: Exercise[] = [
     },
     {
         "id": 198,
-        "name": "Rosca Inversa (Polia)",
+        "name": "reverse_wrist_curl_cable",
         "category": "forearms",
         "secondaryMuscles": [
             "biceps"
@@ -534,7 +534,7 @@ export const FOREARM_EXERCISES: Exercise[] = [
     },
     {
         "id": 199,
-        "name": "Extensão de Punho (Wrist Roller)",
+        "name": "wrist_roller",
         "category": "forearms",
         "secondaryMuscles": [
             "biceps"
@@ -589,7 +589,7 @@ export const FOREARM_EXERCISES: Exercise[] = [
     },
     {
         "id": 200,
-        "name": "Caminhada do Fazendeiro (Farmer's Walk)",
+        "name": "farmers_walk_dumbbell",
         "category": "forearms",
         "secondaryMuscles": [
             "core",
@@ -650,7 +650,7 @@ export const FOREARM_EXERCISES: Exercise[] = [
     },
     {
         "id": 201,
-        "name": "Sustentação de Anilha (Pinça)",
+        "name": "plate_pinch_hold",
         "category": "forearms",
         "secondaryMuscles": [
             "core",
@@ -710,7 +710,7 @@ export const FOREARM_EXERCISES: Exercise[] = [
     },
     {
         "id": 202,
-        "name": "Suspensão na Barra (Dead Hang)",
+        "name": "dead_hang",
         "category": "forearms",
         "secondaryMuscles": [
             "core",
@@ -776,7 +776,7 @@ export const FOREARM_EXERCISES: Exercise[] = [
     },
     {
         "id": 203,
-        "name": "Suspensão com Toalha (Barra)",
+        "name": "towel_pull_up_hang",
         "category": "forearms",
         "secondaryMuscles": [
             "core",
@@ -842,7 +842,7 @@ export const FOREARM_EXERCISES: Exercise[] = [
     },
     {
         "id": 204,
-        "name": "Pronação e Supinação (Halteres)",
+        "name": "pronation_supination_dumbbell",
         "category": "forearms",
         "secondaryMuscles": [
             "biceps"
@@ -897,7 +897,7 @@ export const FOREARM_EXERCISES: Exercise[] = [
     },
     {
         "id": 584,
-        "name": "Caminhada do Fazendeiro",
+        "name": "farmer_walk_dumbbell",
         "category": "forearms",
         "secondaryMuscles": [
             "core",

@@ -3,7 +3,7 @@ import { Exercise } from '../types';
 export const GLUTE_EXERCISES: Exercise[] = [
     {
         "id": 280,
-        "name": "Elevação Pélvica (Barra)",
+        "name": "hip_thrust_barbell",
         "category": "glutes",
         "secondaryMuscles": [
             "hamstrings",
@@ -66,7 +66,7 @@ export const GLUTE_EXERCISES: Exercise[] = [
     },
     {
         "id": 281,
-        "name": "Elevação Pélvica (Halteres)",
+        "name": "hip_thrust_dumbbell",
         "category": "glutes",
         "secondaryMuscles": [
             "hamstrings",
@@ -126,7 +126,7 @@ export const GLUTE_EXERCISES: Exercise[] = [
     },
     {
         "id": 282,
-        "name": "Ponte de Glúteos (Barra)",
+        "name": "glute_bridge_barbell",
         "category": "glutes",
         "secondaryMuscles": [
             "hamstrings",
@@ -189,7 +189,7 @@ export const GLUTE_EXERCISES: Exercise[] = [
     },
     {
         "id": 283,
-        "name": "Elevação Pélvica (Máquina)",
+        "name": "hip_thrust_machine",
         "category": "glutes",
         "secondaryMuscles": [
             "hamstrings",
@@ -252,7 +252,7 @@ export const GLUTE_EXERCISES: Exercise[] = [
     },
     {
         "id": 284,
-        "name": "Cadeira Abdutora Sentada (Máquina)",
+        "name": "seated_hip_abduction_machine",
         "category": "glutes",
         "secondaryMuscles": [
             "abductors",
@@ -311,7 +311,7 @@ export const GLUTE_EXERCISES: Exercise[] = [
     },
     {
         "id": 285,
-        "name": "Abdução de Quadril (Polia)",
+        "name": "hip_abduction_cable",
         "category": "glutes",
         "secondaryMuscles": [
             "abductors",
@@ -370,7 +370,7 @@ export const GLUTE_EXERCISES: Exercise[] = [
     },
     {
         "id": 286,
-        "name": "Abertura de Concha com Elástico",
+        "name": "banded_clamshells",
         "category": "glutes",
         "secondaryMuscles": [
             "abductors",
@@ -426,7 +426,7 @@ export const GLUTE_EXERCISES: Exercise[] = [
     },
     {
         "id": 287,
-        "name": "Passada Lateral com Elástico",
+        "name": "lateral_band_walk",
         "category": "glutes",
         "secondaryMuscles": [
             "abductors",
@@ -479,7 +479,7 @@ export const GLUTE_EXERCISES: Exercise[] = [
     },
     {
         "id": 288,
-        "name": "Coice de Glúteo (Polia)",
+        "name": "glute_kickback_cable",
         "category": "glutes",
         "secondaryMuscles": [
             "hamstrings",
@@ -538,7 +538,7 @@ export const GLUTE_EXERCISES: Exercise[] = [
     },
     {
         "id": 289,
-        "name": "Coice de Glúteo (Máquina)",
+        "name": "glute_kickback_machine",
         "category": "glutes",
         "secondaryMuscles": [
             "hamstrings",
@@ -600,7 +600,7 @@ export const GLUTE_EXERCISES: Exercise[] = [
     },
     {
         "id": 290,
-        "name": "Quatro Apoios (Coice de Glúteo)",
+        "name": "quadruped_hip_extension_donkey_kicks",
         "category": "glutes",
         "secondaryMuscles": [
             "hamstrings",
@@ -662,7 +662,7 @@ export const GLUTE_EXERCISES: Exercise[] = [
     },
     {
         "id": 291,
-        "name": "Abdução em Quatro Apoios (Fire Hydrants)",
+        "name": "fire_hydrants",
         "category": "glutes",
         "secondaryMuscles": [
             "hamstrings",
@@ -724,7 +724,7 @@ export const GLUTE_EXERCISES: Exercise[] = [
     },
     {
         "id": 292,
-        "name": "Levantamento Terra Sumô (Barra)",
+        "name": "sumo_deadlift_barbell",
         "category": "glutes",
         "secondaryMuscles": [
             "adductors",
@@ -782,7 +782,7 @@ export const GLUTE_EXERCISES: Exercise[] = [
     },
     {
         "id": 293,
-        "name": "Agachamento Sumô (Halteres)",
+        "name": "sumo_squat_dumbbell",
         "category": "glutes",
         "secondaryMuscles": [
             "adductors",
@@ -837,7 +837,7 @@ export const GLUTE_EXERCISES: Exercise[] = [
     },
     {
         "id": 294,
-        "name": "Coice de Glúteo Diagonal (Polia)",
+        "name": "glute_medially_rotated_kickback_cable",
         "category": "glutes",
         "secondaryMuscles": [
             "hamstrings",
@@ -893,7 +893,7 @@ export const GLUTE_EXERCISES: Exercise[] = [
     },
     {
         "id": 295,
-        "name": "Elevação Pélvica Sapo (Frog Pumps)",
+        "name": "frog_pumps",
         "category": "glutes",
         "secondaryMuscles": [
             "hamstrings",
@@ -952,7 +952,7 @@ export const GLUTE_EXERCISES: Exercise[] = [
     },
     {
         "id": 296,
-        "name": "Afundo Cruzado / Reverência (Halteres)",
+        "name": "curtsy_lunge_dumbbell",
         "category": "glutes",
         "secondaryMuscles": [
             "hamstrings",
@@ -1008,7 +1008,7 @@ export const GLUTE_EXERCISES: Exercise[] = [
     },
     {
         "id": 297,
-        "name": "Extensão Hiperextensora 45° (Glúteos)",
+        "name": "hyperextension_45_degree_glute_focus_machine",
         "category": "glutes",
         "secondaryMuscles": [
             "hamstrings",
@@ -1064,7 +1064,7 @@ export const GLUTE_EXERCISES: Exercise[] = [
     },
     {
         "id": 545,
-        "name": "Ponte de Glúteos (Solo)",
+        "name": "glute_bridge",
         "category": "glutes",
         "secondaryMuscles": [
             "hamstrings",
@@ -1130,7 +1130,7 @@ export const GLUTE_EXERCISES: Exercise[] = [
     },
     {
         "id": 547,
-        "name": "Quatro Apoios / Coice de Glúteo",
+        "name": "donkey_kicks",
         "category": "glutes",
         "secondaryMuscles": [
             "hamstrings",

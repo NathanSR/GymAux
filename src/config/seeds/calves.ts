@@ -3,7 +3,7 @@ import { Exercise } from '../types';
 export const CALF_EXERCISES: Exercise[] = [
     {
         "id": 310,
-        "name": "Gêmeos em Pé (Barra)",
+        "name": "standing_calf_raise_barbell",
         "category": "calves",
         "secondaryMuscles": [
             "quadriceps"
@@ -61,7 +61,7 @@ export const CALF_EXERCISES: Exercise[] = [
     },
     {
         "id": 311,
-        "name": "Gêmeos em Pé (Máquina)",
+        "name": "standing_calf_raise_machine",
         "category": "calves",
         "secondaryMuscles": [
             "quadriceps"
@@ -119,7 +119,7 @@ export const CALF_EXERCISES: Exercise[] = [
     },
     {
         "id": 312,
-        "name": "Gêmeos Unilateral em Pé (Halteres)",
+        "name": "single_leg_calf_raise_dumbbell",
         "category": "calves",
         "secondaryMuscles": [
             "quadriceps"
@@ -174,7 +174,7 @@ export const CALF_EXERCISES: Exercise[] = [
     },
     {
         "id": 313,
-        "name": "Gêmeos em Pé (Smith)",
+        "name": "calf_raise_smith_machine",
         "category": "calves",
         "secondaryMuscles": [
             "quadriceps"
@@ -226,7 +226,7 @@ export const CALF_EXERCISES: Exercise[] = [
     },
     {
         "id": 314,
-        "name": "Gêmeos Sentado (Máquina)",
+        "name": "seated_calf_raise_machine",
         "category": "calves",
         "secondaryMuscles": [
             "quadriceps"
@@ -284,7 +284,7 @@ export const CALF_EXERCISES: Exercise[] = [
     },
     {
         "id": 315,
-        "name": "Gêmeos Sentado (Halteres)",
+        "name": "seated_calf_raise_dumbbell",
         "category": "calves",
         "secondaryMuscles": [
             "quadriceps"
@@ -339,7 +339,7 @@ export const CALF_EXERCISES: Exercise[] = [
     },
     {
         "id": 316,
-        "name": "Gêmeos Sentado (Barra)",
+        "name": "seated_calf_raise_barbell",
         "category": "calves",
         "secondaryMuscles": [
             "quadriceps"
@@ -397,7 +397,7 @@ export const CALF_EXERCISES: Exercise[] = [
     },
     {
         "id": 317,
-        "name": "Panturrilha no Leg Press (Máquina)",
+        "name": "leg_press_calf_press_machine",
         "category": "calves",
         "secondaryMuscles": [
             "quadriceps",
@@ -456,7 +456,7 @@ export const CALF_EXERCISES: Exercise[] = [
     },
     {
         "id": 318,
-        "name": "Panturrilha Burrinho (Donkey Calf)",
+        "name": "donkey_calf_raise_machine",
         "category": "calves",
         "secondaryMuscles": [
             "quadriceps",
@@ -515,7 +515,7 @@ export const CALF_EXERCISES: Exercise[] = [
     },
     {
         "id": 319,
-        "name": "Panturrilha no Agachamento Hack",
+        "name": "hack_squat_calf_press_machine",
         "category": "calves",
         "secondaryMuscles": [
             "quadriceps",
@@ -571,7 +571,7 @@ export const CALF_EXERCISES: Exercise[] = [
     },
     {
         "id": 320,
-        "name": "Gêmeos em Pé (Peso Corporal)",
+        "name": "bodyweight_standing_calf_raise",
         "category": "calves",
         "secondaryMuscles": [
             "quadriceps"
@@ -632,7 +632,7 @@ export const CALF_EXERCISES: Exercise[] = [
     },
     {
         "id": 321,
-        "name": "Panturrilha no Degrau (Escada)",
+        "name": "stair_calf_raise",
         "category": "calves",
         "secondaryMuscles": [
             "quadriceps"
@@ -690,7 +690,7 @@ export const CALF_EXERCISES: Exercise[] = [
     },
     {
         "id": 322,
-        "name": "Elevação Tibial (Canela)",
+        "name": "tibialis_raise",
         "category": "calves",
         "secondaryMuscles": [
             "calves"
@@ -751,7 +751,7 @@ export const CALF_EXERCISES: Exercise[] = [
     },
     {
         "id": 323,
-        "name": "Caminhada na Ponta dos Pés (Halteres)",
+        "name": "farmer_walk_on_toes_dumbbell",
         "category": "calves",
         "secondaryMuscles": [
             "forearms",

@@ -3,8 +3,9 @@
 import { useState, useRef } from 'react';
 import { useForm, useFieldArray, Controller, FormProvider } from 'react-hook-form';
 import { Save, Plus, GripVertical, Check } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { Exercise } from '@/config/types';
+import { getExerciseLocalized } from '@/utils/exerciseLocalization';
 import QuickExerciseDrawer from '../exercises/QuickExerciseDrawer';
 import { ExerciseSelector } from '../exercises/ExerciseSelector';
 import { GroupTypeHelpModal } from './GroupTypeHelpModal';
@@ -53,6 +54,7 @@ function InsertionPoint({ onClick, isVisible = true }: { onClick: () => void, is
 }
 
 export default function WorkoutForm({ initialData, availableExercises = [], onSubmit, isLoading }: WorkoutFormProps) {
+    const locale = useLocale();
     const t = useTranslations('WorkoutForm');
 
     const methods = useForm({
@@ -153,7 +155,7 @@ export default function WorkoutForm({ initialData, availableExercises = [], onSu
             restAfterGroup: 60,
             exercises: [{
                 exerciseId: exercise.id,
-                exerciseName: exercise.name,
+                exerciseName: getExerciseLocalized(exercise, locale).name || exercise.name,
                 restAfterExercise: 0,
                 sets: [
                     { reps: 10, weight: 0, restTime: 60, technique: 'normal' },

@@ -3,7 +3,7 @@ import { Exercise } from '../types';
 export const SHOULDERS_EXERCISES: Exercise[] = [
     {
         "id": 90,
-        "name": "Desenvolvimento OHP (Barra)",
+        "name": "overhead_press_barbell",
         "category": "shoulders",
         "secondaryMuscles": [
             "triceps",
@@ -60,7 +60,7 @@ export const SHOULDERS_EXERCISES: Exercise[] = [
     },
     {
         "id": 91,
-        "name": "Desenvolvimento (Halteres)",
+        "name": "shoulder_press_dumbbell",
         "category": "shoulders",
         "secondaryMuscles": [
             "triceps",
@@ -114,7 +114,7 @@ export const SHOULDERS_EXERCISES: Exercise[] = [
     },
     {
         "id": 92,
-        "name": "Desenvolvimento Arnold (Halteres)",
+        "name": "arnold_press_dumbbell",
         "category": "shoulders",
         "secondaryMuscles": [
             "triceps",
@@ -168,7 +168,7 @@ export const SHOULDERS_EXERCISES: Exercise[] = [
     },
     {
         "id": 93,
-        "name": "Desenvolvimento (Smith)",
+        "name": "shoulder_press_smith_machine",
         "category": "shoulders",
         "secondaryMuscles": [
             "triceps",
@@ -222,7 +222,7 @@ export const SHOULDERS_EXERCISES: Exercise[] = [
     },
     {
         "id": 94,
-        "name": "Desenvolvimento Militar (Barra)",
+        "name": "seated_military_press_barbell",
         "category": "shoulders",
         "secondaryMuscles": [
             "triceps",
@@ -279,7 +279,7 @@ export const SHOULDERS_EXERCISES: Exercise[] = [
     },
     {
         "id": 95,
-        "name": "Elevação Lateral (Halteres)",
+        "name": "lateral_raise_dumbbell",
         "category": "shoulders",
         "secondaryMuscles": [
             "back"
@@ -331,7 +331,7 @@ export const SHOULDERS_EXERCISES: Exercise[] = [
     },
     {
         "id": 96,
-        "name": "Elevação Lateral (Polia)",
+        "name": "lateral_raise_cable",
         "category": "shoulders",
         "secondaryMuscles": [
             "back"
@@ -383,7 +383,7 @@ export const SHOULDERS_EXERCISES: Exercise[] = [
     },
     {
         "id": 97,
-        "name": "Elevação Lateral (Máquina)",
+        "name": "lateral_raise_machine",
         "category": "shoulders",
         "secondaryMuscles": [
             "back"
@@ -438,7 +438,7 @@ export const SHOULDERS_EXERCISES: Exercise[] = [
     },
     {
         "id": 98,
-        "name": "Elevação Lateral Inclinada (Polia)",
+        "name": "lean_away_lateral_raise_cable",
         "category": "shoulders",
         "secondaryMuscles": [
             "back"
@@ -490,7 +490,7 @@ export const SHOULDERS_EXERCISES: Exercise[] = [
     },
     {
         "id": 99,
-        "name": "Elevação Frontal (Halteres)",
+        "name": "front_raise_dumbbell",
         "category": "shoulders",
         "secondaryMuscles": [
             "chest"
@@ -539,7 +539,7 @@ export const SHOULDERS_EXERCISES: Exercise[] = [
     },
     {
         "id": 100,
-        "name": "Elevação Frontal (Barra)",
+        "name": "front_raise_barbell",
         "category": "shoulders",
         "secondaryMuscles": [
             "chest"
@@ -591,7 +591,7 @@ export const SHOULDERS_EXERCISES: Exercise[] = [
     },
     {
         "id": 101,
-        "name": "Elevação Frontal (Polia)",
+        "name": "front_raise_cable",
         "category": "shoulders",
         "secondaryMuscles": [
             "chest"
@@ -640,7 +640,7 @@ export const SHOULDERS_EXERCISES: Exercise[] = [
     },
     {
         "id": 102,
-        "name": "Elevação Frontal (Anilha)",
+        "name": "plate_front_raise",
         "category": "shoulders",
         "secondaryMuscles": [
             "chest"
@@ -689,7 +689,7 @@ export const SHOULDERS_EXERCISES: Exercise[] = [
     },
     {
         "id": 103,
-        "name": "Crucifixo Invertido (Halteres)",
+        "name": "rear_delt_fly_dumbbell",
         "category": "shoulders",
         "secondaryMuscles": [
             "back"
@@ -744,7 +744,7 @@ export const SHOULDERS_EXERCISES: Exercise[] = [
     },
     {
         "id": 104,
-        "name": "Voador Invertido (Máquina)",
+        "name": "rear_delt_fly_machine",
         "category": "shoulders",
         "secondaryMuscles": [
             "back"
@@ -802,7 +802,7 @@ export const SHOULDERS_EXERCISES: Exercise[] = [
     },
     {
         "id": 105,
-        "name": "Crucifixo Invertido (Polia)",
+        "name": "rear_delt_fly_cable",
         "category": "shoulders",
         "secondaryMuscles": [
             "back"
@@ -857,7 +857,7 @@ export const SHOULDERS_EXERCISES: Exercise[] = [
     },
     {
         "id": 106,
-        "name": "Remada Alta (Barra)",
+        "name": "upright_row_barbell",
         "category": "shoulders",
         "secondaryMuscles": [
             "biceps",
@@ -911,7 +911,7 @@ export const SHOULDERS_EXERCISES: Exercise[] = [
     },
     {
         "id": 107,
-        "name": "Remada Alta (Halteres)",
+        "name": "upright_row_dumbbell",
         "category": "shoulders",
         "secondaryMuscles": [
             "biceps",
@@ -962,7 +962,7 @@ export const SHOULDERS_EXERCISES: Exercise[] = [
     },
     {
         "id": 108,
-        "name": "Remada Alta (Polia)",
+        "name": "upright_row_cable",
         "category": "shoulders",
         "secondaryMuscles": [
             "biceps",
@@ -1013,7 +1013,7 @@ export const SHOULDERS_EXERCISES: Exercise[] = [
     },
     {
         "id": 109,
-        "name": "Flexão Pike (Ombros)",
+        "name": "pike_push_up",
         "category": "shoulders",
         "secondaryMuscles": [
             "triceps",
@@ -1070,7 +1070,7 @@ export const SHOULDERS_EXERCISES: Exercise[] = [
     },
     {
         "id": 110,
-        "name": "Flexão em Bananeira / HSPU",
+        "name": "handstand_push_up",
         "category": "shoulders",
         "secondaryMuscles": [
             "triceps",
@@ -1127,7 +1127,7 @@ export const SHOULDERS_EXERCISES: Exercise[] = [
     },
     {
         "id": 111,
-        "name": "Rotação Externa (Polia)",
+        "name": "external_rotation_cable",
         "category": "shoulders",
         "secondaryMuscles": [
             "back"
@@ -1182,7 +1182,7 @@ export const SHOULDERS_EXERCISES: Exercise[] = [
     },
     {
         "id": 112,
-        "name": "Rotação Externa (Halteres)",
+        "name": "external_rotation_dumbbell",
         "category": "shoulders",
         "secondaryMuscles": [
             "back"
@@ -1237,7 +1237,7 @@ export const SHOULDERS_EXERCISES: Exercise[] = [
     },
     {
         "id": 511,
-        "name": "Desenvolvimento (Máquina)",
+        "name": "shoulder_press_machine",
         "category": "shoulders",
         "secondaryMuscles": [
             "triceps",
@@ -1294,7 +1294,7 @@ export const SHOULDERS_EXERCISES: Exercise[] = [
     },
     {
         "id": 527,
-        "name": "Desenvolvimento Unilateral (Halteres)",
+        "name": "single_arm_shoulder_press_dumbbell",
         "category": "shoulders",
         "secondaryMuscles": [
             "triceps",
@@ -1351,7 +1351,7 @@ export const SHOULDERS_EXERCISES: Exercise[] = [
     },
     {
         "id": 528,
-        "name": "Elevação Lateral Banco Inclinado (Halteres)",
+        "name": "incline_lateral_raise_dumbbell",
         "category": "shoulders",
         "secondaryMuscles": [
             "back"
@@ -1403,7 +1403,7 @@ export const SHOULDERS_EXERCISES: Exercise[] = [
     },
     {
         "id": 596,
-        "name": "Caminhada em Bananeira (Handstand Walk)",
+        "name": "handstand_walk",
         "category": "shoulders",
         "secondaryMuscles": [
             "triceps",
@@ -1460,7 +1460,7 @@ export const SHOULDERS_EXERCISES: Exercise[] = [
     },
     {
         "id": 597,
-        "name": "Escalada na Parede (Wall Walk)",
+        "name": "wall_walk",
         "category": "shoulders",
         "secondaryMuscles": [
             "triceps",
@@ -1516,7 +1516,7 @@ export const SHOULDERS_EXERCISES: Exercise[] = [
     },
     {
         "id": 603,
-        "name": "Planche Iso (Calistenia)",
+        "name": "planche_hold",
         "category": "shoulders",
         "secondaryMuscles": [
             "triceps",

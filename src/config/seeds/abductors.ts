@@ -3,7 +3,7 @@ import { Exercise } from '../types';
 export const ABDUCTOR_EXERCISES: Exercise[] = [
     {
         "id": 360,
-        "name": "Cadeira Abdutora Sentada (Máquina)",
+        "name": "seated_abduction_machine",
         "category": "abductors",
         "secondaryMuscles": [
             "glutes",
@@ -62,7 +62,7 @@ export const ABDUCTOR_EXERCISES: Exercise[] = [
     },
     {
         "id": 361,
-        "name": "Abdução de Quadril em Pé (Polia)",
+        "name": "standing_hip_abduction_cable",
         "category": "abductors",
         "secondaryMuscles": [
             "glutes",
@@ -121,7 +121,7 @@ export const ABDUCTOR_EXERCISES: Exercise[] = [
     },
     {
         "id": 362,
-        "name": "Abdução de Quadril Deitado (Polia)",
+        "name": "lying_hip_abduction_cable",
         "category": "abductors",
         "secondaryMuscles": [
             "glutes",
@@ -177,7 +177,7 @@ export const ABDUCTOR_EXERCISES: Exercise[] = [
     },
     {
         "id": 363,
-        "name": "Elevação de Perna Deitado de Lado",
+        "name": "side_lying_leg_raise",
         "category": "abductors",
         "secondaryMuscles": [
             "glutes",
@@ -239,7 +239,7 @@ export const ABDUCTOR_EXERCISES: Exercise[] = [
     },
     {
         "id": 364,
-        "name": "Abertura de Concha (Glúteo)",
+        "name": "clamshells",
         "category": "abductors",
         "secondaryMuscles": [
             "glutes",
@@ -301,7 +301,7 @@ export const ABDUCTOR_EXERCISES: Exercise[] = [
     },
     {
         "id": 366,
-        "name": "Passada Lateral com Elástico",
+        "name": "banded_lateral_walk",
         "category": "abductors",
         "secondaryMuscles": [
             "glutes",
@@ -357,7 +357,7 @@ export const ABDUCTOR_EXERCISES: Exercise[] = [
     },
     {
         "id": 367,
-        "name": "Caminhada Monstro com Elástico",
+        "name": "banded_monster_walk",
         "category": "abductors",
         "secondaryMuscles": [
             "glutes",
@@ -413,7 +413,7 @@ export const ABDUCTOR_EXERCISES: Exercise[] = [
     },
     {
         "id": 368,
-        "name": "Abdução Sentada com Elástico",
+        "name": "banded_seated_abduction",
         "category": "abductors",
         "secondaryMuscles": [
             "glutes",
@@ -469,7 +469,7 @@ export const ABDUCTOR_EXERCISES: Exercise[] = [
     },
     {
         "id": 369,
-        "name": "Afundo Cruzado / Reverência",
+        "name": "curtsy_lunge_bodyweight",
         "category": "abductors",
         "secondaryMuscles": [
             "glutes",
@@ -532,7 +532,7 @@ export const ABDUCTOR_EXERCISES: Exercise[] = [
     },
     {
         "id": 370,
-        "name": "Prancha Lateral com Elevação de Perna",
+        "name": "side_plank_with_leg_lift",
         "category": "abductors",
         "secondaryMuscles": [
             "glutes",
@@ -594,7 +594,7 @@ export const ABDUCTOR_EXERCISES: Exercise[] = [
     },
     {
         "id": 549,
-        "name": "Cadeira Abdutora (Máquina)",
+        "name": "hip_abduction_machine",
         "category": "abductors",
         "secondaryMuscles": [
             "glutes",

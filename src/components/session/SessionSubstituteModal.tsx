@@ -2,10 +2,11 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { Loader2, Dumbbell, AlertCircle, Search } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { Exercise } from '@/config/types';
 import { ExerciseService } from '@/services/exerciseService';
 import { Drawer } from '@/components/ui/Drawer';
+import { getExerciseLocalized } from '@/utils/exerciseLocalization';
 
 interface SessionSubstituteModalProps {
     isOpen: boolean;
@@ -24,6 +25,7 @@ export function SessionSubstituteModal({
     onSelectSubstitute,
     onOpenFullSelector
 }: SessionSubstituteModalProps) {
+    const locale = useLocale();
     const t = useTranslations('Session.substituteModal');
     const te = useTranslations('Exercises');
     const tc = useTranslations('Categories');
@@ -150,7 +152,7 @@ export function SessionSubstituteModal({
                                 </div>
                                 <div className="flex-1 min-w-0">
                                     <p className="font-black text-zinc-900 dark:text-white uppercase text-[11px] leading-tight tracking-tight truncate">
-                                        {te.has(alt.name) ? te(alt.name) : alt.name}
+                                        {getExerciseLocalized(alt, locale).name || alt.name}
                                     </p>
                                     <div className="flex flex-wrap items-center gap-1.5 mt-1.5">
                                         <span className="text-[8px] text-zinc-500 font-bold uppercase tracking-wider">

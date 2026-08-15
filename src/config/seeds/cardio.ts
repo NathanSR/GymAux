@@ -3,7 +3,7 @@ import { Exercise } from '../types';
 export const CARDIO_EXERCISES: Exercise[] = [
     {
         "id": 420,
-        "name": "Corrida na Esteira",
+        "name": "treadmill_running_machine",
         "category": "cardio",
         "secondaryMuscles": [
             "quadriceps",
@@ -65,7 +65,7 @@ export const CARDIO_EXERCISES: Exercise[] = [
     },
     {
         "id": 421,
-        "name": "Caminhada na Esteira",
+        "name": "treadmill_walking_machine",
         "category": "cardio",
         "secondaryMuscles": [
             "quadriceps",
@@ -127,7 +127,7 @@ export const CARDIO_EXERCISES: Exercise[] = [
     },
     {
         "id": 422,
-        "name": "Elíptico",
+        "name": "elliptical_trainer_machine",
         "category": "cardio",
         "secondaryMuscles": [
             "quadriceps",
@@ -189,7 +189,7 @@ export const CARDIO_EXERCISES: Exercise[] = [
     },
     {
         "id": 423,
-        "name": "Bicicleta Ergométrica",
+        "name": "stationary_bike_machine",
         "category": "cardio",
         "secondaryMuscles": [
             "quadriceps",
@@ -250,7 +250,7 @@ export const CARDIO_EXERCISES: Exercise[] = [
     },
     {
         "id": 424,
-        "name": "Simulador de Escada",
+        "name": "stair_climber_machine",
         "category": "cardio",
         "secondaryMuscles": [
             "quadriceps",
@@ -312,7 +312,7 @@ export const CARDIO_EXERCISES: Exercise[] = [
     },
     {
         "id": 425,
-        "name": "Remo Ergométrico (Concept2)",
+        "name": "rowing_machine",
         "category": "cardio",
         "secondaryMuscles": [
             "back",
@@ -371,7 +371,7 @@ export const CARDIO_EXERCISES: Exercise[] = [
     },
     {
         "id": 426,
-        "name": "Bicicleta de Ar (Assault Bike)",
+        "name": "assault_bike_machine",
         "category": "cardio",
         "secondaryMuscles": [
             "quadriceps",
@@ -432,7 +432,7 @@ export const CARDIO_EXERCISES: Exercise[] = [
     },
     {
         "id": 427,
-        "name": "Polichinelo",
+        "name": "jumping_jacks",
         "category": "cardio",
         "secondaryMuscles": [
             "quadriceps",
@@ -497,7 +497,7 @@ export const CARDIO_EXERCISES: Exercise[] = [
     },
     {
         "id": 428,
-        "name": "Burpees",
+        "name": "burpees",
         "category": "cardio",
         "secondaryMuscles": [
             "chest",
@@ -562,7 +562,7 @@ export const CARDIO_EXERCISES: Exercise[] = [
     },
     {
         "id": 429,
-        "name": "Pular Corda",
+        "name": "jump_rope",
         "category": "cardio",
         "secondaryMuscles": [
             "calves",
@@ -620,7 +620,7 @@ export const CARDIO_EXERCISES: Exercise[] = [
     },
     {
         "id": 430,
-        "name": "Corrida com Elevação de Joelhos",
+        "name": "high_knees",
         "category": "cardio",
         "secondaryMuscles": [
             "quadriceps",
@@ -685,7 +685,7 @@ export const CARDIO_EXERCISES: Exercise[] = [
     },
     {
         "id": 431,
-        "name": "Salto na Caixa",
+        "name": "box_jumps",
         "category": "cardio",
         "secondaryMuscles": [
             "quadriceps",
@@ -744,7 +744,7 @@ export const CARDIO_EXERCISES: Exercise[] = [
     },
     {
         "id": 432,
-        "name": "Corrida ao Ar Livre",
+        "name": "outdoor_running",
         "category": "cardio",
         "secondaryMuscles": [
             "quadriceps",
@@ -803,7 +803,7 @@ export const CARDIO_EXERCISES: Exercise[] = [
     },
     {
         "id": 433,
-        "name": "Natação",
+        "name": "swimming",
         "category": "cardio",
         "secondaryMuscles": [
             "full_body",
@@ -861,7 +861,7 @@ export const CARDIO_EXERCISES: Exercise[] = [
     },
     {
         "id": 434,
-        "name": "Ciclismo ao Ar Livre",
+        "name": "cycling_outdoor",
         "category": "cardio",
         "secondaryMuscles": [
             "quadriceps",
@@ -919,7 +919,7 @@ export const CARDIO_EXERCISES: Exercise[] = [
     },
     {
         "id": 435,
-        "name": "Corda Naval (Battle Ropes)",
+        "name": "battle_ropes",
         "category": "cardio",
         "secondaryMuscles": [
             "calves",
@@ -977,7 +977,7 @@ export const CARDIO_EXERCISES: Exercise[] = [
     },
     {
         "id": 589,
-        "name": "Salto de Corda Duplo (DU)",
+        "name": "double_unders",
         "category": "cardio",
         "secondaryMuscles": [
             "quadriceps",
@@ -1036,7 +1036,7 @@ export const CARDIO_EXERCISES: Exercise[] = [
     },
     {
         "id": 590,
-        "name": "Assault Air Bike",
+        "name": "air_bike_machine",
         "category": "cardio",
         "secondaryMuscles": [
             "quadriceps",

@@ -3,7 +3,7 @@ import { Exercise } from '../types';
 export const QUADRICEPS_EXERCISES: Exercise[] = [
     {
         "id": 220,
-        "name": "Agachamento Livre (Barra)",
+        "name": "back_squat_barbell",
         "category": "quadriceps",
         "secondaryMuscles": [
             "glutes",
@@ -67,7 +67,7 @@ export const QUADRICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 221,
-        "name": "Agachamento Frontal (Barra)",
+        "name": "front_squat_barbell",
         "category": "quadriceps",
         "secondaryMuscles": [
             "glutes",
@@ -131,7 +131,7 @@ export const QUADRICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 222,
-        "name": "Agachamento Goblet (Halteres)",
+        "name": "goblet_squat_dumbbell",
         "category": "quadriceps",
         "secondaryMuscles": [
             "glutes",
@@ -192,7 +192,7 @@ export const QUADRICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 223,
-        "name": "Agachamento (Smith)",
+        "name": "squat_smith_machine",
         "category": "quadriceps",
         "secondaryMuscles": [
             "glutes",
@@ -253,7 +253,7 @@ export const QUADRICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 224,
-        "name": "Leg Press 45° (Máquina)",
+        "name": "leg_press_45_machine",
         "category": "quadriceps",
         "secondaryMuscles": [
             "glutes",
@@ -314,7 +314,7 @@ export const QUADRICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 225,
-        "name": "Agachamento Hack (Máquina)",
+        "name": "hack_squat_machine",
         "category": "quadriceps",
         "secondaryMuscles": [
             "glutes",
@@ -378,7 +378,7 @@ export const QUADRICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 226,
-        "name": "Cadeira Extensora (Máquina)",
+        "name": "leg_extension_machine",
         "category": "quadriceps",
         "secondaryMuscles": [
             "core"
@@ -439,7 +439,7 @@ export const QUADRICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 227,
-        "name": "Agachamento V-Squat (Máquina)",
+        "name": "v_squat_machine",
         "category": "quadriceps",
         "secondaryMuscles": [
             "glutes",
@@ -503,7 +503,7 @@ export const QUADRICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 228,
-        "name": "Agachamento Búlgaro (Halteres)",
+        "name": "bulgarian_split_squat_dumbbell",
         "category": "quadriceps",
         "secondaryMuscles": [
             "glutes",
@@ -567,7 +567,7 @@ export const QUADRICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 229,
-        "name": "Passada / Afundo (Barra)",
+        "name": "walking_lunge_barbell",
         "category": "quadriceps",
         "secondaryMuscles": [
             "glutes",
@@ -631,7 +631,7 @@ export const QUADRICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 230,
-        "name": "Passada / Afundo (Halteres)",
+        "name": "walking_lunge_dumbbell",
         "category": "quadriceps",
         "secondaryMuscles": [
             "glutes",
@@ -692,7 +692,7 @@ export const QUADRICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 231,
-        "name": "Subida no Banco / Step Up",
+        "name": "step_up_dumbbell",
         "category": "quadriceps",
         "secondaryMuscles": [
             "glutes",
@@ -753,7 +753,7 @@ export const QUADRICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 232,
-        "name": "Agachamento Sissy",
+        "name": "sissy_squat",
         "category": "quadriceps",
         "secondaryMuscles": [
             "core"
@@ -817,7 +817,7 @@ export const QUADRICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 233,
-        "name": "Agachamento Zercher (Barra)",
+        "name": "zercher_squat_barbell",
         "category": "quadriceps",
         "secondaryMuscles": [
             "glutes",
@@ -881,7 +881,7 @@ export const QUADRICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 234,
-        "name": "Agachamento Livre",
+        "name": "landmine_squat",
         "category": "quadriceps",
         "secondaryMuscles": [
             "glutes",
@@ -942,7 +942,7 @@ export const QUADRICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 235,
-        "name": "Passada / Afundo (Halteres)",
+        "name": "reverse_lunge_dumbbell",
         "category": "quadriceps",
         "secondaryMuscles": [
             "glutes",
@@ -1003,7 +1003,7 @@ export const QUADRICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 534,
-        "name": "Agachamento na Caixa (Barra)",
+        "name": "box_squat_barbell",
         "category": "quadriceps",
         "secondaryMuscles": [
             "glutes",
@@ -1067,7 +1067,7 @@ export const QUADRICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 537,
-        "name": "Afundo Reverso (Halteres)",
+        "name": "reverse_lunge_dumbbell",
         "category": "quadriceps",
         "secondaryMuscles": [
             "glutes",
@@ -1128,7 +1128,7 @@ export const QUADRICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 538,
-        "name": "Levantamento Terra (Trap Bar)",
+        "name": "trap_bar_deadlift_barbell",
         "category": "quadriceps",
         "secondaryMuscles": [
             "glutes",
@@ -1187,7 +1187,7 @@ export const QUADRICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 539,
-        "name": "Levantamento Terra (Halteres)",
+        "name": "deadlift_dumbbell",
         "category": "quadriceps",
         "secondaryMuscles": [
             "glutes",
@@ -1243,7 +1243,7 @@ export const QUADRICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 574,
-        "name": "Agachamento Pistol (Perna Única)",
+        "name": "pistol_squat",
         "category": "quadriceps",
         "secondaryMuscles": [
             "glutes",
@@ -1313,7 +1313,7 @@ export const QUADRICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 575,
-        "name": "Agachamento Camarão (Perna Única)",
+        "name": "shrimp_squat",
         "category": "quadriceps",
         "secondaryMuscles": [
             "glutes",
@@ -1383,7 +1383,7 @@ export const QUADRICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 577,
-        "name": "Salto na Caixa (Pliometria)",
+        "name": "box_jump",
         "category": "quadriceps",
         "secondaryMuscles": [
             "glutes",
@@ -1444,7 +1444,7 @@ export const QUADRICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 578,
-        "name": "Salto Sobre a Caixa (CrossFit)",
+        "name": "box_jump_over",
         "category": "quadriceps",
         "secondaryMuscles": [
             "glutes",
@@ -1505,7 +1505,7 @@ export const QUADRICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 587,
-        "name": "Agachamento Overhead (Barra)",
+        "name": "overhead_squat_barbell",
         "category": "quadriceps",
         "secondaryMuscles": [
             "glutes",
@@ -1569,7 +1569,7 @@ export const QUADRICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 601,
-        "name": "Empurrar Trenó (Sled Push)",
+        "name": "sled_push",
         "category": "quadriceps",
         "secondaryMuscles": [
             "glutes",
@@ -1624,7 +1624,7 @@ export const QUADRICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 602,
-        "name": "Subida na Caixa (Halteres)",
+        "name": "box_step_up_dumbbell",
         "category": "quadriceps",
         "secondaryMuscles": [
             "glutes",

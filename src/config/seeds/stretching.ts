@@ -3,7 +3,7 @@ import { Exercise } from '../types';
 export const STRETCHING_EXERCISES: Exercise[] = [
     {
         "id": 450,
-        "name": "Alongamento Lateral do Pescoço",
+        "name": "neck_lateral_stretch",
         "category": "stretching",
         "secondaryMuscles": [
             "core",
@@ -62,7 +62,7 @@ export const STRETCHING_EXERCISES: Exercise[] = [
     },
     {
         "id": 451,
-        "name": "Alongamento Frontal do Pescoço",
+        "name": "neck_forward_flexion",
         "category": "stretching",
         "secondaryMuscles": [
             "core",
@@ -121,7 +121,7 @@ export const STRETCHING_EXERCISES: Exercise[] = [
     },
     {
         "id": 452,
-        "name": "Alongamento Cruzado de Ombro",
+        "name": "cross_body_shoulder_stretch",
         "category": "stretching",
         "secondaryMuscles": [
             "back"
@@ -179,7 +179,7 @@ export const STRETCHING_EXERCISES: Exercise[] = [
     },
     {
         "id": 453,
-        "name": "Alongamento de Peitoral no Batente",
+        "name": "doorway_chest_stretch",
         "category": "stretching",
         "secondaryMuscles": [
             "shoulders"
@@ -237,7 +237,7 @@ export const STRETCHING_EXERCISES: Exercise[] = [
     },
     {
         "id": 454,
-        "name": "Alongamento de Tríceps sobre a Cabeça",
+        "name": "overhead_triceps_stretch",
         "category": "stretching",
         "secondaryMuscles": [
             "shoulders"
@@ -295,7 +295,7 @@ export const STRETCHING_EXERCISES: Exercise[] = [
     },
     {
         "id": 455,
-        "name": "Postura da Criança (Child's Pose)",
+        "name": "childs_pose",
         "category": "stretching",
         "secondaryMuscles": [
             "core",
@@ -354,7 +354,7 @@ export const STRETCHING_EXERCISES: Exercise[] = [
     },
     {
         "id": 456,
-        "name": "Gato e Vaca (Cat-Cow)",
+        "name": "cat_cow_stretch",
         "category": "stretching",
         "secondaryMuscles": [
             "core",
@@ -413,7 +413,7 @@ export const STRETCHING_EXERCISES: Exercise[] = [
     },
     {
         "id": 457,
-        "name": "Postura da Cobra (Alongamento Abdominal)",
+        "name": "cobra_stretch",
         "category": "stretching",
         "secondaryMuscles": [
             "core",
@@ -472,7 +472,7 @@ export const STRETCHING_EXERCISES: Exercise[] = [
     },
     {
         "id": 458,
-        "name": "Torção de Coluna Deitado",
+        "name": "lying_spinal_twist",
         "category": "stretching",
         "secondaryMuscles": [
             "core",
@@ -531,7 +531,7 @@ export const STRETCHING_EXERCISES: Exercise[] = [
     },
     {
         "id": 459,
-        "name": "Postura do Pombo (Pigeon Pose)",
+        "name": "pigeon_pose",
         "category": "stretching",
         "secondaryMuscles": [
             "core",
@@ -590,7 +590,7 @@ export const STRETCHING_EXERCISES: Exercise[] = [
     },
     {
         "id": 460,
-        "name": "Alongamento de Flexor de Quadril Ajoelhado",
+        "name": "kneeling_hip_flexor_stretch",
         "category": "stretching",
         "secondaryMuscles": [
             "adductors",
@@ -649,7 +649,7 @@ export const STRETCHING_EXERCISES: Exercise[] = [
     },
     {
         "id": 461,
-        "name": "Alongamento Borboleta (Adutores)",
+        "name": "butterfly_stretch",
         "category": "stretching",
         "secondaryMuscles": [
             "adductors",
@@ -708,7 +708,7 @@ export const STRETCHING_EXERCISES: Exercise[] = [
     },
     {
         "id": 462,
-        "name": "Alongamento de Quadríceps em Pé",
+        "name": "standing_quadriceps_stretch",
         "category": "stretching",
         "secondaryMuscles": [
             "quadriceps"
@@ -766,7 +766,7 @@ export const STRETCHING_EXERCISES: Exercise[] = [
     },
     {
         "id": 463,
-        "name": "Alongamento de Posterior Sentado",
+        "name": "seated_hamstring_stretch",
         "category": "stretching",
         "secondaryMuscles": [
             "hamstrings"
@@ -824,7 +824,7 @@ export const STRETCHING_EXERCISES: Exercise[] = [
     },
     {
         "id": 464,
-        "name": "Alongamento de Panturrilha em Pé",
+        "name": "standing_calf_stretch",
         "category": "stretching",
         "secondaryMuscles": [
             "calves"
@@ -882,7 +882,7 @@ export const STRETCHING_EXERCISES: Exercise[] = [
     },
     {
         "id": 465,
-        "name": "Maior Alongamento do Mundo (World's Greatest Stretch)",
+        "name": "worlds_greatest_stretch",
         "category": "stretching",
         "secondaryMuscles": [
             "core",
@@ -941,7 +941,7 @@ export const STRETCHING_EXERCISES: Exercise[] = [
     },
     {
         "id": 466,
-        "name": "Alongamento Extensor de Punho",
+        "name": "wrist_extensor_stretch",
         "category": "stretching",
         "secondaryMuscles": [
             "core",

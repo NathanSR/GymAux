@@ -3,7 +3,7 @@ import { Exercise } from '../types';
 export const TRICEPS_EXERCISES: Exercise[] = [
     {
         "id": 160,
-        "name": "Tríceps Pulley (Barra Reta)",
+        "name": "triceps_pushdown_straight_bar_cable",
         "category": "triceps",
         "secondaryMuscles": [
             "forearms"
@@ -58,7 +58,7 @@ export const TRICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 161,
-        "name": "Tríceps Pulley (Barra V)",
+        "name": "triceps_pushdown_v_bar_cable",
         "category": "triceps",
         "secondaryMuscles": [
             "forearms"
@@ -113,7 +113,7 @@ export const TRICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 162,
-        "name": "Tríceps Pulley (Corda)",
+        "name": "rope_pushdown_cable",
         "category": "triceps",
         "secondaryMuscles": [
             "forearms"
@@ -168,7 +168,7 @@ export const TRICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 163,
-        "name": "Tríceps Francês na Polia (Corda)",
+        "name": "overhead_extension_rope_cable",
         "category": "triceps",
         "secondaryMuscles": [
             "shoulders",
@@ -227,7 +227,7 @@ export const TRICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 164,
-        "name": "Tríceps Pulley Unilateral (Polia)",
+        "name": "single_arm_pushdown_cable",
         "category": "triceps",
         "secondaryMuscles": [
             "forearms"
@@ -285,7 +285,7 @@ export const TRICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 165,
-        "name": "Tríceps Testa (Polia)",
+        "name": "skull_crusher_cable",
         "category": "triceps",
         "secondaryMuscles": [
             "forearms",
@@ -344,7 +344,7 @@ export const TRICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 166,
-        "name": "Tríceps Testa (Barra Reta)",
+        "name": "skull_crusher_barbell",
         "category": "triceps",
         "secondaryMuscles": [
             "forearms",
@@ -406,7 +406,7 @@ export const TRICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 167,
-        "name": "Tríceps Testa (Barra EZ)",
+        "name": "ez_bar_skull_crusher",
         "category": "triceps",
         "secondaryMuscles": [
             "forearms",
@@ -465,7 +465,7 @@ export const TRICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 168,
-        "name": "Tríceps Testa (Halteres)",
+        "name": "skull_crusher_dumbbell",
         "category": "triceps",
         "secondaryMuscles": [
             "forearms",
@@ -524,7 +524,7 @@ export const TRICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 169,
-        "name": "Supino Fechado (Barra)",
+        "name": "close_grip_bench_press_barbell",
         "category": "triceps",
         "secondaryMuscles": [
             "chest",
@@ -583,7 +583,7 @@ export const TRICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 170,
-        "name": "Tríceps Francês Sentado (Halteres)",
+        "name": "overhead_extension_seated_dumbbell",
         "category": "triceps",
         "secondaryMuscles": [
             "shoulders",
@@ -642,7 +642,7 @@ export const TRICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 171,
-        "name": "Tríceps Francês Unilateral (Halteres)",
+        "name": "overhead_extension_single_arm_dumbbell",
         "category": "triceps",
         "secondaryMuscles": [
             "shoulders",
@@ -704,7 +704,7 @@ export const TRICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 172,
-        "name": "Tríceps Coice (Halteres)",
+        "name": "kickback_dumbbell",
         "category": "triceps",
         "secondaryMuscles": [
             "shoulders"
@@ -759,7 +759,7 @@ export const TRICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 173,
-        "name": "Press Tate / Tríceps Tate (Halteres)",
+        "name": "tate_press_dumbbell",
         "category": "triceps",
         "secondaryMuscles": [
             "chest"
@@ -811,7 +811,7 @@ export const TRICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 174,
-        "name": "Paralelas (Tríceps)",
+        "name": "triceps_dips_parallel_bars",
         "category": "triceps",
         "secondaryMuscles": [
             "chest",
@@ -873,7 +873,7 @@ export const TRICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 175,
-        "name": "Mergulho no Banco (Tríceps)",
+        "name": "bench_dips",
         "category": "triceps",
         "secondaryMuscles": [
             "chest",
@@ -935,7 +935,7 @@ export const TRICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 176,
-        "name": "Flexão Diamante",
+        "name": "diamond_push_ups",
         "category": "triceps",
         "secondaryMuscles": [
             "forearms",
@@ -994,7 +994,7 @@ export const TRICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 177,
-        "name": "Tríceps Francês (Máquina)",
+        "name": "triceps_extension_machine",
         "category": "triceps",
         "secondaryMuscles": [
             "forearms",
@@ -1050,7 +1050,7 @@ export const TRICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 178,
-        "name": "Mergulho de Tríceps (Máquina)",
+        "name": "triceps_dip_machine",
         "category": "triceps",
         "secondaryMuscles": [
             "forearms",
@@ -1109,7 +1109,7 @@ export const TRICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 513,
-        "name": "Tríceps Pulley (Pegada Inversa)",
+        "name": "triceps_reverse_pushdown_cable",
         "category": "triceps",
         "secondaryMuscles": [
             "forearms"
@@ -1164,7 +1164,7 @@ export const TRICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 514,
-        "name": "Tríceps Testa (Polia)",
+        "name": "skullcrusher_cable",
         "category": "triceps",
         "secondaryMuscles": [
             "forearms",
@@ -1223,7 +1223,7 @@ export const TRICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 532,
-        "name": "Tríceps Francês (Barra)",
+        "name": "overhead_triceps_extension_barbell",
         "category": "triceps",
         "secondaryMuscles": [
             "shoulders",
@@ -1285,7 +1285,7 @@ export const TRICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 533,
-        "name": "Supino Fechado (Smith)",
+        "name": "close_grip_press_smith_machine",
         "category": "triceps",
         "secondaryMuscles": [
             "forearms",

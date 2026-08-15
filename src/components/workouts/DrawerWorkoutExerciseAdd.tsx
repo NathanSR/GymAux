@@ -11,10 +11,11 @@ import {
 import { Exercise, ExerciseGroup, Workout } from "@/config/types";
 import { useSession } from "@/hooks/useSession";
 import { WorkoutService } from "@/services/workoutService";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { Link } from "@/i18n/routing";
 import { Drawer } from "@/components/ui/Drawer";
 import { ExerciseConfigForm } from "@/components/workouts/ExerciseConfigForm";
+import { getExerciseLocalized } from "@/utils/exerciseLocalization";
 
 interface DrawerProps {
     isOpen: boolean;
@@ -27,6 +28,7 @@ export default function DrawerWorkoutExerciseAdd({
     onClose,
     exercise,
 }: DrawerProps) {
+    const locale = useLocale();
     const { activeUser } = useSession();
     const [step, setStep] = useState<'select' | 'form'>('select');
     const [selectedWorkout, setSelectedWorkout] = useState<Workout | null>(null);
@@ -92,7 +94,7 @@ export default function DrawerWorkoutExerciseAdd({
         exercises: [
             {
                 exerciseId: exercise.id as number,
-                exerciseName: exercise.name,
+                exerciseName: getExerciseLocalized(exercise, locale).name || exercise.name,
                 restAfterExercise: 0,
                 sets: [
                     { reps: 10, weight: 0, restTime: 60, technique: 'normal' },
@@ -102,6 +104,8 @@ export default function DrawerWorkoutExerciseAdd({
             }
         ]
     };
+
+    const localizedExerciseName = getExerciseLocalized(exercise, locale).name || exercise.name;
 
     return (
         <Drawer
@@ -131,7 +135,7 @@ export default function DrawerWorkoutExerciseAdd({
                     <div className="space-y-2">
                         <h3 className="text-lg font-bold">{t("addedSuccess")}</h3>
                         <p className="text-sm text-zinc-500 dark:text-zinc-400 px-8">
-                            <strong>{te.has(exercise.name) ? te(exercise.name) : exercise.name}</strong> {t("addedTo")} <strong>{selectedWorkout?.name}</strong>.
+                            <strong>{localizedExerciseName}</strong> {t("addedTo")} <strong>{selectedWorkout?.name}</strong>.
                         </p>
                     </div>
 

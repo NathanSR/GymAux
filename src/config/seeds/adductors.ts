@@ -3,7 +3,7 @@ import { Exercise } from '../types';
 export const ADDUCTOR_EXERCISES: Exercise[] = [
     {
         "id": 340,
-        "name": "Cadeira Adutora Sentada (Máquina)",
+        "name": "seated_adduction_machine",
         "category": "adductors",
         "secondaryMuscles": [
             "glutes",
@@ -62,7 +62,7 @@ export const ADDUCTOR_EXERCISES: Exercise[] = [
     },
     {
         "id": 341,
-        "name": "Adução de Quadril (Polia)",
+        "name": "hip_adduction_cable",
         "category": "adductors",
         "secondaryMuscles": [
             "glutes",
@@ -121,7 +121,7 @@ export const ADDUCTOR_EXERCISES: Exercise[] = [
     },
     {
         "id": 342,
-        "name": "Adução de Quadril em Pé (Máquina)",
+        "name": "standing_adduction_machine",
         "category": "adductors",
         "secondaryMuscles": [
             "glutes",
@@ -183,7 +183,7 @@ export const ADDUCTOR_EXERCISES: Exercise[] = [
     },
     {
         "id": 343,
-        "name": "Agachamento Sumô (Barra)",
+        "name": "sumo_squat_adductor_focus_barbell",
         "category": "adductors",
         "secondaryMuscles": [
             "glutes",
@@ -244,7 +244,7 @@ export const ADDUCTOR_EXERCISES: Exercise[] = [
     },
     {
         "id": 344,
-        "name": "Levantamento Terra Sumô (Barra)",
+        "name": "sumo_deadlift_adductor_focus_barbell",
         "category": "adductors",
         "secondaryMuscles": [
             "glutes",
@@ -305,7 +305,7 @@ export const ADDUCTOR_EXERCISES: Exercise[] = [
     },
     {
         "id": 345,
-        "name": "Passada / Afundo Lateral (Halteres)",
+        "name": "side_lunge_dumbbell",
         "category": "adductors",
         "secondaryMuscles": [
             "glutes",
@@ -362,7 +362,7 @@ export const ADDUCTOR_EXERCISES: Exercise[] = [
     },
     {
         "id": 346,
-        "name": "Prancha Copenhagen (Adutores)",
+        "name": "copenhagen_plank",
         "category": "adductors",
         "secondaryMuscles": [
             "glutes",
@@ -424,7 +424,7 @@ export const ADDUCTOR_EXERCISES: Exercise[] = [
     },
     {
         "id": 347,
-        "name": "Adução de Perna Deitado de Lado",
+        "name": "lying_leg_adduction_side_lying",
         "category": "adductors",
         "secondaryMuscles": [
             "glutes",
@@ -486,7 +486,7 @@ export const ADDUCTOR_EXERCISES: Exercise[] = [
     },
     {
         "id": 348,
-        "name": "Adução Sentado com Elástico",
+        "name": "seated_band_adduction",
         "category": "adductors",
         "secondaryMuscles": [
             "glutes",
@@ -542,7 +542,7 @@ export const ADDUCTOR_EXERCISES: Exercise[] = [
     },
     {
         "id": 349,
-        "name": "Ponte de Glúteos com Aperto de Bola",
+        "name": "ball_squeeze_bridge",
         "category": "adductors",
         "secondaryMuscles": [
             "glutes",

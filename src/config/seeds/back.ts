@@ -3,7 +3,7 @@ import { Exercise } from '../types';
 export const BACK_EXERCISES: Exercise[] = [
     {
         "id": 50,
-        "name": "Barra Fixa (Pronada)",
+        "name": "pull_up",
         "category": "back",
         "secondaryMuscles": [
             "biceps",
@@ -70,7 +70,7 @@ export const BACK_EXERCISES: Exercise[] = [
     },
     {
         "id": 51,
-        "name": "Barra Fixa (Supinada)",
+        "name": "chin_up",
         "category": "back",
         "secondaryMuscles": [
             "biceps",
@@ -136,7 +136,7 @@ export const BACK_EXERCISES: Exercise[] = [
     },
     {
         "id": 52,
-        "name": "Barra Fixa (Pegada Neutra)",
+        "name": "neutral_grip_pull_up",
         "category": "back",
         "secondaryMuscles": [
             "biceps",
@@ -203,7 +203,7 @@ export const BACK_EXERCISES: Exercise[] = [
     },
     {
         "id": 53,
-        "name": "Remada Invertida",
+        "name": "inverted_row",
         "category": "back",
         "secondaryMuscles": [
             "biceps",
@@ -267,7 +267,7 @@ export const BACK_EXERCISES: Exercise[] = [
     },
     {
         "id": 54,
-        "name": "Super-Homem (Lombar)",
+        "name": "superman_exercise",
         "category": "back",
         "secondaryMuscles": [
             "glutes",
@@ -327,7 +327,7 @@ export const BACK_EXERCISES: Exercise[] = [
     },
     {
         "id": 55,
-        "name": "Remada Curvada (Barra)",
+        "name": "bent_over_row_barbell",
         "category": "back",
         "secondaryMuscles": [
             "biceps",
@@ -388,7 +388,7 @@ export const BACK_EXERCISES: Exercise[] = [
     },
     {
         "id": 56,
-        "name": "Remada Pendlay (Barra)",
+        "name": "pendlay_row_barbell",
         "category": "back",
         "secondaryMuscles": [
             "biceps",
@@ -449,7 +449,7 @@ export const BACK_EXERCISES: Exercise[] = [
     },
     {
         "id": 57,
-        "name": "Remada Cavalinho (Barra T)",
+        "name": "t_bar_row_barbell",
         "category": "back",
         "secondaryMuscles": [
             "biceps",
@@ -510,7 +510,7 @@ export const BACK_EXERCISES: Exercise[] = [
     },
     {
         "id": 58,
-        "name": "Remada Unilateral / Serrote (Halteres)",
+        "name": "one_arm_row_dumbbell",
         "category": "back",
         "secondaryMuscles": [
             "biceps",
@@ -570,7 +570,7 @@ export const BACK_EXERCISES: Exercise[] = [
     },
     {
         "id": 59,
-        "name": "Remada Seal (Banco)",
+        "name": "seal_row_barbell",
         "category": "back",
         "secondaryMuscles": [
             "biceps",
@@ -630,7 +630,7 @@ export const BACK_EXERCISES: Exercise[] = [
     },
     {
         "id": 60,
-        "name": "Remada Renegade (Halteres)",
+        "name": "renegade_row_dumbbell",
         "category": "back",
         "secondaryMuscles": [
             "biceps",
@@ -688,7 +688,7 @@ export const BACK_EXERCISES: Exercise[] = [
     },
     {
         "id": 61,
-        "name": "Puxada Alta (Barra Larga)",
+        "name": "lat_pulldown_wide_grip_cable",
         "category": "back",
         "secondaryMuscles": [
             "biceps",
@@ -746,7 +746,7 @@ export const BACK_EXERCISES: Exercise[] = [
     },
     {
         "id": 62,
-        "name": "Puxada Alta (Pegada Fechada)",
+        "name": "lat_pulldown_close_grip_cable",
         "category": "back",
         "secondaryMuscles": [
             "biceps",
@@ -804,7 +804,7 @@ export const BACK_EXERCISES: Exercise[] = [
     },
     {
         "id": 63,
-        "name": "Puxada Alta (Atrás da Nuca)",
+        "name": "lat_pulldown_behind_neck_cable",
         "category": "back",
         "secondaryMuscles": [
             "biceps",
@@ -862,7 +862,7 @@ export const BACK_EXERCISES: Exercise[] = [
     },
     {
         "id": 64,
-        "name": "Pulldown Braço Estendido (Polia)",
+        "name": "straight_arm_pulldown_cable",
         "category": "back",
         "secondaryMuscles": [
             "triceps",
@@ -918,7 +918,7 @@ export const BACK_EXERCISES: Exercise[] = [
     },
     {
         "id": 65,
-        "name": "Puxada Alta Unilateral (Polia)",
+        "name": "single_arm_lat_pulldown_cable",
         "category": "back",
         "secondaryMuscles": [
             "biceps",
@@ -979,7 +979,7 @@ export const BACK_EXERCISES: Exercise[] = [
     },
     {
         "id": 66,
-        "name": "Remada Baixa (Polia)",
+        "name": "seated_row_cable",
         "category": "back",
         "secondaryMuscles": [
             "biceps",
@@ -1036,7 +1036,7 @@ export const BACK_EXERCISES: Exercise[] = [
     },
     {
         "id": 67,
-        "name": "Remada Unilateral (Polia)",
+        "name": "one_arm_row_cable",
         "category": "back",
         "secondaryMuscles": [
             "biceps",
@@ -1096,7 +1096,7 @@ export const BACK_EXERCISES: Exercise[] = [
     },
     {
         "id": 68,
-        "name": "Face Pull (Polia Corda)",
+        "name": "face_pull_cable",
         "category": "back",
         "secondaryMuscles": [
             "shoulders"
@@ -1148,7 +1148,7 @@ export const BACK_EXERCISES: Exercise[] = [
     },
     {
         "id": 69,
-        "name": "Remada Sentada (Máquina)",
+        "name": "chest_supported_row_machine",
         "category": "back",
         "secondaryMuscles": [
             "biceps",
@@ -1208,7 +1208,7 @@ export const BACK_EXERCISES: Exercise[] = [
     },
     {
         "id": 70,
-        "name": "Levantamento Terra (Barra)",
+        "name": "deadlift_conventional_barbell",
         "category": "back",
         "secondaryMuscles": [
             "hamstrings",
@@ -1269,7 +1269,7 @@ export const BACK_EXERCISES: Exercise[] = [
     },
     {
         "id": 71,
-        "name": "Meio Terra / Rack Pull (Barra)",
+        "name": "rack_pull_barbell",
         "category": "back",
         "secondaryMuscles": [
             "hamstrings",
@@ -1327,7 +1327,7 @@ export const BACK_EXERCISES: Exercise[] = [
     },
     {
         "id": 72,
-        "name": "Extensão Lombar (Banco)",
+        "name": "back_extension_machine",
         "category": "back",
         "secondaryMuscles": [
             "glutes",
@@ -1387,7 +1387,7 @@ export const BACK_EXERCISES: Exercise[] = [
     },
     {
         "id": 73,
-        "name": "Good Morning (Barra)",
+        "name": "good_morning_barbell",
         "category": "back",
         "secondaryMuscles": [
             "glutes",
@@ -1447,7 +1447,7 @@ export const BACK_EXERCISES: Exercise[] = [
     },
     {
         "id": 74,
-        "name": "Encolhimento (Barra)",
+        "name": "shrug_barbell",
         "category": "back",
         "secondaryMuscles": [
             "shoulders",
@@ -1503,7 +1503,7 @@ export const BACK_EXERCISES: Exercise[] = [
     },
     {
         "id": 75,
-        "name": "Encolhimento (Halteres)",
+        "name": "shrug_dumbbell",
         "category": "back",
         "secondaryMuscles": [
             "shoulders",
@@ -1556,7 +1556,7 @@ export const BACK_EXERCISES: Exercise[] = [
     },
     {
         "id": 76,
-        "name": "Encolhimento (Polia)",
+        "name": "shrug_cable",
         "category": "back",
         "secondaryMuscles": [
             "shoulders",
@@ -1609,7 +1609,7 @@ export const BACK_EXERCISES: Exercise[] = [
     },
     {
         "id": 507,
-        "name": "Remada Curvada (Smith)",
+        "name": "bent_over_row_smith_machine",
         "category": "back",
         "secondaryMuscles": [
             "biceps",
@@ -1667,7 +1667,7 @@ export const BACK_EXERCISES: Exercise[] = [
     },
     {
         "id": 508,
-        "name": "Puxada Alta (Pegada Inversa)",
+        "name": "lat_pulldown_supinated_cable",
         "category": "back",
         "secondaryMuscles": [
             "biceps",
@@ -1725,7 +1725,7 @@ export const BACK_EXERCISES: Exercise[] = [
     },
     {
         "id": 509,
-        "name": "Puxada Alta (Pegada Neutra)",
+        "name": "lat_pulldown_neutral_cable",
         "category": "back",
         "secondaryMuscles": [
             "biceps",
@@ -1783,7 +1783,7 @@ export const BACK_EXERCISES: Exercise[] = [
     },
     {
         "id": 510,
-        "name": "Remada Baixa (Barra Larga)",
+        "name": "seated_row_wide_bar_cable",
         "category": "back",
         "secondaryMuscles": [
             "biceps",
@@ -1840,7 +1840,7 @@ export const BACK_EXERCISES: Exercise[] = [
     },
     {
         "id": 521,
-        "name": "Barra Fixa com Carga",
+        "name": "weighted_pull_up_plate",
         "category": "back",
         "secondaryMuscles": [
             "biceps",
@@ -1904,7 +1904,7 @@ export const BACK_EXERCISES: Exercise[] = [
     },
     {
         "id": 522,
-        "name": "Barra Assistida (Graviton)",
+        "name": "assisted_pull_up_machine",
         "category": "back",
         "secondaryMuscles": [
             "biceps",
@@ -1968,7 +1968,7 @@ export const BACK_EXERCISES: Exercise[] = [
     },
     {
         "id": 523,
-        "name": "Remada Curvada (Barra Supinada)",
+        "name": "bent_over_row_supinated_barbell",
         "category": "back",
         "secondaryMuscles": [
             "biceps",
@@ -2029,7 +2029,7 @@ export const BACK_EXERCISES: Exercise[] = [
     },
     {
         "id": 524,
-        "name": "Remada Curvada (Halteres)",
+        "name": "bent_over_row_dumbbell",
         "category": "back",
         "secondaryMuscles": [
             "biceps",
@@ -2087,7 +2087,7 @@ export const BACK_EXERCISES: Exercise[] = [
     },
     {
         "id": 525,
-        "name": "Remada Meadows (Landmine)",
+        "name": "meadows_row_barbell",
         "category": "back",
         "secondaryMuscles": [
             "biceps",
@@ -2151,7 +2151,7 @@ export const BACK_EXERCISES: Exercise[] = [
     },
     {
         "id": 526,
-        "name": "Remada Baixa (Pegada Inversa)",
+        "name": "seated_row_supinated_cable",
         "category": "back",
         "secondaryMuscles": [
             "biceps",
@@ -2208,7 +2208,7 @@ export const BACK_EXERCISES: Exercise[] = [
     },
     {
         "id": 564,
-        "name": "Barra Fixa Peito na Barra (C2B)",
+        "name": "chest_to_bar_pull_up",
         "category": "back",
         "secondaryMuscles": [
             "biceps",
@@ -2275,7 +2275,7 @@ export const BACK_EXERCISES: Exercise[] = [
     },
     {
         "id": 565,
-        "name": "Barra Fixa L-Sit",
+        "name": "l_sit_pull_up",
         "category": "back",
         "secondaryMuscles": [
             "biceps",
@@ -2342,7 +2342,7 @@ export const BACK_EXERCISES: Exercise[] = [
     },
     {
         "id": 566,
-        "name": "Barra Fixa Arqueiro",
+        "name": "archer_pull_up",
         "category": "back",
         "secondaryMuscles": [
             "biceps",
@@ -2412,7 +2412,7 @@ export const BACK_EXERCISES: Exercise[] = [
     },
     {
         "id": 567,
-        "name": "Remada (Argolas)",
+        "name": "ring_rows",
         "category": "back",
         "secondaryMuscles": [
             "biceps",
@@ -2476,7 +2476,7 @@ export const BACK_EXERCISES: Exercise[] = [
     },
     {
         "id": 568,
-        "name": "Muscle-Up (Barra)",
+        "name": "muscle_up_bar",
         "category": "back",
         "secondaryMuscles": [
             "biceps",
@@ -2536,7 +2536,7 @@ export const BACK_EXERCISES: Exercise[] = [
     },
     {
         "id": 569,
-        "name": "Muscle-Up (Argolas)",
+        "name": "muscle_up_rings",
         "category": "back",
         "secondaryMuscles": [
             "biceps",
@@ -2596,7 +2596,7 @@ export const BACK_EXERCISES: Exercise[] = [
     },
     {
         "id": 588,
-        "name": "Subida na Corda",
+        "name": "rope_climb",
         "category": "back",
         "secondaryMuscles": [
             "biceps",
@@ -2656,7 +2656,7 @@ export const BACK_EXERCISES: Exercise[] = [
     },
     {
         "id": 591,
-        "name": "Barra Fixa Kipping (CrossFit)",
+        "name": "kipping_pull_up",
         "category": "back",
         "secondaryMuscles": [
             "biceps",
@@ -2723,7 +2723,7 @@ export const BACK_EXERCISES: Exercise[] = [
     },
     {
         "id": 592,
-        "name": "Barra Fixa Butterfly (CrossFit)",
+        "name": "butterfly_pull_up",
         "category": "back",
         "secondaryMuscles": [
             "biceps",
@@ -2790,7 +2790,7 @@ export const BACK_EXERCISES: Exercise[] = [
     },
     {
         "id": 595,
-        "name": "Extensão Lombar (GHD)",
+        "name": "ghd_back_extension_machine",
         "category": "back",
         "secondaryMuscles": [
             "glutes",
@@ -2850,7 +2850,7 @@ export const BACK_EXERCISES: Exercise[] = [
     },
     {
         "id": 604,
-        "name": "Front Lever Iso",
+        "name": "front_lever_hold",
         "category": "back",
         "secondaryMuscles": [
             "biceps",
@@ -2910,7 +2910,7 @@ export const BACK_EXERCISES: Exercise[] = [
     },
     {
         "id": 605,
-        "name": "Back Lever Iso",
+        "name": "back_lever_hold",
         "category": "back",
         "secondaryMuscles": [
             "biceps",

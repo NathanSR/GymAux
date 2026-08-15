@@ -3,7 +3,7 @@ import { Exercise } from '../types';
 export const CORE_EXERCISES: Exercise[] = [
     {
         "id": 390,
-        "name": "Prancha Abdominal",
+        "name": "plank",
         "category": "core",
         "secondaryMuscles": [
             "shoulders",
@@ -69,7 +69,7 @@ export const CORE_EXERCISES: Exercise[] = [
     },
     {
         "id": 391,
-        "name": "Prancha Lateral",
+        "name": "side_plank",
         "category": "core",
         "secondaryMuscles": [
             "shoulders",
@@ -135,7 +135,7 @@ export const CORE_EXERCISES: Exercise[] = [
     },
     {
         "id": 392,
-        "name": "Canoa Iso (Hollow Hold)",
+        "name": "hollow_body_hold",
         "category": "core",
         "secondaryMuscles": [
             "shoulders",
@@ -201,7 +201,7 @@ export const CORE_EXERCISES: Exercise[] = [
     },
     {
         "id": 393,
-        "name": "Abdominal Supra / Crunch",
+        "name": "crunch",
         "category": "core",
         "secondaryMuscles": [
             "quadriceps"
@@ -259,7 +259,7 @@ export const CORE_EXERCISES: Exercise[] = [
     },
     {
         "id": 394,
-        "name": "Elevação de Pernas no Solo",
+        "name": "leg_raise",
         "category": "core",
         "secondaryMuscles": [
             "quadriceps",
@@ -321,7 +321,7 @@ export const CORE_EXERCISES: Exercise[] = [
     },
     {
         "id": 395,
-        "name": "Elevação de Joelhos na Barra",
+        "name": "hanging_knee_raise",
         "category": "core",
         "secondaryMuscles": [
             "quadriceps",
@@ -383,7 +383,7 @@ export const CORE_EXERCISES: Exercise[] = [
     },
     {
         "id": 396,
-        "name": "Abdominal V-Up / Canivete",
+        "name": "v_ups",
         "category": "core",
         "secondaryMuscles": [
             "quadriceps"
@@ -441,7 +441,7 @@ export const CORE_EXERCISES: Exercise[] = [
     },
     {
         "id": 397,
-        "name": "Abdominal Bicicleta",
+        "name": "bicycle_crunch",
         "category": "core",
         "secondaryMuscles": [
             "quadriceps"
@@ -502,7 +502,7 @@ export const CORE_EXERCISES: Exercise[] = [
     },
     {
         "id": 398,
-        "name": "Giro Russo / Russian Twist",
+        "name": "russian_twist_dumbbell",
         "category": "core",
         "secondaryMuscles": [
             "shoulders",
@@ -558,7 +558,7 @@ export const CORE_EXERCISES: Exercise[] = [
     },
     {
         "id": 399,
-        "name": "Press Pallof (Polia)",
+        "name": "pallof_press_cable",
         "category": "core",
         "secondaryMuscles": [
             "shoulders",
@@ -611,7 +611,7 @@ export const CORE_EXERCISES: Exercise[] = [
     },
     {
         "id": 400,
-        "name": "Woodchop / Cortador de Madeira (Polia)",
+        "name": "woodchop_cable",
         "category": "core",
         "secondaryMuscles": [
             "shoulders",
@@ -664,7 +664,7 @@ export const CORE_EXERCISES: Exercise[] = [
     },
     {
         "id": 401,
-        "name": "Roda Abdominal (Rollout)",
+        "name": "ab_wheel_rollout",
         "category": "core",
         "secondaryMuscles": [
             "shoulders",
@@ -724,7 +724,7 @@ export const CORE_EXERCISES: Exercise[] = [
     },
     {
         "id": 402,
-        "name": "Inseto Morto (Dead Bug)",
+        "name": "dead_bug",
         "category": "core",
         "secondaryMuscles": [
             "quadriceps"
@@ -782,7 +782,7 @@ export const CORE_EXERCISES: Exercise[] = [
     },
     {
         "id": 403,
-        "name": "Perdigueiro (Bird Dog)",
+        "name": "bird_dog",
         "category": "core",
         "secondaryMuscles": [
             "quadriceps"
@@ -840,7 +840,7 @@ export const CORE_EXERCISES: Exercise[] = [
     },
     {
         "id": 404,
-        "name": "Escalador (Mountain Climbers)",
+        "name": "mountain_climbers",
         "category": "core",
         "secondaryMuscles": [
             "quadriceps"
@@ -898,7 +898,7 @@ export const CORE_EXERCISES: Exercise[] = [
     },
     {
         "id": 405,
-        "name": "Abdominal Crunch (Polia)",
+        "name": "crunch_cable",
         "category": "core",
         "secondaryMuscles": [
             "quadriceps"
@@ -950,7 +950,7 @@ export const CORE_EXERCISES: Exercise[] = [
     },
     {
         "id": 406,
-        "name": "Rotação de Tronco (Máquina)",
+        "name": "torso_rotation_machine",
         "category": "core",
         "secondaryMuscles": [
             "shoulders",
@@ -1006,7 +1006,7 @@ export const CORE_EXERCISES: Exercise[] = [
     },
     {
         "id": 407,
-        "name": "Super-Homem (Lombar)",
+        "name": "superman",
         "category": "core",
         "secondaryMuscles": [
             "glutes",
@@ -1065,7 +1065,7 @@ export const CORE_EXERCISES: Exercise[] = [
     },
     {
         "id": 408,
-        "name": "Extensão Lombar (Máquina)",
+        "name": "back_extension_machine",
         "category": "core",
         "secondaryMuscles": [
             "glutes",
@@ -1121,7 +1121,7 @@ export const CORE_EXERCISES: Exercise[] = [
     },
     {
         "id": 409,
-        "name": "Pés na Barra (Toes-to-Bar)",
+        "name": "toes_to_bar",
         "category": "core",
         "secondaryMuscles": [
             "quadriceps",
@@ -1180,7 +1180,7 @@ export const CORE_EXERCISES: Exercise[] = [
     },
     {
         "id": 551,
-        "name": "Elevação de Pernas na Barra",
+        "name": "hanging_leg_raise",
         "category": "core",
         "secondaryMuscles": [
             "quadriceps",
@@ -1242,7 +1242,7 @@ export const CORE_EXERCISES: Exercise[] = [
     },
     {
         "id": 552,
-        "name": "Elevação de Pernas na Cadeira Capitão",
+        "name": "captain_chair_leg_raise",
         "category": "core",
         "secondaryMuscles": [
             "quadriceps",
@@ -1304,7 +1304,7 @@ export const CORE_EXERCISES: Exercise[] = [
     },
     {
         "id": 553,
-        "name": "Elevação de Pernas no Solo",
+        "name": "lying_leg_raise",
         "category": "core",
         "secondaryMuscles": [
             "quadriceps",
@@ -1366,7 +1366,7 @@ export const CORE_EXERCISES: Exercise[] = [
     },
     {
         "id": 556,
-        "name": "Woodchopper (Polia)",
+        "name": "woodchopper_cable",
         "category": "core",
         "secondaryMuscles": [
             "shoulders",
@@ -1425,7 +1425,7 @@ export const CORE_EXERCISES: Exercise[] = [
     },
     {
         "id": 571,
-        "name": "L-Sit Iso (Solo/Paralelas)",
+        "name": "l_sit_hold",
         "category": "core",
         "secondaryMuscles": [
             "shoulders",
@@ -1485,7 +1485,7 @@ export const CORE_EXERCISES: Exercise[] = [
     },
     {
         "id": 572,
-        "name": "Dragon Flag (Banco)",
+        "name": "dragon_flag",
         "category": "core",
         "secondaryMuscles": [
             "shoulders",
@@ -1545,7 +1545,7 @@ export const CORE_EXERCISES: Exercise[] = [
     },
     {
         "id": 594,
-        "name": "Abdominal GHD",
+        "name": "ghd_sit_up_machine",
         "category": "core",
         "secondaryMuscles": [
             "quadriceps"

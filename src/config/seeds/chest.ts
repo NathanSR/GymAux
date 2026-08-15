@@ -3,7 +3,7 @@ import { Exercise } from '../types';
 export const CHEST_EXERCISES: Exercise[] = [
     {
         "id": 1,
-        "name": "Flexão de Braços",
+        "name": "standard_push_up",
         "category": "chest",
         "secondaryMuscles": [
             "triceps",
@@ -63,7 +63,7 @@ export const CHEST_EXERCISES: Exercise[] = [
     },
     {
         "id": 2,
-        "name": "Flexão Declinada",
+        "name": "decline_push_up",
         "category": "chest",
         "secondaryMuscles": [
             "triceps",
@@ -120,7 +120,7 @@ export const CHEST_EXERCISES: Exercise[] = [
     },
     {
         "id": 3,
-        "name": "Flexão Inclinada",
+        "name": "incline_push_up",
         "category": "chest",
         "secondaryMuscles": [
             "triceps",
@@ -180,7 +180,7 @@ export const CHEST_EXERCISES: Exercise[] = [
     },
     {
         "id": 4,
-        "name": "Flexão Diamante",
+        "name": "diamond_push_up",
         "category": "chest",
         "secondaryMuscles": [
             "triceps",
@@ -240,7 +240,7 @@ export const CHEST_EXERCISES: Exercise[] = [
     },
     {
         "id": 5,
-        "name": "Flexão Aberta",
+        "name": "wide_push_up",
         "category": "chest",
         "secondaryMuscles": [
             "triceps",
@@ -300,7 +300,7 @@ export const CHEST_EXERCISES: Exercise[] = [
     },
     {
         "id": 6,
-        "name": "Flexão Arqueiro",
+        "name": "archer_push_up",
         "category": "chest",
         "secondaryMuscles": [
             "triceps",
@@ -363,7 +363,7 @@ export const CHEST_EXERCISES: Exercise[] = [
     },
     {
         "id": 7,
-        "name": "Flexão Explosiva",
+        "name": "explosive_push_up",
         "category": "chest",
         "secondaryMuscles": [
             "triceps",
@@ -423,7 +423,7 @@ export const CHEST_EXERCISES: Exercise[] = [
     },
     {
         "id": 8,
-        "name": "Paralelas (Peito)",
+        "name": "chest_dips",
         "category": "chest",
         "secondaryMuscles": [
             "triceps",
@@ -486,7 +486,7 @@ export const CHEST_EXERCISES: Exercise[] = [
     },
     {
         "id": 9,
-        "name": "Flexão Homem-Aranha",
+        "name": "spiderman_push_up",
         "category": "chest",
         "secondaryMuscles": [
             "triceps",
@@ -546,7 +546,7 @@ export const CHEST_EXERCISES: Exercise[] = [
     },
     {
         "id": 10,
-        "name": "Supino Reto (Barra)",
+        "name": "bench_press_barbell",
         "category": "chest",
         "secondaryMuscles": [
             "triceps",
@@ -605,7 +605,7 @@ export const CHEST_EXERCISES: Exercise[] = [
     },
     {
         "id": 11,
-        "name": "Supino Inclinado (Barra)",
+        "name": "incline_press_barbell",
         "category": "chest",
         "secondaryMuscles": [
             "triceps",
@@ -667,7 +667,7 @@ export const CHEST_EXERCISES: Exercise[] = [
     },
     {
         "id": 12,
-        "name": "Supino Declinado (Barra)",
+        "name": "decline_press_barbell",
         "category": "chest",
         "secondaryMuscles": [
             "triceps",
@@ -726,7 +726,7 @@ export const CHEST_EXERCISES: Exercise[] = [
     },
     {
         "id": 13,
-        "name": "Supino Fechado (Barra)",
+        "name": "close_grip_press_barbell",
         "category": "chest",
         "secondaryMuscles": [
             "triceps",
@@ -785,7 +785,7 @@ export const CHEST_EXERCISES: Exercise[] = [
     },
     {
         "id": 14,
-        "name": "Supino no Chão (Barra)",
+        "name": "floor_press_barbell",
         "category": "chest",
         "secondaryMuscles": [
             "triceps",
@@ -844,7 +844,7 @@ export const CHEST_EXERCISES: Exercise[] = [
     },
     {
         "id": 15,
-        "name": "Supino Reto (Halteres)",
+        "name": "bench_press_dumbbell",
         "category": "chest",
         "secondaryMuscles": [
             "triceps",
@@ -900,7 +900,7 @@ export const CHEST_EXERCISES: Exercise[] = [
     },
     {
         "id": 16,
-        "name": "Supino Inclinado (Halteres)",
+        "name": "incline_press_dumbbell",
         "category": "chest",
         "secondaryMuscles": [
             "triceps",
@@ -959,7 +959,7 @@ export const CHEST_EXERCISES: Exercise[] = [
     },
     {
         "id": 17,
-        "name": "Supino Declinado (Halteres)",
+        "name": "decline_press_dumbbell",
         "category": "chest",
         "secondaryMuscles": [
             "triceps",
@@ -1015,7 +1015,7 @@ export const CHEST_EXERCISES: Exercise[] = [
     },
     {
         "id": 18,
-        "name": "Supino com Rotação (Halteres)",
+        "name": "rotation_press_dumbbell",
         "category": "chest",
         "secondaryMuscles": [
             "triceps",
@@ -1071,7 +1071,7 @@ export const CHEST_EXERCISES: Exercise[] = [
     },
     {
         "id": 19,
-        "name": "Squeeze Press (Halteres)",
+        "name": "squeeze_press_dumbbell",
         "category": "chest",
         "secondaryMuscles": [
             "triceps",
@@ -1121,7 +1121,7 @@ export const CHEST_EXERCISES: Exercise[] = [
     },
     {
         "id": 20,
-        "name": "Crucifixo Reto (Halteres)",
+        "name": "flat_fly_dumbbell",
         "category": "chest",
         "secondaryMuscles": [
             "shoulders"
@@ -1173,7 +1173,7 @@ export const CHEST_EXERCISES: Exercise[] = [
     },
     {
         "id": 21,
-        "name": "Crucifixo Inclinado (Halteres)",
+        "name": "incline_fly_dumbbell",
         "category": "chest",
         "secondaryMuscles": [
             "shoulders"
@@ -1225,7 +1225,7 @@ export const CHEST_EXERCISES: Exercise[] = [
     },
     {
         "id": 22,
-        "name": "Crossover (Polia Alta)",
+        "name": "crossover_high_cable",
         "category": "chest",
         "secondaryMuscles": [
             "shoulders"
@@ -1277,7 +1277,7 @@ export const CHEST_EXERCISES: Exercise[] = [
     },
     {
         "id": 23,
-        "name": "Crossover (Polia Média)",
+        "name": "crossover_mid_cable",
         "category": "chest",
         "secondaryMuscles": [
             "shoulders"
@@ -1329,7 +1329,7 @@ export const CHEST_EXERCISES: Exercise[] = [
     },
     {
         "id": 24,
-        "name": "Crossover (Polia Baixa)",
+        "name": "crossover_low_cable",
         "category": "chest",
         "secondaryMuscles": [
             "shoulders"
@@ -1381,7 +1381,7 @@ export const CHEST_EXERCISES: Exercise[] = [
     },
     {
         "id": 25,
-        "name": "Voador / Pec Deck (Máquina)",
+        "name": "pec_deck_fly_machine",
         "category": "chest",
         "secondaryMuscles": [
             "shoulders"
@@ -1436,7 +1436,7 @@ export const CHEST_EXERCISES: Exercise[] = [
     },
     {
         "id": 26,
-        "name": "Crucifixo (Máquina)",
+        "name": "fly_machine",
         "category": "chest",
         "secondaryMuscles": [
             "shoulders"
@@ -1491,7 +1491,7 @@ export const CHEST_EXERCISES: Exercise[] = [
     },
     {
         "id": 27,
-        "name": "Supino Reto (Máquina)",
+        "name": "chest_press_machine",
         "category": "chest",
         "secondaryMuscles": [
             "triceps",
@@ -1550,7 +1550,7 @@ export const CHEST_EXERCISES: Exercise[] = [
     },
     {
         "id": 28,
-        "name": "Supino Reto (Smith)",
+        "name": "press_smith_machine",
         "category": "chest",
         "secondaryMuscles": [
             "triceps",
@@ -1606,7 +1606,7 @@ export const CHEST_EXERCISES: Exercise[] = [
     },
     {
         "id": 29,
-        "name": "Landmine Press (Barra)",
+        "name": "landmine_press_barbell",
         "category": "chest",
         "secondaryMuscles": [
             "triceps",
@@ -1665,7 +1665,7 @@ export const CHEST_EXERCISES: Exercise[] = [
     },
     {
         "id": 30,
-        "name": "Pullover (Halteres)",
+        "name": "pullover_dumbbell",
         "category": "chest",
         "secondaryMuscles": [
             "back",
@@ -1725,7 +1725,7 @@ export const CHEST_EXERCISES: Exercise[] = [
     },
     {
         "id": 31,
-        "name": "Svendsen Press (Anilha)",
+        "name": "svendsen_press_machine",
         "category": "chest",
         "secondaryMuscles": [
             "shoulders"
@@ -1783,7 +1783,7 @@ export const CHEST_EXERCISES: Exercise[] = [
     },
     {
         "id": 500,
-        "name": "Supino Reto (Polia)",
+        "name": "bench_press_cable",
         "category": "chest",
         "secondaryMuscles": [
             "triceps",
@@ -1839,7 +1839,7 @@ export const CHEST_EXERCISES: Exercise[] = [
     },
     {
         "id": 501,
-        "name": "Supino Inclinado (Smith)",
+        "name": "incline_press_smith_machine",
         "category": "chest",
         "secondaryMuscles": [
             "triceps",
@@ -1898,7 +1898,7 @@ export const CHEST_EXERCISES: Exercise[] = [
     },
     {
         "id": 502,
-        "name": "Supino Inclinado (Polia)",
+        "name": "incline_press_cable",
         "category": "chest",
         "secondaryMuscles": [
             "triceps",
@@ -1957,7 +1957,7 @@ export const CHEST_EXERCISES: Exercise[] = [
     },
     {
         "id": 503,
-        "name": "Supino Inclinado (Máquina)",
+        "name": "incline_press_machine",
         "category": "chest",
         "secondaryMuscles": [
             "triceps",
@@ -2019,7 +2019,7 @@ export const CHEST_EXERCISES: Exercise[] = [
     },
     {
         "id": 504,
-        "name": "Supino Declinado (Smith)",
+        "name": "decline_press_smith_machine",
         "category": "chest",
         "secondaryMuscles": [
             "triceps",
@@ -2075,7 +2075,7 @@ export const CHEST_EXERCISES: Exercise[] = [
     },
     {
         "id": 505,
-        "name": "Supino Declinado (Máquina)",
+        "name": "decline_press_machine",
         "category": "chest",
         "secondaryMuscles": [
             "triceps",
@@ -2134,7 +2134,7 @@ export const CHEST_EXERCISES: Exercise[] = [
     },
     {
         "id": 506,
-        "name": "Crucifixo Declinado (Halteres)",
+        "name": "decline_fly_dumbbell",
         "category": "chest",
         "secondaryMuscles": [
             "shoulders"
@@ -2183,7 +2183,7 @@ export const CHEST_EXERCISES: Exercise[] = [
     },
     {
         "id": 516,
-        "name": "Flexão com Carga",
+        "name": "weighted_push_up_plate",
         "category": "chest",
         "secondaryMuscles": [
             "triceps",
@@ -2240,7 +2240,7 @@ export const CHEST_EXERCISES: Exercise[] = [
     },
     {
         "id": 517,
-        "name": "Flexão (Argolas)",
+        "name": "ring_push_up",
         "category": "chest",
         "secondaryMuscles": [
             "triceps",
@@ -2300,7 +2300,7 @@ export const CHEST_EXERCISES: Exercise[] = [
     },
     {
         "id": 518,
-        "name": "Supino Unilateral (Halteres)",
+        "name": "unilateral_bench_press_dumbbell",
         "category": "chest",
         "secondaryMuscles": [
             "triceps",
@@ -2359,7 +2359,7 @@ export const CHEST_EXERCISES: Exercise[] = [
     },
     {
         "id": 519,
-        "name": "Guillotine Press (Barra)",
+        "name": "guillotine_press_barbell",
         "category": "chest",
         "secondaryMuscles": [
             "triceps",
@@ -2418,7 +2418,7 @@ export const CHEST_EXERCISES: Exercise[] = [
     },
     {
         "id": 520,
-        "name": "Crucifixo Unilateral (Polia)",
+        "name": "single_arm_fly_cable",
         "category": "chest",
         "secondaryMuscles": [
             "shoulders"
@@ -2473,7 +2473,7 @@ export const CHEST_EXERCISES: Exercise[] = [
     },
     {
         "id": 562,
-        "name": "Flexão Pseudo-Prancha",
+        "name": "pseudo_planche_push_up",
         "category": "chest",
         "secondaryMuscles": [
             "triceps",
@@ -2533,7 +2533,7 @@ export const CHEST_EXERCISES: Exercise[] = [
     },
     {
         "id": 563,
-        "name": "Paralelas (Argolas)",
+        "name": "ring_dips",
         "category": "chest",
         "secondaryMuscles": [
             "triceps",

@@ -3,7 +3,7 @@ import { Exercise } from '../types';
 export const BICEPS_EXERCISES: Exercise[] = [
     {
         "id": 130,
-        "name": "Rosca Direta (Barra Reta)",
+        "name": "curl_straight_bar_barbell",
         "category": "biceps",
         "secondaryMuscles": [
             "forearms"
@@ -58,7 +58,7 @@ export const BICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 131,
-        "name": "Rosca Direta (Barra EZ)",
+        "name": "ez_bar_curl",
         "category": "biceps",
         "secondaryMuscles": [
             "forearms"
@@ -110,7 +110,7 @@ export const BICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 132,
-        "name": "Rosca Scott (Barra EZ)",
+        "name": "preacher_curl_barbell",
         "category": "biceps",
         "secondaryMuscles": [
             "forearms"
@@ -168,7 +168,7 @@ export const BICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 133,
-        "name": "Rosca Direta (Barra)",
+        "name": "drag_curl_barbell",
         "category": "biceps",
         "secondaryMuscles": [
             "forearms"
@@ -223,7 +223,7 @@ export const BICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 134,
-        "name": "Rosca Aranha (Barra)",
+        "name": "spider_curl_barbell",
         "category": "biceps",
         "secondaryMuscles": [
             "forearms"
@@ -281,7 +281,7 @@ export const BICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 135,
-        "name": "Rosca Alternada (Halteres)",
+        "name": "alternate_curl_dumbbell",
         "category": "biceps",
         "secondaryMuscles": [
             "forearms"
@@ -333,7 +333,7 @@ export const BICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 136,
-        "name": "Rosca Martelo (Halteres)",
+        "name": "hammer_curl_dumbbell",
         "category": "biceps",
         "secondaryMuscles": [
             "forearms"
@@ -391,7 +391,7 @@ export const BICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 137,
-        "name": "Rosca Inclinada (Halteres)",
+        "name": "incline_curl_dumbbell",
         "category": "biceps",
         "secondaryMuscles": [
             "forearms"
@@ -446,7 +446,7 @@ export const BICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 138,
-        "name": "Rosca Concentrada (Halteres)",
+        "name": "concentration_curl_dumbbell",
         "category": "biceps",
         "secondaryMuscles": [
             "forearms"
@@ -504,7 +504,7 @@ export const BICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 139,
-        "name": "Rosca Scott (Halteres)",
+        "name": "preacher_curl_dumbbell",
         "category": "biceps",
         "secondaryMuscles": [
             "forearms"
@@ -562,7 +562,7 @@ export const BICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 140,
-        "name": "Rosca Zottman (Halteres)",
+        "name": "zotterman_curl_dumbbell",
         "category": "biceps",
         "secondaryMuscles": [
             "forearms"
@@ -614,7 +614,7 @@ export const BICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 141,
-        "name": "Rosca Martelo (Halteres)",
+        "name": "cross_body_hammer_curl_dumbbell",
         "category": "biceps",
         "secondaryMuscles": [
             "forearms"
@@ -672,7 +672,7 @@ export const BICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 142,
-        "name": "Rosca Direta (Polia)",
+        "name": "biceps_curl_straight_bar_cable",
         "category": "biceps",
         "secondaryMuscles": [
             "forearms"
@@ -727,7 +727,7 @@ export const BICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 143,
-        "name": "Rosca Martelo (Polia Corda)",
+        "name": "rope_hammer_curl_cable",
         "category": "biceps",
         "secondaryMuscles": [
             "forearms"
@@ -785,7 +785,7 @@ export const BICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 144,
-        "name": "Rosca Duplo Bíceps (Polia Alta)",
+        "name": "high_biceps_curl_cable",
         "category": "biceps",
         "secondaryMuscles": [
             "forearms"
@@ -840,7 +840,7 @@ export const BICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 145,
-        "name": "Rosca Direta (Polia)",
+        "name": "bayesian_curl_cable",
         "category": "biceps",
         "secondaryMuscles": [
             "forearms"
@@ -892,7 +892,7 @@ export const BICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 146,
-        "name": "Rosca Direta (Polia)",
+        "name": "single_arm_curl_cable",
         "category": "biceps",
         "secondaryMuscles": [
             "forearms"
@@ -950,7 +950,7 @@ export const BICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 147,
-        "name": "Rosca Scott (Máquina)",
+        "name": "biceps_curl_machine",
         "category": "biceps",
         "secondaryMuscles": [
             "forearms"
@@ -1005,7 +1005,7 @@ export const BICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 148,
-        "name": "Barra Fixa Supinada (Foco em Bíceps)",
+        "name": "chin_up_biceps_focus",
         "category": "biceps",
         "secondaryMuscles": [
             "back",
@@ -1065,7 +1065,7 @@ export const BICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 512,
-        "name": "Rosca Inversa (Barra)",
+        "name": "reverse_curl_barbell",
         "category": "biceps",
         "secondaryMuscles": [
             "forearms"
@@ -1126,7 +1126,7 @@ export const BICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 529,
-        "name": "Rosca Martelo Banco Inclinado (Halteres)",
+        "name": "incline_hammer_curl_dumbbell",
         "category": "biceps",
         "secondaryMuscles": [
             "forearms"
@@ -1181,7 +1181,7 @@ export const BICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 530,
-        "name": "Rosca Inversa (Polia)",
+        "name": "reverse_curl_cable",
         "category": "biceps",
         "secondaryMuscles": [
             "forearms"
@@ -1239,7 +1239,7 @@ export const BICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 531,
-        "name": "Rosca Scott (Polia)",
+        "name": "preacher_curl_cable",
         "category": "biceps",
         "secondaryMuscles": [
             "forearms"

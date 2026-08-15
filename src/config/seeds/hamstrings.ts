@@ -3,7 +3,7 @@ import { Exercise } from '../types';
 export const HAMSTRING_EXERCISES: Exercise[] = [
     {
         "id": 250,
-        "name": "Stiff (Barra)",
+        "name": "stiff_leg_deadlift_barbell",
         "category": "hamstrings",
         "secondaryMuscles": [
             "glutes",
@@ -67,7 +67,7 @@ export const HAMSTRING_EXERCISES: Exercise[] = [
     },
     {
         "id": 251,
-        "name": "Stiff (Halteres)",
+        "name": "stiff_leg_deadlift_dumbbell",
         "category": "hamstrings",
         "secondaryMuscles": [
             "glutes",
@@ -128,7 +128,7 @@ export const HAMSTRING_EXERCISES: Exercise[] = [
     },
     {
         "id": 252,
-        "name": "RDL (Levantamento Romeno)",
+        "name": "romanian_deadlift_barbell",
         "category": "hamstrings",
         "secondaryMuscles": [
             "glutes",
@@ -192,7 +192,7 @@ export const HAMSTRING_EXERCISES: Exercise[] = [
     },
     {
         "id": 253,
-        "name": "Good Morning (Barra)",
+        "name": "good_morning_barbell",
         "category": "hamstrings",
         "secondaryMuscles": [
             "glutes",
@@ -255,7 +255,7 @@ export const HAMSTRING_EXERCISES: Exercise[] = [
     },
     {
         "id": 254,
-        "name": "Rosca Direta (Máquina)",
+        "name": "lying_leg_curl_machine",
         "category": "hamstrings",
         "secondaryMuscles": [
             "calves",
@@ -317,7 +317,7 @@ export const HAMSTRING_EXERCISES: Exercise[] = [
     },
     {
         "id": 255,
-        "name": "Rosca Direta (Máquina)",
+        "name": "seated_leg_curl_machine",
         "category": "hamstrings",
         "secondaryMuscles": [
             "calves",
@@ -379,7 +379,7 @@ export const HAMSTRING_EXERCISES: Exercise[] = [
     },
     {
         "id": 256,
-        "name": "Rosca Direta (Máquina)",
+        "name": "standing_single_leg_curl_machine",
         "category": "hamstrings",
         "secondaryMuscles": [
             "calves",
@@ -444,7 +444,7 @@ export const HAMSTRING_EXERCISES: Exercise[] = [
     },
     {
         "id": 257,
-        "name": "Flexão Nórdica (Peso Corporal)",
+        "name": "nordic_hamstring_curl",
         "category": "hamstrings",
         "secondaryMuscles": [
             "calves",
@@ -509,7 +509,7 @@ export const HAMSTRING_EXERCISES: Exercise[] = [
     },
     {
         "id": 258,
-        "name": "Rosca Direta",
+        "name": "sliding_leg_curl_towel",
         "category": "hamstrings",
         "secondaryMuscles": [
             "calves",
@@ -574,7 +574,7 @@ export const HAMSTRING_EXERCISES: Exercise[] = [
     },
     {
         "id": 259,
-        "name": "Rosca Direta",
+        "name": "stability_ball_leg_curl",
         "category": "hamstrings",
         "secondaryMuscles": [
             "calves",
@@ -633,7 +633,7 @@ export const HAMSTRING_EXERCISES: Exercise[] = [
     },
     {
         "id": 260,
-        "name": "Elevação Glúteo-Isquiotibiais / GHR (Máquina)",
+        "name": "glute_ham_raise_machine",
         "category": "hamstrings",
         "secondaryMuscles": [
             "glutes",
@@ -696,7 +696,7 @@ export const HAMSTRING_EXERCISES: Exercise[] = [
     },
     {
         "id": 261,
-        "name": "RDL Unilateral (Halteres)",
+        "name": "single_leg_romanian_deadlift_dumbbell",
         "category": "hamstrings",
         "secondaryMuscles": [
             "glutes",
@@ -760,7 +760,7 @@ export const HAMSTRING_EXERCISES: Exercise[] = [
     },
     {
         "id": 262,
-        "name": "Pull Through (Polia)",
+        "name": "pull_through_cable",
         "category": "hamstrings",
         "secondaryMuscles": [
             "glutes",
@@ -817,7 +817,7 @@ export const HAMSTRING_EXERCISES: Exercise[] = [
     },
     {
         "id": 263,
-        "name": "Flexão de Pernas Deitado (Halteres)",
+        "name": "leg_curl_lying_dumbbell",
         "category": "hamstrings",
         "secondaryMuscles": [
             "calves",
@@ -876,7 +876,7 @@ export const HAMSTRING_EXERCISES: Exercise[] = [
     },
     {
         "id": 264,
-        "name": "Swing de Quadril (Kettlebell)",
+        "name": "swing_kettlebell",
         "category": "hamstrings",
         "secondaryMuscles": [
             "glutes",
@@ -937,7 +937,7 @@ export const HAMSTRING_EXERCISES: Exercise[] = [
     },
     {
         "id": 515,
-        "name": "Stiff (Smith)",
+        "name": "stiff_leg_deadlift_smith_machine",
         "category": "hamstrings",
         "secondaryMuscles": [
             "glutes",
@@ -998,7 +998,7 @@ export const HAMSTRING_EXERCISES: Exercise[] = [
     },
     {
         "id": 541,
-        "name": "RDL - Levantamento Romeno (Halteres)",
+        "name": "rdl_dumbbell",
         "category": "hamstrings",
         "secondaryMuscles": [
             "glutes",
@@ -1059,7 +1059,7 @@ export const HAMSTRING_EXERCISES: Exercise[] = [
     },
     {
         "id": 542,
-        "name": "RDL Unilateral (Halteres)",
+        "name": "single_leg_rdl_dumbbell",
         "category": "hamstrings",
         "secondaryMuscles": [
             "glutes",
@@ -1123,7 +1123,7 @@ export const HAMSTRING_EXERCISES: Exercise[] = [
     },
     {
         "id": 543,
-        "name": "Flexora em Pé (Máquina)",
+        "name": "standing_leg_curl_machine",
         "category": "hamstrings",
         "secondaryMuscles": [
             "calves",

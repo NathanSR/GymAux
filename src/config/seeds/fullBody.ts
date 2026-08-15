@@ -3,7 +3,7 @@ import { Exercise } from '../types';
 export const FULL_BODY_EXERCISES: Exercise[] = [
     {
         "id": 480,
-        "name": "Clean & Press / Arremesso (Barra)",
+        "name": "clean_and_press_barbell",
         "category": "full_body",
         "secondaryMuscles": [
             "back",
@@ -65,7 +65,7 @@ export const FULL_BODY_EXERCISES: Exercise[] = [
     },
     {
         "id": 481,
-        "name": "Snatch / Arranco (Barra)",
+        "name": "snatch_barbell",
         "category": "full_body",
         "secondaryMuscles": [
             "shoulders",
@@ -127,7 +127,7 @@ export const FULL_BODY_EXERCISES: Exercise[] = [
     },
     {
         "id": 482,
-        "name": "Thruster (Barra)",
+        "name": "thruster_barbell",
         "category": "full_body",
         "secondaryMuscles": [
             "quadriceps",
@@ -189,7 +189,7 @@ export const FULL_BODY_EXERCISES: Exercise[] = [
     },
     {
         "id": 484,
-        "name": "Man Makers (Halteres)",
+        "name": "man_makers_dumbbell",
         "category": "full_body",
         "secondaryMuscles": [
             "quadriceps",
@@ -245,7 +245,7 @@ export const FULL_BODY_EXERCISES: Exercise[] = [
     },
     {
         "id": 485,
-        "name": "Arranco Unilateral (Haltere)",
+        "name": "snatch_unilateral_dumbbell",
         "category": "full_body",
         "secondaryMuscles": [
             "shoulders",
@@ -307,7 +307,7 @@ export const FULL_BODY_EXERCISES: Exercise[] = [
     },
     {
         "id": 486,
-        "name": "Levantamento Turco (Turkish Get-Up)",
+        "name": "turkish_get_up_kettlebell",
         "category": "full_body",
         "secondaryMuscles": [
             "quadriceps",
@@ -366,7 +366,7 @@ export const FULL_BODY_EXERCISES: Exercise[] = [
     },
     {
         "id": 488,
-        "name": "Caminhada do Urso (Bear Crawl)",
+        "name": "bear_crawl",
         "category": "full_body",
         "secondaryMuscles": [
             "quadriceps",
@@ -428,7 +428,7 @@ export const FULL_BODY_EXERCISES: Exercise[] = [
     },
     {
         "id": 489,
-        "name": "Slam com Medicine Ball",
+        "name": "medicine_ball_slam",
         "category": "full_body",
         "secondaryMuscles": [
             "quadriceps",
@@ -484,7 +484,7 @@ export const FULL_BODY_EXERCISES: Exercise[] = [
     },
     {
         "id": 490,
-        "name": "Tombamento de Pneu (Tire Flip)",
+        "name": "tire_flip",
         "category": "full_body",
         "secondaryMuscles": [
             "quadriceps",
@@ -540,7 +540,7 @@ export const FULL_BODY_EXERCISES: Exercise[] = [
     },
     {
         "id": 576,
-        "name": "Wall Ball (Lançamento de Bola)",
+        "name": "wall_ball_shot_medicine_ball",
         "category": "full_body",
         "secondaryMuscles": [
             "quadriceps",
@@ -599,7 +599,7 @@ export const FULL_BODY_EXERCISES: Exercise[] = [
     },
     {
         "id": 579,
-        "name": "Burpee com Salto na Caixa",
+        "name": "burpee_box_jump_over",
         "category": "full_body",
         "secondaryMuscles": [
             "chest",
@@ -661,7 +661,7 @@ export const FULL_BODY_EXERCISES: Exercise[] = [
     },
     {
         "id": 580,
-        "name": "Devil Press (Halteres)",
+        "name": "devil_press_dumbbell",
         "category": "full_body",
         "secondaryMuscles": [
             "quadriceps",
@@ -717,7 +717,7 @@ export const FULL_BODY_EXERCISES: Exercise[] = [
     },
     {
         "id": 581,
-        "name": "Snatch / Arranco (Kettlebell)",
+        "name": "snatch_kettlebell",
         "category": "full_body",
         "secondaryMuscles": [
             "shoulders",
@@ -782,7 +782,7 @@ export const FULL_BODY_EXERCISES: Exercise[] = [
     },
     {
         "id": 582,
-        "name": "Clean & Press (Kettlebell)",
+        "name": "clean_and_press_kettlebell",
         "category": "full_body",
         "secondaryMuscles": [
             "back",
@@ -847,7 +847,7 @@ export const FULL_BODY_EXERCISES: Exercise[] = [
     },
     {
         "id": 583,
-        "name": "Ondulação de Corda Naval",
+        "name": "battle_rope_slams",
         "category": "full_body",
         "secondaryMuscles": [
             "quadriceps",
@@ -903,7 +903,7 @@ export const FULL_BODY_EXERCISES: Exercise[] = [
     },
     {
         "id": 585,
-        "name": "Power Snatch (Barra)",
+        "name": "power_snatch_barbell",
         "category": "full_body",
         "secondaryMuscles": [
             "shoulders",
@@ -965,7 +965,7 @@ export const FULL_BODY_EXERCISES: Exercise[] = [
     },
     {
         "id": 586,
-        "name": "Power Clean (Barra)",
+        "name": "power_clean_barbell",
         "category": "full_body",
         "secondaryMuscles": [
             "back",
@@ -1027,7 +1027,7 @@ export const FULL_BODY_EXERCISES: Exercise[] = [
     },
     {
         "id": 593,
-        "name": "Burpee com Barra Fixa",
+        "name": "burpee_pull_up",
         "category": "full_body",
         "secondaryMuscles": [
             "chest",
@@ -1089,7 +1089,7 @@ export const FULL_BODY_EXERCISES: Exercise[] = [
     },
     {
         "id": 598,
-        "name": "Snatch Agachado (Barra)",
+        "name": "squat_snatch_barbell",
         "category": "full_body",
         "secondaryMuscles": [
             "shoulders",
@@ -1151,7 +1151,7 @@ export const FULL_BODY_EXERCISES: Exercise[] = [
     },
     {
         "id": 599,
-        "name": "Clean Agachado (Barra)",
+        "name": "squat_clean_barbell",
         "category": "full_body",
         "secondaryMuscles": [
             "back",
@@ -1213,7 +1213,7 @@ export const FULL_BODY_EXERCISES: Exercise[] = [
     },
     {
         "id": 600,
-        "name": "Split Jerk (Barra)",
+        "name": "split_jerk_barbell",
         "category": "full_body",
         "secondaryMuscles": [
             "quadriceps",
