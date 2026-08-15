@@ -65,7 +65,7 @@ export const taxonomyService = {
         try {
             const { data, error } = await withTimeout(
                 supabase
-                    .from('exercise_categories')
+                    .from('categories')
                     .select('*')
                     .eq('is_active', true)
                     .order('display_order', { ascending: true }),
@@ -124,7 +124,7 @@ export const taxonomyService = {
         try {
             const { data, error } = await withTimeout(
                 supabase
-                    .from('exercise_equipment')
+                    .from('equipments')
                     .select('*')
                     .eq('is_active', true)
                     .order('display_order', { ascending: true }),
@@ -179,7 +179,7 @@ export const taxonomyService = {
     async getAllCategoriesAdmin(customSupabase?: any): Promise<ExerciseCategory[]> {
         const supabase = customSupabase || createClient();
         const { data, error } = await supabase
-            .from('exercise_categories')
+            .from('categories')
             .select('*')
             .order('display_order', { ascending: true });
 
@@ -202,7 +202,7 @@ export const taxonomyService = {
     async getAllEquipmentAdmin(customSupabase?: any): Promise<ExerciseEquipment[]> {
         const supabase = customSupabase || createClient();
         const { data, error } = await supabase
-            .from('exercise_equipment')
+            .from('equipments')
             .select('*')
             .order('display_order', { ascending: true });
 
@@ -234,7 +234,7 @@ export const taxonomyService = {
         };
 
         const { data, error } = await supabase
-            .from('exercise_categories')
+            .from('categories')
             .insert(payload)
             .select()
             .single();
@@ -270,7 +270,7 @@ export const taxonomyService = {
         if (category.translations !== undefined) payload.translations = category.translations;
 
         const { error } = await supabase
-            .from('exercise_categories')
+            .from('categories')
             .update(payload)
             .eq('id', id);
 
@@ -283,7 +283,7 @@ export const taxonomyService = {
     async deleteCategoryAdmin(id: string, customSupabase?: any): Promise<void> {
         const supabase = customSupabase || createClient();
         const { error } = await supabase
-            .from('exercise_categories')
+            .from('categories')
             .delete()
             .eq('id', id);
 
@@ -305,7 +305,7 @@ export const taxonomyService = {
         };
 
         const { data, error } = await supabase
-            .from('exercise_equipment')
+            .from('equipments')
             .insert(payload)
             .select()
             .single();
@@ -339,7 +339,7 @@ export const taxonomyService = {
         if (equipment.translations !== undefined) payload.translations = equipment.translations;
 
         const { error } = await supabase
-            .from('exercise_equipment')
+            .from('equipments')
             .update(payload)
             .eq('id', id);
 
@@ -352,7 +352,7 @@ export const taxonomyService = {
     async deleteEquipmentAdmin(id: string, customSupabase?: any): Promise<void> {
         const supabase = customSupabase || createClient();
         const { error } = await supabase
-            .from('exercise_equipment')
+            .from('equipments')
             .delete()
             .eq('id', id);
 
