@@ -1,8 +1,10 @@
 'use client';
 
-import { useState } from 'react';
-import { CATEGORIES, EQUIPMENT, CATEGORY_METADATA, EQUIPMENT_METADATA, CategoryType, EquipmentType } from '@/config/constants';
-import { useTranslations } from 'next-intl';
+import { useState, useEffect } from 'react';
+import { CATEGORIES, EQUIPMENT, CATEGORY_METADATA, EQUIPMENT_METADATA } from '@/config/constants';
+import { ExerciseCategory, ExerciseEquipment } from '@/config/types';
+import { taxonomyService } from '@/services/taxonomyService';
+import { useTranslations, useLocale } from 'next-intl';
 import { SlidersHorizontal, RotateCcw, Dumbbell, Target, Check, X } from 'lucide-react';
 import { Modal } from '@/components/ui/Modal';
 
@@ -23,9 +25,44 @@ export function ExerciseFilterPanel({
     className = "",
     zIndex = "z-[250]"
 }: ExerciseFilterPanelProps) {
+    const locale = useLocale();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const tc = useTranslations('Categories');
     const te = useTranslations('Equipment');
+
+    const [categoriesList, setCategoriesList] = useState<ExerciseCategory[]>([]);
+    const [equipmentList, setEquipmentList] = useState<ExerciseEquipment[]>([]);
+
+    useEffect(() => {
+        let isMounted = true;
+        async function loadTaxonomy() {
+            try {
+                const [cats, eqs] = await Promise.all([
+                    taxonomyService.getCategories(locale),
+                    taxonomyService.getEquipment(locale)
+                ]);
+                if (isMounted) {
+                    setCategoriesList(cats);
+                    setEquipmentList(eqs);
+                }
+            } catch (err) {
+                console.error('[ExerciseFilterPanel] Error loading taxonomy:', err);
+            }
+        }
+        loadTaxonomy();
+        return () => { isMounted = false; };
+    }, [locale]);
+
+    const activeCategoryItem = categoriesList.find(c => c.slug === selectedCategory);
+    const activeEquipmentItem = equipmentList.find(e => e.slug === selectedEquipment);
+
+    const activeCategoryLabel = activeCategoryItem
+        ? taxonomyService.getCategoryLocalizedName(activeCategoryItem, locale)
+        : (tc.has(selectedCategory) ? tc(selectedCategory) : selectedCategory);
+
+    const activeEquipmentLabel = activeEquipmentItem
+        ? taxonomyService.getEquipmentLocalizedName(activeEquipmentItem, locale)
+        : (te.has(selectedEquipment) ? te(selectedEquipment) : selectedEquipment);
 
     const hasActiveFilters = selectedCategory !== 'all' || selectedEquipment !== 'all';
 
@@ -63,7 +100,7 @@ export function ExerciseFilterPanel({
                 {selectedCategory !== 'all' && (
                     <div className="flex items-center gap-1.5 pl-3 pr-2 py-1.5 rounded-xl bg-lime-400/10 dark:bg-lime-400/15 border border-lime-400/30 text-lime-600 dark:text-lime-400 text-[11px] font-bold">
                         <Target size={12} />
-                        <span>{tc(selectedCategory)}</span>
+                        <span>{activeCategoryLabel}</span>
                         <button
                             type="button"
                             onClick={() => onCategoryChange('all')}
@@ -79,7 +116,7 @@ export function ExerciseFilterPanel({
                 {selectedEquipment !== 'all' && (
                     <div className="flex items-center gap-1.5 pl-3 pr-2 py-1.5 rounded-xl bg-lime-400/10 dark:bg-lime-400/15 border border-lime-400/30 text-lime-600 dark:text-lime-400 text-[11px] font-bold">
                         <Dumbbell size={12} />
-                        <span>{te(selectedEquipment)}</span>
+                        <span>{activeEquipmentLabel}</span>
                         <button
                             type="button"
                             onClick={() => onEquipmentChange('all')}
@@ -163,14 +200,17 @@ export function ExerciseFilterPanel({
                                 </button>
 
                                 {/* Categories Cards */}
-                                {CATEGORIES.map(cat => {
-                                    const meta = CATEGORY_METADATA[cat];
-                                    const isSelected = selectedCategory === cat;
+                                {(categoriesList.length > 0 ? categoriesList : CATEGORIES.map(c => ({ slug: c, name: c, imageUrl: CATEGORY_METADATA[c]?.imagePath }))).map(cat => {
+                                    const imgPath = cat.imageUrl || (CATEGORY_METADATA as any)[cat.slug]?.imagePath || null;
+                                    const label = 'translations' in cat
+                                        ? taxonomyService.getCategoryLocalizedName(cat as ExerciseCategory, locale)
+                                        : (tc.has(cat.slug) ? tc(cat.slug) : cat.name);
+                                    const isSelected = selectedCategory === cat.slug;
                                     return (
                                         <button
-                                            key={cat}
+                                            key={cat.slug}
                                             type="button"
-                                            onClick={() => onCategoryChange(cat)}
+                                            onClick={() => onCategoryChange(cat.slug)}
                                             className={`relative flex flex-col justify-end h-28 sm:h-32 p-3 rounded-2xl border transition-all cursor-pointer overflow-hidden group select-none ${isSelected
                                                 ? 'bg-lime-400/10 border-lime-400 shadow-[0_0_20px_rgba(163,230,71,0.15)] ring-2 ring-lime-400/40'
                                                 : 'bg-zinc-100 dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700'
@@ -178,21 +218,23 @@ export function ExerciseFilterPanel({
                                         >
                                             {isSelected && (
                                                 <div className="absolute top-2.5 right-2.5 z-30 w-5 h-5 rounded-full bg-lime-400 text-zinc-950 flex items-center justify-center shadow-md">
-                                                    <Check size={12} strokeWidth={3} />
+                                                <Check size={12} strokeWidth={3} />
                                                 </div>
                                             )}
                                             {/* Category Image */}
-                                            <img
-                                                src={meta.imagePath}
-                                                alt={tc(cat)}
-                                                className={`absolute inset-0 w-full h-full object-contain p-2 pb-7 transition-transform duration-300 group-hover:scale-105 ${isSelected ? 'opacity-100 drop-shadow-[0_0_10px_rgba(163,230,71,0.4)]' : 'opacity-70 dark:opacity-75 group-hover:opacity-100'
-                                                    }`}
-                                            />
+                                            {imgPath && (
+                                                <img
+                                                    src={imgPath}
+                                                    alt={label}
+                                                    className={`absolute inset-0 w-full h-full object-contain p-2 pb-7 transition-transform duration-300 group-hover:scale-105 ${isSelected ? 'opacity-100 drop-shadow-[0_0_10px_rgba(163,230,71,0.4)]' : 'opacity-70 dark:opacity-75 group-hover:opacity-100'
+                                                        }`}
+                                                />
+                                            )}
                                             {/* Bottom gradient overlay */}
                                             <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/60 to-transparent z-10" />
                                             <span className={`relative z-20 text-[10px] sm:text-xs font-black uppercase tracking-wider text-center truncate w-full ${isSelected ? 'text-lime-400 font-black' : 'text-zinc-200 group-hover:text-white'
                                                 }`}>
-                                                {tc(cat)}
+                                                {label}
                                             </span>
                                         </button>
                                     );
@@ -248,14 +290,17 @@ export function ExerciseFilterPanel({
                                 </button>
 
                                 {/* Equipment Cards */}
-                                {EQUIPMENT.map(eq => {
-                                    const meta = EQUIPMENT_METADATA[eq];
-                                    const isSelected = selectedEquipment === eq;
+                                {(equipmentList.length > 0 ? equipmentList : EQUIPMENT.map(e => ({ slug: e, name: e, imageUrl: EQUIPMENT_METADATA[e]?.imagePath }))).map(eq => {
+                                    const imgPath = eq.imageUrl || (EQUIPMENT_METADATA as any)[eq.slug]?.imagePath || null;
+                                    const label = 'translations' in eq
+                                        ? taxonomyService.getEquipmentLocalizedName(eq as ExerciseEquipment, locale)
+                                        : (te.has(eq.slug) ? te(eq.slug) : eq.name);
+                                    const isSelected = selectedEquipment === eq.slug;
                                     return (
                                         <button
-                                            key={eq}
+                                            key={eq.slug}
                                             type="button"
-                                            onClick={() => onEquipmentChange(eq)}
+                                            onClick={() => onEquipmentChange(eq.slug)}
                                             className={`relative flex flex-col justify-end h-28 sm:h-32 p-3 rounded-2xl border transition-all cursor-pointer overflow-hidden group select-none ${isSelected
                                                 ? 'bg-lime-400/10 border-lime-400 shadow-[0_0_20px_rgba(163,230,71,0.15)] ring-2 ring-lime-400/40'
                                                 : 'bg-zinc-100 dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700'
@@ -267,17 +312,19 @@ export function ExerciseFilterPanel({
                                                 </div>
                                             )}
                                             {/* Equipment Image */}
-                                            <img
-                                                src={meta.imagePath}
-                                                alt={te(eq)}
-                                                className={`absolute inset-0 w-full h-full object-contain p-2 pb-7 transition-transform duration-300 group-hover:scale-105 ${isSelected ? 'opacity-100 drop-shadow-[0_0_10px_rgba(163,230,71,0.4)]' : 'opacity-70 dark:opacity-75 group-hover:opacity-100'
-                                                    }`}
-                                            />
+                                            {imgPath && (
+                                                <img
+                                                    src={imgPath}
+                                                    alt={label}
+                                                    className={`absolute inset-0 w-full h-full object-contain p-2 pb-7 transition-transform duration-300 group-hover:scale-105 ${isSelected ? 'opacity-100 drop-shadow-[0_0_10px_rgba(163,230,71,0.4)]' : 'opacity-70 dark:opacity-75 group-hover:opacity-100'
+                                                        }`}
+                                                />
+                                            )}
                                             {/* Bottom gradient overlay */}
                                             <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/60 to-transparent z-10" />
                                             <span className={`relative z-20 text-[10px] sm:text-xs font-black uppercase tracking-wider text-center truncate w-full ${isSelected ? 'text-lime-400 font-black' : 'text-zinc-200 group-hover:text-white'
                                                 }`}>
-                                                {te(eq)}
+                                                {label}
                                             </span>
                                         </button>
                                     );

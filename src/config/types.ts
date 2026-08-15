@@ -22,6 +22,27 @@ export interface User {
 
 export type { CategoryType, EquipmentType };
 
+export interface ExerciseCategory {
+    id?: string;
+    slug: string;
+    name: string;
+    imageUrl?: string | null;
+    color?: string;
+    displayOrder?: number;
+    isActive?: boolean;
+    translations?: Record<string, string>;
+}
+
+export interface ExerciseEquipment {
+    id?: string;
+    slug: string;
+    name: string;
+    imageUrl?: string | null;
+    displayOrder?: number;
+    isActive?: boolean;
+    translations?: Record<string, string>;
+}
+
 export interface GalleryItem {
     url: string;
     type: 'image' | 'video';

@@ -141,7 +141,7 @@ export default function AdminDashboardClient({ stats }: AdminDashboardClientProp
           </Link>
 
           <Link
-            href="/admin/workouts"
+            href="/admin/exercises"
             className="group flex items-center justify-between p-6 rounded-2xl bg-zinc-900 hover:bg-zinc-800/80 border border-zinc-850 hover:border-lime-500/30 transition-all"
           >
             <div className="flex items-center gap-4">
@@ -149,8 +149,40 @@ export default function AdminDashboardClient({ stats }: AdminDashboardClientProp
                 <Dumbbell size={20} />
               </div>
               <div className="flex flex-col text-left">
-                <span className="font-bold text-sm">Gerenciar Treinos</span>
-                <span className="text-zinc-500 text-xs font-medium">Listar, editar e excluir treinos</span>
+                <span className="font-bold text-sm">Gerenciar Exercícios</span>
+                <span className="text-zinc-500 text-xs font-medium">Cadastrar e traduzir exercícios</span>
+              </div>
+            </div>
+            <ArrowRight size={18} className="text-zinc-500 group-hover:text-lime-400 group-hover:translate-x-1 transition-all" />
+          </Link>
+
+          <Link
+            href="/admin/categories"
+            className="group flex items-center justify-between p-6 rounded-2xl bg-zinc-900 hover:bg-zinc-800/80 border border-zinc-850 hover:border-lime-500/30 transition-all"
+          >
+            <div className="flex items-center gap-4">
+              <div className="p-3 rounded-xl bg-lime-500/10 text-lime-400 group-hover:scale-110 transition-transform">
+                <ShieldCheck size={20} />
+              </div>
+              <div className="flex flex-col text-left">
+                <span className="font-bold text-sm">Gerenciar Categorias</span>
+                <span className="text-zinc-500 text-xs font-medium">Grupos musculares e traduções</span>
+              </div>
+            </div>
+            <ArrowRight size={18} className="text-zinc-500 group-hover:text-lime-400 group-hover:translate-x-1 transition-all" />
+          </Link>
+
+          <Link
+            href="/admin/equipment"
+            className="group flex items-center justify-between p-6 rounded-2xl bg-zinc-900 hover:bg-zinc-800/80 border border-zinc-850 hover:border-lime-500/30 transition-all"
+          >
+            <div className="flex items-center gap-4">
+              <div className="p-3 rounded-xl bg-lime-500/10 text-lime-400 group-hover:scale-110 transition-transform">
+                <Dumbbell size={20} />
+              </div>
+              <div className="flex flex-col text-left">
+                <span className="font-bold text-sm">Gerenciar Equipamentos</span>
+                <span className="text-zinc-500 text-xs font-medium">Acessórios, máquinas e pesos</span>
               </div>
             </div>
             <ArrowRight size={18} className="text-zinc-500 group-hover:text-lime-400 group-hover:translate-x-1 transition-all" />

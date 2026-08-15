@@ -22,15 +22,16 @@ import {
     Plus,
     Link as LinkIcon
 } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { CATEGORIES, EQUIPMENT } from '@/config/constants';
 import { DEFAULT_EXERCISES } from '@/config/seeds';
 import { createClient } from '@/lib/supabase/client';
 import { toast } from 'react-toastify';
-import { User, GalleryItem, Exercise, ExerciseTranslations } from '@/config/types';
+import { User, GalleryItem, Exercise, ExerciseTranslations, ExerciseCategory, ExerciseEquipment } from '@/config/types';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSession } from '@/hooks/useSession';
 import { connectionService } from '@/services/connectionService';
+import { taxonomyService } from '@/services/taxonomyService';
 import { Globe } from 'lucide-react';
 
 const SUPPORTED_LOCALES = [
@@ -43,29 +44,30 @@ type LocaleCode = typeof SUPPORTED_LOCALES[number]['code'];
 
 interface ExerciseFormProps {
     initialData?: {
-        name: string;
-        category: string;
-        secondaryMuscles?: string[];
-        description: string;
-        howTo: string;
+        id?: number;
+        name?: string;
+        category?: any;
+        description?: string;
+        howTo?: string;
         imageUrl?: string;
-        videoUrl?: string;
         mediaUrl?: string; // Legacy fallback
-        gallery?: GalleryItem[];
-        parentId?: number | null;
-        tags: string | string[];
-        level?: "beginner" | "intermediate" | "advanced";
+        videoUrl?: string;
+        tags?: string[] | string;
+        level?: 'beginner' | 'intermediate' | 'advanced';
         isPublic?: boolean;
-        visibility?: "public" | "private" | "students" | "restricted";
-        shared_with?: string[];
-        equipment?: string;
-        executionMode?: string;
-        mechanics?: string;
+        equipment?: any;
+        executionMode?: 'unilateral' | 'bilateral';
+        mechanics?: 'compound' | 'isolation';
+        parentId?: number | null;
         created_by?: string;
-        created_by_type?: "user" | "system" | "trainer";
+        created_by_type?: 'system' | 'user' | 'trainer';
+        secondaryMuscles?: any[];
+        gallery?: GalleryItem[];
+        visibility?: 'public' | 'private' | 'students' | 'restricted';
+        shared_with?: string[];
         translations?: ExerciseTranslations;
     };
-    onSubmit: (data: any) => void;
+    onSubmit: (data: any) => Promise<void>;
     isLoading?: boolean;
     showAdminFields?: boolean;
     users?: User[];
@@ -75,11 +77,12 @@ interface ExerciseFormProps {
 export default function ExerciseForm({ 
     initialData, 
     onSubmit, 
-    isLoading,
+    isLoading = false,
     showAdminFields = false,
     users = [],
     existingExercises = DEFAULT_EXERCISES
 }: ExerciseFormProps) {
+    const activeLocale = useLocale();
     const t = useTranslations('ExerciseForm');
     const tc = useTranslations('Categories');
     const teq = useTranslations('Equipment');
@@ -245,17 +248,36 @@ export default function ExerciseForm({
 
     const selectedCategory = watch('category');
 
-    const categories = useMemo(() => {
-        return [...CATEGORIES];
-    }, []);
+    const [categoriesList, setCategoriesList] = useState<ExerciseCategory[]>([]);
+    const [equipmentList, setEquipmentList] = useState<ExerciseEquipment[]>([]);
+
+    useEffect(() => {
+        let isMounted = true;
+        async function loadTaxonomy() {
+            try {
+                const [cats, eqs] = await Promise.all([
+                    taxonomyService.getCategories(activeLocale),
+                    taxonomyService.getEquipment(activeLocale)
+                ]);
+                if (isMounted) {
+                    setCategoriesList(cats);
+                    setEquipmentList(eqs);
+                }
+            } catch (err) {
+                console.error('[ExerciseForm] Error loading taxonomy:', err);
+            }
+        }
+        loadTaxonomy();
+        return () => { isMounted = false; };
+    }, [activeLocale]);
 
     // Toggle de músculo secundário
     const toggleSecondaryMuscle = (muscleKey: string) => {
         if (muscleKey === selectedCategory) return;
-        if (selectedSecondaryMuscles.includes(muscleKey)) {
+        if (selectedSecondaryMuscles.includes(muscleKey as any)) {
             setSelectedSecondaryMuscles(selectedSecondaryMuscles.filter(m => m !== muscleKey));
         } else {
-            setSelectedSecondaryMuscles([...selectedSecondaryMuscles, muscleKey]);
+            setSelectedSecondaryMuscles([...selectedSecondaryMuscles, muscleKey as any]);
         }
     };
 
@@ -494,9 +516,9 @@ export default function ExerciseForm({
                         {...register('category')}
                         className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-lime-500 transition-colors capitalize"
                     >
-                        {categories.map(cat => (
-                            <option key={cat} value={cat}>
-                                {tc.has(cat) ? tc(cat) : cat}
+                        {categoriesList.map(cat => (
+                            <option key={cat.slug} value={cat.slug}>
+                                {taxonomyService.getCategoryLocalizedName(cat, activeLocale) || (tc.has(cat.slug) ? tc(cat.slug) : cat.name)}
                             </option>
                         ))}
                     </select>
@@ -529,17 +551,17 @@ export default function ExerciseForm({
                     {tw.has('secondaryMusclesLabel') ? tw('secondaryMusclesLabel') : 'Músculos Secundários / Sinergistas'}
                 </label>
                 <div className="flex flex-wrap gap-2 p-3 bg-zinc-900/60 border border-zinc-800 rounded-xl max-h-36 overflow-y-auto">
-                    {categories.map(cat => {
-                        const isMainCategory = cat === selectedCategory;
-                        const isSelected = selectedSecondaryMuscles.includes(cat);
+                    {categoriesList.map(cat => {
+                        const isMainCategory = cat.slug === selectedCategory;
+                        const isSelected = selectedSecondaryMuscles.includes(cat.slug as any);
 
                         if (isMainCategory) return null;
 
                         return (
                             <button
                                 type="button"
-                                key={cat}
-                                onClick={() => toggleSecondaryMuscle(cat)}
+                                key={cat.slug}
+                                onClick={() => toggleSecondaryMuscle(cat.slug)}
                                 className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all border flex items-center gap-1.5 ${
                                     isSelected
                                         ? 'bg-lime-500/20 text-lime-400 border-lime-500/40'
@@ -547,7 +569,7 @@ export default function ExerciseForm({
                                 }`}
                             >
                                 {isSelected && <Check size={12} />}
-                                {tc.has(cat) ? tc(cat) : cat}
+                                {taxonomyService.getCategoryLocalizedName(cat, activeLocale) || (tc.has(cat.slug) ? tc(cat.slug) : cat.name)}
                             </button>
                         );
                     })}
@@ -565,9 +587,9 @@ export default function ExerciseForm({
                         {...register('equipment')}
                         className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-lime-500 transition-colors capitalize"
                     >
-                        {EQUIPMENT.map(eq => (
-                            <option key={eq} value={eq}>
-                                {teq.has(eq) ? teq(eq) : eq}
+                        {equipmentList.map(eq => (
+                            <option key={eq.slug} value={eq.slug}>
+                                {taxonomyService.getEquipmentLocalizedName(eq, activeLocale) || (teq.has(eq.slug) ? teq(eq.slug) : eq.name)}
                             </option>
                         ))}
                     </select>

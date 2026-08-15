@@ -1,5 +1,5 @@
 import Dexie, { type Table } from 'dexie';
-import { Exercise, History, User, Workout, Schedule, Session, SyncOperation, Connection } from './types';
+import { Exercise, History, User, Workout, Schedule, Session, SyncOperation, Connection, ExerciseCategory, ExerciseEquipment } from './types';
 import { DEFAULT_EXERCISES } from "./seeds";
 
 // --- Configuração do Banco ---
@@ -13,6 +13,8 @@ export class GymDatabase extends Dexie {
     sessions!: Table<Session>;
     connections!: Table<Connection>;
     syncQueue!: Table<SyncOperation>;
+    categories!: Table<ExerciseCategory>;
+    equipment!: Table<ExerciseEquipment>;
 
     constructor() {
         super('GymAppDB');
@@ -43,6 +45,20 @@ export class GymDatabase extends Dexie {
             sessions: '++id, userId, workoutId',
             connections: '++id, trainer_id, student_id, status',
             syncQueue: '++id, status, entityType, createdAt'
+        });
+
+        // v5: Add categories and equipment taxonomy stores
+        this.version(5).stores({
+            users: '++id, name',
+            exercises: '++id, name, category, *tags', 
+            workouts: '++id, userId, name',
+            history: '++id, userId, date, workoutId',
+            schedules: '++id, name, userId, active',
+            sessions: '++id, userId, workoutId',
+            connections: '++id, trainer_id, student_id, status',
+            syncQueue: '++id, status, entityType, createdAt',
+            categories: '++id, slug, name, displayOrder, isActive',
+            equipment: '++id, slug, name, displayOrder, isActive'
         });
 
         // Evento profissional para sincronizar dados e travar IDs
