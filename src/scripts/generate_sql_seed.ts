@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { DEFAULT_EXERCISES } from '../config/seedExercises';
+import { DEFAULT_EXERCISES } from '../config/seeds';
 
 function escapeSqlString(str: string | null | undefined): string {
     if (str === null || str === undefined) return 'NULL';
@@ -51,9 +51,10 @@ export function generateSqlSeed(): string {
         const parentId = ex.parentId !== null && ex.parentId !== undefined ? ex.parentId : 'NULL';
         const visibility = escapeSqlString(ex.visibility || 'public');
         const createdByType = escapeSqlString(ex.created_by_type || 'system');
+        const translations = formatSqlJsonb(ex.translations || {});
 
-        return `INSERT INTO exercises (id, name, description, category, secondary_muscles, tags, how_to, image_url, video_url, gallery, level, equipment, execution_mode, mechanics, parent_id, visibility, created_by_type) ` +
-            `VALUES (${id}, ${name}, ${description}, ${category}, ${secondaryMuscles}, ${tags}, ${howTo}, ${imageUrl}, ${videoUrl}, ${gallery}, ${level}, ${equipment}, ${executionMode}, ${mechanics}, ${parentId}, ${visibility}, ${createdByType}) ` +
+        return `INSERT INTO exercises (id, name, description, category, secondary_muscles, tags, how_to, image_url, video_url, gallery, level, equipment, execution_mode, mechanics, parent_id, visibility, created_by_type, translations) ` +
+            `VALUES (${id}, ${name}, ${description}, ${category}, ${secondaryMuscles}, ${tags}, ${howTo}, ${imageUrl}, ${videoUrl}, ${gallery}, ${level}, ${equipment}, ${executionMode}, ${mechanics}, ${parentId}, ${visibility}, ${createdByType}, ${translations}) ` +
             `ON CONFLICT (id) DO UPDATE SET ` +
             `name = EXCLUDED.name, ` +
             `description = EXCLUDED.description, ` +
@@ -69,7 +70,8 @@ export function generateSqlSeed(): string {
             `execution_mode = EXCLUDED.execution_mode, ` +
             `mechanics = EXCLUDED.mechanics, ` +
             `parent_id = EXCLUDED.parent_id, ` +
-            `visibility = EXCLUDED.visibility;`;
+            `visibility = EXCLUDED.visibility, ` +
+            `translations = EXCLUDED.translations;`;
     });
 
     return header + sqlStatements.join('\n') + '\n';

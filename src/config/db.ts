@@ -1,6 +1,6 @@
 import Dexie, { type Table } from 'dexie';
 import { Exercise, History, User, Workout, Schedule, Session, SyncOperation, Connection } from './types';
-import { DEFAULT_EXERCISES } from "./seedExercises";
+import { DEFAULT_EXERCISES } from "./seeds";
 
 // --- Configuração do Banco ---
 

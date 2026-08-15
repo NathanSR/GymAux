@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState, useCallback } from 'react';
 import { Search, Dumbbell, Info, PlayCircle, Plus, Edit, Eye, Loader2 } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { Link } from '@/i18n/routing';
 import { ExerciseService } from '@/services/exerciseService';
 import { useDebounce } from '@/hooks/useDebounce';
@@ -13,6 +13,7 @@ import PageHeader from '@/components/ui/PageHeader';
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
 import { ExerciseFilterPanel } from './ExerciseFilterPanel';
 import { ExerciseListSkeleton } from '@/components/ui/Skeleton';
+import { getExerciseLocalized } from '@/utils/exerciseLocalization';
 
 interface ExercisesClientProps {
     initialExercises: Exercise[];
@@ -21,6 +22,7 @@ interface ExercisesClientProps {
 }
 
 export default function ExercisesClient({ initialExercises, initialTotalCount, isSessionLoading = false }: ExercisesClientProps) {
+    const locale = useLocale();
     const { activeUser } = useSession();
 
     // Estados de interface
@@ -53,14 +55,15 @@ export default function ExercisesClient({ initialExercises, initialTotalCount, i
                 category: selectedCategory,
                 equipment: selectedEquipment,
                 pagination: { page, limit: pageSize },
-                translations: { te, tt }
+                translations: { te, tt },
+                locale
             });
             return result.exercises;
         } catch (error) {
             console.error("Error fetching more exercises:", error);
             return [];
         }
-    }, [debouncedSearch, selectedCategory, selectedEquipment, te, tt]);
+    }, [debouncedSearch, selectedCategory, selectedEquipment, te, tt, locale]);
 
     // Estados locais para controlar a data inicial que será passada para o hook
     const [initialData, setInitialData] = useState<Exercise[]>(initialExercises);
@@ -73,7 +76,8 @@ export default function ExercisesClient({ initialExercises, initialTotalCount, i
                 category: selectedCategory,
                 equipment: selectedEquipment,
                 pagination: { page: 1, limit: 20 },
-                translations: { te, tt }
+                translations: { te, tt },
+                locale
             });
             setInitialData(result.exercises);
         } catch (error: any) {
@@ -81,7 +85,7 @@ export default function ExercisesClient({ initialExercises, initialTotalCount, i
         } finally {
             setLoading(false);
         }
-    }, [debouncedSearch, selectedCategory, selectedEquipment, te, tt]);
+    }, [debouncedSearch, selectedCategory, selectedEquipment, te, tt, locale]);
 
     useEffect(() => {
         if (selectedCategory === 'all' && selectedEquipment === 'all' && !debouncedSearch.trim()) {
@@ -210,10 +214,10 @@ export default function ExercisesClient({ initialExercises, initialTotalCount, i
                                             {tc(exercise.category)}
                                         </span>
                                         <h3 className="font-black text-base truncate">
-                                            {te.has(exercise.name) ? te(exercise.name) : exercise.name}
+                                            {getExerciseLocalized(exercise, locale).name || (te.has(exercise.name) ? te(exercise.name) : exercise.name)}
                                         </h3>
                                         <p className="text-xs text-zinc-500 dark:text-zinc-400 line-clamp-1">
-                                            {te.has(exercise.description as string) ? te(exercise.description as string) : exercise.description}
+                                            {getExerciseLocalized(exercise, locale).description || (te.has(exercise.description as string) ? te(exercise.description as string) : exercise.description)}
                                         </p>
                                     </div>
                                 </div>

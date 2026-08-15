@@ -24,13 +24,22 @@ import {
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { CATEGORIES, EQUIPMENT } from '@/config/constants';
-import { DEFAULT_EXERCISES } from '@/config/seedExercises';
+import { DEFAULT_EXERCISES } from '@/config/seeds';
 import { createClient } from '@/lib/supabase/client';
 import { toast } from 'react-toastify';
-import { User, GalleryItem, Exercise } from '@/config/types';
+import { User, GalleryItem, Exercise, ExerciseTranslations } from '@/config/types';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSession } from '@/hooks/useSession';
 import { connectionService } from '@/services/connectionService';
+import { Globe } from 'lucide-react';
+
+const SUPPORTED_LOCALES = [
+    { code: 'pt', label: 'Português', flag: '🇧🇷' },
+    { code: 'en', label: 'English', flag: '🇺🇸' },
+    { code: 'es', label: 'Español', flag: '🇪🇸' },
+] as const;
+
+type LocaleCode = typeof SUPPORTED_LOCALES[number]['code'];
 
 interface ExerciseFormProps {
     initialData?: {
@@ -44,7 +53,7 @@ interface ExerciseFormProps {
         mediaUrl?: string; // Legacy fallback
         gallery?: GalleryItem[];
         parentId?: number | null;
-        tags: string;
+        tags: string | string[];
         level?: "beginner" | "intermediate" | "advanced";
         isPublic?: boolean;
         visibility?: "public" | "private" | "students" | "restricted";
@@ -54,6 +63,7 @@ interface ExerciseFormProps {
         mechanics?: string;
         created_by?: string;
         created_by_type?: "user" | "system" | "trainer";
+        translations?: ExerciseTranslations;
     };
     onSubmit: (data: any) => void;
     isLoading?: boolean;
@@ -85,6 +95,80 @@ export default function ExerciseForm({
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [previewUrl, setPreviewUrl] = useState<string | null>(initialImg || null);
     const [isUploading, setIsUploading] = useState(false);
+
+    // Estados de Tradução Multilíngue
+    const [activeLang, setActiveLang] = useState<LocaleCode>('pt');
+
+    const parseInitialTags = (tagsVal: any): string => {
+        if (Array.isArray(tagsVal)) return tagsVal.join(', ');
+        return typeof tagsVal === 'string' ? tagsVal : '';
+    };
+
+    const [translationsState, setTranslationsState] = useState<Record<LocaleCode, {
+        name: string;
+        description: string;
+        howTo: string;
+        tags: string;
+    }>>({
+        pt: {
+            name: initialData?.translations?.pt?.name || initialData?.name || '',
+            description: initialData?.translations?.pt?.description || initialData?.description || '',
+            howTo: initialData?.translations?.pt?.howTo || initialData?.howTo || '',
+            tags: parseInitialTags(initialData?.translations?.pt?.tags ?? initialData?.tags)
+        },
+        en: {
+            name: initialData?.translations?.en?.name || '',
+            description: initialData?.translations?.en?.description || '',
+            howTo: initialData?.translations?.en?.howTo || '',
+            tags: parseInitialTags(initialData?.translations?.en?.tags)
+        },
+        es: {
+            name: initialData?.translations?.es?.name || '',
+            description: initialData?.translations?.es?.description || '',
+            howTo: initialData?.translations?.es?.howTo || '',
+            tags: parseInitialTags(initialData?.translations?.es?.tags)
+        }
+    });
+
+    // Atualiza estado de traduções quando initialData carrega
+    useEffect(() => {
+        if (initialData) {
+            setTranslationsState({
+                pt: {
+                    name: initialData?.translations?.pt?.name || initialData?.name || '',
+                    description: initialData?.translations?.pt?.description || initialData?.description || '',
+                    howTo: initialData?.translations?.pt?.howTo || initialData?.howTo || '',
+                    tags: parseInitialTags(initialData?.translations?.pt?.tags ?? initialData?.tags)
+                },
+                en: {
+                    name: initialData?.translations?.en?.name || '',
+                    description: initialData?.translations?.en?.description || '',
+                    howTo: initialData?.translations?.en?.howTo || '',
+                    tags: parseInitialTags(initialData?.translations?.en?.tags)
+                },
+                es: {
+                    name: initialData?.translations?.es?.name || '',
+                    description: initialData?.translations?.es?.description || '',
+                    howTo: initialData?.translations?.es?.howTo || '',
+                    tags: parseInitialTags(initialData?.translations?.es?.tags)
+                }
+            });
+        }
+    }, [initialData]);
+
+    const handleTranslationChange = (field: 'name' | 'description' | 'howTo' | 'tags', value: string) => {
+        setTranslationsState(prev => ({
+            ...prev,
+            [activeLang]: {
+                ...prev[activeLang],
+                [field]: value
+            }
+        }));
+
+        if (activeLang === 'pt' && field === 'name') {
+            setValue('name', value);
+        }
+    };
 
     // Novos Estados: SecondaryMuscles & Gallery
     const [selectedSecondaryMuscles, setSelectedSecondaryMuscles] = useState<string[]>(
@@ -144,13 +228,13 @@ export default function ExerciseForm({
         formState: { errors }
     } = useForm({
         defaultValues: {
-            name: initialData?.name || '',
+            name: initialData?.translations?.pt?.name || initialData?.name || '',
             category: initialData?.category || 'chest',
-            description: initialData?.description || '',
-            howTo: initialData?.howTo || '',
+            description: initialData?.translations?.pt?.description || initialData?.description || '',
+            howTo: initialData?.translations?.pt?.howTo || initialData?.howTo || '',
             imageUrl: initialImg,
             videoUrl: initialVid,
-            tags: initialData?.tags ? (Array.isArray(initialData.tags) ? initialData.tags.join(', ') : initialData.tags) : '',
+            tags: parseInitialTags(initialData?.translations?.pt?.tags ?? initialData?.tags),
             level: initialData?.level || 'beginner',
             isPublic: initialData?.isPublic ?? true,
             equipment: initialData?.equipment || 'none',
@@ -202,6 +286,40 @@ export default function ExerciseForm({
             return;
         }
 
+        const ptName = translationsState.pt.name.trim();
+        const enName = translationsState.en.name.trim();
+        const esName = translationsState.es.name.trim();
+
+        const baseName = ptName || enName || esName || data.name?.trim();
+
+        if (!baseName || baseName.length < 2) {
+            toast.error('O nome do exercício precisa ter no mínimo 2 caracteres.');
+            return;
+        }
+
+        const parseTags = (str: string) => str.split(',').map(t => t.trim()).filter(Boolean);
+
+        const finalTranslations: ExerciseTranslations = {
+            pt: {
+                name: ptName || baseName,
+                description: translationsState.pt.description.trim() || undefined,
+                howTo: translationsState.pt.howTo.trim() || undefined,
+                tags: parseTags(translationsState.pt.tags)
+            },
+            en: {
+                name: enName || ptName || baseName,
+                description: translationsState.en.description.trim() || undefined,
+                howTo: translationsState.en.howTo.trim() || undefined,
+                tags: parseTags(translationsState.en.tags)
+            },
+            es: {
+                name: esName || ptName || baseName,
+                description: translationsState.es.description.trim() || undefined,
+                howTo: translationsState.es.howTo.trim() || undefined,
+                tags: parseTags(translationsState.es.tags)
+            }
+        };
+
         let finalImageUrl = data.imageUrl;
         setIsUploading(true);
 
@@ -230,6 +348,11 @@ export default function ExerciseForm({
 
             onSubmit({
                 ...data,
+                name: baseName,
+                description: translationsState.pt.description.trim() || data.description?.trim() || null,
+                howTo: translationsState.pt.howTo.trim() || data.howTo?.trim() || null,
+                tags: parseTags(translationsState.pt.tags).length > 0 ? parseTags(translationsState.pt.tags) : parseTags(data.tags || ''),
+                translations: finalTranslations,
                 imageUrl: finalImageUrl || null,
                 videoUrl: data.videoUrl || null,
                 secondaryMuscles: selectedSecondaryMuscles,
@@ -250,23 +373,114 @@ export default function ExerciseForm({
 
     return (
         <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6">
-            {/* Nome do Exercício */}
-            <div className="space-y-2">
-                <label className="text-sm font-semibold text-zinc-300 flex items-center gap-2">
-                    <Type size={16} className="text-lime-400" />
-                    {t('name')}
-                </label>
-                <input
-                    {...register('name', { required: t('nameRequired') })}
-                    placeholder={t('namePlaceholder')}
-                    className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-white placeholder-zinc-500 focus:outline-none focus:border-lime-500 transition-colors"
-                />
-                {errors.name && (
-                    <p className="text-xs text-red-400 flex items-center gap-1">
-                        <AlertCircle size={12} />
-                        {errors.name.message as string}
-                    </p>
-                )}
+            {/* --- SEÇÃO MULTILÍNGUE (Nome, Descrição, Instruções e Tags por Idioma) --- */}
+            <div className="bg-zinc-900/50 border border-zinc-800/80 rounded-3xl p-5 space-y-5 shadow-lg">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-zinc-800/80 pb-4">
+                    <div className="flex items-center gap-2.5">
+                        <div className="w-8 h-8 rounded-xl bg-lime-400/10 border border-lime-400/20 flex items-center justify-center text-lime-400">
+                            <Globe size={18} />
+                        </div>
+                        <div>
+                            <h3 className="text-sm font-black uppercase tracking-wider text-white">Conteúdo do Exercício</h3>
+                            <p className="text-[11px] font-semibold text-zinc-400">Cadastre e traduza as informações em múltiplos idiomas</p>
+                        </div>
+                    </div>
+
+                    {/* Tabs de Seleção de Idioma */}
+                    <div className="flex items-center gap-1.5 p-1 bg-zinc-950 rounded-2xl border border-zinc-800/80">
+                        {SUPPORTED_LOCALES.map((loc) => {
+                            const isCurrent = activeLang === loc.code;
+                            const hasContent = Boolean(translationsState[loc.code]?.name?.trim());
+                            return (
+                                <button
+                                    type="button"
+                                    key={loc.code}
+                                    onClick={() => setActiveLang(loc.code)}
+                                    className={`px-3.5 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer ${
+                                        isCurrent
+                                            ? 'bg-lime-400 text-zinc-950 shadow-md shadow-lime-400/10 scale-[1.02]'
+                                            : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900'
+                                    }`}
+                                >
+                                    <span className="text-sm leading-none">{loc.flag}</span>
+                                    <span>{loc.label}</span>
+                                    {hasContent && (
+                                        <span className={`w-1.5 h-1.5 rounded-full ${isCurrent ? 'bg-zinc-950' : 'bg-lime-400'}`} />
+                                    )}
+                                </button>
+                            );
+                        })}
+                    </div>
+                </div>
+
+                {/* Campos do Idioma Ativo */}
+                <div className="space-y-4 pt-1">
+                    {/* Nome do Exercício no Idioma */}
+                    <div className="space-y-2">
+                        <label className="text-xs font-bold text-zinc-300 uppercase tracking-wider flex items-center justify-between">
+                            <span className="flex items-center gap-2">
+                                <Type size={14} className="text-lime-400" />
+                                Nome do Exercício ({SUPPORTED_LOCALES.find(l => l.code === activeLang)?.label})
+                                {activeLang === 'pt' && <span className="text-lime-400 text-[10px] lowercase font-semibold">(obrigatório)</span>}
+                            </span>
+                            <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">
+                                {activeLang.toUpperCase()}
+                            </span>
+                        </label>
+                        <input
+                            type="text"
+                            value={translationsState[activeLang].name}
+                            onChange={(e) => handleTranslationChange('name', e.target.value)}
+                            placeholder={`Ex: ${activeLang === 'pt' ? 'Supino Reto com Barra' : activeLang === 'en' ? 'Barbell Bench Press' : 'Press de Banca con Barra'}`}
+                            className="w-full bg-zinc-950 border border-zinc-800 rounded-2xl px-4 py-3.5 text-sm text-white placeholder-zinc-600 focus:outline-none focus:border-lime-400 transition-colors shadow-inner"
+                        />
+                    </div>
+
+                    {/* Descrição no Idioma */}
+                    <div className="space-y-2">
+                        <label className="text-xs font-bold text-zinc-300 uppercase tracking-wider flex items-center gap-2">
+                            <AlignLeft size={14} className="text-lime-400" />
+                            Descrição ({SUPPORTED_LOCALES.find(l => l.code === activeLang)?.label})
+                        </label>
+                        <textarea
+                            value={translationsState[activeLang].description}
+                            onChange={(e) => handleTranslationChange('description', e.target.value)}
+                            rows={2}
+                            placeholder={`Resumo ou benefícios do exercício em ${SUPPORTED_LOCALES.find(l => l.code === activeLang)?.label}...`}
+                            className="w-full bg-zinc-950 border border-zinc-800 rounded-2xl px-4 py-3 text-sm text-white placeholder-zinc-600 focus:outline-none focus:border-lime-400 transition-colors resize-none shadow-inner"
+                        />
+                    </div>
+
+                    {/* Instruções de Execução no Idioma */}
+                    <div className="space-y-2">
+                        <label className="text-xs font-bold text-zinc-300 uppercase tracking-wider flex items-center gap-2">
+                            <ListOrdered size={14} className="text-lime-400" />
+                            Instruções / Modo de Fazer ({SUPPORTED_LOCALES.find(l => l.code === activeLang)?.label})
+                        </label>
+                        <textarea
+                            value={translationsState[activeLang].howTo}
+                            onChange={(e) => handleTranslationChange('howTo', e.target.value)}
+                            rows={3}
+                            placeholder={"1. Passo um...\n2. Passo dois...\n3. Passo três..."}
+                            className="w-full bg-zinc-950 border border-zinc-800 rounded-2xl px-4 py-3 text-sm text-white placeholder-zinc-600 focus:outline-none focus:border-lime-400 transition-colors resize-none shadow-inner font-mono text-xs"
+                        />
+                    </div>
+
+                    {/* Tags no Idioma */}
+                    <div className="space-y-2">
+                        <label className="text-xs font-bold text-zinc-300 uppercase tracking-wider flex items-center gap-2">
+                            <TagIcon size={14} className="text-lime-400" />
+                            Tags ({SUPPORTED_LOCALES.find(l => l.code === activeLang)?.label} - separadas por vírgula)
+                        </label>
+                        <input
+                            type="text"
+                            value={translationsState[activeLang].tags}
+                            onChange={(e) => handleTranslationChange('tags', e.target.value)}
+                            placeholder="peito, supino, composto, hipertrofia"
+                            className="w-full bg-zinc-950 border border-zinc-800 rounded-2xl px-4 py-3 text-sm text-white placeholder-zinc-600 focus:outline-none focus:border-lime-400 transition-colors shadow-inner"
+                        />
+                    </div>
+                </div>
             </div>
 
             {/* Categoria Principal & Exercício Pai */}
@@ -389,33 +603,6 @@ export default function ExerciseForm({
                 </div>
             </div>
 
-            {/* Descrição & Modo de Fazer */}
-            <div className="space-y-2">
-                <label className="text-sm font-semibold text-zinc-300 flex items-center gap-2">
-                    <AlignLeft size={16} className="text-lime-400" />
-                    {t('description')}
-                </label>
-                <textarea
-                    {...register('description')}
-                    rows={2}
-                    placeholder={t('descriptionPlaceholder')}
-                    className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-white placeholder-zinc-500 focus:outline-none focus:border-lime-500 transition-colors resize-none"
-                />
-            </div>
-
-            <div className="space-y-2">
-                <label className="text-sm font-semibold text-zinc-300 flex items-center gap-2">
-                    <ListOrdered size={16} className="text-lime-400" />
-                    {t('howTo')}
-                </label>
-                <textarea
-                    {...register('howTo')}
-                    rows={3}
-                    placeholder={t('howToPlaceholder')}
-                    className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-white placeholder-zinc-500 focus:outline-none focus:border-lime-500 transition-colors resize-none"
-                />
-            </div>
-
             {/* Mídia Principal: Imagem & Vídeo URLs */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
@@ -469,7 +656,7 @@ export default function ExerciseForm({
                     <button
                         type="button"
                         onClick={handleAddGalleryItem}
-                        className="bg-lime-500 hover:bg-lime-600 text-zinc-950 px-4 py-2 rounded-lg text-xs font-semibold flex items-center justify-center gap-1 transition-colors"
+                        className="bg-lime-500 hover:bg-lime-600 text-zinc-950 px-4 py-2 rounded-lg text-xs font-semibold flex items-center justify-center gap-1 transition-colors cursor-pointer"
                     >
                         <Plus size={14} /> Adicionar
                     </button>
@@ -487,7 +674,7 @@ export default function ExerciseForm({
                                 <button
                                     type="button"
                                     onClick={() => handleRemoveGalleryItem(idx)}
-                                    className="absolute top-1 right-1 p-1 bg-red-500/20 text-red-400 hover:bg-red-500 hover:text-white rounded transition-colors"
+                                    className="absolute top-1 right-1 p-1 bg-red-500/20 text-red-400 hover:bg-red-500 hover:text-white rounded transition-colors cursor-pointer"
                                 >
                                     <Trash2 size={12} />
                                 </button>
@@ -497,34 +684,110 @@ export default function ExerciseForm({
                 )}
             </div>
 
-            {/* Nível de Dificuldade & Tags */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Nível de Dificuldade */}
+            <div className="space-y-2">
+                <label className="text-sm font-semibold text-zinc-300 flex items-center gap-2">
+                    <Layers size={16} className="text-lime-400" />
+                    {tw.has('levelLabel') ? tw('levelLabel') : 'Nível de Dificuldade'}
+                </label>
+                <select
+                    {...register('level')}
+                    className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-lime-500 transition-colors"
+                >
+                    <option value="beginner">Iniciante</option>
+                    <option value="intermediate">Intermediário</option>
+                    <option value="advanced">Avançado</option>
+                </select>
+            </div>
+
+            {/* Visibilidade & Associação de Usuário (Apenas Admin/Moderador ou Usuário com Alunos) */}
+            <div className="space-y-4 pt-2 border-t border-zinc-800/80">
                 <div className="space-y-2">
-                    <label className="text-sm font-semibold text-zinc-300 flex items-center gap-2">
-                        <Layers size={16} className="text-lime-400" />
-                        {tw.has('levelLabel') ? tw('levelLabel') : 'Nível de Dificuldade'}
+                    <label className="text-xs font-bold text-zinc-300 uppercase tracking-wider flex items-center gap-2">
+                        <Layers size={14} className="text-lime-400" />
+                        Visibilidade do Exercício
                     </label>
-                    <select
-                        {...register('level')}
-                        className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-lime-500 transition-colors"
-                    >
-                        <option value="beginner">Iniciante</option>
-                        <option value="intermediate">Intermediário</option>
-                        <option value="advanced">Avançado</option>
-                    </select>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                        {[
+                            { id: 'public', label: 'Público', desc: 'Todos os usuários' },
+                            { id: 'private', label: 'Privado', desc: 'Apenas eu' },
+                            { id: 'students', label: 'Alunos', desc: 'Meus alunos' },
+                            { id: 'restricted', label: 'Restrito', desc: 'Selecionados' }
+                        ].map(opt => (
+                            <button
+                                type="button"
+                                key={opt.id}
+                                onClick={() => setVisibility(opt.id as any)}
+                                className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
+                                    visibility === opt.id
+                                        ? 'bg-lime-500/10 border-lime-400 text-white shadow-md shadow-lime-400/5'
+                                        : 'bg-zinc-950 border-zinc-800 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900'
+                                }`}
+                            >
+                                <p className="text-xs font-black uppercase tracking-wider">{opt.label}</p>
+                                <p className="text-[10px] text-zinc-500 font-medium">{opt.desc}</p>
+                            </button>
+                        ))}
+                    </div>
                 </div>
 
-                <div className="space-y-2">
-                    <label className="text-sm font-semibold text-zinc-300 flex items-center gap-2">
-                        <TagIcon size={16} className="text-lime-400" />
-                        {t('tags')}
-                    </label>
-                    <input
-                        {...register('tags')}
-                        placeholder={t('tagsPlaceholder')}
-                        className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-white placeholder-zinc-500 focus:outline-none focus:border-lime-500 transition-colors"
-                    />
-                </div>
+                {/* Se for Admin e tiver showAdminFields */}
+                {showAdminFields && (
+                    <div className="space-y-3 bg-zinc-900/40 p-4 border border-zinc-800/80 rounded-2xl">
+                        <label className="text-xs font-bold text-zinc-300 uppercase tracking-wider flex items-center gap-2">
+                            <UserIcon size={14} className="text-lime-400" />
+                            Propriedade do Exercício (Admin)
+                        </label>
+                        <div className="flex gap-2">
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setCreatedByOption('system');
+                                    setSelectedUser(null);
+                                }}
+                                className={`flex-1 py-2.5 px-3 rounded-xl text-xs font-black uppercase tracking-wider border transition-all cursor-pointer ${
+                                    createdByOption === 'system'
+                                        ? 'bg-amber-500/10 border-amber-400 text-amber-400 shadow-md'
+                                        : 'bg-zinc-950 border-zinc-800 text-zinc-400 hover:text-zinc-200'
+                                }`}
+                            >
+                                Exercício do Sistema (Oficial)
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setCreatedByOption('user')}
+                                className={`flex-1 py-2.5 px-3 rounded-xl text-xs font-black uppercase tracking-wider border transition-all cursor-pointer ${
+                                    createdByOption === 'user'
+                                        ? 'bg-blue-500/10 border-blue-400 text-blue-400 shadow-md'
+                                        : 'bg-zinc-950 border-zinc-800 text-zinc-400 hover:text-zinc-200'
+                                }`}
+                            >
+                                Vincular a Usuário
+                            </button>
+                        </div>
+
+                        {createdByOption === 'user' && (
+                            <div className="space-y-2 pt-2">
+                                <label className="text-xs font-bold text-zinc-400">Selecione o Usuário:</label>
+                                <select
+                                    value={selectedUser?.id || ''}
+                                    onChange={(e) => {
+                                        const u = users.find(usr => usr.id === e.target.value);
+                                        setSelectedUser(u || null);
+                                    }}
+                                    className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-lime-400"
+                                >
+                                    <option value="">Selecione um usuário...</option>
+                                    {users.map(u => (
+                                        <option key={u.id} value={u.id}>
+                                            {u.name} ({u.email || u.role})
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                        )}
+                    </div>
+                )}
             </div>
 
             {/* Botão de Envio */}
@@ -532,7 +795,7 @@ export default function ExerciseForm({
                 <button
                     type="submit"
                     disabled={isLoading || isUploading}
-                    className="w-full bg-lime-500 hover:bg-lime-600 text-zinc-950 font-bold py-3.5 px-6 rounded-xl flex items-center justify-center gap-2 transition-all disabled:opacity-50 shadow-lg shadow-lime-500/20"
+                    className="w-full bg-lime-500 hover:bg-lime-600 text-zinc-950 font-bold py-3.5 px-6 rounded-2xl flex items-center justify-center gap-2 transition-all disabled:opacity-50 shadow-lg shadow-lime-500/20 cursor-pointer active:scale-[0.99]"
                 >
                     <Save size={18} />
                     {isLoading || isUploading ? 'Salvando...' : t('save')}

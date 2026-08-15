@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { DEFAULT_EXERCISES } from '../config/seedExercises';
+import { DEFAULT_EXERCISES } from '../config/seeds';
 import { generateTagsForExercise } from './updateExerciseTags';
 import { generateSqlSeed } from './generate_sql_seed';
 

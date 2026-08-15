@@ -1,8 +1,9 @@
 import { X, Play } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { Exercise } from "@/config/types";
 import { CATEGORY_METADATA } from "@/config/constants";
 import { Modal } from "@/components/ui/Modal";
+import { getExerciseLocalized, getLocalizedInstructions } from "@/utils/exerciseLocalization";
 
 interface ExerciseInstructionModalProps {
     isOpen: boolean;
@@ -11,6 +12,7 @@ interface ExerciseInstructionModalProps {
 }
 
 export const ExerciseInstructionModal = ({ isOpen, onClose, exercise }: ExerciseInstructionModalProps) => {
+    const locale = useLocale();
     const t = useTranslations('ExerciseInstructionModal');
     const te = useTranslations('Exercises');
 
@@ -19,12 +21,9 @@ export const ExerciseInstructionModal = ({ isOpen, onClose, exercise }: Exercise
     const hasMedia = !!(exercise?.imageUrl || exercise?.videoUrl);
     const mediaSrc = exercise?.imageUrl || exercise?.videoUrl || categoryMeta?.imagePath || fallbackImage;
 
-    const instructions = exercise?.howTo
-        ? (te.has(exercise.howTo) ? te(exercise.howTo) : exercise.howTo)
-            .split('\n')
-            .filter(p => p.trim() !== "")
-            .map(p => p.replace(/^\d+[\s.\-)]+/, '').trim())
-        : [];
+    const localized = exercise ? getExerciseLocalized(exercise, locale) : null;
+    const instructions = exercise ? getLocalizedInstructions(exercise, locale) : [];
+    const exerciseName = localized?.name || (exercise?.name ? (te.has(exercise.name) ? te(exercise.name) : exercise.name) : '');
 
     return (
         <Modal
@@ -62,7 +61,7 @@ export const ExerciseInstructionModal = ({ isOpen, onClose, exercise }: Exercise
                             {t('howToPerform')}
                         </h3>
                         <p className="text-[10px] font-black text-lime-600 dark:text-lime-400/60 uppercase tracking-[0.2em] mt-2">
-                            {te.has(exercise?.name!) ? te(exercise?.name!) : exercise?.name}
+                            {exerciseName}
                         </p>
                     </div>
                 </div>

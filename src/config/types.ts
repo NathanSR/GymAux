@@ -16,7 +16,7 @@ export interface User {
     weight: number;
     height: number;
     goal?: string;
-    role: 'user' | 'trainer' | 'admin';
+    role: 'user' | 'trainer' | 'admin' | 'moderator';
     createdAt: Date;
 }
 
@@ -28,6 +28,15 @@ export interface GalleryItem {
     title?: string;
     thumbnail?: string;
 }
+
+export interface ExerciseTranslation {
+    name: string;
+    description?: string;
+    howTo?: string;
+    tags?: string[];
+}
+
+export type ExerciseTranslations = Record<string, ExerciseTranslation>;
 
 export interface Exercise {
     id?: number;
@@ -49,6 +58,7 @@ export interface Exercise {
     executionMode?: 'bilateral' | 'unilateral' | 'alternating';
     mechanics?: 'compound' | 'isolation';
     parentId?: number | null;
+    translations?: ExerciseTranslations;
 }
 
 // ========================

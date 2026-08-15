@@ -9,13 +9,14 @@ import {
     Loader2,
     Plus
 } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { useEffect, useMemo, useState, useCallback } from 'react';
 import { useDebounce } from '@/hooks/useDebounce';
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
 import { Modal } from '@/components/ui/Modal';
 import QuickExerciseDrawer from './QuickExerciseDrawer';
 import { ExerciseFilterPanel } from './ExerciseFilterPanel';
+import { getExerciseLocalized } from '@/utils/exerciseLocalization';
 
 const getLevelBadge = (level?: string) => {
     if (!level) return null;
@@ -59,6 +60,7 @@ export const ExerciseSelector = ({ isOpen, onClose, onSelect }: {
     onClose: () => void,
     onSelect: (exercise: Exercise) => void
 }) => {
+    const locale = useLocale();
     const t = useTranslations('ExerciseSelector');
     const te = useTranslations('Exercises');
     const tc = useTranslations('Categories');
@@ -80,14 +82,15 @@ export const ExerciseSelector = ({ isOpen, onClose, onSelect }: {
                 category: selectedCategory,
                 equipment: selectedEquipment,
                 pagination: { page, limit: pageSize },
-                translations: { te, tt: te }
+                translations: { te, tt: te },
+                locale
             });
             return res.exercises;
         } catch (error) {
             console.error('Error fetching more exercises:', error);
             return [];
         }
-    }, [debouncedSearchTerm, selectedCategory, selectedEquipment, te]);
+    }, [debouncedSearchTerm, selectedCategory, selectedEquipment, te, locale]);
 
     const fetchFirstPage = useCallback(async () => {
         setIsLoading(true);
@@ -97,7 +100,8 @@ export const ExerciseSelector = ({ isOpen, onClose, onSelect }: {
                 category: selectedCategory,
                 equipment: selectedEquipment,
                 pagination: { page: 1, limit: 10 },
-                translations: { te, tt: te }
+                translations: { te, tt: te },
+                locale
             });
             setInitialData(res.exercises);
         } catch (error: any) {
@@ -105,7 +109,7 @@ export const ExerciseSelector = ({ isOpen, onClose, onSelect }: {
         } finally {
             setIsLoading(false);
         }
-    }, [debouncedSearchTerm, selectedCategory, selectedEquipment, te]);
+    }, [debouncedSearchTerm, selectedCategory, selectedEquipment, te, locale]);
 
     useEffect(() => {
         if (isOpen) {
@@ -214,7 +218,7 @@ export const ExerciseSelector = ({ isOpen, onClose, onSelect }: {
                                         </div>
                                         <div className="flex-1">
                                             <p className="font-black text-zinc-900 dark:text-white uppercase text-[13px] leading-tight tracking-tight">
-                                                {te.has(ex.name) ? te(ex.name) : ex.name}
+                                                {getExerciseLocalized(ex, locale).name || (te.has(ex.name) ? te(ex.name) : ex.name)}
                                             </p>
                                             <div className="flex flex-wrap items-center gap-1.5 mt-1.5">
                                                 <span className="text-[9px] text-zinc-400 font-bold uppercase tracking-widest">

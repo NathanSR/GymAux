@@ -19,7 +19,7 @@ import {
     STRETCHING_EXERCISES,
     FULL_BODY_EXERCISES,
     DEFAULT_EXERCISES
-} from '../config/seedExercises';
+} from '../config/seeds';
 import { generateSqlSeed } from './generate_sql_seed';
 
 export function computeSecondaryMuscles(ex: Exercise): CategoryType[] {

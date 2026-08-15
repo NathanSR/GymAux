@@ -14,17 +14,19 @@ import {
 } from "lucide-react";
 import { Link, useRouter } from "@/i18n/routing";
 import { useSmartNavigation } from "@/hooks/useSmartNavigation";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import DrawerWorkoutExerciseAdd from "@/components/workouts/DrawerWorkoutExerciseAdd";
 import { Exercise } from "@/config/types";
 import { motion, AnimatePresence } from "framer-motion";
 import { CATEGORY_METADATA, EQUIPMENT_METADATA } from "@/config/constants";
+import { getExerciseLocalized, getLocalizedInstructions } from "@/utils/exerciseLocalization";
 
 interface ViewExerciseClientProps {
     exercise: Exercise;
 }
 
 export default function ViewExerciseClient({ exercise }: ViewExerciseClientProps) {
+    const locale = useLocale();
     const t = useTranslations('ExerciseDetails');
     const tc = useTranslations('Categories');
     const tt = useTranslations('Tags');
@@ -42,21 +44,16 @@ export default function ViewExerciseClient({ exercise }: ViewExerciseClientProps
 
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
-    // Process instructions: Clean numbers and trim
-    const instructions = exercise.howTo
-        ? (te.has(exercise.howTo) ? te(exercise.howTo) : exercise.howTo)
-            .split('\n')
-            .filter(p => p.trim() !== "")
-            .map(p => p.replace(/^\d+[\s.\-)]+/, '').trim())
-        : [];
+    const localized = getExerciseLocalized(exercise, locale);
+    const instructions = getLocalizedInstructions(exercise, locale);
 
-    const getFormattedName = (name: string) => te.has(name) ? te(name) : name;
-    const getFormattedDescription = (desc?: string) => desc && te.has(desc) ? te(desc) : desc;
+    const exerciseTitle = localized.name || (te.has(exercise.name) ? te(exercise.name) : exercise.name);
+    const exerciseDescription = localized.description || (exercise.description && te.has(exercise.description) ? te(exercise.description) : exercise.description);
 
     const handleShare = async () => {
         const shareData = {
-            title: getFormattedName(exercise.name),
-            text: getFormattedDescription(exercise.description) || t("checkOutExercise"),
+            title: exerciseTitle,
+            text: exerciseDescription || t("checkOutExercise"),
             url: window.location.href,
         };
 
@@ -127,7 +124,7 @@ export default function ViewExerciseClient({ exercise }: ViewExerciseClientProps
                             {tc(exercise.category)}
                         </span>
                         <h1 className="text-4xl md:text-5xl font-black uppercase italic tracking-tighter text-white drop-shadow-2xl leading-none">
-                            {getFormattedName(exercise.name)}
+                            {exerciseTitle}
                         </h1>
                     </motion.div>
                 </div>
@@ -242,7 +239,7 @@ export default function ViewExerciseClient({ exercise }: ViewExerciseClientProps
                     </div>
                     <div className="bg-white dark:bg-zinc-900/50 p-6 rounded-[32px] border border-zinc-100 dark:border-zinc-800 shadow-sm">
                         <p className="text-base text-zinc-500 dark:text-zinc-400 leading-relaxed font-medium">
-                            {getFormattedDescription(exercise.description) || "---"}
+                            {exerciseDescription || "---"}
                         </p>
                     </div>
                 </motion.section>
@@ -305,7 +302,7 @@ export default function ViewExerciseClient({ exercise }: ViewExerciseClientProps
                         <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400">{t("tags")}</h2>
                     </div>
                     <div className="flex flex-wrap gap-2">
-                        {exercise.tags?.map((tag, idx) => (
+                        {(localized.tags && localized.tags.length > 0 ? localized.tags : (exercise.tags || [])).map((tag, idx) => (
                             <span
                                 key={idx}
                                 className="px-5 py-2.5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl text-[11px] font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-tight hover:border-lime-500/30 hover:text-lime-500 transition-colors cursor-default"

@@ -232,7 +232,7 @@ export const connectionService = {
         }
     },
 
-    async getActiveConnections(userId: string, role: 'user' | 'trainer' | 'admin', supabase: any) {
+    async getActiveConnections(userId: string, role: 'user' | 'trainer' | 'admin' | 'moderator', supabase: any) {
         if (role === 'trainer') {
             const { students } = await this.getActiveStudents(userId, supabase);
             return students.map(s => ({ id: s.id, name: s.name, avatar: s.avatar, type: 'student' as const }));

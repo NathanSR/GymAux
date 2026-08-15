@@ -6,6 +6,7 @@ import { withTimeout } from '@/lib/utils/timeout';
 import { userService } from './userService';
 import { safeBulkPut } from '@/utils/cacheSyncUtil';
 import { safeParseArray } from '@/utils/jsonUtil';
+import { matchesExerciseSearch } from '@/utils/exerciseLocalization';
 
 const inferEquipmentFromTags = (tags: string[], name: string): 'barbell' | 'dumbbell' | 'machine' | 'cable' | 'bodyweight' | 'smith' | 'kettlebell' | 'none' => {
     const t = tags.map(tag => tag.toLowerCase());
@@ -67,6 +68,7 @@ const mapExerciseFromSupabase = (ex: any): Exercise => {
         executionMode: ex.execution_mode || inferExecutionModeFromTags(tags, name),
         mechanics: ex.mechanics || inferMechanicsFromTags(tags, name),
         parentId: ex.parent_id || undefined,
+        translations: ex.translations || undefined,
     };
 };
 
@@ -79,6 +81,7 @@ export const ExerciseService = {
             equipment?: string,
             pagination?: { page: number; limit: number },
             translations?: { te: any, tt: any },
+            locale?: string,
             supabase?: any
         }
     ) {
@@ -88,6 +91,7 @@ export const ExerciseService = {
             equipment = 'all',
             pagination = { page: 1, limit: 20 },
             translations,
+            locale = 'pt',
             supabase: supabaseInput
         } = params;
 
@@ -144,26 +148,27 @@ export const ExerciseService = {
             exercises = exercises.filter(ex => ex.equipment === equipment);
         }
 
-        // 2. Filtro de Texto (Nome ou Tag) - No JS para suportar traduções
-        if (searchQuery.trim() && translations) {
-            const { te, tt } = translations;
+        // 2. Filtro de Texto (Nome ou Tag) - Suporte dinâmico e fallback
+        if (searchQuery.trim()) {
             const isTagSearch = searchQuery.startsWith('#');
-
-            const cleanQuery = isTagSearch
-                ? searchQuery.substring(1).toLowerCase().trim()
-                : searchQuery.toLowerCase().trim();
+            const cleanQuery = (isTagSearch ? searchQuery.substring(1) : searchQuery).toLowerCase().trim();
 
             if (cleanQuery.length > 0) {
                 exercises = exercises.filter((ex: any) => {
-                    if (isTagSearch) {
-                        return ex.tags?.some((tag: string) => {
-                            const translatedTag = tt.has(tag) ? tt(tag).toLowerCase() : tag.toLowerCase();
-                            return translatedTag.includes(cleanQuery);
-                        });
-                    } else {
-                        const translatedName = te.has(ex.name) ? te(ex.name).toLowerCase() : ex.name.toLowerCase();
-                        return translatedName.includes(cleanQuery);
+                    if (translations) {
+                        const { te, tt } = translations;
+                        if (isTagSearch) {
+                            const matchTag = ex.tags?.some((tag: string) => {
+                                const translatedTag = tt.has(tag) ? tt(tag).toLowerCase() : tag.toLowerCase();
+                                return translatedTag.includes(cleanQuery);
+                            });
+                            if (matchTag) return true;
+                        } else {
+                            const translatedName = te.has(ex.name) ? te(ex.name).toLowerCase() : ex.name.toLowerCase();
+                            if (translatedName.includes(cleanQuery)) return true;
+                        }
                     }
+                    return matchesExerciseSearch(ex, searchQuery, locale);
                 });
             }
         }
@@ -266,6 +271,7 @@ export const ExerciseService = {
             created_by_type: 'user',
             visibility: exerciseData.visibility || 'private',
             shared_with: exerciseData.shared_with || [],
+            translations: exerciseData.translations || {},
         };
 
         if (typeof window !== 'undefined') {
@@ -290,21 +296,16 @@ export const ExerciseService = {
         return mapExerciseFromSupabase(data);
     },
 
-    async updateExercise(id: number, updateData: Partial<Omit<Exercise, 'id'>> & { userId: string }, supabaseInput?: any) {
+    async updateExercise(id: number, updateData: Partial<Omit<Exercise, 'id'>> & { userId?: string }, supabaseInput?: any) {
         // Business rule: system exercises (id < 1000) cannot be updated by users
         if (id < 1000) {
             throw new Error("Cannot update system exercises");
         }
 
+        // Build payload
         const updates: any = {};
-        if (updateData.name !== undefined) {
-            const formattedName = updateData.name.trim();
-            if (formattedName.length < 2) {
-                throw new Error("Name too short");
-            }
-            updates.name = formattedName;
-        }
-        if (updateData.description !== undefined) updates.description = updateData.description.trim();
+        if (updateData.name !== undefined) updates.name = updateData.name.trim();
+        if (updateData.description !== undefined) updates.description = updateData.description?.trim() || null;
         if (updateData.howTo !== undefined) updates.how_to = updateData.howTo;
         if (updateData.imageUrl !== undefined) updates.image_url = updateData.imageUrl?.trim() || null;
         if (updateData.videoUrl !== undefined) updates.video_url = updateData.videoUrl?.trim() || null;
@@ -319,6 +320,7 @@ export const ExerciseService = {
         if (updateData.parentId !== undefined) updates.parent_id = updateData.parentId;
         if (updateData.visibility !== undefined) updates.visibility = updateData.visibility;
         if (updateData.shared_with !== undefined) updates.shared_with = updateData.shared_with;
+        if (updateData.translations !== undefined) updates.translations = updateData.translations;
 
         // Local-first
         if (typeof window !== 'undefined') {

@@ -37,6 +37,7 @@ const mapExerciseFromSupabaseAdmin = (ex: any): Exercise & { createdByName?: str
         executionMode: ex.execution_mode || 'bilateral',
         mechanics: ex.mechanics || 'compound',
         parentId: ex.parent_id || undefined,
+        translations: ex.translations || undefined,
         createdByName: ex.profiles?.name || 'Sistema'
     };
 };
@@ -204,6 +205,7 @@ export const adminService = {
             execution_mode: exerciseData.executionMode || 'bilateral',
             mechanics: exerciseData.mechanics || 'compound',
             parent_id: exerciseData.parentId || null,
+            translations: exerciseData.translations || {},
         };
 
         const { data, error } = await supabase
@@ -242,6 +244,7 @@ export const adminService = {
             execution_mode: updateData.executionMode,
             mechanics: updateData.mechanics,
             parent_id: updateData.parentId,
+            translations: updateData.translations,
         };
 
         // Remove chaves undefined para não sobrescrever com null no update

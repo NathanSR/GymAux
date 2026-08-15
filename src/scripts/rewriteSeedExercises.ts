@@ -20,7 +20,7 @@ import {
     STRETCHING_EXERCISES,
     FULL_BODY_EXERCISES,
     DEFAULT_EXERCISES
-} from '../config/seedExercises';
+} from '../config/seeds';
 import { Exercise } from '../config/types';
 
 function processExercises(list: Exercise[]): Exercise[] {

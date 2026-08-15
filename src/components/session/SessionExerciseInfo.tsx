@@ -1,9 +1,10 @@
 import { motion } from 'framer-motion';
 import { Zap, CircleHelp, List, ArrowRight, Target, Dumbbell, NotebookPen } from 'lucide-react';
 import { GROUP_CONFIG } from './SessionConstants';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { CATEGORY_METADATA, CategoryType } from '@/config/constants';
 import { Exercise } from '@/config/types';
+import { getExerciseLocalized } from '@/utils/exerciseLocalization';
 
 interface SessionExerciseInfoProps {
     currentGroup: any;
@@ -36,6 +37,7 @@ export function SessionExerciseInfo({
     onOpenRestAdjust,
     isResting = false
 }: SessionExerciseInfoProps) {
+    const locale = useLocale();
     const t = useTranslations('Session');
     const te = useTranslations('Exercises');
     const tw = useTranslations('WorkoutForm');
@@ -202,7 +204,9 @@ export function SessionExerciseInfo({
                         animate={{ opacity: 1, y: 0 }}
                         className="text-3xl font-black uppercase tracking-tighter italic leading-[0.85] truncate mt-1 text-zinc-900 dark:text-white"
                     >
-                        {te.has(currentExercise?.exerciseName!) ? te(currentExercise?.exerciseName!) : currentExercise?.exerciseName}
+                        {currentExerciseDetails
+                            ? (getExerciseLocalized(currentExerciseDetails, locale).name || currentExercise?.exerciseName)
+                            : (currentExercise?.exerciseName ? (te.has(currentExercise.exerciseName) ? te(currentExercise.exerciseName) : currentExercise.exerciseName) : '')}
                     </motion.h2>
 
                     {/* Subtitle with Variation, Execution Mode & Group Sequence */}
