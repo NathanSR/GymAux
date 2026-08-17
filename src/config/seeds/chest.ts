@@ -15,7 +15,7 @@ export const CHEST_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "beginner",
         "parentId": null,
-        "imageUrl": "/exercises/peitoral/flexão_pushup.png",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/chest/standard_push_up.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -75,7 +75,7 @@ export const CHEST_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "beginner",
         "parentId": 1,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/chest/decline_push_up.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -132,7 +132,7 @@ export const CHEST_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "beginner",
         "parentId": 1,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/chest/incline_push_up.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -252,7 +252,7 @@ export const CHEST_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "beginner",
         "parentId": 1,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/chest/wide_push_up.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -312,7 +312,7 @@ export const CHEST_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "advanced",
         "parentId": 1,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/chest/archer_push_up.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -375,7 +375,7 @@ export const CHEST_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": 1,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/chest/explosive_push_up.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -435,7 +435,7 @@ export const CHEST_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "advanced",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/chest/chest_dips.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -498,7 +498,7 @@ export const CHEST_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": 1,
-        "imageUrl": "/exercises/core/prancha_spiderman.png",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/chest/spiderman_push_up.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -546,7 +546,7 @@ export const CHEST_EXERCISES: Exercise[] = [
     },
     {
         "id": 10,
-        "name": "bench_press_barbell",
+        "name": "barbell_bench_press",
         "category": "chest",
         "secondaryMuscles": [
             "triceps",
@@ -557,7 +557,7 @@ export const CHEST_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "/exercises/peitoral/supino_reto_barra.png",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/chest/barbell_bench_press.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -605,7 +605,7 @@ export const CHEST_EXERCISES: Exercise[] = [
     },
     {
         "id": 11,
-        "name": "incline_press_barbell",
+        "name": "incline_barbell_press",
         "category": "chest",
         "secondaryMuscles": [
             "triceps",
@@ -616,7 +616,7 @@ export const CHEST_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": 10,
-        "imageUrl": "/exercises/peitoral/supino_inclinado_barra.png",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/chest/incline_barbell_press.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -667,7 +667,7 @@ export const CHEST_EXERCISES: Exercise[] = [
     },
     {
         "id": 12,
-        "name": "decline_press_barbell",
+        "name": "decline_barbell_press",
         "category": "chest",
         "secondaryMuscles": [
             "triceps",
@@ -678,7 +678,7 @@ export const CHEST_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": 10,
-        "imageUrl": "/exercises/peitoral/suplino_declinado_barra.png",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/chest/decline_barbell_press.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -726,7 +726,7 @@ export const CHEST_EXERCISES: Exercise[] = [
     },
     {
         "id": 13,
-        "name": "close_grip_press_barbell",
+        "name": "close_grip_barbell_press",
         "category": "chest",
         "secondaryMuscles": [
             "triceps",
@@ -737,7 +737,7 @@ export const CHEST_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": 10,
-        "imageUrl": "/exercises/triceps/supino_fechado_barra.png",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/chest/close_grip_barbell_press.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -785,7 +785,7 @@ export const CHEST_EXERCISES: Exercise[] = [
     },
     {
         "id": 14,
-        "name": "floor_press_barbell",
+        "name": "barbell_floor_press",
         "category": "chest",
         "secondaryMuscles": [
             "triceps",
@@ -796,7 +796,7 @@ export const CHEST_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": 10,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/chest/barbell_floor_press.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -844,7 +844,7 @@ export const CHEST_EXERCISES: Exercise[] = [
     },
     {
         "id": 15,
-        "name": "bench_press_dumbbell",
+        "name": "dumbbell_bench_press",
         "category": "chest",
         "secondaryMuscles": [
             "triceps",
@@ -855,7 +855,7 @@ export const CHEST_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/chest/dumbbell_bench_press.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -900,7 +900,7 @@ export const CHEST_EXERCISES: Exercise[] = [
     },
     {
         "id": 16,
-        "name": "incline_press_dumbbell",
+        "name": "incline_dumbbell_press",
         "category": "chest",
         "secondaryMuscles": [
             "triceps",
@@ -911,7 +911,7 @@ export const CHEST_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": 15,
-        "imageUrl": "/exercises/peitoral/supino_inclinado_halteres.png",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/chest/incline_dumbbell_press.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -959,7 +959,7 @@ export const CHEST_EXERCISES: Exercise[] = [
     },
     {
         "id": 17,
-        "name": "decline_press_dumbbell",
+        "name": "decline_dumbbell_press",
         "category": "chest",
         "secondaryMuscles": [
             "triceps",
@@ -970,7 +970,7 @@ export const CHEST_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": 15,
-        "imageUrl": "/exercises/peitoral/supino_declinado_halteres.png",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/chest/decline_dumbbell_press.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -1015,7 +1015,7 @@ export const CHEST_EXERCISES: Exercise[] = [
     },
     {
         "id": 18,
-        "name": "rotation_press_dumbbell",
+        "name": "dumbbell_rotation_press",
         "category": "chest",
         "secondaryMuscles": [
             "triceps",
@@ -1026,7 +1026,7 @@ export const CHEST_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": 15,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/chest/dumbbell_rotation_press.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -1071,7 +1071,7 @@ export const CHEST_EXERCISES: Exercise[] = [
     },
     {
         "id": 19,
-        "name": "squeeze_press_dumbbell",
+        "name": "squeeze_press",
         "category": "chest",
         "secondaryMuscles": [
             "triceps",
@@ -1082,7 +1082,7 @@ export const CHEST_EXERCISES: Exercise[] = [
         "mechanics": "isolation",
         "level": "intermediate",
         "parentId": 15,
-        "imageUrl": "/exercises/peitoral/squeeze_press_halteres.png",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/chest/squeeze_press.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -1121,7 +1121,7 @@ export const CHEST_EXERCISES: Exercise[] = [
     },
     {
         "id": 20,
-        "name": "flat_fly_dumbbell",
+        "name": "flat_dumbbell_fly",
         "category": "chest",
         "secondaryMuscles": [
             "shoulders"
@@ -1131,7 +1131,7 @@ export const CHEST_EXERCISES: Exercise[] = [
         "mechanics": "isolation",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "/exercises/peitoral/crucifixo_halteres.png",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/chest/flat_dumbbell_fly.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -1173,7 +1173,7 @@ export const CHEST_EXERCISES: Exercise[] = [
     },
     {
         "id": 21,
-        "name": "incline_fly_dumbbell",
+        "name": "incline_dumbbell_fly",
         "category": "chest",
         "secondaryMuscles": [
             "shoulders"
@@ -1183,7 +1183,7 @@ export const CHEST_EXERCISES: Exercise[] = [
         "mechanics": "isolation",
         "level": "intermediate",
         "parentId": 20,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/chest/incline_dumbbell_fly.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -1225,7 +1225,7 @@ export const CHEST_EXERCISES: Exercise[] = [
     },
     {
         "id": 22,
-        "name": "crossover_high_cable",
+        "name": "cable_crossover_high",
         "category": "chest",
         "secondaryMuscles": [
             "shoulders"
@@ -1235,7 +1235,7 @@ export const CHEST_EXERCISES: Exercise[] = [
         "mechanics": "isolation",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "/exercises/peitoral/crucifixo_crossover_polia.png",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/chest/cable_crossover_high.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -1277,7 +1277,7 @@ export const CHEST_EXERCISES: Exercise[] = [
     },
     {
         "id": 23,
-        "name": "crossover_mid_cable",
+        "name": "cable_crossover_mid",
         "category": "chest",
         "secondaryMuscles": [
             "shoulders"
@@ -1287,7 +1287,7 @@ export const CHEST_EXERCISES: Exercise[] = [
         "mechanics": "isolation",
         "level": "intermediate",
         "parentId": 22,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/chest/cable_crossover_mid.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -1329,7 +1329,7 @@ export const CHEST_EXERCISES: Exercise[] = [
     },
     {
         "id": 24,
-        "name": "crossover_low_cable",
+        "name": "cable_crossover_low",
         "category": "chest",
         "secondaryMuscles": [
             "shoulders"
@@ -1339,7 +1339,7 @@ export const CHEST_EXERCISES: Exercise[] = [
         "mechanics": "isolation",
         "level": "intermediate",
         "parentId": 22,
-        "imageUrl": "/exercises/peitoral/crossover_pullover_polia.png",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/chest/cable_crossover_low.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -1381,7 +1381,7 @@ export const CHEST_EXERCISES: Exercise[] = [
     },
     {
         "id": 25,
-        "name": "pec_deck_fly_machine",
+        "name": "pec_deck_fly",
         "category": "chest",
         "secondaryMuscles": [
             "shoulders"
@@ -1391,7 +1391,7 @@ export const CHEST_EXERCISES: Exercise[] = [
         "mechanics": "isolation",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "/exercises/peitoral/voador_peckdeck.png",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/chest/pec_deck_fly.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -1436,7 +1436,7 @@ export const CHEST_EXERCISES: Exercise[] = [
     },
     {
         "id": 26,
-        "name": "fly_machine",
+        "name": "machine_fly",
         "category": "chest",
         "secondaryMuscles": [
             "shoulders"
@@ -1446,7 +1446,7 @@ export const CHEST_EXERCISES: Exercise[] = [
         "mechanics": "isolation",
         "level": "beginner",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/chest/machine_fly.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -1491,7 +1491,7 @@ export const CHEST_EXERCISES: Exercise[] = [
     },
     {
         "id": 27,
-        "name": "chest_press_machine",
+        "name": "machine_chest_press",
         "category": "chest",
         "secondaryMuscles": [
             "triceps",
@@ -1502,7 +1502,7 @@ export const CHEST_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "beginner",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/chest/machine_chest_press.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -1550,7 +1550,7 @@ export const CHEST_EXERCISES: Exercise[] = [
     },
     {
         "id": 28,
-        "name": "press_smith_machine",
+        "name": "smith_machine_press",
         "category": "chest",
         "secondaryMuscles": [
             "triceps",
@@ -1561,7 +1561,7 @@ export const CHEST_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "beginner",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/chest/smith_machine_press.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -1606,7 +1606,7 @@ export const CHEST_EXERCISES: Exercise[] = [
     },
     {
         "id": 29,
-        "name": "landmine_press_barbell",
+        "name": "landmine_press",
         "category": "chest",
         "secondaryMuscles": [
             "triceps",
@@ -1617,7 +1617,7 @@ export const CHEST_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "/exercises/costas/prensa_unilateral_barra.png",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/chest/landmine_press.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -1665,7 +1665,7 @@ export const CHEST_EXERCISES: Exercise[] = [
     },
     {
         "id": 30,
-        "name": "pullover_dumbbell",
+        "name": "dumbbell_pullover",
         "category": "chest",
         "secondaryMuscles": [
             "back",
@@ -1677,7 +1677,7 @@ export const CHEST_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/chest/dumbbell_pullover.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -1725,7 +1725,7 @@ export const CHEST_EXERCISES: Exercise[] = [
     },
     {
         "id": 31,
-        "name": "svendsen_press_machine",
+        "name": "svendsen_press",
         "category": "chest",
         "secondaryMuscles": [
             "shoulders"
@@ -1735,7 +1735,7 @@ export const CHEST_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/chest/svendsen_press.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -1783,7 +1783,7 @@ export const CHEST_EXERCISES: Exercise[] = [
     },
     {
         "id": 500,
-        "name": "bench_press_cable",
+        "name": "cable_bench_press",
         "category": "chest",
         "secondaryMuscles": [
             "triceps",
@@ -1794,7 +1794,7 @@ export const CHEST_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": 10,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/chest/cable_bench_press.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -1839,7 +1839,7 @@ export const CHEST_EXERCISES: Exercise[] = [
     },
     {
         "id": 501,
-        "name": "incline_press_smith_machine",
+        "name": "incline_smith_press",
         "category": "chest",
         "secondaryMuscles": [
             "triceps",
@@ -1850,7 +1850,7 @@ export const CHEST_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "beginner",
         "parentId": 11,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/chest/incline_smith_press.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -1898,7 +1898,7 @@ export const CHEST_EXERCISES: Exercise[] = [
     },
     {
         "id": 502,
-        "name": "incline_press_cable",
+        "name": "incline_cable_press",
         "category": "chest",
         "secondaryMuscles": [
             "triceps",
@@ -1909,7 +1909,7 @@ export const CHEST_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": 11,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/chest/incline_cable_press.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -1957,7 +1957,7 @@ export const CHEST_EXERCISES: Exercise[] = [
     },
     {
         "id": 503,
-        "name": "incline_press_machine",
+        "name": "incline_machine_press",
         "category": "chest",
         "secondaryMuscles": [
             "triceps",
@@ -1968,7 +1968,7 @@ export const CHEST_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "beginner",
         "parentId": 11,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/chest/incline_machine_press.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -2019,7 +2019,7 @@ export const CHEST_EXERCISES: Exercise[] = [
     },
     {
         "id": 504,
-        "name": "decline_press_smith_machine",
+        "name": "decline_smith_press",
         "category": "chest",
         "secondaryMuscles": [
             "triceps",
@@ -2030,7 +2030,7 @@ export const CHEST_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "beginner",
         "parentId": 12,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/chest/decline_smith_press.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -2075,7 +2075,7 @@ export const CHEST_EXERCISES: Exercise[] = [
     },
     {
         "id": 505,
-        "name": "decline_press_machine",
+        "name": "decline_machine_press",
         "category": "chest",
         "secondaryMuscles": [
             "triceps",
@@ -2086,7 +2086,7 @@ export const CHEST_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "beginner",
         "parentId": 12,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/chest/decline_machine_press.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -2134,7 +2134,7 @@ export const CHEST_EXERCISES: Exercise[] = [
     },
     {
         "id": 506,
-        "name": "decline_fly_dumbbell",
+        "name": "decline_dumbbell_fly",
         "category": "chest",
         "secondaryMuscles": [
             "shoulders"
@@ -2144,7 +2144,7 @@ export const CHEST_EXERCISES: Exercise[] = [
         "mechanics": "isolation",
         "level": "intermediate",
         "parentId": 20,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/chest/decline_dumbbell_fly.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -2183,7 +2183,7 @@ export const CHEST_EXERCISES: Exercise[] = [
     },
     {
         "id": 516,
-        "name": "weighted_push_up_plate",
+        "name": "weighted_push_up",
         "category": "chest",
         "secondaryMuscles": [
             "triceps",
@@ -2195,7 +2195,7 @@ export const CHEST_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": 1,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/chest/weighted_push_up.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -2252,7 +2252,7 @@ export const CHEST_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "advanced",
         "parentId": 1,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/chest/ring_push_up.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -2300,7 +2300,7 @@ export const CHEST_EXERCISES: Exercise[] = [
     },
     {
         "id": 518,
-        "name": "unilateral_bench_press_dumbbell",
+        "name": "unilateral_dumbbell_bench_press",
         "category": "chest",
         "secondaryMuscles": [
             "triceps",
@@ -2311,7 +2311,7 @@ export const CHEST_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": 10,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/chest/unilateral_dumbbell_bench_press.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -2359,7 +2359,7 @@ export const CHEST_EXERCISES: Exercise[] = [
     },
     {
         "id": 519,
-        "name": "guillotine_press_barbell",
+        "name": "guillotine_press",
         "category": "chest",
         "secondaryMuscles": [
             "triceps",
@@ -2370,7 +2370,7 @@ export const CHEST_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "advanced",
         "parentId": 10,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/chest/guillotine_press.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -2418,7 +2418,7 @@ export const CHEST_EXERCISES: Exercise[] = [
     },
     {
         "id": 520,
-        "name": "single_arm_fly_cable",
+        "name": "single_arm_cable_fly",
         "category": "chest",
         "secondaryMuscles": [
             "shoulders"
@@ -2428,7 +2428,7 @@ export const CHEST_EXERCISES: Exercise[] = [
         "mechanics": "isolation",
         "level": "intermediate",
         "parentId": 20,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/chest/single_arm_cable_fly.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -2485,7 +2485,7 @@ export const CHEST_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "advanced",
         "parentId": 1,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/chest/pseudo_planche_push_up.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -2545,7 +2545,7 @@ export const CHEST_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "advanced",
         "parentId": 8,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/chest/ring_dips.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",

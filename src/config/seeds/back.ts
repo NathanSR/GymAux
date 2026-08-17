@@ -16,7 +16,7 @@ export const BACK_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "/exercises/costas/barra_fixa.png",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/back/pull_up.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -82,7 +82,7 @@ export const BACK_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": 50,
-        "imageUrl": "/exercises/costas/puxada_supinada.png",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/back/chin_up.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -149,7 +149,7 @@ export const BACK_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": 50,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/back/neutral_grip_pull_up.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -216,7 +216,7 @@ export const BACK_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "beginner",
         "parentId": 50,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/back/inverted_row.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -279,7 +279,7 @@ export const BACK_EXERCISES: Exercise[] = [
         "mechanics": "isolation",
         "level": "beginner",
         "parentId": null,
-        "imageUrl": "/exercises/cardio_e_multiarticulares/prancha_superman.png",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/back/superman_exercise.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -327,7 +327,7 @@ export const BACK_EXERCISES: Exercise[] = [
     },
     {
         "id": 55,
-        "name": "bent_over_row_barbell",
+        "name": "barbell_bent_over_row",
         "category": "back",
         "secondaryMuscles": [
             "biceps",
@@ -340,7 +340,7 @@ export const BACK_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "/exercises/costas/remada_curvada_barra.png",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/back/barbell_bent_over_row.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -388,7 +388,7 @@ export const BACK_EXERCISES: Exercise[] = [
     },
     {
         "id": 56,
-        "name": "pendlay_row_barbell",
+        "name": "pendlay_row",
         "category": "back",
         "secondaryMuscles": [
             "biceps",
@@ -401,7 +401,7 @@ export const BACK_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "/exercises/costas/remada_meadows.png",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/back/pendlay_row.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -449,7 +449,7 @@ export const BACK_EXERCISES: Exercise[] = [
     },
     {
         "id": 57,
-        "name": "t_bar_row_barbell",
+        "name": "t_bar_row",
         "category": "back",
         "secondaryMuscles": [
             "biceps",
@@ -462,7 +462,7 @@ export const BACK_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "/exercises/costas/remada_cavalinho_barra.png",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/back/t_bar_row.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -510,7 +510,7 @@ export const BACK_EXERCISES: Exercise[] = [
     },
     {
         "id": 58,
-        "name": "one_arm_row_dumbbell",
+        "name": "one_arm_dumbbell_row",
         "category": "back",
         "secondaryMuscles": [
             "biceps",
@@ -522,7 +522,7 @@ export const BACK_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "/exercises/costas/remada_unilateral_halter.png",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/back/one_arm_dumbbell_row.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -570,7 +570,7 @@ export const BACK_EXERCISES: Exercise[] = [
     },
     {
         "id": 59,
-        "name": "seal_row_barbell",
+        "name": "seal_row",
         "category": "back",
         "secondaryMuscles": [
             "biceps",
@@ -582,7 +582,7 @@ export const BACK_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/back/seal_row.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -630,7 +630,7 @@ export const BACK_EXERCISES: Exercise[] = [
     },
     {
         "id": 60,
-        "name": "renegade_row_dumbbell",
+        "name": "renegade_row",
         "category": "back",
         "secondaryMuscles": [
             "biceps",
@@ -643,7 +643,7 @@ export const BACK_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/back/renegade_row.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -688,7 +688,7 @@ export const BACK_EXERCISES: Exercise[] = [
     },
     {
         "id": 61,
-        "name": "lat_pulldown_wide_grip_cable",
+        "name": "lat_pulldown_wide_grip",
         "category": "back",
         "secondaryMuscles": [
             "biceps",
@@ -701,7 +701,7 @@ export const BACK_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "/exercises/costas/puxada_alta_polia.png",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/back/lat_pulldown_wide_grip.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -746,7 +746,7 @@ export const BACK_EXERCISES: Exercise[] = [
     },
     {
         "id": 62,
-        "name": "lat_pulldown_close_grip_cable",
+        "name": "lat_pulldown_close_grip",
         "category": "back",
         "secondaryMuscles": [
             "biceps",
@@ -759,7 +759,7 @@ export const BACK_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "/exercises/costas/puxada_polia.png",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/back/lat_pulldown_close_grip.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -804,7 +804,7 @@ export const BACK_EXERCISES: Exercise[] = [
     },
     {
         "id": 63,
-        "name": "lat_pulldown_behind_neck_cable",
+        "name": "lat_pulldown_behind_neck",
         "category": "back",
         "secondaryMuscles": [
             "biceps",
@@ -817,7 +817,7 @@ export const BACK_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "advanced",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/back/lat_pulldown_behind_neck.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -862,7 +862,7 @@ export const BACK_EXERCISES: Exercise[] = [
     },
     {
         "id": 64,
-        "name": "straight_arm_pulldown_cable",
+        "name": "straight_arm_pulldown",
         "category": "back",
         "secondaryMuscles": [
             "triceps",
@@ -873,7 +873,7 @@ export const BACK_EXERCISES: Exercise[] = [
         "mechanics": "isolation",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "/exercises/costas/pulldown_polia_alta.png",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/back/straight_arm_pulldown.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -918,7 +918,7 @@ export const BACK_EXERCISES: Exercise[] = [
     },
     {
         "id": 65,
-        "name": "single_arm_lat_pulldown_cable",
+        "name": "single_arm_lat_pulldown",
         "category": "back",
         "secondaryMuscles": [
             "biceps",
@@ -931,7 +931,7 @@ export const BACK_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "/exercises/costas/pulldown_unilateral_polia.png",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/back/single_arm_lat_pulldown.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -979,7 +979,7 @@ export const BACK_EXERCISES: Exercise[] = [
     },
     {
         "id": 66,
-        "name": "seated_row_cable",
+        "name": "seated_cable_row",
         "category": "back",
         "secondaryMuscles": [
             "biceps",
@@ -991,7 +991,7 @@ export const BACK_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "/exercises/costas/remada_baixa_sentada.png",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/back/seated_cable_row.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -1036,7 +1036,7 @@ export const BACK_EXERCISES: Exercise[] = [
     },
     {
         "id": 67,
-        "name": "one_arm_row_cable",
+        "name": "one_arm_cable_row",
         "category": "back",
         "secondaryMuscles": [
             "biceps",
@@ -1048,7 +1048,7 @@ export const BACK_EXERCISES: Exercise[] = [
         "mechanics": "isolation",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "/exercises/costas/serrote_polia.png",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/back/one_arm_cable_row.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -1096,7 +1096,7 @@ export const BACK_EXERCISES: Exercise[] = [
     },
     {
         "id": 68,
-        "name": "face_pull_cable",
+        "name": "face_pull",
         "category": "back",
         "secondaryMuscles": [
             "shoulders"
@@ -1106,7 +1106,7 @@ export const BACK_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "/exercises/costas/voador_reverso_maquina.png",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/back/face_pull.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -1148,7 +1148,7 @@ export const BACK_EXERCISES: Exercise[] = [
     },
     {
         "id": 69,
-        "name": "chest_supported_row_machine",
+        "name": "machine_chest_supported_row",
         "category": "back",
         "secondaryMuscles": [
             "biceps",
@@ -1160,7 +1160,7 @@ export const BACK_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "beginner",
         "parentId": null,
-        "imageUrl": "/exercises/costas/remada_inclinada_maquina.png",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/back/machine_chest_supported_row.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -1208,7 +1208,7 @@ export const BACK_EXERCISES: Exercise[] = [
     },
     {
         "id": 70,
-        "name": "deadlift_conventional_barbell",
+        "name": "deadlift_conventional",
         "category": "back",
         "secondaryMuscles": [
             "hamstrings",
@@ -1221,7 +1221,7 @@ export const BACK_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "/exercises/posterior de coxa/levantamento_terra_barra.png",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/glutes/deadlift_conventional.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -1269,7 +1269,7 @@ export const BACK_EXERCISES: Exercise[] = [
     },
     {
         "id": 71,
-        "name": "rack_pull_barbell",
+        "name": "rack_pull",
         "category": "back",
         "secondaryMuscles": [
             "hamstrings",
@@ -1282,7 +1282,7 @@ export const BACK_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/back/rack_pull.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -1327,7 +1327,7 @@ export const BACK_EXERCISES: Exercise[] = [
     },
     {
         "id": 72,
-        "name": "back_extension_machine",
+        "name": "back_extension",
         "category": "back",
         "secondaryMuscles": [
             "glutes",
@@ -1339,7 +1339,7 @@ export const BACK_EXERCISES: Exercise[] = [
         "mechanics": "isolation",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "/exercises/core/extensao_lombar.png",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/back/back_extension.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -1447,7 +1447,7 @@ export const BACK_EXERCISES: Exercise[] = [
     },
     {
         "id": 74,
-        "name": "shrug_barbell",
+        "name": "barbell_shrug",
         "category": "back",
         "secondaryMuscles": [
             "shoulders",
@@ -1458,7 +1458,7 @@ export const BACK_EXERCISES: Exercise[] = [
         "mechanics": "isolation",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "/exercises/costas/encolhimento_barra.png",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/back/barbell_shrug.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -1503,7 +1503,7 @@ export const BACK_EXERCISES: Exercise[] = [
     },
     {
         "id": 75,
-        "name": "shrug_dumbbell",
+        "name": "dumbbell_shrug",
         "category": "back",
         "secondaryMuscles": [
             "shoulders",
@@ -1514,7 +1514,7 @@ export const BACK_EXERCISES: Exercise[] = [
         "mechanics": "isolation",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "/exercises/costas/encolhimento_halteres.png",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/back/dumbbell_shrug.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -1556,7 +1556,7 @@ export const BACK_EXERCISES: Exercise[] = [
     },
     {
         "id": 76,
-        "name": "shrug_cable",
+        "name": "cable_shrug",
         "category": "back",
         "secondaryMuscles": [
             "shoulders",
@@ -1567,7 +1567,7 @@ export const BACK_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/back/cable_shrug.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -1609,7 +1609,7 @@ export const BACK_EXERCISES: Exercise[] = [
     },
     {
         "id": 507,
-        "name": "bent_over_row_smith_machine",
+        "name": "smith_bent_over_row",
         "category": "back",
         "secondaryMuscles": [
             "biceps",
@@ -1622,7 +1622,7 @@ export const BACK_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": 55,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/back/smith_bent_over_row.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -1667,7 +1667,7 @@ export const BACK_EXERCISES: Exercise[] = [
     },
     {
         "id": 508,
-        "name": "lat_pulldown_supinated_cable",
+        "name": "lat_pulldown_supinated",
         "category": "back",
         "secondaryMuscles": [
             "biceps",
@@ -1680,7 +1680,7 @@ export const BACK_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "beginner",
         "parentId": 61,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/back/lat_pulldown_supinated.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -1725,7 +1725,7 @@ export const BACK_EXERCISES: Exercise[] = [
     },
     {
         "id": 509,
-        "name": "lat_pulldown_neutral_cable",
+        "name": "lat_pulldown_neutral",
         "category": "back",
         "secondaryMuscles": [
             "biceps",
@@ -1738,7 +1738,7 @@ export const BACK_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "beginner",
         "parentId": 61,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/back/lat_pulldown_neutral.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -1783,7 +1783,7 @@ export const BACK_EXERCISES: Exercise[] = [
     },
     {
         "id": 510,
-        "name": "seated_row_wide_bar_cable",
+        "name": "seated_cable_row_wide_bar",
         "category": "back",
         "secondaryMuscles": [
             "biceps",
@@ -1795,7 +1795,7 @@ export const BACK_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "beginner",
         "parentId": 66,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/back/seated_cable_row_wide_bar.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -1840,7 +1840,7 @@ export const BACK_EXERCISES: Exercise[] = [
     },
     {
         "id": 521,
-        "name": "weighted_pull_up_plate",
+        "name": "weighted_pull_up",
         "category": "back",
         "secondaryMuscles": [
             "biceps",
@@ -1853,7 +1853,7 @@ export const BACK_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "advanced",
         "parentId": 50,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/back/weighted_pull_up.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -1917,7 +1917,7 @@ export const BACK_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "beginner",
         "parentId": 50,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/back/assisted_pull_up_machine.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -1968,7 +1968,7 @@ export const BACK_EXERCISES: Exercise[] = [
     },
     {
         "id": 523,
-        "name": "bent_over_row_supinated_barbell",
+        "name": "barbell_bent_over_row_supinated",
         "category": "back",
         "secondaryMuscles": [
             "biceps",
@@ -1981,7 +1981,7 @@ export const BACK_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": 55,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/back/barbell_bent_over_row_supinated.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -2029,7 +2029,7 @@ export const BACK_EXERCISES: Exercise[] = [
     },
     {
         "id": 524,
-        "name": "bent_over_row_dumbbell",
+        "name": "dumbbell_bent_over_row",
         "category": "back",
         "secondaryMuscles": [
             "biceps",
@@ -2042,7 +2042,7 @@ export const BACK_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "beginner",
         "parentId": 55,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/back/dumbbell_bent_over_row.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -2151,7 +2151,7 @@ export const BACK_EXERCISES: Exercise[] = [
     },
     {
         "id": 526,
-        "name": "seated_row_supinated_cable",
+        "name": "seated_cable_row_supinated",
         "category": "back",
         "secondaryMuscles": [
             "biceps",
@@ -2163,7 +2163,7 @@ export const BACK_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "beginner",
         "parentId": 66,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/back/seated_cable_row_supinated.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -2221,7 +2221,7 @@ export const BACK_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": 50,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/back/chest_to_bar_pull_up.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -2288,7 +2288,7 @@ export const BACK_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "advanced",
         "parentId": 50,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/back/l_sit_pull_up.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -2355,7 +2355,7 @@ export const BACK_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "advanced",
         "parentId": 50,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/back/archer_pull_up.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -2425,7 +2425,7 @@ export const BACK_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "beginner",
         "parentId": 53,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/back/ring_rows.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -2488,7 +2488,7 @@ export const BACK_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "advanced",
         "parentId": 50,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/back/muscle_up_bar.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -2548,7 +2548,7 @@ export const BACK_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "advanced",
         "parentId": 50,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/back/muscle_up_rings.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -2608,7 +2608,7 @@ export const BACK_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/back/rope_climb.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -2669,7 +2669,7 @@ export const BACK_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": 50,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/back/kipping_pull_up.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -2736,7 +2736,7 @@ export const BACK_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "advanced",
         "parentId": 50,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/back/butterfly_pull_up.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -2790,7 +2790,7 @@ export const BACK_EXERCISES: Exercise[] = [
     },
     {
         "id": 595,
-        "name": "ghd_back_extension_machine",
+        "name": "ghd_back_extension",
         "category": "back",
         "secondaryMuscles": [
             "glutes",
@@ -2802,7 +2802,7 @@ export const BACK_EXERCISES: Exercise[] = [
         "mechanics": "isolation",
         "level": "intermediate",
         "parentId": 72,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/back/ghd_back_extension.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -2862,7 +2862,7 @@ export const BACK_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "advanced",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/back/front_lever_hold.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -2922,7 +2922,7 @@ export const BACK_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "advanced",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/back/back_lever_hold.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",

@@ -3,7 +3,7 @@ import { Exercise } from '../types';
 export const GLUTE_EXERCISES: Exercise[] = [
     {
         "id": 280,
-        "name": "hip_thrust_barbell",
+        "name": "barbell_hip_thrust",
         "category": "glutes",
         "secondaryMuscles": [
             "hamstrings",
@@ -15,7 +15,7 @@ export const GLUTE_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/glutes/barbell_hip_thrust.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -66,7 +66,7 @@ export const GLUTE_EXERCISES: Exercise[] = [
     },
     {
         "id": 281,
-        "name": "hip_thrust_dumbbell",
+        "name": "dumbbell_hip_thrust",
         "category": "glutes",
         "secondaryMuscles": [
             "hamstrings",
@@ -78,7 +78,7 @@ export const GLUTE_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "beginner",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/glutes/dumbbell_hip_thrust.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -126,7 +126,7 @@ export const GLUTE_EXERCISES: Exercise[] = [
     },
     {
         "id": 282,
-        "name": "glute_bridge_barbell",
+        "name": "barbell_glute_bridge",
         "category": "glutes",
         "secondaryMuscles": [
             "hamstrings",
@@ -138,7 +138,7 @@ export const GLUTE_EXERCISES: Exercise[] = [
         "mechanics": "isolation",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/glutes/barbell_glute_bridge.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -189,7 +189,7 @@ export const GLUTE_EXERCISES: Exercise[] = [
     },
     {
         "id": 283,
-        "name": "hip_thrust_machine",
+        "name": "machine_hip_thrust",
         "category": "glutes",
         "secondaryMuscles": [
             "hamstrings",
@@ -201,7 +201,7 @@ export const GLUTE_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "beginner",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/glutes/machine_hip_thrust.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -381,7 +381,7 @@ export const GLUTE_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "beginner",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/abductors/banded_clamshells.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -437,7 +437,7 @@ export const GLUTE_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/abductors/lateral_band_walk.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -479,7 +479,7 @@ export const GLUTE_EXERCISES: Exercise[] = [
     },
     {
         "id": 288,
-        "name": "glute_kickback_cable",
+        "name": "cable_glute_kickback",
         "category": "glutes",
         "secondaryMuscles": [
             "hamstrings",
@@ -490,7 +490,7 @@ export const GLUTE_EXERCISES: Exercise[] = [
         "mechanics": "isolation",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "/exercises/posterior de coxa/gluteo_coice_polia.png",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/glutes/cable_glute_kickback.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -538,7 +538,7 @@ export const GLUTE_EXERCISES: Exercise[] = [
     },
     {
         "id": 289,
-        "name": "glute_kickback_machine",
+        "name": "machine_glute_kickback",
         "category": "glutes",
         "secondaryMuscles": [
             "hamstrings",
@@ -549,7 +549,7 @@ export const GLUTE_EXERCISES: Exercise[] = [
         "mechanics": "isolation",
         "level": "beginner",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/glutes/machine_glute_kickback.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -611,7 +611,7 @@ export const GLUTE_EXERCISES: Exercise[] = [
         "mechanics": "isolation",
         "level": "beginner",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/glutes/quadruped_hip_extension_donkey_kicks.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -673,7 +673,7 @@ export const GLUTE_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "beginner",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/abductors/fire_hydrants.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -724,7 +724,7 @@ export const GLUTE_EXERCISES: Exercise[] = [
     },
     {
         "id": 292,
-        "name": "sumo_deadlift_barbell",
+        "name": "barbell_sumo_deadlift",
         "category": "glutes",
         "secondaryMuscles": [
             "adductors",
@@ -737,7 +737,7 @@ export const GLUTE_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/glutes/barbell_sumo_deadlift.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -782,7 +782,7 @@ export const GLUTE_EXERCISES: Exercise[] = [
     },
     {
         "id": 293,
-        "name": "sumo_squat_dumbbell",
+        "name": "dumbbell_sumo_squat",
         "category": "glutes",
         "secondaryMuscles": [
             "adductors",
@@ -795,7 +795,7 @@ export const GLUTE_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/adductors/dumbbell_sumo_squat.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -837,7 +837,7 @@ export const GLUTE_EXERCISES: Exercise[] = [
     },
     {
         "id": 294,
-        "name": "glute_medially_rotated_kickback_cable",
+        "name": "cable_glute_medially_rotated_kickback",
         "category": "glutes",
         "secondaryMuscles": [
             "hamstrings",
@@ -848,7 +848,7 @@ export const GLUTE_EXERCISES: Exercise[] = [
         "mechanics": "isolation",
         "level": "advanced",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/glutes/cable_glute_medially_rotated_kickback.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -904,7 +904,7 @@ export const GLUTE_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/glutes/frog_pumps.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -952,7 +952,7 @@ export const GLUTE_EXERCISES: Exercise[] = [
     },
     {
         "id": 296,
-        "name": "curtsy_lunge_dumbbell",
+        "name": "curtsy_lunge",
         "category": "glutes",
         "secondaryMuscles": [
             "hamstrings",
@@ -963,7 +963,7 @@ export const GLUTE_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/glutes/curtsy_lunge.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -1008,7 +1008,7 @@ export const GLUTE_EXERCISES: Exercise[] = [
     },
     {
         "id": 297,
-        "name": "hyperextension_45_degree_glute_focus_machine",
+        "name": "hyperextension_45_degree_glute_focus",
         "category": "glutes",
         "secondaryMuscles": [
             "hamstrings",
@@ -1019,7 +1019,7 @@ export const GLUTE_EXERCISES: Exercise[] = [
         "mechanics": "isolation",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/glutes/hyperextension_45_degree_glute_focus.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -1076,7 +1076,7 @@ export const GLUTE_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "beginner",
         "parentId": 260,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/glutes/glute_bridge.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",

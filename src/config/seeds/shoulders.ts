@@ -3,7 +3,7 @@ import { Exercise } from '../types';
 export const SHOULDERS_EXERCISES: Exercise[] = [
     {
         "id": 90,
-        "name": "overhead_press_barbell",
+        "name": "overhead_barbell_press",
         "category": "shoulders",
         "secondaryMuscles": [
             "triceps",
@@ -15,7 +15,7 @@ export const SHOULDERS_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/shoulders/overhead_barbell_press.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -60,7 +60,7 @@ export const SHOULDERS_EXERCISES: Exercise[] = [
     },
     {
         "id": 91,
-        "name": "shoulder_press_dumbbell",
+        "name": "dumbbell_shoulder_press",
         "category": "shoulders",
         "secondaryMuscles": [
             "triceps",
@@ -72,7 +72,7 @@ export const SHOULDERS_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "/exercises/ombros/desenvolvimento_halteres.png",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/shoulders/dumbbell_shoulder_press.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -114,7 +114,7 @@ export const SHOULDERS_EXERCISES: Exercise[] = [
     },
     {
         "id": 92,
-        "name": "arnold_press_dumbbell",
+        "name": "arnold_press",
         "category": "shoulders",
         "secondaryMuscles": [
             "triceps",
@@ -126,7 +126,7 @@ export const SHOULDERS_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "/exercises/ombros/desenvolvimento_arnold_halteres.png",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/shoulders/arnold_press.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -168,7 +168,7 @@ export const SHOULDERS_EXERCISES: Exercise[] = [
     },
     {
         "id": 93,
-        "name": "shoulder_press_smith_machine",
+        "name": "smith_machine_shoulder_press",
         "category": "shoulders",
         "secondaryMuscles": [
             "triceps",
@@ -180,7 +180,7 @@ export const SHOULDERS_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "beginner",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/shoulders/smith_machine_shoulder_press.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -222,7 +222,7 @@ export const SHOULDERS_EXERCISES: Exercise[] = [
     },
     {
         "id": 94,
-        "name": "seated_military_press_barbell",
+        "name": "seated_military_press",
         "category": "shoulders",
         "secondaryMuscles": [
             "triceps",
@@ -234,7 +234,7 @@ export const SHOULDERS_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "/exercises/ombros/desenvolvimento_militar_barra.png",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/shoulders/seated_military_press.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -279,7 +279,7 @@ export const SHOULDERS_EXERCISES: Exercise[] = [
     },
     {
         "id": 95,
-        "name": "lateral_raise_dumbbell",
+        "name": "dumbbell_lateral_raise",
         "category": "shoulders",
         "secondaryMuscles": [
             "back"
@@ -289,7 +289,7 @@ export const SHOULDERS_EXERCISES: Exercise[] = [
         "mechanics": "isolation",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "/exercises/ombros/elevação_lateral_halteres.png",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/shoulders/dumbbell_lateral_raise.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -331,7 +331,7 @@ export const SHOULDERS_EXERCISES: Exercise[] = [
     },
     {
         "id": 96,
-        "name": "lateral_raise_cable",
+        "name": "cable_lateral_raise",
         "category": "shoulders",
         "secondaryMuscles": [
             "back"
@@ -341,7 +341,7 @@ export const SHOULDERS_EXERCISES: Exercise[] = [
         "mechanics": "isolation",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "/exercises/ombros/elevacao_unilateral_polia.png",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/shoulders/cable_lateral_raise.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -383,7 +383,7 @@ export const SHOULDERS_EXERCISES: Exercise[] = [
     },
     {
         "id": 97,
-        "name": "lateral_raise_machine",
+        "name": "machine_lateral_raise",
         "category": "shoulders",
         "secondaryMuscles": [
             "back"
@@ -393,7 +393,7 @@ export const SHOULDERS_EXERCISES: Exercise[] = [
         "mechanics": "isolation",
         "level": "beginner",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/shoulders/machine_lateral_raise.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -438,7 +438,7 @@ export const SHOULDERS_EXERCISES: Exercise[] = [
     },
     {
         "id": 98,
-        "name": "lean_away_lateral_raise_cable",
+        "name": "lean_away_lateral_raise",
         "category": "shoulders",
         "secondaryMuscles": [
             "back"
@@ -448,7 +448,7 @@ export const SHOULDERS_EXERCISES: Exercise[] = [
         "mechanics": "isolation",
         "level": "advanced",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/shoulders/lean_away_lateral_raise.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -490,7 +490,7 @@ export const SHOULDERS_EXERCISES: Exercise[] = [
     },
     {
         "id": 99,
-        "name": "front_raise_dumbbell",
+        "name": "dumbbell_front_raise",
         "category": "shoulders",
         "secondaryMuscles": [
             "chest"
@@ -500,7 +500,7 @@ export const SHOULDERS_EXERCISES: Exercise[] = [
         "mechanics": "isolation",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "/exercises/ombros/elevacao_frontal_alteres.png",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/shoulders/dumbbell_front_raise.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -539,7 +539,7 @@ export const SHOULDERS_EXERCISES: Exercise[] = [
     },
     {
         "id": 100,
-        "name": "front_raise_barbell",
+        "name": "barbell_front_raise",
         "category": "shoulders",
         "secondaryMuscles": [
             "chest"
@@ -549,7 +549,7 @@ export const SHOULDERS_EXERCISES: Exercise[] = [
         "mechanics": "isolation",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "/exercises/ombros/elevacao_frontal_barra.png",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/shoulders/barbell_front_raise.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -591,7 +591,7 @@ export const SHOULDERS_EXERCISES: Exercise[] = [
     },
     {
         "id": 101,
-        "name": "front_raise_cable",
+        "name": "cable_front_raise",
         "category": "shoulders",
         "secondaryMuscles": [
             "chest"
@@ -601,7 +601,7 @@ export const SHOULDERS_EXERCISES: Exercise[] = [
         "mechanics": "isolation",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/shoulders/cable_front_raise.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -650,7 +650,7 @@ export const SHOULDERS_EXERCISES: Exercise[] = [
         "mechanics": "isolation",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "/exercises/ombros/elevacao_frontal_anilha.png",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/shoulders/plate_front_raise.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -689,7 +689,7 @@ export const SHOULDERS_EXERCISES: Exercise[] = [
     },
     {
         "id": 103,
-        "name": "rear_delt_fly_dumbbell",
+        "name": "rear_delt_dumbbell_fly",
         "category": "shoulders",
         "secondaryMuscles": [
             "back"
@@ -699,7 +699,7 @@ export const SHOULDERS_EXERCISES: Exercise[] = [
         "mechanics": "isolation",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "/exercises/ombros/crucifixo_invertido_anilha.png",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/shoulders/rear_delt_dumbbell_fly.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -744,7 +744,7 @@ export const SHOULDERS_EXERCISES: Exercise[] = [
     },
     {
         "id": 104,
-        "name": "rear_delt_fly_machine",
+        "name": "rear_delt_machine_fly",
         "category": "shoulders",
         "secondaryMuscles": [
             "back"
@@ -754,7 +754,7 @@ export const SHOULDERS_EXERCISES: Exercise[] = [
         "mechanics": "isolation",
         "level": "beginner",
         "parentId": null,
-        "imageUrl": "/exercises/costas/voador_inverso_maquina.png",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/shoulders/rear_delt_machine_fly.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -802,7 +802,7 @@ export const SHOULDERS_EXERCISES: Exercise[] = [
     },
     {
         "id": 105,
-        "name": "rear_delt_fly_cable",
+        "name": "cable_rear_delt_fly",
         "category": "shoulders",
         "secondaryMuscles": [
             "back"
@@ -812,7 +812,7 @@ export const SHOULDERS_EXERCISES: Exercise[] = [
         "mechanics": "isolation",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/shoulders/cable_rear_delt_fly.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -857,7 +857,7 @@ export const SHOULDERS_EXERCISES: Exercise[] = [
     },
     {
         "id": 106,
-        "name": "upright_row_barbell",
+        "name": "barbell_upright_row",
         "category": "shoulders",
         "secondaryMuscles": [
             "biceps",
@@ -869,7 +869,7 @@ export const SHOULDERS_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "/exercises/costas/remada_alta_barra.png",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/shoulders/barbell_upright_row.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -911,7 +911,7 @@ export const SHOULDERS_EXERCISES: Exercise[] = [
     },
     {
         "id": 107,
-        "name": "upright_row_dumbbell",
+        "name": "dumbbell_upright_row",
         "category": "shoulders",
         "secondaryMuscles": [
             "biceps",
@@ -923,7 +923,7 @@ export const SHOULDERS_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/shoulders/dumbbell_upright_row.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -962,7 +962,7 @@ export const SHOULDERS_EXERCISES: Exercise[] = [
     },
     {
         "id": 108,
-        "name": "upright_row_cable",
+        "name": "cable_upright_row",
         "category": "shoulders",
         "secondaryMuscles": [
             "biceps",
@@ -974,7 +974,7 @@ export const SHOULDERS_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/shoulders/cable_upright_row.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -1025,7 +1025,7 @@ export const SHOULDERS_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "beginner",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/shoulders/pike_push_up.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -1082,7 +1082,7 @@ export const SHOULDERS_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "advanced",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/shoulders/handstand_push_up.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -1127,7 +1127,7 @@ export const SHOULDERS_EXERCISES: Exercise[] = [
     },
     {
         "id": 111,
-        "name": "external_rotation_cable",
+        "name": "cable_external_rotation",
         "category": "shoulders",
         "secondaryMuscles": [
             "back"
@@ -1137,7 +1137,7 @@ export const SHOULDERS_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/shoulders/cable_external_rotation.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -1182,7 +1182,7 @@ export const SHOULDERS_EXERCISES: Exercise[] = [
     },
     {
         "id": 112,
-        "name": "external_rotation_dumbbell",
+        "name": "dumbbell_external_rotation",
         "category": "shoulders",
         "secondaryMuscles": [
             "back"
@@ -1192,7 +1192,7 @@ export const SHOULDERS_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/shoulders/dumbbell_external_rotation.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -1237,7 +1237,7 @@ export const SHOULDERS_EXERCISES: Exercise[] = [
     },
     {
         "id": 511,
-        "name": "shoulder_press_machine",
+        "name": "machine_shoulder_press",
         "category": "shoulders",
         "secondaryMuscles": [
             "triceps",
@@ -1249,7 +1249,7 @@ export const SHOULDERS_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "beginner",
         "parentId": 90,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/shoulders/machine_shoulder_press.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -1294,7 +1294,7 @@ export const SHOULDERS_EXERCISES: Exercise[] = [
     },
     {
         "id": 527,
-        "name": "single_arm_shoulder_press_dumbbell",
+        "name": "single_arm_dumbbell_shoulder_press",
         "category": "shoulders",
         "secondaryMuscles": [
             "triceps",
@@ -1306,7 +1306,7 @@ export const SHOULDERS_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": 90,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/shoulders/single_arm_dumbbell_shoulder_press.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -1351,7 +1351,7 @@ export const SHOULDERS_EXERCISES: Exercise[] = [
     },
     {
         "id": 528,
-        "name": "incline_lateral_raise_dumbbell",
+        "name": "incline_dumbbell_lateral_raise",
         "category": "shoulders",
         "secondaryMuscles": [
             "back"
@@ -1361,7 +1361,7 @@ export const SHOULDERS_EXERCISES: Exercise[] = [
         "mechanics": "isolation",
         "level": "intermediate",
         "parentId": 95,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/shoulders/incline_dumbbell_lateral_raise.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -1415,7 +1415,7 @@ export const SHOULDERS_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "advanced",
         "parentId": 109,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/shoulders/handstand_walk.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -1471,7 +1471,7 @@ export const SHOULDERS_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": 109,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/shoulders/wall_walk.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -1527,7 +1527,7 @@ export const SHOULDERS_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "advanced",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/shoulders/planche_hold.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",

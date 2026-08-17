@@ -3,7 +3,7 @@ import { Exercise } from '../types';
 export const TRICEPS_EXERCISES: Exercise[] = [
     {
         "id": 160,
-        "name": "triceps_pushdown_straight_bar_cable",
+        "name": "cable_triceps_pushdown_straight_bar",
         "category": "triceps",
         "secondaryMuscles": [
             "forearms"
@@ -13,7 +13,7 @@ export const TRICEPS_EXERCISES: Exercise[] = [
         "mechanics": "isolation",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/triceps/cable_triceps_pushdown_straight_bar.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -58,7 +58,7 @@ export const TRICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 161,
-        "name": "triceps_pushdown_v_bar_cable",
+        "name": "cable_triceps_pushdown_v_bar",
         "category": "triceps",
         "secondaryMuscles": [
             "forearms"
@@ -68,7 +68,7 @@ export const TRICEPS_EXERCISES: Exercise[] = [
         "mechanics": "isolation",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/triceps/cable_triceps_pushdown_v_bar.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -113,7 +113,7 @@ export const TRICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 162,
-        "name": "rope_pushdown_cable",
+        "name": "cable_rope_pushdown",
         "category": "triceps",
         "secondaryMuscles": [
             "forearms"
@@ -123,7 +123,7 @@ export const TRICEPS_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/triceps/cable_rope_pushdown.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -168,7 +168,7 @@ export const TRICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 163,
-        "name": "overhead_extension_rope_cable",
+        "name": "overhead_cable_extension_rope",
         "category": "triceps",
         "secondaryMuscles": [
             "shoulders",
@@ -179,7 +179,7 @@ export const TRICEPS_EXERCISES: Exercise[] = [
         "mechanics": "isolation",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/triceps/overhead_cable_extension_rope.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -227,7 +227,7 @@ export const TRICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 164,
-        "name": "single_arm_pushdown_cable",
+        "name": "single_arm_cable_pushdown",
         "category": "triceps",
         "secondaryMuscles": [
             "forearms"
@@ -237,7 +237,7 @@ export const TRICEPS_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/triceps/single_arm_cable_pushdown.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -285,7 +285,7 @@ export const TRICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 165,
-        "name": "skull_crusher_cable",
+        "name": "cable_skull_crusher",
         "category": "triceps",
         "secondaryMuscles": [
             "forearms",
@@ -296,7 +296,7 @@ export const TRICEPS_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "/exercises/triceps/mergulho_graviton.png",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/triceps/cable_skull_crusher.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -344,7 +344,7 @@ export const TRICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 166,
-        "name": "skull_crusher_barbell",
+        "name": "barbell_skull_crusher",
         "category": "triceps",
         "secondaryMuscles": [
             "forearms",
@@ -355,7 +355,7 @@ export const TRICEPS_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "/exercises/triceps/mergulho_banco.png",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/triceps/barbell_skull_crusher.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -417,7 +417,7 @@ export const TRICEPS_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "/exercises/triceps/triceps_testa_barra.png",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/triceps/ez_bar_skull_crusher.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -465,7 +465,7 @@ export const TRICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 168,
-        "name": "skull_crusher_dumbbell",
+        "name": "dumbbell_skull_crusher",
         "category": "triceps",
         "secondaryMuscles": [
             "forearms",
@@ -476,7 +476,7 @@ export const TRICEPS_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/triceps/dumbbell_skull_crusher.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -524,7 +524,7 @@ export const TRICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 169,
-        "name": "close_grip_bench_press_barbell",
+        "name": "close_grip_barbell_bench_press",
         "category": "triceps",
         "secondaryMuscles": [
             "chest",
@@ -535,7 +535,7 @@ export const TRICEPS_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/triceps/close_grip_barbell_bench_press.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -583,7 +583,7 @@ export const TRICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 170,
-        "name": "overhead_extension_seated_dumbbell",
+        "name": "overhead_dumbbell_extension_seated",
         "category": "triceps",
         "secondaryMuscles": [
             "shoulders",
@@ -594,7 +594,7 @@ export const TRICEPS_EXERCISES: Exercise[] = [
         "mechanics": "isolation",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "/exercises/triceps/triceps_frances_halteres.png",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/triceps/overhead_dumbbell_extension_seated.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -642,7 +642,7 @@ export const TRICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 171,
-        "name": "overhead_extension_single_arm_dumbbell",
+        "name": "overhead_dumbbell_extension_single_arm",
         "category": "triceps",
         "secondaryMuscles": [
             "shoulders",
@@ -653,7 +653,7 @@ export const TRICEPS_EXERCISES: Exercise[] = [
         "mechanics": "isolation",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/triceps/overhead_dumbbell_extension_single_arm.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -704,7 +704,7 @@ export const TRICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 172,
-        "name": "kickback_dumbbell",
+        "name": "dumbbell_kickback",
         "category": "triceps",
         "secondaryMuscles": [
             "shoulders"
@@ -714,7 +714,7 @@ export const TRICEPS_EXERCISES: Exercise[] = [
         "mechanics": "isolation",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "/exercises/triceps/triceps_coice_polia.png",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/triceps/dumbbell_kickback.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -759,7 +759,7 @@ export const TRICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 173,
-        "name": "tate_press_dumbbell",
+        "name": "tate_press",
         "category": "triceps",
         "secondaryMuscles": [
             "chest"
@@ -769,7 +769,7 @@ export const TRICEPS_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "advanced",
         "parentId": null,
-        "imageUrl": "/exercises/triceps/triceps_testa_polia.png",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/triceps/tate_press.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -822,7 +822,7 @@ export const TRICEPS_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "/exercises/triceps/triceps_pulley_corda.png",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/triceps/triceps_dips_parallel_bars.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -884,7 +884,7 @@ export const TRICEPS_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "beginner",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/triceps/bench_dips.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -946,7 +946,7 @@ export const TRICEPS_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "beginner",
         "parentId": null,
-        "imageUrl": "/exercises/triceps/triceps_frances_polia.png",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/triceps/diamond_push_ups.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -994,7 +994,7 @@ export const TRICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 177,
-        "name": "triceps_extension_machine",
+        "name": "machine_triceps_extension",
         "category": "triceps",
         "secondaryMuscles": [
             "forearms",
@@ -1005,7 +1005,7 @@ export const TRICEPS_EXERCISES: Exercise[] = [
         "mechanics": "isolation",
         "level": "beginner",
         "parentId": null,
-        "imageUrl": "/exercises/triceps/triceps_katana_polia.png",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/triceps/machine_triceps_extension.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -1050,7 +1050,7 @@ export const TRICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 178,
-        "name": "triceps_dip_machine",
+        "name": "machine_triceps_dip",
         "category": "triceps",
         "secondaryMuscles": [
             "forearms",
@@ -1061,7 +1061,7 @@ export const TRICEPS_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "beginner",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/triceps/machine_triceps_dip.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -1109,7 +1109,7 @@ export const TRICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 513,
-        "name": "triceps_reverse_pushdown_cable",
+        "name": "triceps_reverse_pushdown",
         "category": "triceps",
         "secondaryMuscles": [
             "forearms"
@@ -1119,7 +1119,7 @@ export const TRICEPS_EXERCISES: Exercise[] = [
         "mechanics": "isolation",
         "level": "intermediate",
         "parentId": 170,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/triceps/triceps_reverse_pushdown.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -1164,7 +1164,7 @@ export const TRICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 514,
-        "name": "skullcrusher_cable",
+        "name": "lying_cable_skull_crusher",
         "category": "triceps",
         "secondaryMuscles": [
             "forearms",
@@ -1175,7 +1175,7 @@ export const TRICEPS_EXERCISES: Exercise[] = [
         "mechanics": "isolation",
         "level": "intermediate",
         "parentId": 173,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/triceps/lying_cable_skull_crusher.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -1223,7 +1223,7 @@ export const TRICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 532,
-        "name": "overhead_triceps_extension_barbell",
+        "name": "overhead_barbell_triceps_extension",
         "category": "triceps",
         "secondaryMuscles": [
             "shoulders",
@@ -1234,7 +1234,7 @@ export const TRICEPS_EXERCISES: Exercise[] = [
         "mechanics": "isolation",
         "level": "intermediate",
         "parentId": 175,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/triceps/overhead_barbell_triceps_extension.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -1285,7 +1285,7 @@ export const TRICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 533,
-        "name": "close_grip_press_smith_machine",
+        "name": "smith_close_grip_press",
         "category": "triceps",
         "secondaryMuscles": [
             "forearms",
@@ -1296,7 +1296,7 @@ export const TRICEPS_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "beginner",
         "parentId": 13,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/triceps/smith_close_grip_press.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",

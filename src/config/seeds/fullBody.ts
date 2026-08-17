@@ -3,7 +3,7 @@ import { Exercise } from '../types';
 export const FULL_BODY_EXERCISES: Exercise[] = [
     {
         "id": 480,
-        "name": "clean_and_press_barbell",
+        "name": "barbell_clean_and_press",
         "category": "full_body",
         "secondaryMuscles": [
             "back",
@@ -17,7 +17,7 @@ export const FULL_BODY_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/full_body/barbell_clean_and_press.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -65,7 +65,7 @@ export const FULL_BODY_EXERCISES: Exercise[] = [
     },
     {
         "id": 481,
-        "name": "snatch_barbell",
+        "name": "barbell_snatch",
         "category": "full_body",
         "secondaryMuscles": [
             "shoulders",
@@ -79,7 +79,7 @@ export const FULL_BODY_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "advanced",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/full_body/barbell_snatch.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -127,7 +127,7 @@ export const FULL_BODY_EXERCISES: Exercise[] = [
     },
     {
         "id": 482,
-        "name": "thruster_barbell",
+        "name": "barbell_thruster",
         "category": "full_body",
         "secondaryMuscles": [
             "quadriceps",
@@ -141,7 +141,7 @@ export const FULL_BODY_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/full_body/barbell_thruster.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -189,7 +189,7 @@ export const FULL_BODY_EXERCISES: Exercise[] = [
     },
     {
         "id": 484,
-        "name": "man_makers_dumbbell",
+        "name": "dumbbell_man_makers",
         "category": "full_body",
         "secondaryMuscles": [
             "quadriceps",
@@ -203,7 +203,7 @@ export const FULL_BODY_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "advanced",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/full_body/dumbbell_man_makers.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -245,7 +245,7 @@ export const FULL_BODY_EXERCISES: Exercise[] = [
     },
     {
         "id": 485,
-        "name": "snatch_unilateral_dumbbell",
+        "name": "dumbbell_snatch_unilateral",
         "category": "full_body",
         "secondaryMuscles": [
             "shoulders",
@@ -259,7 +259,7 @@ export const FULL_BODY_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/full_body/dumbbell_snatch_unilateral.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -307,7 +307,7 @@ export const FULL_BODY_EXERCISES: Exercise[] = [
     },
     {
         "id": 486,
-        "name": "turkish_get_up_kettlebell",
+        "name": "turkish_get_up",
         "category": "full_body",
         "secondaryMuscles": [
             "quadriceps",
@@ -321,7 +321,7 @@ export const FULL_BODY_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "advanced",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/full_body/turkish_get_up.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -380,7 +380,7 @@ export const FULL_BODY_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/full_body/bear_crawl.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -442,7 +442,7 @@ export const FULL_BODY_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/full_body/medicine_ball_slam.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -498,7 +498,7 @@ export const FULL_BODY_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/full_body/tire_flip.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -540,7 +540,7 @@ export const FULL_BODY_EXERCISES: Exercise[] = [
     },
     {
         "id": 576,
-        "name": "wall_ball_shot_medicine_ball",
+        "name": "wall_ball_shot",
         "category": "full_body",
         "secondaryMuscles": [
             "quadriceps",
@@ -554,7 +554,7 @@ export const FULL_BODY_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/full_body/wall_ball_shot.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -613,7 +613,7 @@ export const FULL_BODY_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": 428,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/full_body/burpee_box_jump_over.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -661,7 +661,7 @@ export const FULL_BODY_EXERCISES: Exercise[] = [
     },
     {
         "id": 580,
-        "name": "devil_press_dumbbell",
+        "name": "dumbbell_devil_press",
         "category": "full_body",
         "secondaryMuscles": [
             "quadriceps",
@@ -675,7 +675,7 @@ export const FULL_BODY_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/full_body/dumbbell_devil_press.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -717,7 +717,7 @@ export const FULL_BODY_EXERCISES: Exercise[] = [
     },
     {
         "id": 581,
-        "name": "snatch_kettlebell",
+        "name": "kettlebell_snatch",
         "category": "full_body",
         "secondaryMuscles": [
             "shoulders",
@@ -731,7 +731,7 @@ export const FULL_BODY_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/full_body/kettlebell_snatch.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -782,7 +782,7 @@ export const FULL_BODY_EXERCISES: Exercise[] = [
     },
     {
         "id": 582,
-        "name": "clean_and_press_kettlebell",
+        "name": "kettlebell_clean_and_press",
         "category": "full_body",
         "secondaryMuscles": [
             "back",
@@ -796,7 +796,7 @@ export const FULL_BODY_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/full_body/kettlebell_clean_and_press.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -861,7 +861,7 @@ export const FULL_BODY_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "beginner",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/cardio/battle_rope_slams.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -965,7 +965,7 @@ export const FULL_BODY_EXERCISES: Exercise[] = [
     },
     {
         "id": 586,
-        "name": "power_clean_barbell",
+        "name": "power_clean",
         "category": "full_body",
         "secondaryMuscles": [
             "back",
@@ -979,7 +979,7 @@ export const FULL_BODY_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/full_body/power_clean.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -1213,7 +1213,7 @@ export const FULL_BODY_EXERCISES: Exercise[] = [
     },
     {
         "id": 600,
-        "name": "split_jerk_barbell",
+        "name": "split_jerk",
         "category": "full_body",
         "secondaryMuscles": [
             "quadriceps",
@@ -1227,7 +1227,7 @@ export const FULL_BODY_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "advanced",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/full_body/split_jerk.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",

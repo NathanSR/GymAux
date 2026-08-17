@@ -3,7 +3,7 @@ import { Exercise } from '../types';
 export const BICEPS_EXERCISES: Exercise[] = [
     {
         "id": 130,
-        "name": "curl_straight_bar_barbell",
+        "name": "barbell_curl_straight_bar",
         "category": "biceps",
         "secondaryMuscles": [
             "forearms"
@@ -13,7 +13,7 @@ export const BICEPS_EXERCISES: Exercise[] = [
         "mechanics": "isolation",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "/exercises/biceps/rosca_direta_barra.png",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/biceps/barbell_curl_straight_bar.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -68,7 +68,7 @@ export const BICEPS_EXERCISES: Exercise[] = [
         "mechanics": "isolation",
         "level": "intermediate",
         "parentId": 130,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/biceps/ez_bar_curl.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -110,7 +110,7 @@ export const BICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 132,
-        "name": "preacher_curl_barbell",
+        "name": "barbell_preacher_curl",
         "category": "biceps",
         "secondaryMuscles": [
             "forearms"
@@ -120,7 +120,7 @@ export const BICEPS_EXERCISES: Exercise[] = [
         "mechanics": "isolation",
         "level": "intermediate",
         "parentId": 130,
-        "imageUrl": "/exercises/biceps/rosca_scott_barra.png",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/biceps/barbell_preacher_curl.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -168,7 +168,7 @@ export const BICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 133,
-        "name": "drag_curl_barbell",
+        "name": "drag_curl",
         "category": "biceps",
         "secondaryMuscles": [
             "forearms"
@@ -178,7 +178,7 @@ export const BICEPS_EXERCISES: Exercise[] = [
         "mechanics": "isolation",
         "level": "intermediate",
         "parentId": 130,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/biceps/drag_curl.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -233,7 +233,7 @@ export const BICEPS_EXERCISES: Exercise[] = [
         "mechanics": "isolation",
         "level": "intermediate",
         "parentId": 130,
-        "imageUrl": "/exercises/biceps/rosca_aranha_barra.png",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/biceps/spider_curl_barbell.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -281,7 +281,7 @@ export const BICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 135,
-        "name": "alternate_curl_dumbbell",
+        "name": "dumbbell_alternate_curl",
         "category": "biceps",
         "secondaryMuscles": [
             "forearms"
@@ -291,7 +291,7 @@ export const BICEPS_EXERCISES: Exercise[] = [
         "mechanics": "isolation",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "/exercises/biceps/rosca_alternada_halteres.png",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/biceps/dumbbell_alternate_curl.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -333,7 +333,7 @@ export const BICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 136,
-        "name": "hammer_curl_dumbbell",
+        "name": "dumbbell_hammer_curl",
         "category": "biceps",
         "secondaryMuscles": [
             "forearms"
@@ -343,7 +343,7 @@ export const BICEPS_EXERCISES: Exercise[] = [
         "mechanics": "isolation",
         "level": "intermediate",
         "parentId": 135,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/biceps/dumbbell_hammer_curl.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -391,7 +391,7 @@ export const BICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 137,
-        "name": "incline_curl_dumbbell",
+        "name": "incline_dumbbell_curl",
         "category": "biceps",
         "secondaryMuscles": [
             "forearms"
@@ -401,7 +401,7 @@ export const BICEPS_EXERCISES: Exercise[] = [
         "mechanics": "isolation",
         "level": "intermediate",
         "parentId": 135,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/biceps/incline_dumbbell_curl.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -446,7 +446,7 @@ export const BICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 138,
-        "name": "concentration_curl_dumbbell",
+        "name": "concentration_curl",
         "category": "biceps",
         "secondaryMuscles": [
             "forearms"
@@ -456,7 +456,7 @@ export const BICEPS_EXERCISES: Exercise[] = [
         "mechanics": "isolation",
         "level": "intermediate",
         "parentId": 135,
-        "imageUrl": "/exercises/biceps/rosca_concentrada_halteres.png",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/biceps/concentration_curl.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -504,7 +504,7 @@ export const BICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 139,
-        "name": "preacher_curl_dumbbell",
+        "name": "dumbbell_preacher_curl",
         "category": "biceps",
         "secondaryMuscles": [
             "forearms"
@@ -514,7 +514,7 @@ export const BICEPS_EXERCISES: Exercise[] = [
         "mechanics": "isolation",
         "level": "intermediate",
         "parentId": 135,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/biceps/dumbbell_preacher_curl.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -562,7 +562,7 @@ export const BICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 140,
-        "name": "zotterman_curl_dumbbell",
+        "name": "zotterman_curl",
         "category": "biceps",
         "secondaryMuscles": [
             "forearms"
@@ -572,7 +572,7 @@ export const BICEPS_EXERCISES: Exercise[] = [
         "mechanics": "isolation",
         "level": "advanced",
         "parentId": null,
-        "imageUrl": "/exercises/antebracos/rosca_zottman.png",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/biceps/zotterman_curl.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -614,7 +614,7 @@ export const BICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 141,
-        "name": "cross_body_hammer_curl_dumbbell",
+        "name": "cross_body_hammer_curl",
         "category": "biceps",
         "secondaryMuscles": [
             "forearms"
@@ -624,7 +624,7 @@ export const BICEPS_EXERCISES: Exercise[] = [
         "mechanics": "isolation",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/biceps/cross_body_hammer_curl.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -672,7 +672,7 @@ export const BICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 142,
-        "name": "biceps_curl_straight_bar_cable",
+        "name": "cable_biceps_curl_straight_bar",
         "category": "biceps",
         "secondaryMuscles": [
             "forearms"
@@ -682,7 +682,7 @@ export const BICEPS_EXERCISES: Exercise[] = [
         "mechanics": "isolation",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/biceps/cable_biceps_curl_straight_bar.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -727,7 +727,7 @@ export const BICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 143,
-        "name": "rope_hammer_curl_cable",
+        "name": "cable_rope_hammer_curl",
         "category": "biceps",
         "secondaryMuscles": [
             "forearms"
@@ -737,7 +737,7 @@ export const BICEPS_EXERCISES: Exercise[] = [
         "mechanics": "isolation",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/biceps/cable_rope_hammer_curl.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -785,7 +785,7 @@ export const BICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 144,
-        "name": "high_biceps_curl_cable",
+        "name": "high_cable_biceps_curl",
         "category": "biceps",
         "secondaryMuscles": [
             "forearms"
@@ -795,7 +795,7 @@ export const BICEPS_EXERCISES: Exercise[] = [
         "mechanics": "isolation",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/biceps/high_cable_biceps_curl.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -840,7 +840,7 @@ export const BICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 145,
-        "name": "bayesian_curl_cable",
+        "name": "bayesian_curl",
         "category": "biceps",
         "secondaryMuscles": [
             "forearms"
@@ -850,7 +850,7 @@ export const BICEPS_EXERCISES: Exercise[] = [
         "mechanics": "isolation",
         "level": "advanced",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/biceps/bayesian_curl.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -892,7 +892,7 @@ export const BICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 146,
-        "name": "single_arm_curl_cable",
+        "name": "cable_single_arm_curl",
         "category": "biceps",
         "secondaryMuscles": [
             "forearms"
@@ -902,7 +902,7 @@ export const BICEPS_EXERCISES: Exercise[] = [
         "mechanics": "isolation",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/biceps/cable_single_arm_curl.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -950,7 +950,7 @@ export const BICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 147,
-        "name": "biceps_curl_machine",
+        "name": "machine_biceps_curl",
         "category": "biceps",
         "secondaryMuscles": [
             "forearms"
@@ -960,7 +960,7 @@ export const BICEPS_EXERCISES: Exercise[] = [
         "mechanics": "isolation",
         "level": "beginner",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/biceps/machine_biceps_curl.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -1017,7 +1017,7 @@ export const BICEPS_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/biceps/chin_up_biceps_focus.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -1065,7 +1065,7 @@ export const BICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 512,
-        "name": "reverse_curl_barbell",
+        "name": "reverse_barbell_curl",
         "category": "biceps",
         "secondaryMuscles": [
             "forearms"
@@ -1075,7 +1075,7 @@ export const BICEPS_EXERCISES: Exercise[] = [
         "mechanics": "isolation",
         "level": "intermediate",
         "parentId": 130,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/forearms/reverse_barbell_curl.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -1126,7 +1126,7 @@ export const BICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 529,
-        "name": "incline_hammer_curl_dumbbell",
+        "name": "incline_dumbbell_hammer_curl",
         "category": "biceps",
         "secondaryMuscles": [
             "forearms"
@@ -1136,7 +1136,7 @@ export const BICEPS_EXERCISES: Exercise[] = [
         "mechanics": "isolation",
         "level": "intermediate",
         "parentId": 136,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/biceps/incline_dumbbell_hammer_curl.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -1239,7 +1239,7 @@ export const BICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 531,
-        "name": "preacher_curl_cable",
+        "name": "cable_preacher_curl",
         "category": "biceps",
         "secondaryMuscles": [
             "forearms"
@@ -1249,7 +1249,7 @@ export const BICEPS_EXERCISES: Exercise[] = [
         "mechanics": "isolation",
         "level": "intermediate",
         "parentId": 132,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/biceps/cable_preacher_curl.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",

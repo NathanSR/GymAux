@@ -3,7 +3,7 @@ import { Exercise } from '../types';
 export const CALF_EXERCISES: Exercise[] = [
     {
         "id": 310,
-        "name": "standing_calf_raise_barbell",
+        "name": "standing_barbell_calf_raise",
         "category": "calves",
         "secondaryMuscles": [
             "quadriceps"
@@ -13,7 +13,7 @@ export const CALF_EXERCISES: Exercise[] = [
         "mechanics": "isolation",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/calves/standing_barbell_calf_raise.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -61,7 +61,7 @@ export const CALF_EXERCISES: Exercise[] = [
     },
     {
         "id": 311,
-        "name": "standing_calf_raise_machine",
+        "name": "standing_machine_calf_raise",
         "category": "calves",
         "secondaryMuscles": [
             "quadriceps"
@@ -71,7 +71,7 @@ export const CALF_EXERCISES: Exercise[] = [
         "mechanics": "isolation",
         "level": "beginner",
         "parentId": null,
-        "imageUrl": "/exercises/panturrilhas/gemeos_panturrilha_maquina.png",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/calves/standing_machine_calf_raise.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -119,7 +119,7 @@ export const CALF_EXERCISES: Exercise[] = [
     },
     {
         "id": 312,
-        "name": "single_leg_calf_raise_dumbbell",
+        "name": "dumbbell_single_leg_calf_raise",
         "category": "calves",
         "secondaryMuscles": [
             "quadriceps"
@@ -129,7 +129,7 @@ export const CALF_EXERCISES: Exercise[] = [
         "mechanics": "isolation",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/calves/dumbbell_single_leg_calf_raise.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -174,7 +174,7 @@ export const CALF_EXERCISES: Exercise[] = [
     },
     {
         "id": 313,
-        "name": "calf_raise_smith_machine",
+        "name": "smith_machine_calf_raise",
         "category": "calves",
         "secondaryMuscles": [
             "quadriceps"
@@ -184,7 +184,7 @@ export const CALF_EXERCISES: Exercise[] = [
         "mechanics": "isolation",
         "level": "beginner",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/calves/smith_machine_calf_raise.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -226,7 +226,7 @@ export const CALF_EXERCISES: Exercise[] = [
     },
     {
         "id": 314,
-        "name": "seated_calf_raise_machine",
+        "name": "seated_machine_calf_raise",
         "category": "calves",
         "secondaryMuscles": [
             "quadriceps"
@@ -236,7 +236,7 @@ export const CALF_EXERCISES: Exercise[] = [
         "mechanics": "isolation",
         "level": "beginner",
         "parentId": null,
-        "imageUrl": "/exercises/panturrilhas/gemeos_sentado_maquina.png",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/calves/seated_machine_calf_raise.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -284,7 +284,7 @@ export const CALF_EXERCISES: Exercise[] = [
     },
     {
         "id": 315,
-        "name": "seated_calf_raise_dumbbell",
+        "name": "seated_dumbbell_calf_raise",
         "category": "calves",
         "secondaryMuscles": [
             "quadriceps"
@@ -294,7 +294,7 @@ export const CALF_EXERCISES: Exercise[] = [
         "mechanics": "isolation",
         "level": "beginner",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/calves/seated_dumbbell_calf_raise.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -339,7 +339,7 @@ export const CALF_EXERCISES: Exercise[] = [
     },
     {
         "id": 316,
-        "name": "seated_calf_raise_barbell",
+        "name": "seated_barbell_calf_raise",
         "category": "calves",
         "secondaryMuscles": [
             "quadriceps"
@@ -349,7 +349,7 @@ export const CALF_EXERCISES: Exercise[] = [
         "mechanics": "isolation",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/calves/seated_barbell_calf_raise.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -397,7 +397,7 @@ export const CALF_EXERCISES: Exercise[] = [
     },
     {
         "id": 317,
-        "name": "leg_press_calf_press_machine",
+        "name": "leg_press_calf_press",
         "category": "calves",
         "secondaryMuscles": [
             "quadriceps",
@@ -408,7 +408,7 @@ export const CALF_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "/exercises/panturrilhas/extensao_panturrilha_maquina.png",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/calves/leg_press_calf_press.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -456,7 +456,7 @@ export const CALF_EXERCISES: Exercise[] = [
     },
     {
         "id": 318,
-        "name": "donkey_calf_raise_machine",
+        "name": "donkey_calf_raise",
         "category": "calves",
         "secondaryMuscles": [
             "quadriceps",
@@ -467,7 +467,7 @@ export const CALF_EXERCISES: Exercise[] = [
         "mechanics": "isolation",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/calves/donkey_calf_raise.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -515,7 +515,7 @@ export const CALF_EXERCISES: Exercise[] = [
     },
     {
         "id": 319,
-        "name": "hack_squat_calf_press_machine",
+        "name": "hack_squat_calf_press",
         "category": "calves",
         "secondaryMuscles": [
             "quadriceps",
@@ -526,7 +526,7 @@ export const CALF_EXERCISES: Exercise[] = [
         "mechanics": "isolation",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/calves/hack_squat_calf_press.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -581,7 +581,7 @@ export const CALF_EXERCISES: Exercise[] = [
         "mechanics": "isolation",
         "level": "beginner",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/calves/bodyweight_standing_calf_raise.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -642,7 +642,7 @@ export const CALF_EXERCISES: Exercise[] = [
         "mechanics": "isolation",
         "level": "beginner",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/calves/stair_calf_raise.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -700,7 +700,7 @@ export const CALF_EXERCISES: Exercise[] = [
         "mechanics": "isolation",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "/exercises/panturrilhas/tibial_anterior.png",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/calves/tibialis_raise.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -751,7 +751,7 @@ export const CALF_EXERCISES: Exercise[] = [
     },
     {
         "id": 323,
-        "name": "farmer_walk_on_toes_dumbbell",
+        "name": "farmer_walk_on_toes",
         "category": "calves",
         "secondaryMuscles": [
             "forearms",
@@ -763,7 +763,7 @@ export const CALF_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/calves/farmer_walk_on_toes.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",

@@ -3,7 +3,7 @@ import { Exercise } from '../types';
 export const QUADRICEPS_EXERCISES: Exercise[] = [
     {
         "id": 220,
-        "name": "back_squat_barbell",
+        "name": "barbell_back_squat",
         "category": "quadriceps",
         "secondaryMuscles": [
             "glutes",
@@ -16,7 +16,7 @@ export const QUADRICEPS_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "/exercises/quadriceps/agachamento_livre_barra.png",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/quadriceps/barbell_back_squat.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -67,7 +67,7 @@ export const QUADRICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 221,
-        "name": "front_squat_barbell",
+        "name": "barbell_front_squat",
         "category": "quadriceps",
         "secondaryMuscles": [
             "glutes",
@@ -80,7 +80,7 @@ export const QUADRICEPS_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "/exercises/quadriceps/agachamento_livre_halteres.png",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/quadriceps/barbell_front_squat.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -131,7 +131,7 @@ export const QUADRICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 222,
-        "name": "goblet_squat_dumbbell",
+        "name": "dumbbell_goblet_squat",
         "category": "quadriceps",
         "secondaryMuscles": [
             "glutes",
@@ -144,7 +144,7 @@ export const QUADRICEPS_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "beginner",
         "parentId": null,
-        "imageUrl": "/exercises/quadriceps/agachamento_taca_globet.png",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/quadriceps/dumbbell_goblet_squat.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -192,7 +192,7 @@ export const QUADRICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 223,
-        "name": "squat_smith_machine",
+        "name": "smith_machine_squat",
         "category": "quadriceps",
         "secondaryMuscles": [
             "glutes",
@@ -205,7 +205,7 @@ export const QUADRICEPS_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "beginner",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/quadriceps/smith_machine_squat.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -253,7 +253,7 @@ export const QUADRICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 224,
-        "name": "leg_press_45_machine",
+        "name": "leg_press_45",
         "category": "quadriceps",
         "secondaryMuscles": [
             "glutes",
@@ -266,7 +266,7 @@ export const QUADRICEPS_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "/exercises/quadriceps/agachamento_smith2.png",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/quadriceps/leg_press_45.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -327,7 +327,7 @@ export const QUADRICEPS_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "beginner",
         "parentId": null,
-        "imageUrl": "/exercises/quadriceps/agachamento_hack.png",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/quadriceps/hack_squat_machine.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -378,7 +378,7 @@ export const QUADRICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 226,
-        "name": "leg_extension_machine",
+        "name": "leg_extension",
         "category": "quadriceps",
         "secondaryMuscles": [
             "core"
@@ -388,7 +388,7 @@ export const QUADRICEPS_EXERCISES: Exercise[] = [
         "mechanics": "isolation",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "/exercises/quadriceps/legpress_90.png",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/quadriceps/leg_extension.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -452,7 +452,7 @@ export const QUADRICEPS_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "beginner",
         "parentId": null,
-        "imageUrl": "/exercises/quadriceps/cadeira_extensora.png",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/quadriceps/v_squat_machine.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -503,7 +503,7 @@ export const QUADRICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 228,
-        "name": "bulgarian_split_squat_dumbbell",
+        "name": "bulgarian_split_squat",
         "category": "quadriceps",
         "secondaryMuscles": [
             "glutes",
@@ -516,7 +516,7 @@ export const QUADRICEPS_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "advanced",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/quadriceps/bulgarian_split_squat.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -567,7 +567,7 @@ export const QUADRICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 229,
-        "name": "walking_lunge_barbell",
+        "name": "barbell_walking_lunge",
         "category": "quadriceps",
         "secondaryMuscles": [
             "glutes",
@@ -580,7 +580,7 @@ export const QUADRICEPS_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/quadriceps/barbell_walking_lunge.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -631,7 +631,7 @@ export const QUADRICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 230,
-        "name": "walking_lunge_dumbbell",
+        "name": "dumbbell_walking_lunge",
         "category": "quadriceps",
         "secondaryMuscles": [
             "glutes",
@@ -644,7 +644,7 @@ export const QUADRICEPS_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "/exercises/quadriceps/afundo_halteres.png",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/quadriceps/dumbbell_walking_lunge.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -692,7 +692,7 @@ export const QUADRICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 231,
-        "name": "step_up_dumbbell",
+        "name": "step_up",
         "category": "quadriceps",
         "secondaryMuscles": [
             "glutes",
@@ -705,7 +705,7 @@ export const QUADRICEPS_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "/exercises/posterior de coxa/agachamento_bulgaro.png",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/quadriceps/step_up.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -763,7 +763,7 @@ export const QUADRICEPS_EXERCISES: Exercise[] = [
         "mechanics": "isolation",
         "level": "intermediate",
         "parentId": 220,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/quadriceps/sissy_squat.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -817,7 +817,7 @@ export const QUADRICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 233,
-        "name": "zercher_squat_barbell",
+        "name": "zercher_squat",
         "category": "quadriceps",
         "secondaryMuscles": [
             "glutes",
@@ -830,7 +830,7 @@ export const QUADRICEPS_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "advanced",
         "parentId": 220,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/quadriceps/zercher_squat.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -894,7 +894,7 @@ export const QUADRICEPS_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/quadriceps/landmine_squat.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -942,7 +942,7 @@ export const QUADRICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 235,
-        "name": "reverse_lunge_dumbbell",
+        "name": "dumbbell_reverse_lunge",
         "category": "quadriceps",
         "secondaryMuscles": [
             "glutes",
@@ -955,7 +955,7 @@ export const QUADRICEPS_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/quadriceps/dumbbell_reverse_lunge.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -1003,7 +1003,7 @@ export const QUADRICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 534,
-        "name": "box_squat_barbell",
+        "name": "barbell_box_squat",
         "category": "quadriceps",
         "secondaryMuscles": [
             "glutes",
@@ -1016,7 +1016,7 @@ export const QUADRICEPS_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": 220,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/quadriceps/barbell_box_squat.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -1067,7 +1067,7 @@ export const QUADRICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 537,
-        "name": "reverse_lunge_dumbbell",
+        "name": "reverse_lunge",
         "category": "quadriceps",
         "secondaryMuscles": [
             "glutes",
@@ -1080,7 +1080,7 @@ export const QUADRICEPS_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "beginner",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/quadriceps/reverse_lunge.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -1128,7 +1128,7 @@ export const QUADRICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 538,
-        "name": "trap_bar_deadlift_barbell",
+        "name": "trap_bar_deadlift",
         "category": "quadriceps",
         "secondaryMuscles": [
             "glutes",
@@ -1142,7 +1142,7 @@ export const QUADRICEPS_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": 70,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/glutes/trap_bar_deadlift.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -1187,7 +1187,7 @@ export const QUADRICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 539,
-        "name": "deadlift_dumbbell",
+        "name": "dumbbell_deadlift",
         "category": "quadriceps",
         "secondaryMuscles": [
             "glutes",
@@ -1201,7 +1201,7 @@ export const QUADRICEPS_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "beginner",
         "parentId": 70,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/glutes/dumbbell_deadlift.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -1256,7 +1256,7 @@ export const QUADRICEPS_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "advanced",
         "parentId": 220,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/quadriceps/pistol_squat.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -1326,7 +1326,7 @@ export const QUADRICEPS_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "advanced",
         "parentId": 220,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/quadriceps/shrimp_squat.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -1396,7 +1396,7 @@ export const QUADRICEPS_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "beginner",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/cardio/box_jump.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -1457,7 +1457,7 @@ export const QUADRICEPS_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": 577,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/cardio/box_jump_over.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -1505,7 +1505,7 @@ export const QUADRICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 587,
-        "name": "overhead_squat_barbell",
+        "name": "overhead_squat",
         "category": "quadriceps",
         "secondaryMuscles": [
             "glutes",
@@ -1518,7 +1518,7 @@ export const QUADRICEPS_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "advanced",
         "parentId": 220,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/quadriceps/overhead_squat.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -1582,7 +1582,7 @@ export const QUADRICEPS_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "beginner",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/quadriceps/sled_push.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -1624,7 +1624,7 @@ export const QUADRICEPS_EXERCISES: Exercise[] = [
     },
     {
         "id": 602,
-        "name": "box_step_up_dumbbell",
+        "name": "dumbbell_box_step_up",
         "category": "quadriceps",
         "secondaryMuscles": [
             "glutes",
@@ -1637,7 +1637,7 @@ export const QUADRICEPS_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "beginner",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/quadriceps/dumbbell_box_step_up.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",

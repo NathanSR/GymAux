@@ -3,7 +3,7 @@ import { Exercise } from '../types';
 export const HAMSTRING_EXERCISES: Exercise[] = [
     {
         "id": 250,
-        "name": "stiff_leg_deadlift_barbell",
+        "name": "barbell_stiff_leg_deadlift",
         "category": "hamstrings",
         "secondaryMuscles": [
             "glutes",
@@ -16,7 +16,7 @@ export const HAMSTRING_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/hamstrings/barbell_stiff_leg_deadlift.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -67,7 +67,7 @@ export const HAMSTRING_EXERCISES: Exercise[] = [
     },
     {
         "id": 251,
-        "name": "stiff_leg_deadlift_dumbbell",
+        "name": "dumbbell_stiff_leg_deadlift",
         "category": "hamstrings",
         "secondaryMuscles": [
             "glutes",
@@ -80,7 +80,7 @@ export const HAMSTRING_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/hamstrings/dumbbell_stiff_leg_deadlift.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -128,7 +128,7 @@ export const HAMSTRING_EXERCISES: Exercise[] = [
     },
     {
         "id": 252,
-        "name": "romanian_deadlift_barbell",
+        "name": "barbell_romanian_deadlift",
         "category": "hamstrings",
         "secondaryMuscles": [
             "glutes",
@@ -141,7 +141,7 @@ export const HAMSTRING_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/hamstrings/barbell_romanian_deadlift.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -204,7 +204,7 @@ export const HAMSTRING_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "advanced",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/hamstrings/good_morning_barbell.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -266,7 +266,7 @@ export const HAMSTRING_EXERCISES: Exercise[] = [
         "mechanics": "isolation",
         "level": "beginner",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/hamstrings/lying_leg_curl_machine.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -328,7 +328,7 @@ export const HAMSTRING_EXERCISES: Exercise[] = [
         "mechanics": "isolation",
         "level": "beginner",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/hamstrings/seated_leg_curl_machine.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -379,7 +379,7 @@ export const HAMSTRING_EXERCISES: Exercise[] = [
     },
     {
         "id": 256,
-        "name": "standing_single_leg_curl_machine",
+        "name": "standing_leg_curl",
         "category": "hamstrings",
         "secondaryMuscles": [
             "calves",
@@ -390,7 +390,7 @@ export const HAMSTRING_EXERCISES: Exercise[] = [
         "mechanics": "isolation",
         "level": "beginner",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/hamstrings/standing_leg_curl.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -455,7 +455,7 @@ export const HAMSTRING_EXERCISES: Exercise[] = [
         "mechanics": "isolation",
         "level": "advanced",
         "parentId": null,
-        "imageUrl": "/exercises/posterior de coxa/stiff.png",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/hamstrings/nordic_hamstring_curl.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -520,7 +520,7 @@ export const HAMSTRING_EXERCISES: Exercise[] = [
         "mechanics": "isolation",
         "level": "beginner",
         "parentId": null,
-        "imageUrl": "/exercises/posterior de coxa/levantamento_terra_sumo.png",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/hamstrings/sliding_leg_curl_towel.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -585,7 +585,7 @@ export const HAMSTRING_EXERCISES: Exercise[] = [
         "mechanics": "isolation",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/hamstrings/stability_ball_leg_curl.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -633,7 +633,7 @@ export const HAMSTRING_EXERCISES: Exercise[] = [
     },
     {
         "id": 260,
-        "name": "glute_ham_raise_machine",
+        "name": "glute_ham_raise",
         "category": "hamstrings",
         "secondaryMuscles": [
             "glutes",
@@ -645,7 +645,7 @@ export const HAMSTRING_EXERCISES: Exercise[] = [
         "mechanics": "isolation",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "/exercises/posterior de coxa/mesa_flexora.png",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/hamstrings/glute_ham_raise.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -696,7 +696,7 @@ export const HAMSTRING_EXERCISES: Exercise[] = [
     },
     {
         "id": 261,
-        "name": "single_leg_romanian_deadlift_dumbbell",
+        "name": "single_leg_rdl",
         "category": "hamstrings",
         "secondaryMuscles": [
             "glutes",
@@ -709,7 +709,7 @@ export const HAMSTRING_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "/exercises/posterior de coxa/elevacao_quadril_unilateral.png",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/hamstrings/single_leg_rdl.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -760,7 +760,7 @@ export const HAMSTRING_EXERCISES: Exercise[] = [
     },
     {
         "id": 262,
-        "name": "pull_through_cable",
+        "name": "cable_pull_through",
         "category": "hamstrings",
         "secondaryMuscles": [
             "glutes",
@@ -772,7 +772,7 @@ export const HAMSTRING_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "/exercises/posterior de coxa/elevacao_pelvica_maquina.png",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/hamstrings/cable_pull_through.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -817,7 +817,7 @@ export const HAMSTRING_EXERCISES: Exercise[] = [
     },
     {
         "id": 263,
-        "name": "leg_curl_lying_dumbbell",
+        "name": "dumbbell_leg_curl_lying",
         "category": "hamstrings",
         "secondaryMuscles": [
             "calves",
@@ -828,7 +828,7 @@ export const HAMSTRING_EXERCISES: Exercise[] = [
         "mechanics": "isolation",
         "level": "beginner",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/hamstrings/dumbbell_leg_curl_lying.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -876,7 +876,7 @@ export const HAMSTRING_EXERCISES: Exercise[] = [
     },
     {
         "id": 264,
-        "name": "swing_kettlebell",
+        "name": "kettlebell_swing",
         "category": "hamstrings",
         "secondaryMuscles": [
             "glutes",
@@ -889,7 +889,7 @@ export const HAMSTRING_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "/exercises/posterior de coxa/kettlebell_swing.png",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/hamstrings/kettlebell_swing.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -937,7 +937,7 @@ export const HAMSTRING_EXERCISES: Exercise[] = [
     },
     {
         "id": 515,
-        "name": "stiff_leg_deadlift_smith_machine",
+        "name": "smith_stiff_leg_deadlift",
         "category": "hamstrings",
         "secondaryMuscles": [
             "glutes",
@@ -950,7 +950,7 @@ export const HAMSTRING_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": 252,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/hamstrings/smith_stiff_leg_deadlift.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -998,7 +998,7 @@ export const HAMSTRING_EXERCISES: Exercise[] = [
     },
     {
         "id": 541,
-        "name": "rdl_dumbbell",
+        "name": "dumbbell_rdl",
         "category": "hamstrings",
         "secondaryMuscles": [
             "glutes",
@@ -1011,7 +1011,7 @@ export const HAMSTRING_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "beginner",
         "parentId": 251,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/hamstrings/dumbbell_rdl.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",

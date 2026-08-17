@@ -3,7 +3,7 @@ import { Exercise } from '../types';
 export const FOREARM_EXERCISES: Exercise[] = [
     {
         "id": 190,
-        "name": "wrist_curl_barbell",
+        "name": "barbell_wrist_curl",
         "category": "forearms",
         "secondaryMuscles": [
             "biceps"
@@ -13,7 +13,7 @@ export const FOREARM_EXERCISES: Exercise[] = [
         "mechanics": "isolation",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "/exercises/antebracos/flexao_punho_supinado_barra.png",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/forearms/barbell_wrist_curl.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -64,7 +64,7 @@ export const FOREARM_EXERCISES: Exercise[] = [
     },
     {
         "id": 191,
-        "name": "reverse_wrist_curl_barbell",
+        "name": "barbell_reverse_wrist_curl",
         "category": "forearms",
         "secondaryMuscles": [
             "biceps"
@@ -74,7 +74,7 @@ export const FOREARM_EXERCISES: Exercise[] = [
         "mechanics": "isolation",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/forearms/barbell_reverse_wrist_curl.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -125,7 +125,7 @@ export const FOREARM_EXERCISES: Exercise[] = [
     },
     {
         "id": 192,
-        "name": "wrist_curl_dumbbell",
+        "name": "dumbbell_wrist_curl",
         "category": "forearms",
         "secondaryMuscles": [
             "biceps"
@@ -135,7 +135,7 @@ export const FOREARM_EXERCISES: Exercise[] = [
         "mechanics": "isolation",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/forearms/dumbbell_wrist_curl.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -186,7 +186,7 @@ export const FOREARM_EXERCISES: Exercise[] = [
     },
     {
         "id": 193,
-        "name": "reverse_wrist_curl_dumbbell",
+        "name": "dumbbell_reverse_wrist_curl",
         "category": "forearms",
         "secondaryMuscles": [
             "biceps"
@@ -196,7 +196,7 @@ export const FOREARM_EXERCISES: Exercise[] = [
         "mechanics": "isolation",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/forearms/dumbbell_reverse_wrist_curl.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -247,7 +247,7 @@ export const FOREARM_EXERCISES: Exercise[] = [
     },
     {
         "id": 194,
-        "name": "standing_behind_back_wrist_curl_barbell",
+        "name": "standing_behind_back_wrist_curl",
         "category": "forearms",
         "secondaryMuscles": [
             "biceps"
@@ -257,7 +257,7 @@ export const FOREARM_EXERCISES: Exercise[] = [
         "mechanics": "isolation",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "/exercises/antebracos/rosca_inversa_polia.png",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/forearms/standing_behind_back_wrist_curl.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -308,7 +308,7 @@ export const FOREARM_EXERCISES: Exercise[] = [
     },
     {
         "id": 195,
-        "name": "radial_deviation_dumbbell",
+        "name": "dumbbell_radial_deviation",
         "category": "forearms",
         "secondaryMuscles": [
             "biceps"
@@ -318,7 +318,7 @@ export const FOREARM_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/forearms/dumbbell_radial_deviation.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -363,7 +363,7 @@ export const FOREARM_EXERCISES: Exercise[] = [
     },
     {
         "id": 196,
-        "name": "ulnar_deviation_dumbbell",
+        "name": "dumbbell_ulnar_deviation",
         "category": "forearms",
         "secondaryMuscles": [
             "biceps"
@@ -373,7 +373,7 @@ export const FOREARM_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/forearms/dumbbell_ulnar_deviation.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -418,7 +418,7 @@ export const FOREARM_EXERCISES: Exercise[] = [
     },
     {
         "id": 197,
-        "name": "wrist_curl_cable",
+        "name": "cable_wrist_curl",
         "category": "forearms",
         "secondaryMuscles": [
             "biceps"
@@ -428,7 +428,7 @@ export const FOREARM_EXERCISES: Exercise[] = [
         "mechanics": "isolation",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/forearms/cable_wrist_curl.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -476,7 +476,7 @@ export const FOREARM_EXERCISES: Exercise[] = [
     },
     {
         "id": 198,
-        "name": "reverse_wrist_curl_cable",
+        "name": "cable_reverse_wrist_curl",
         "category": "forearms",
         "secondaryMuscles": [
             "biceps"
@@ -486,7 +486,7 @@ export const FOREARM_EXERCISES: Exercise[] = [
         "mechanics": "isolation",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/forearms/cable_reverse_wrist_curl.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -544,7 +544,7 @@ export const FOREARM_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/forearms/wrist_roller.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -589,7 +589,7 @@ export const FOREARM_EXERCISES: Exercise[] = [
     },
     {
         "id": 200,
-        "name": "farmers_walk_dumbbell",
+        "name": "farmers_walk",
         "category": "forearms",
         "secondaryMuscles": [
             "core",
@@ -602,7 +602,7 @@ export const FOREARM_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "/exercises/cardio_e_multiarticulares/farmer_walker.png",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/forearms/farmers_walk.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -662,7 +662,7 @@ export const FOREARM_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/forearms/plate_pinch_hold.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -722,7 +722,7 @@ export const FOREARM_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "/exercises/cardio_e_multiarticulares/suspensao_barra.png",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/forearms/dead_hang.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -788,7 +788,7 @@ export const FOREARM_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "advanced",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/forearms/towel_pull_up_hang.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",
@@ -842,7 +842,7 @@ export const FOREARM_EXERCISES: Exercise[] = [
     },
     {
         "id": 204,
-        "name": "pronation_supination_dumbbell",
+        "name": "dumbbell_pronation_supination",
         "category": "forearms",
         "secondaryMuscles": [
             "biceps"
@@ -852,7 +852,7 @@ export const FOREARM_EXERCISES: Exercise[] = [
         "mechanics": "compound",
         "level": "intermediate",
         "parentId": null,
-        "imageUrl": "null",
+        "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/forearms/dumbbell_pronation_supination.webp",
         "videoUrl": "null",
         "gallery": [],
         "created_by_type": "system",

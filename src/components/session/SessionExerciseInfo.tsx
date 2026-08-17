@@ -43,12 +43,15 @@ export function SessionExerciseInfo({
     const tw = useTranslations('WorkoutForm');
     const tc = useTranslations('Categories');
 
-    const mediaUrl = currentExerciseDetails?.imageUrl || currentExerciseDetails?.videoUrl;
+    const rawMediaUrl = currentExerciseDetails?.imageUrl || currentExerciseDetails?.videoUrl;
+    const mediaUrl = (rawMediaUrl && rawMediaUrl !== 'null' && rawMediaUrl !== 'undefined' && rawMediaUrl.trim() !== '') ? rawMediaUrl : null;
     const category = currentExerciseDetails?.category;
 
     const groupStyle = GROUP_CONFIG[currentGroup?.groupType || 'straight'] || GROUP_CONFIG.straight;
 
     const renderExerciseMedia = () => {
+        const categoryMeta = category ? CATEGORY_METADATA[category as CategoryType] : null;
+
         if (mediaUrl) {
             const isVideo = mediaUrl.endsWith('.mp4') || mediaUrl.endsWith('.webm');
             return (
@@ -65,15 +68,31 @@ export function SessionExerciseInfo({
                     ) : (
                         <img
                             src={mediaUrl}
-                            alt="Tutorial"
+                            alt={currentExerciseDetails?.name || "Tutorial"}
                             className="w-full h-full object-cover"
+                            onError={(e) => {
+                                e.currentTarget.style.display = 'none';
+                                const fallback = e.currentTarget.parentElement?.querySelector('.media-fallback');
+                                if (fallback) fallback.classList.remove('hidden');
+                            }}
                         />
                     )}
+                    <div className="media-fallback hidden absolute inset-0 flex flex-col items-center justify-center bg-zinc-100 dark:bg-zinc-950 p-2">
+                        {categoryMeta?.imagePath ? (
+                            <img
+                                src={categoryMeta.imagePath}
+                                alt={tc(category as CategoryType)}
+                                className="w-full h-full object-contain drop-shadow-[0_0_25px_rgba(163,230,71,0.2)] select-none"
+                            />
+                        ) : (
+                            <div className="w-16 h-16 rounded-full border border-lime-400/20 flex items-center justify-center bg-lime-400/5 text-lime-400">
+                                <Dumbbell size={28} />
+                            </div>
+                        )}
+                    </div>
                 </div>
             );
         }
-
-        const categoryMeta = category ? CATEGORY_METADATA[category as CategoryType] : null;
 
         if (categoryMeta) {
             return (
