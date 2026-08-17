@@ -281,15 +281,18 @@ export default function AdminExercisesClient({ initialExercises, initialTotalCou
                     slug: {ex.name}
                   </code>
 
-                  {ex.description ? (
-                    <p className="text-xs text-zinc-400 leading-relaxed line-clamp-2 mb-4">
-                      {ex.description}
-                    </p>
-                  ) : (
-                    <p className="text-xs text-zinc-650 italic leading-relaxed mb-4">
-                      Sem descrição cadastrada.
-                    </p>
-                  )}
+                  {(() => {
+                    const desc = getExerciseLocalized(ex, locale).description || ex.description;
+                    return desc ? (
+                      <p className="text-xs text-zinc-400 leading-relaxed line-clamp-2 mb-4">
+                        {desc}
+                      </p>
+                    ) : (
+                      <p className="text-xs text-zinc-650 italic leading-relaxed mb-4">
+                        Sem descrição cadastrada.
+                      </p>
+                    );
+                  })()}
 
                   {/* Tags list */}
                   {ex.tags && ex.tags.length > 0 && (

@@ -56,6 +56,32 @@ export function getExerciseLocalized(
 }
 
 /**
+ * Retorna o nome localizado de um exercício a partir de seu ID, objeto Exercise ou fallback.
+ */
+export function getLocalizedExerciseName(params: {
+    exercise?: Exercise | null;
+    exerciseId?: number | null;
+    fallbackName?: string;
+    exercisesMap?: Map<number, Exercise> | Record<number, Exercise>;
+    locale?: string;
+}): string {
+    const { exercise, exerciseId, fallbackName = '', exercisesMap, locale = 'pt' } = params;
+
+    if (exercise) {
+        return getExerciseLocalized(exercise, locale).name || fallbackName || exercise.name || '';
+    }
+
+    if (exerciseId && exercisesMap) {
+        const found = exercisesMap instanceof Map ? exercisesMap.get(exerciseId) : exercisesMap[exerciseId];
+        if (found) {
+            return getExerciseLocalized(found, locale).name || fallbackName || found.name || '';
+        }
+    }
+
+    return fallbackName;
+}
+
+/**
  * Retorna uma lista limpa de passos de instrução (array de strings) a partir do howTo localizado.
  */
 export function getLocalizedInstructions(
@@ -98,3 +124,7 @@ export function matchesExerciseSearch(
         tags.some(tag => tag.toLowerCase().includes(cleanQuery))
     );
 }
+
+// Re-export hook and component for convenience
+export { useExerciseLocalization } from '@/hooks/useExerciseLocalization';
+export { LocalizedExerciseName } from '@/components/ui/LocalizedExerciseName';

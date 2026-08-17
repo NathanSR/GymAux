@@ -6,7 +6,7 @@ import { useTranslations, useLocale } from 'next-intl';
 import { Exercise } from '@/config/types';
 import { ExerciseService } from '@/services/exerciseService';
 import { Drawer } from '@/components/ui/Drawer';
-import { getExerciseLocalized } from '@/utils/exerciseLocalization';
+import { getExerciseLocalized, useExerciseLocalization } from '@/utils/exerciseLocalization';
 
 interface SessionSubstituteModalProps {
     isOpen: boolean;
@@ -31,6 +31,9 @@ export function SessionSubstituteModal({
     const tc = useTranslations('Categories');
     const tEq = useTranslations('Equipment');
     const tLvl = useTranslations('Levels');
+    const { getLocalizedName } = useExerciseLocalization();
+
+    const localizedCurrentName = getLocalizedName(exerciseId, exerciseName || undefined);
 
     const [isLoading, setIsLoading] = useState(false);
     const [alternatives, setAlternatives] = useState<Exercise[]>([]);
@@ -119,7 +122,7 @@ export function SessionSubstituteModal({
             title={<h3 className="text-base font-black uppercase italic tracking-tighter text-zinc-900 dark:text-white">{t('title')}</h3>}
             subtitle={
                 <p className="text-[10px] text-zinc-500 dark:text-zinc-400 font-bold uppercase tracking-wider">
-                    {t('substituteFor', { name: exerciseName || '' })}
+                    {t('substituteFor', { name: localizedCurrentName || '' })}
                 </p>
             }
             bodyClassName="p-6 flex flex-col justify-between"

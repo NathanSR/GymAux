@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { Modal } from '@/components/ui/Modal';
 import { ExerciseGroup } from '@/config/types';
 import { ExerciseConfigForm } from './ExerciseConfigForm';
+import { useExerciseLocalization } from '@/hooks/useExerciseLocalization';
 
 interface ExerciseConfigModalProps {
     isOpen: boolean;
@@ -22,11 +23,10 @@ export const ExerciseConfigModal: React.FC<ExerciseConfigModalProps> = ({
     zIndex = "z-[150]"
 }) => {
     const t = useTranslations('WorkoutForm');
-    const te = useTranslations('Exercises');
+    const { getLocalizedName } = useExerciseLocalization();
 
-    const titleText = groupData?.exercises?.[0]?.exerciseName
-        ? (te.has(groupData.exercises[0].exerciseName) ? te(groupData.exercises[0].exerciseName) : groupData.exercises[0].exerciseName)
-        : t('selectExercise');
+    const firstEx = groupData?.exercises?.[0];
+    const titleText = getLocalizedName(firstEx?.exerciseId, firstEx?.exerciseName) || t('selectExercise');
 
     return (
         <Modal

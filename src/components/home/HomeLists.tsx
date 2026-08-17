@@ -19,6 +19,7 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '@/config/db';
 import { ListSkeleton } from '../ui/Skeleton';
 import ConnectionConfirmationModal from '@/components/home/ConnectionConfirmationModal';
+import { LocalizedExerciseName } from '@/components/ui/LocalizedExerciseName';
 
 export function HomeLists({
     historyList: initialHistoryList,
@@ -206,8 +207,6 @@ export function HomeLists({
                                                     const nextGroup = session.exercisesToDo[session.current?.groupIndex || 0];
                                                     const nextExercise = nextGroup?.exercises?.[session.current?.exerciseIndex || 0];
                                                     if (!nextExercise) return t('next');
-                                                    const name = nextExercise.exerciseName;
-                                                    const baseName = name && te.has(name) ? te(name) : name || t('next');
                                                     
                                                     const currentVar = nextExercise.variation || 'none';
                                                     const currentMode = nextExercise.executionMode || 'bilateral';
@@ -219,10 +218,15 @@ export function HomeLists({
                                                     if (currentMode !== 'bilateral') {
                                                         parts.push(tw(`executionModes.${currentMode}`));
                                                     }
-                                                    if (parts.length > 0) {
-                                                        return `${baseName} (${parts.join(' • ')})`;
-                                                    }
-                                                    return baseName;
+                                                    const suffix = parts.length > 0 ? ` (${parts.join(' • ')})` : null;
+
+                                                    return (
+                                                        <LocalizedExerciseName
+                                                            exerciseId={nextExercise.exerciseId}
+                                                            fallbackName={nextExercise.exerciseName || t('next')}
+                                                            suffix={suffix}
+                                                        />
+                                                    );
                                                 })()}
                                             </p>
                                         </div>

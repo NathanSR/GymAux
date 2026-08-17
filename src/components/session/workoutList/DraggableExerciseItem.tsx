@@ -5,6 +5,7 @@ import { Check, GripVertical, Trash2, Pencil, RefreshCw, Activity } from "lucide
 import { useTranslations } from 'next-intl';
 import { ExerciseGroup } from '@/config/types';
 import { motion } from 'framer-motion';
+import { LocalizedExerciseName } from '@/components/ui/LocalizedExerciseName';
 
 interface DraggableExerciseItemProps {
     group: ExerciseGroup;
@@ -107,32 +108,34 @@ export const DraggableExerciseItem = ({
                             {isAlternating && (
                                 <div className="absolute left-0 top-2 bottom-2 w-0.5 bg-lime-500/20 rounded-full" />
                             )}
-                            {group.exercises.map((ex, exIdx) => (
-                                <div key={exIdx} className="relative flex items-center gap-2">
-                                    {isAlternating && (
-                                        <div className="absolute -left-[19px] top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-lime-500/40" />
-                                    )}
-                                    <p className={`font-black text-xs sm:text-sm uppercase italic tracking-tight truncate ${isCurrent ? 'text-zinc-900 dark:text-white' : 'text-zinc-700 dark:text-zinc-400'}`}>
-                                        {(() => {
-                                            const baseName = te.has(ex.exerciseName) ? te(ex.exerciseName) : ex.exerciseName;
-                                            const currentVar = ex.variation || 'none';
-                                            const currentMode = ex.executionMode || 'bilateral';
-                                            const parts = [];
-                                            if (currentVar !== 'none') {
-                                                const isPredefined = ['none', 'barbell', 'dumbbell', 'cable', 'machine', 'smith'].includes(currentVar);
-                                                parts.push(isPredefined ? tw(`variationOptions.${currentVar}`) : currentVar);
-                                            }
-                                            if (currentMode !== 'bilateral') {
-                                                parts.push(tw(`executionModes.${currentMode}`));
-                                            }
-                                            if (parts.length > 0) {
-                                                return `${baseName} (${parts.join(' • ')})`;
-                                            }
-                                            return baseName;
-                                        })()}
-                                    </p>
-                                </div>
-                            ))}
+                            {group.exercises.map((ex, exIdx) => {
+                                const currentVar = ex.variation || 'none';
+                                const currentMode = ex.executionMode || 'bilateral';
+                                const parts = [];
+                                if (currentVar !== 'none') {
+                                    const isPredefined = ['none', 'barbell', 'dumbbell', 'cable', 'machine', 'smith'].includes(currentVar);
+                                    parts.push(isPredefined ? tw(`variationOptions.${currentVar}`) : currentVar);
+                                }
+                                if (currentMode !== 'bilateral') {
+                                    parts.push(tw(`executionModes.${currentMode}`));
+                                }
+                                const suffix = parts.length > 0 ? ` (${parts.join(' • ')})` : null;
+
+                                return (
+                                    <div key={exIdx} className="relative flex items-center gap-2">
+                                        {isAlternating && (
+                                            <div className="absolute -left-[19px] top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-lime-500/40" />
+                                        )}
+                                        <p className={`font-black text-xs sm:text-sm uppercase italic tracking-tight truncate ${isCurrent ? 'text-zinc-900 dark:text-white' : 'text-zinc-700 dark:text-zinc-400'}`}>
+                                            <LocalizedExerciseName
+                                                exerciseId={ex.exerciseId}
+                                                fallbackName={ex.exerciseName}
+                                                suffix={suffix}
+                                            />
+                                        </p>
+                                    </div>
+                                );
+                            })}
                         </div>
                         <div className="flex items-center gap-2 mt-1">
                             <span className="text-[10px] text-zinc-500 dark:text-zinc-400 font-bold uppercase tracking-wider">

@@ -8,6 +8,7 @@ import { useTranslations, useLocale } from "next-intl";
 import { Modal } from "@/components/ui/Modal";
 import { WorkoutShareModal } from "@/components/share/WorkoutShareModal";
 import { mapHistoryToShareData } from "@/utils/shareUtil";
+import { LocalizedExerciseName } from "@/components/ui/LocalizedExerciseName";
 
 interface WorkoutHistoryModalProps {
     selectedWorkouts?: History[] | null;
@@ -192,32 +193,33 @@ export function WorkoutHistoryModal({ selectedWorkouts, onClose, initialActiveWo
                                     </div>
                                 )}
 
-                                {group.exercises.map((ex, ei) => (
-                                    <div key={ei} className="bg-zinc-50 dark:bg-zinc-950 p-6 rounded-[2.5rem] border border-zinc-100 dark:border-zinc-800">
-                                        <div className="flex items-center gap-3 mb-4">
-                                            <div className="w-8 h-8 rounded-xl bg-lime-400 text-zinc-950 flex items-center justify-center">
-                                                <Activity size={16} />
+                                {group.exercises.map((ex, ei) => {
+                                    const currentVar = ex.variation || 'none';
+                                    const currentMode = ex.executionMode || 'bilateral';
+                                    const parts = [];
+                                    if (currentVar !== 'none') {
+                                        const isPredefined = ['none', 'barbell', 'dumbbell', 'cable', 'machine', 'smith'].includes(currentVar);
+                                        parts.push(isPredefined ? tw(`variationOptions.${currentVar}`) : currentVar);
+                                    }
+                                    if (currentMode !== 'bilateral') {
+                                        parts.push(tw(`executionModes.${currentMode}`));
+                                    }
+                                    const suffix = parts.length > 0 ? ` (${parts.join(' • ')})` : null;
+
+                                    return (
+                                        <div key={ei} className="bg-zinc-50 dark:bg-zinc-950 p-6 rounded-[2.5rem] border border-zinc-100 dark:border-zinc-800">
+                                            <div className="flex items-center gap-3 mb-4">
+                                                <div className="w-8 h-8 rounded-xl bg-lime-400 text-zinc-950 flex items-center justify-center">
+                                                    <Activity size={16} />
+                                                </div>
+                                                <span className="text-sm font-black uppercase italic tracking-tight">
+                                                    <LocalizedExerciseName
+                                                        exerciseId={ex.exerciseId}
+                                                        fallbackName={ex.exerciseName}
+                                                        suffix={suffix}
+                                                    />
+                                                </span>
                                             </div>
-                                            <span className="text-sm font-black uppercase italic tracking-tight">
-                                                {(() => {
-                                                    const baseName = te.has(ex.exerciseName) ? te(ex.exerciseName) : ex.exerciseName;
-                                                    const currentVar = ex.variation || 'none';
-                                                    const currentMode = ex.executionMode || 'bilateral';
-                                                    const parts = [];
-                                                    if (currentVar !== 'none') {
-                                                        const isPredefined = ['none', 'barbell', 'dumbbell', 'cable', 'machine', 'smith'].includes(currentVar);
-                                                        parts.push(isPredefined ? tw(`variationOptions.${currentVar}`) : currentVar);
-                                                    }
-                                                    if (currentMode !== 'bilateral') {
-                                                        parts.push(tw(`executionModes.${currentMode}`));
-                                                    }
-                                                    if (parts.length > 0) {
-                                                        return `${baseName} (${parts.join(' • ')})`;
-                                                    }
-                                                    return baseName;
-                                                })()}
-                                            </span>
-                                        </div>
                                         <div className="space-y-2">
                                             {ex.sets.map((set, si) => (
                                                 <div key={si} className="flex flex-col bg-white dark:bg-zinc-900/50 px-4 py-3 rounded-2xl gap-1.5">
@@ -269,7 +271,8 @@ export function WorkoutHistoryModal({ selectedWorkouts, onClose, initialActiveWo
                                             ))}
                                         </div>
                                     </div>
-                                ))}
+                                );
+                            })}
                             </div>
                         ))}
                     </div>

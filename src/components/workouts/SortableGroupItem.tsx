@@ -6,6 +6,7 @@ import { useSortable } from '@dnd-kit/sortable';
 import { useWatch, useFormContext } from 'react-hook-form';
 import { motion } from 'framer-motion';
 import { Dumbbell, GripVertical, Trash2, Edit3, NotebookPen, Zap, Clock, Repeat } from 'lucide-react';
+import { LocalizedExerciseName } from '@/components/ui/LocalizedExerciseName';
 
 interface SortableGroupItemProps {
     group: any;
@@ -138,11 +139,11 @@ export const SortableGroupItem = memo(({
                         {exercisesInGroup.map((ex: any, idx: number) => (
                             <div key={idx} className="flex items-center gap-2">
                                 <Dumbbell size={14} className="text-lime-500 shrink-0" />
-                                <span className="font-black text-xs uppercase tracking-tight text-zinc-800 dark:text-zinc-200 truncate">
-                                    {ex.exerciseName
-                                        ? (te.has(ex.exerciseName) ? te(ex.exerciseName) : ex.exerciseName)
-                                        : t('selectExercise')}
-                                </span>
+                                <LocalizedExerciseName
+                                    exerciseId={ex.exerciseId}
+                                    fallbackName={ex.exerciseName || t('selectExercise')}
+                                    className="font-black text-xs uppercase tracking-tight text-zinc-800 dark:text-zinc-200 truncate"
+                                />
                             </div>
                         ))}
                     </div>

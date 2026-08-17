@@ -23,7 +23,7 @@ export const ExerciseInstructionModal = ({ isOpen, onClose, exercise }: Exercise
 
     const localized = exercise ? getExerciseLocalized(exercise, locale) : null;
     const instructions = exercise ? getLocalizedInstructions(exercise, locale) : [];
-    const exerciseName = localized?.name || (exercise?.name ? (te.has(exercise.name) ? te(exercise.name) : exercise.name) : '');
+    const exerciseName = localized?.name || exercise?.name || '';
 
     return (
         <Modal

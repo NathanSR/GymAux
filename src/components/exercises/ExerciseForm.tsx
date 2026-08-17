@@ -33,6 +33,7 @@ import { useSession } from '@/hooks/useSession';
 import { connectionService } from '@/services/connectionService';
 import { taxonomyService } from '@/services/taxonomyService';
 import { Globe } from 'lucide-react';
+import { getExerciseLocalized } from '@/utils/exerciseLocalization';
 
 const SUPPORTED_LOCALES = [
     { code: 'pt', label: 'Português', flag: '🇧🇷' },
@@ -537,7 +538,7 @@ export default function ExerciseForm({
                         <option value="">{tw.has('parentIdNone') ? tw('parentIdNone') : 'Exercício Principal (Sem Pai)'}</option>
                         {existingExercises.map(ex => (
                             <option key={ex.id} value={ex.id}>
-                                {ex.name} ({ex.category})
+                                {getExerciseLocalized(ex, activeLocale).name || ex.name} ({ex.category})
                             </option>
                         ))}
                     </select>

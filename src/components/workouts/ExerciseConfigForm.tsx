@@ -1,13 +1,15 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { Plus, Trash2, Dumbbell, HelpCircle, Save, Zap, ArrowRight, Sliders, Edit2, Edit } from 'lucide-react';
 import { ExerciseGroup, PlannedSet, GroupType, SetTechnique } from '@/config/types';
 import { ExerciseSelector } from '@/components/exercises/ExerciseSelector';
 import { GroupTypeHelpModal } from './GroupTypeHelpModal';
 import { DropsetModal, DropsetPart } from '@/components/session/DropsetModal';
 import { numberInputUtils } from '@/utils/numberUtil';
+import { getExerciseLocalized } from '@/utils/exerciseLocalization';
+import { LocalizedExerciseName } from '@/components/ui/LocalizedExerciseName';
 
 export interface ExerciseConfigFormProps {
     initialGroupData?: ExerciseGroup | null;
@@ -49,6 +51,7 @@ export const ExerciseConfigForm: React.FC<ExerciseConfigFormProps> = ({
     submitLabel,
     className = ""
 }) => {
+    const locale = useLocale();
     const t = useTranslations('WorkoutForm');
     const te = useTranslations('Exercises');
     const tw = useTranslations('WorkoutDrawer');
@@ -110,11 +113,12 @@ export const ExerciseConfigForm: React.FC<ExerciseConfigFormProps> = ({
 
     const handleSelectExercise = (exercise: any) => {
         if (selectingExIndex !== null) {
+            const localizedName = getExerciseLocalized(exercise, locale).name || exercise.name;
             const updatedExercises = [...group.exercises];
             updatedExercises[selectingExIndex] = {
                 ...updatedExercises[selectingExIndex],
                 exerciseId: exercise.id,
-                exerciseName: exercise.name
+                exerciseName: localizedName
             };
             setGroup(prev => ({ ...prev, exercises: updatedExercises }));
         }
@@ -423,11 +427,11 @@ export const ExerciseConfigForm: React.FC<ExerciseConfigFormProps> = ({
                                     >
                                         <div className="flex items-center gap-2.5 min-w-0 flex-1 pr-2">
                                             <Dumbbell size={16} className="text-lime-500 shrink-0" />
-                                            <span className="font-black text-xs uppercase tracking-tight text-zinc-900 dark:text-zinc-100 truncate block">
-                                                {ex.exerciseName
-                                                    ? (te.has(ex.exerciseName) ? te(ex.exerciseName) : ex.exerciseName)
-                                                    : t('selectExercise')}
-                                            </span>
+                                            <LocalizedExerciseName
+                                                exerciseId={ex.exerciseId}
+                                                fallbackName={ex.exerciseName || t('selectExercise')}
+                                                className="font-black text-xs uppercase tracking-tight text-zinc-900 dark:text-zinc-100 truncate block"
+                                            />
                                         </div>
                                         <span className="text-[10px] font-black uppercase text-lime-600 dark:text-lime-400 group-hover:underline shrink-0">
                                             <Edit size={16} className="text-lime-500" />

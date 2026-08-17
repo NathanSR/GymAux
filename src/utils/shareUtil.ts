@@ -160,6 +160,8 @@ export function mapSessionToShareData(session: Session, userWeight?: number): Wo
 
             if (validSets.length > 0) {
                 const item: ShareExerciseItem = {
+                    id: ex.exerciseId,
+                    exerciseId: ex.exerciseId,
                     name: ex.exerciseName || 'Exercício',
                     setsCount: validSets.length,
                     bestWeight: bestWeight > 0 ? bestWeight : undefined,
@@ -250,6 +252,8 @@ export function mapHistoryToShareData(history: History): WorkoutShareData {
 
             if (validSets.length > 0) {
                 const item: ShareExerciseItem = {
+                    id: ex.exerciseId,
+                    exerciseId: ex.exerciseId,
                     name: ex.exerciseName || 'Exercício',
                     setsCount: validSets.length,
                     bestWeight: bestWeight > 0 ? bestWeight : undefined,

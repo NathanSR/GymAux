@@ -4,8 +4,11 @@ import React, { forwardRef, useState } from 'react';
 import { Dumbbell, Trophy, Clock, Activity, Scale, Zap, CheckCircle2, Layers } from 'lucide-react';
 import { useTranslations, useLocale } from 'next-intl';
 import { formatDuration } from '@/utils/dateUtil';
+import { useExerciseLocalization } from '@/hooks/useExerciseLocalization';
 
 export interface ShareExerciseItem {
+    id?: number;
+    exerciseId?: number;
     name: string;
     setsCount: number;
     bestWeight?: number;
@@ -59,10 +62,10 @@ export const WorkoutShareCard = forwardRef<HTMLDivElement, WorkoutShareCardProps
 
     const totalSets = data.exercises.reduce((acc, ex) => acc + (ex.setsCount || 0), 0);
 
-    const translateExerciseName = (name: string) => {
-        if (!name) return '';
-        if (tEx.has(name)) return tEx(name);
-        return name;
+    const { getLocalizedName } = useExerciseLocalization();
+
+    const translateExerciseName = (name: string, exerciseId?: number) => {
+        return getLocalizedName(exerciseId, name);
     };
 
     const getGroupTypeLabel = (type?: string) => {
@@ -236,7 +239,7 @@ export const WorkoutShareCard = forwardRef<HTMLDivElement, WorkoutShareCardProps
                                         {group.exercises.map((ex, eIdx) => (
                                             <div key={eIdx} className="flex items-center justify-between text-[11px] leading-tight">
                                                 <span className="font-semibold text-zinc-200 truncate max-w-[220px]">
-                                                    {translateExerciseName(ex.name)}
+                                                    {translateExerciseName(ex.name, ex.exerciseId || ex.id)}
                                                 </span>
                                                 <div className="flex items-center gap-1.5 shrink-0">
                                                     {ex.hasDropset && (
@@ -261,7 +264,7 @@ export const WorkoutShareCard = forwardRef<HTMLDivElement, WorkoutShareCardProps
                                     className="bg-zinc-950/80 border-l-2 border-l-zinc-700 border border-zinc-800/60 p-2 rounded-lg flex items-center justify-between text-[11px] leading-tight"
                                 >
                                     <span className="font-semibold text-zinc-200 truncate max-w-[220px]">
-                                        {translateExerciseName(ex.name)}
+                                        {translateExerciseName(ex.name, ex.exerciseId || ex.id)}
                                     </span>
                                     <div className="flex items-center gap-1.5 shrink-0">
                                         {ex.hasDropset && (

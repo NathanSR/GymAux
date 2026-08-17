@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { numberInputUtils } from '../../utils/numberUtil';
+import { LocalizedExerciseName } from '@/components/ui/LocalizedExerciseName';
 
 interface SortableExerciseItemProps {
     field: any;
@@ -76,9 +77,11 @@ export function SortableExerciseItem({
                         <div className="w-8 h-8 rounded-lg bg-lime-400/10 flex items-center justify-center">
                             <Dumbbell size={16} className="text-lime-500 group-hover:rotate-12 transition-transform" />
                         </div>
-                        <span className="text-sm font-black uppercase tracking-tight text-zinc-900 dark:text-zinc-100">
-                            {field.exerciseName ? (te.has(field.exerciseName) ? te(field.exerciseName) : field.exerciseName) : t('selectExercise')}
-                        </span>
+                        <LocalizedExerciseName
+                            exerciseId={field.exerciseId}
+                            fallbackName={field.exerciseName || t('selectExercise')}
+                            className="text-sm font-black uppercase tracking-tight text-zinc-900 dark:text-zinc-100"
+                        />
                     </div>
                     <ChevronDown size={16} className="text-zinc-400 group-hover:translate-y-0.5 transition-transform" />
                 </button>

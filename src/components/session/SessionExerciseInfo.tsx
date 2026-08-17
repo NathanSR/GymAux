@@ -5,6 +5,7 @@ import { useTranslations, useLocale } from 'next-intl';
 import { CATEGORY_METADATA, CategoryType } from '@/config/constants';
 import { Exercise } from '@/config/types';
 import { getExerciseLocalized } from '@/utils/exerciseLocalization';
+import { LocalizedExerciseName } from '@/components/ui/LocalizedExerciseName';
 
 interface SessionExerciseInfoProps {
     currentGroup: any;
@@ -225,7 +226,12 @@ export function SessionExerciseInfo({
                     >
                         {currentExerciseDetails
                             ? (getExerciseLocalized(currentExerciseDetails, locale).name || currentExercise?.exerciseName)
-                            : (currentExercise?.exerciseName ? (te.has(currentExercise.exerciseName) ? te(currentExercise.exerciseName) : currentExercise.exerciseName) : '')}
+                            : (
+                                <LocalizedExerciseName
+                                    exerciseId={currentExercise?.exerciseId}
+                                    fallbackName={currentExercise?.exerciseName}
+                                />
+                            )}
                     </motion.h2>
 
                     {/* Subtitle with Variation, Execution Mode & Group Sequence */}
@@ -259,7 +265,10 @@ export function SessionExerciseInfo({
                                             <span key={idx} className="flex items-center gap-1.5">
                                                 {idx > 0 && <ArrowRight size={8} className="text-zinc-400 dark:text-zinc-700" />}
                                                 <span className={isActive ? `${groupStyle.color} font-black` : "text-zinc-500 dark:text-zinc-400 font-medium"}>
-                                                    {te.has(ex.exerciseName) ? te(ex.exerciseName) : ex.exerciseName}
+                                                    <LocalizedExerciseName
+                                                        exerciseId={ex.exerciseId}
+                                                        fallbackName={ex.exerciseName}
+                                                    />
                                                 </span>
                                             </span>
                                         );
