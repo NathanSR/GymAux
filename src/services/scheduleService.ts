@@ -35,7 +35,6 @@ const mapScheduleToSupabase = (s: Schedule) => ({
     active: s.active,
     last_completed: s.lastCompleted ?? -1,
     created_at: s.createdAt ? (s.createdAt instanceof Date ? s.createdAt.toISOString() : s.createdAt) : undefined,
-    updated_at: s.updatedAt ? (s.updatedAt instanceof Date ? s.updatedAt.toISOString() : s.updatedAt) : undefined,
 });
 
 export const ScheduleService = {
@@ -227,14 +226,14 @@ export const ScheduleService = {
                 await SyncManager.enqueue('UPDATE', 'SCHEDULE', s.id!, {
                     id: s.id,
                     active: false,
-                }, scheduleData.userId);
+                }, callerId);
             }
         }
 
         // Save locally first
         if (typeof window !== 'undefined') {
             await db.schedules.put(newSchedule);
-            await SyncManager.enqueue('CREATE', 'SCHEDULE', id, mapScheduleToSupabase(newSchedule), scheduleData.userId);
+            await SyncManager.enqueue('CREATE', 'SCHEDULE', id, mapScheduleToSupabase(newSchedule), callerId);
             return newSchedule;
         }
 
@@ -271,9 +270,7 @@ export const ScheduleService = {
     async updateSchedule(id: string, scheduleData: Partial<Schedule>, callerId: string, supabaseInput?: any) {
         // Build updates for Supabase format
         const now = new Date();
-        const updates: any = {
-            updated_at: now.toISOString(),
-        };
+        const updates: any = {};
         if (scheduleData.name) updates.name = scheduleData.name.trim();
         if (scheduleData.userId) updates.user_id = scheduleData.userId;
         if (scheduleData.workouts) updates.workouts = scheduleData.workouts;
@@ -285,11 +282,10 @@ export const ScheduleService = {
         // Local-first write
         if (typeof window !== 'undefined') {
             const current = await db.schedules.get(id);
-            const targetUserId = scheduleData.userId || current?.userId || callerId;
             if (current) {
                 // If activating, deactivate others locally
                 if (scheduleData.active === true) {
-                    const userId = targetUserId;
+                    const userId = scheduleData.userId || current?.userId || callerId;
                     const otherActive = await db.schedules
                         .where('userId')
                         .equals(userId)
@@ -302,13 +298,13 @@ export const ScheduleService = {
                         await SyncManager.enqueue('UPDATE', 'SCHEDULE', s.id!, {
                             id: s.id,
                             active: false,
-                        }, userId);
+                        }, callerId);
                     }
                 }
 
                 const updated = { ...current, ...scheduleData, updatedAt: now };
                 await db.schedules.put(updated);
-                await SyncManager.enqueue('UPDATE', 'SCHEDULE', id, { id, ...updates }, targetUserId);
+                await SyncManager.enqueue('UPDATE', 'SCHEDULE', id, { id, ...updates }, callerId);
                 return updated;
             }
         }
@@ -366,10 +362,8 @@ export const ScheduleService = {
     async deleteSchedule(id: string, callerId: string, supabaseInput?: any) {
         // Local-first delete
         if (typeof window !== 'undefined') {
-            const local = await db.schedules.get(id);
-            const targetUserId = local?.userId || callerId;
             await db.schedules.delete(id);
-            await SyncManager.enqueue('DELETE', 'SCHEDULE', id, { id }, targetUserId);
+            await SyncManager.enqueue('DELETE', 'SCHEDULE', id, { id }, callerId);
             return;
         }
 

@@ -22,6 +22,7 @@ export default async function TrainerStudentNewWorkoutPage({
         <NewWorkoutClient 
             availableExercises={availableExercises.exercises} 
             userId={studentId} 
+            callerId={user.id}
             baseUrl={`/trainer/${studentId}/workouts`}
         />
     );

@@ -12,10 +12,11 @@ import PageHeader from '@/components/ui/PageHeader';
 interface NewWorkoutClientProps {
     availableExercises: Exercise[];
     userId: string;
+    callerId?: string;
     baseUrl?: string;
 }
 
-export default function NewWorkoutClient({ availableExercises, userId, baseUrl = '/workouts' }: NewWorkoutClientProps) {
+export default function NewWorkoutClient({ availableExercises, userId, callerId, baseUrl = '/workouts' }: NewWorkoutClientProps) {
     const { navigateAfterAction } = useSmartNavigation({ fallbackUrl: baseUrl });
     const t = useTranslations('WorkoutRegister');
     const [isLoading, setIsLoading] = useState(false);
@@ -26,7 +27,7 @@ export default function NewWorkoutClient({ availableExercises, userId, baseUrl =
             await WorkoutService.createWorkout({
                 ...data,
                 userId,
-                callerId: userId,
+                callerId: callerId || userId,
                 createdAt: new Date(),
             });
 

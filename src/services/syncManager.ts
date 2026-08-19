@@ -151,8 +151,10 @@ export class SyncManager {
                 // Abort mid-sync if connectivity drops
                 if (typeof window !== 'undefined' && !navigator.onLine) break;
 
-                // SECURITY: Skip ops queued under a different user ID to prevent cross-account RLS violations
-                if (op.userId && op.userId !== activeUserId) {
+                // For private entities like HISTORY and SESSION, skip if not matching active user
+                // For WORKOUT, SCHEDULE, EXERCISE, trainer can sync on behalf of student via RLS
+                const isCrossAccountSafeEntity = ['WORKOUT', 'SCHEDULE', 'EXERCISE'].includes(op.entityType);
+                if (!isCrossAccountSafeEntity && op.userId && op.userId !== activeUserId) {
                     console.warn(`[SyncManager] Skipping op ${op.id} belonging to user ${op.userId} (active: ${activeUserId})`);
                     continue;
                 }
@@ -343,6 +345,29 @@ export class SyncManager {
         delete cleaned.id;
         delete cleaned.user_id;
         delete cleaned.created_by;
+        delete cleaned.created_by_type;
+        delete cleaned.updated_at;
+        delete cleaned.updatedAt;
+        delete cleaned.createdAt;
+        delete cleaned.callerId;
+        return cleaned;
+    }
+
+    private static cleanWorkoutInsertPayload(payload: any): any {
+        if (!payload || typeof payload !== 'object') return payload;
+        const cleaned = { ...payload };
+        delete cleaned.updated_at;
+        delete cleaned.updatedAt;
+        delete cleaned.callerId;
+        return cleaned;
+    }
+
+    private static cleanScheduleInsertPayload(payload: any): any {
+        if (!payload || typeof payload !== 'object') return payload;
+        const cleaned = { ...payload };
+        delete cleaned.updated_at;
+        delete cleaned.updatedAt;
+        delete cleaned.callerId;
         return cleaned;
     }
 
@@ -388,7 +413,8 @@ export class SyncManager {
 
     private static async syncWorkout(op: SyncOperation, supabase: any): Promise<boolean> {
         if (op.action === 'CREATE') {
-            const { error } = await withTimeout(supabase.from('workouts').insert(op.payload), 5000);
+            const payload = this.cleanWorkoutInsertPayload(op.payload);
+            const { error } = await withTimeout(supabase.from('workouts').insert(payload), 5000);
             if (error && error.code !== '23505') throw error;
         } else if (op.action === 'UPDATE') {
             const payload = this.cleanUpdatePayload(op.payload);
@@ -403,7 +429,8 @@ export class SyncManager {
 
     private static async syncSchedule(op: SyncOperation, supabase: any): Promise<boolean> {
         if (op.action === 'CREATE') {
-            const { error } = await withTimeout(supabase.from('schedules').insert(op.payload), 5000);
+            const payload = this.cleanScheduleInsertPayload(op.payload);
+            const { error } = await withTimeout(supabase.from('schedules').insert(payload), 5000);
             if (error && error.code !== '23505') throw error;
         } else if (op.action === 'UPDATE') {
             const payload = this.cleanUpdatePayload(op.payload);

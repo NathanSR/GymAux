@@ -289,14 +289,13 @@ export const WorkoutService = {
             description: workoutData.description,
             exercises: serializeGroups(workoutData.exercises) as any,
             created_at: now.toISOString(),
-            updated_at: now.toISOString(),
         };
 
         // Local-first
         if (typeof window !== 'undefined') {
             const createdWorkout = { ...mapWorkoutFromSupabase(apiPayload), createdAt: now, updatedAt: now };
             await db.workouts.put(createdWorkout);
-            await SyncManager.enqueue('CREATE', 'WORKOUT', id, apiPayload, workoutData.userId);
+            await SyncManager.enqueue('CREATE', 'WORKOUT', id, apiPayload, workoutData.callerId);
             return createdWorkout;
         }
 
@@ -310,9 +309,7 @@ export const WorkoutService = {
 
     async updateWorkout(id: string, workoutData: Partial<Workout> & { callerId: string }, supabaseInput?: any) {
         const now = new Date();
-        const updates: any = {
-            updated_at: now.toISOString(),
-        };
+        const updates: any = {};
         if (workoutData.name) updates.name = workoutData.name.trim();
         if (workoutData.description !== undefined) updates.description = workoutData.description;
         if (workoutData.userId) updates.user_id = workoutData.userId;
@@ -323,11 +320,10 @@ export const WorkoutService = {
         // Local-first
         if (typeof window !== 'undefined') {
             const local = await db.workouts.get(id);
-            const targetUserId = workoutData.userId || local?.userId || workoutData.callerId;
             if (local) {
                 const updated = { ...local, ...workoutData, updatedAt: now };
                 await db.workouts.put(updated);
-                await SyncManager.enqueue('UPDATE', 'WORKOUT', id, { id, ...updates }, targetUserId);
+                await SyncManager.enqueue('UPDATE', 'WORKOUT', id, { id, ...updates }, workoutData.callerId);
                 return updated;
             }
 
@@ -342,12 +338,12 @@ export const WorkoutService = {
                     const workout = mapWorkoutFromSupabase(fetchedData);
                     const updated = { ...workout, ...workoutData, updatedAt: now };
                     await db.workouts.put(updated);
-                    await SyncManager.enqueue('UPDATE', 'WORKOUT', id, { id, ...updates }, targetUserId);
+                    await SyncManager.enqueue('UPDATE', 'WORKOUT', id, { id, ...updates }, workoutData.callerId);
                     return updated;
                 }
             } catch {
                 // Can't fetch — enqueue anyway with what we have
-                await SyncManager.enqueue('UPDATE', 'WORKOUT', id, { id, ...updates }, targetUserId);
+                await SyncManager.enqueue('UPDATE', 'WORKOUT', id, { id, ...updates }, workoutData.callerId);
                 return { id, ...workoutData, updatedAt: now } as Workout;
             }
         }
@@ -408,7 +404,7 @@ export const WorkoutService = {
         // Local-first
         if (typeof window !== 'undefined') {
             await db.workouts.delete(id);
-            await SyncManager.enqueue('DELETE', 'WORKOUT', id, { id });
+            await SyncManager.enqueue('DELETE', 'WORKOUT', id, { id }, callerId);
             return;
         }
 
