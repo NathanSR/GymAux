@@ -4,7 +4,6 @@ import { use, useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import SessionClient from '@/components/session/SessionClient';
 import { SessionService } from '@/services/sessionService';
-import { useSession } from '@/hooks/useSession';
 import { useRouter } from '@/i18n/routing';
 import { Session } from '@/config/types';
 import { stopTopLoader } from '@/utils/topLoader';
@@ -14,7 +13,6 @@ import { SessionSkeleton } from '@/components/ui/Skeleton';
 export default function SessionPage({ params }: { params: Promise<{ id: string; locale: string }> }) {
     const { id } = use(params);
     const router = useRouter();
-    const { activeUser, loading: sessionLoading } = useSession();
     const { showLoading } = useNavigationLoading();
 
     const [mounted, setMounted] = useState(false);
@@ -26,13 +24,6 @@ export default function SessionPage({ params }: { params: Promise<{ id: string; 
     }, []);
 
     useEffect(() => {
-        if (mounted && !sessionLoading && !activeUser) {
-            showLoading('returningToHome', 'returningToHomeSubtext', 'home');
-            router.push('/home');
-        }
-    }, [mounted, sessionLoading, activeUser, router, showLoading]);
-
-    useEffect(() => {
         let isMounted = true;
         setFetchingSession(true);
 
@@ -41,15 +32,16 @@ export default function SessionPage({ params }: { params: Promise<{ id: string; 
                 if (!isMounted) return;
                 if (!fetched) {
                     showLoading('returningToHome', 'returningToHomeSubtext', 'home');
-                    router.push('/home');
+                    router.replace('/home');
                 } else {
                     setSessionData(fetched);
                 }
             })
-            .catch(() => {
+            .catch((err) => {
+                console.error('[SessionPage] Error fetching session:', err);
                 if (isMounted) {
                     showLoading('returningToHome', 'returningToHomeSubtext', 'home');
-                    router.push('/home');
+                    router.replace('/home');
                 }
             })
             .finally(() => {
@@ -64,7 +56,7 @@ export default function SessionPage({ params }: { params: Promise<{ id: string; 
         };
     }, [id, router, showLoading]);
 
-    const isReady = mounted && !sessionLoading && !fetchingSession && !!sessionData && !!activeUser;
+    const isReady = mounted && !fetchingSession && !!sessionData;
     const isReadOnly = sessionData?.current?.step === 'completion';
 
     return (

@@ -1,3 +1,4 @@
+import { useRef } from 'react';
 import { useRouter } from '@/i18n/routing';
 import { useAlerts } from './useAlerts';
 import { SessionService } from '@/services/sessionService';
@@ -10,9 +11,12 @@ export const useSessionActions = () => {
     const { confirm } = useAlerts();
     const t = useTranslations('Session');
     const th = useTranslations('Home');
-    const { showLoading, navigateWithLoading } = useNavigationLoading();
+    const { showLoading, hideLoading } = useNavigationLoading();
+    const isActionInProgressRef = useRef(false);
 
     const startWorkout = async (workout: Workout) => {
+        if (!workout || isActionInProgressRef.current) return;
+
         const result = await confirm({
             title: th('startWorkoutTitle'),
             text: th('startWorkoutText'),
@@ -22,14 +26,29 @@ export const useSessionActions = () => {
         });
 
         if (result.isConfirmed) {
-            showLoading('startingWorkout', 'startingWorkoutSubtext', 'sparkles');
-            const session = await SessionService.startSession(workout);
-            router.push(`/session/${session.id}`);
+            isActionInProgressRef.current = true;
+            try {
+                showLoading('startingWorkout', 'startingWorkoutSubtext', 'sparkles');
+                const session = await SessionService.startSession(workout);
+                if (session?.id) {
+                    router.push(`/session/${session.id}`);
+                } else {
+                    throw new Error('No session ID returned from startSession');
+                }
+            } catch (error) {
+                console.error('[useSessionActions] startWorkout error:', error);
+                hideLoading();
+            } finally {
+                setTimeout(() => {
+                    isActionInProgressRef.current = false;
+                }, 1000);
+            }
         }
     };
 
     const resumeWorkout = async (sessionId: string) => {
-        if (!sessionId) return;
+        if (!sessionId || isActionInProgressRef.current) return;
+
         const result = await confirm({
             title: th('resumeWorkoutTitle'),
             text: th('resumeWorkoutText'),
@@ -39,9 +58,19 @@ export const useSessionActions = () => {
         });
 
         if (result.isConfirmed) {
-            showLoading('returningToWorkout', 'returningToWorkoutSubtext', 'dumbbell');
-            await SessionService.resumeSession(sessionId);
-            router.push(`/session/${sessionId}`);
+            isActionInProgressRef.current = true;
+            try {
+                showLoading('returningToWorkout', 'returningToWorkoutSubtext', 'dumbbell');
+                await SessionService.resumeSession(sessionId);
+                router.push(`/session/${sessionId}`);
+            } catch (error) {
+                console.error('[useSessionActions] resumeWorkout error:', error);
+                hideLoading();
+            } finally {
+                setTimeout(() => {
+                    isActionInProgressRef.current = false;
+                }, 1000);
+            }
         }
     };
 

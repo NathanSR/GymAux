@@ -128,13 +128,19 @@ export const SessionService = {
         const sessionId = crypto.randomUUID();
         const now = new Date();
 
+        let targetUserId = workout.userId;
+        if (!targetUserId && typeof window !== 'undefined') {
+            const cachedUser = await db.users.toCollection().first();
+            if (cachedUser?.id) targetUserId = cachedUser.id;
+        }
+
         const sessionPayload: Session = {
             id: sessionId,
-            userId: workout.userId,
+            userId: targetUserId || '',
             workoutId: workout.id!,
             workoutName: workout.name,
             createdAt: now,
-            exercisesToDo: workout.exercises,
+            exercisesToDo: workout.exercises || [],
             exercisesDone: [],
             current: {
                 step: 'executing',
@@ -151,7 +157,7 @@ export const SessionService = {
         // Always save locally first
         if (typeof window !== 'undefined') {
             await db.sessions.put(sessionPayload);
-            await SyncManager.enqueue('CREATE', 'SESSION', sessionId, mapSessionToSupabase(sessionPayload), workout.userId);
+            await SyncManager.enqueue('CREATE', 'SESSION', sessionId, mapSessionToSupabase(sessionPayload), targetUserId);
             return sessionPayload;
         }
 
@@ -313,11 +319,18 @@ export const SessionService = {
         }
     },
 
-    async getSessionById(sessionId: string, supabaseInput?: any) {
+    async getSessionById(sessionId: string, supabaseInput?: any): Promise<Session | null> {
         // Local-first
         if (typeof window !== 'undefined') {
-            const local = await db.sessions.get(sessionId);
+            let local = await db.sessions.get(sessionId);
             if (local) return local;
+
+            // Micro-retry local (até 3 tentativas breves) caso o IndexedDB ainda esteja finalizando a transação de escrita
+            for (let attempt = 0; attempt < 3; attempt++) {
+                await new Promise(resolve => setTimeout(resolve, 50 * (attempt + 1)));
+                local = await db.sessions.get(sessionId);
+                if (local) return local;
+            }
         }
 
         try {
