@@ -366,7 +366,23 @@ export const ExerciseConfigForm: React.FC<ExerciseConfigFormProps> = ({
             return;
         }
 
-        onSave(group);
+        const sanitizedGroup: ExerciseGroup = {
+            ...group,
+            rounds: Number(group.rounds) || 1,
+            restAfterGroup: Number(group.restAfterGroup) || 0,
+            exercises: group.exercises.map(ex => ({
+                ...ex,
+                restAfterExercise: Number(ex.restAfterExercise) || 0,
+                sets: (ex.sets || []).map(s => ({
+                    ...s,
+                    reps: s.reps === ('' as any) || isNaN(Number(s.reps)) ? 10 : Number(s.reps),
+                    weight: s.weight === ('' as any) || isNaN(Number(s.weight)) ? 0 : Number(s.weight),
+                    restTime: s.restTime === ('' as any) || isNaN(Number(s.restTime)) ? 60 : Number(s.restTime),
+                }))
+            }))
+        };
+
+        onSave(sanitizedGroup);
     };
 
     const isStraight = group.groupType === 'straight';
@@ -519,8 +535,8 @@ export const ExerciseConfigForm: React.FC<ExerciseConfigFormProps> = ({
                                                                 <input
                                                                     type="number"
                                                                     onFocus={numberInputUtils.onFocus}
-                                                                    value={numberInputUtils.formatValue(ex.sets?.[0]?.reps || 10)}
-                                                                    onChange={(e) => numberInputUtils.onChange(e, (val) => handleGlobalRepsChange(exIndex, Number(val)))}
+                                                                    value={numberInputUtils.formatValue(ex.sets?.[0]?.reps)}
+                                                                    onChange={(e) => numberInputUtils.onChange(e, (val) => handleGlobalRepsChange(exIndex, val as any))}
                                                                     className="w-full bg-white dark:bg-zinc-900 border border-zinc-200/60 dark:border-zinc-800/80 focus:border-lime-500 rounded-xl p-2 text-sm font-black outline-none text-center text-zinc-900 dark:text-zinc-100"
                                                                 />
                                                             </div>
@@ -534,8 +550,8 @@ export const ExerciseConfigForm: React.FC<ExerciseConfigFormProps> = ({
                                                                     type="number"
                                                                     step="any"
                                                                     onFocus={numberInputUtils.onFocus}
-                                                                    value={numberInputUtils.formatValue(ex.sets?.[0]?.weight || 0)}
-                                                                    onChange={(e) => numberInputUtils.onChange(e, (val) => handleGlobalWeightChange(exIndex, Number(val)))}
+                                                                    value={numberInputUtils.formatValue(ex.sets?.[0]?.weight)}
+                                                                    onChange={(e) => numberInputUtils.onChange(e, (val) => handleGlobalWeightChange(exIndex, val as any))}
                                                                     className="w-full bg-white dark:bg-zinc-900 border border-zinc-200/60 dark:border-zinc-800/80 focus:border-lime-500 rounded-xl p-2 text-sm font-black outline-none text-center text-lime-600 dark:text-lime-400"
                                                                 />
                                                             </div>
@@ -548,8 +564,8 @@ export const ExerciseConfigForm: React.FC<ExerciseConfigFormProps> = ({
                                                                 <input
                                                                     type="number"
                                                                     onFocus={numberInputUtils.onFocus}
-                                                                    value={numberInputUtils.formatValue(ex.sets?.[0]?.restTime || 60)}
-                                                                    onChange={(e) => numberInputUtils.onChange(e, (val) => handleGlobalRestChange(exIndex, Number(val)))}
+                                                                    value={numberInputUtils.formatValue(ex.sets?.[0]?.restTime)}
+                                                                    onChange={(e) => numberInputUtils.onChange(e, (val) => handleGlobalRestChange(exIndex, val as any))}
                                                                     className="w-full bg-white dark:bg-zinc-900 border border-zinc-200/60 dark:border-zinc-800/80 focus:border-lime-500 rounded-xl p-2 text-sm font-black outline-none text-center text-zinc-900 dark:text-zinc-100"
                                                                 />
                                                             </div>
@@ -603,8 +619,8 @@ export const ExerciseConfigForm: React.FC<ExerciseConfigFormProps> = ({
                                                                 <input
                                                                     type="number"
                                                                     onFocus={numberInputUtils.onFocus}
-                                                                    value={numberInputUtils.formatValue(ex.sets?.[0]?.restTime || 60)}
-                                                                    onChange={(e) => numberInputUtils.onChange(e, (val) => handleGlobalRestChange(exIndex, Number(val)))}
+                                                                    value={numberInputUtils.formatValue(ex.sets?.[0]?.restTime ?? 60)}
+                                                                    onChange={(e) => numberInputUtils.onChange(e, (val) => handleGlobalRestChange(exIndex, val as any))}
                                                                     className="w-full bg-white dark:bg-zinc-900 border border-zinc-200/60 dark:border-zinc-800/80 focus:border-lime-500 rounded-xl p-2 text-sm font-black outline-none text-center text-zinc-900 dark:text-zinc-100"
                                                                 />
                                                             </div>
@@ -799,7 +815,7 @@ export const ExerciseConfigForm: React.FC<ExerciseConfigFormProps> = ({
                                                             const updatedExercises = [...group.exercises];
                                                             const updatedSets = (updatedExercises[exIndex].sets || [DEFAULT_SET]).map(s => ({
                                                                 ...s,
-                                                                reps: Number(val)
+                                                                reps: val as any
                                                             }));
                                                             updatedExercises[exIndex].sets = updatedSets;
                                                             setGroup(prev => ({ ...prev, exercises: updatedExercises }));
@@ -822,7 +838,7 @@ export const ExerciseConfigForm: React.FC<ExerciseConfigFormProps> = ({
                                                             const updatedExercises = [...group.exercises];
                                                             const updatedSets = (updatedExercises[exIndex].sets || [DEFAULT_SET]).map(s => ({
                                                                 ...s,
-                                                                weight: Number(val)
+                                                                weight: val as any
                                                             }));
                                                             updatedExercises[exIndex].sets = updatedSets;
                                                             setGroup(prev => ({ ...prev, exercises: updatedExercises }));
@@ -845,7 +861,7 @@ export const ExerciseConfigForm: React.FC<ExerciseConfigFormProps> = ({
                                                     onChange={(e) => {
                                                         numberInputUtils.onChange(e, (val) => {
                                                             const updatedExercises = [...group.exercises];
-                                                            updatedExercises[exIndex].restAfterExercise = Number(val);
+                                                            updatedExercises[exIndex].restAfterExercise = val as any;
                                                             setGroup(prev => ({ ...prev, exercises: updatedExercises }));
                                                         });
                                                     }}
@@ -899,7 +915,7 @@ export const ExerciseConfigForm: React.FC<ExerciseConfigFormProps> = ({
                                 type="number"
                                 value={numberInputUtils.formatValue(group.rounds)}
                                 onFocus={numberInputUtils.onFocus}
-                                onChange={(e) => numberInputUtils.onChange(e, (val) => handleRoundsChange(Number(val)))}
+                                onChange={(e) => numberInputUtils.onChange(e, (val) => handleRoundsChange(val as any))}
                                 className="w-full bg-transparent font-black text-sm outline-none text-zinc-900 dark:text-zinc-100"
                             />
                         </div>

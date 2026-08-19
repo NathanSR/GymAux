@@ -22,7 +22,7 @@ export const numberInputUtils = {
      * @param value O valor numérico atual
      * @returns O valor formatado para o atributo 'value' do input
      */
-    formatValue: (value: number | undefined | null): string | number => {
+    formatValue: (value: number | string | undefined | null): string | number => {
         if (value === null || value === undefined) return "";
         return value;
     },

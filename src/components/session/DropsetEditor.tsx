@@ -2,10 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Plus, Minus, Trash2, Info, ArrowRight, Check } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { numberInputUtils } from '@/utils/numberUtil';
 
 export interface DropsetPart {
     reps: number;
     weight: number;
+}
+
+export interface DropsetDraftPart {
+    reps: number | '';
+    weight: number | '';
 }
 
 export interface DropsetEditorProps {
@@ -26,7 +32,7 @@ export function DropsetEditor({
     className = ''
 }: DropsetEditorProps) {
     const t = useTranslations('Session.dropsetModal');
-    const [drops, setDrops] = useState<DropsetPart[]>([]);
+    const [drops, setDrops] = useState<DropsetDraftPart[]>([]);
 
     useEffect(() => {
         if (initialDropset && initialDropset.length > 0) {
@@ -43,8 +49,10 @@ export function DropsetEditor({
 
     const handleAddDrop = () => {
         const lastDrop = drops[drops.length - 1] || { weight: defaultWeight || 20, reps: defaultReps || 10 };
-        const nextWeight = Math.max(0, Math.round(lastDrop.weight * 0.8 * 2) / 2);
-        const nextReps = lastDrop.reps;
+        const lastWeight = typeof lastDrop.weight === 'number' ? lastDrop.weight : (Number(lastDrop.weight) || defaultWeight || 20);
+        const lastReps = typeof lastDrop.reps === 'number' ? lastDrop.reps : (Number(lastDrop.reps) || defaultReps || 10);
+        const nextWeight = Math.max(0, Math.round(lastWeight * 0.8 * 2) / 2);
+        const nextReps = lastReps;
         setDrops([...drops, { weight: nextWeight, reps: nextReps }]);
     };
 
@@ -55,11 +63,11 @@ export function DropsetEditor({
         setDrops(newDrops);
     };
 
-    const handleUpdateDrop = (index: number, field: keyof DropsetPart, value: number) => {
+    const handleUpdateDrop = (index: number, field: keyof DropsetDraftPart, value: number | '') => {
         const newDrops = [...drops];
         newDrops[index] = {
             ...newDrops[index],
-            [field]: Math.max(0, isNaN(value) ? 0 : value)
+            [field]: value
         };
         setDrops(newDrops);
     };
@@ -68,7 +76,15 @@ export function DropsetEditor({
         if (drops.length <= 1) {
             onSave(null);
         } else {
-            onSave(drops);
+            const sanitizedDrops: DropsetPart[] = drops.map((d, idx) => ({
+                weight: d.weight === '' || isNaN(Number(d.weight))
+                    ? (idx === 0 ? (Number(defaultWeight) || 20) : 0)
+                    : Math.max(0, Number(d.weight)),
+                reps: d.reps === '' || isNaN(Number(d.reps))
+                    ? (Number(defaultReps) || 10)
+                    : Math.max(1, Number(d.reps))
+            }));
+            onSave(sanitizedDrops);
         }
     };
 
@@ -141,23 +157,23 @@ export function DropsetEditor({
                                             type="number"
                                             step="any"
                                             inputMode="decimal"
-                                            value={drop.weight}
-                                            onFocus={(e) => e.target.select()}
-                                            onChange={(e) => handleUpdateDrop(idx, 'weight', parseFloat(e.target.value))}
+                                            value={numberInputUtils.formatValue(drop.weight)}
+                                            onFocus={numberInputUtils.onFocus}
+                                            onChange={(e) => numberInputUtils.onChange(e, (val) => handleUpdateDrop(idx, 'weight', val))}
                                             className="bg-transparent border-none p-0 text-lg font-black outline-none w-full text-zinc-900 dark:text-white"
                                         />
                                     </div>
                                     <div className="flex items-center gap-1.5 shrink-0">
                                         <button
                                             type="button"
-                                            onClick={() => handleUpdateDrop(idx, 'weight', Math.max(0, drop.weight - 1))}
+                                            onClick={() => handleUpdateDrop(idx, 'weight', Math.max(0, (Number(drop.weight) || 0) - 1))}
                                             className="w-8 h-8 bg-zinc-100 dark:bg-zinc-800/80 hover:bg-zinc-200 dark:hover:bg-zinc-700 border border-zinc-200 dark:border-zinc-700/50 text-zinc-700 dark:text-zinc-200 rounded-xl flex items-center justify-center active:scale-95 transition-all cursor-pointer"
                                         >
                                             <Minus size={14} />
                                         </button>
                                         <button
                                             type="button"
-                                            onClick={() => handleUpdateDrop(idx, 'weight', drop.weight + 1)}
+                                            onClick={() => handleUpdateDrop(idx, 'weight', (Number(drop.weight) || 0) + 1)}
                                             className="w-8 h-8 bg-zinc-100 dark:bg-zinc-800/80 hover:bg-zinc-200 dark:hover:bg-zinc-700 border border-zinc-200 dark:border-zinc-700/50 text-zinc-700 dark:text-zinc-200 rounded-xl flex items-center justify-center active:scale-95 transition-all cursor-pointer"
                                         >
                                             <Plus size={14} />
@@ -174,23 +190,23 @@ export function DropsetEditor({
                                         <input
                                             type="number"
                                             inputMode="numeric"
-                                            value={drop.reps}
-                                            onFocus={(e) => e.target.select()}
-                                            onChange={(e) => handleUpdateDrop(idx, 'reps', parseInt(e.target.value, 10))}
+                                            value={numberInputUtils.formatValue(drop.reps)}
+                                            onFocus={numberInputUtils.onFocus}
+                                            onChange={(e) => numberInputUtils.onChange(e, (val) => handleUpdateDrop(idx, 'reps', val))}
                                             className="bg-transparent border-none p-0 text-lg font-black outline-none w-full text-zinc-900 dark:text-white"
                                         />
                                     </div>
                                     <div className="flex items-center gap-1.5 shrink-0">
                                         <button
                                             type="button"
-                                            onClick={() => handleUpdateDrop(idx, 'reps', Math.max(1, drop.reps - 1))}
+                                            onClick={() => handleUpdateDrop(idx, 'reps', Math.max(1, (Number(drop.reps) || 0) - 1))}
                                             className="w-8 h-8 bg-zinc-100 dark:bg-zinc-800/80 hover:bg-zinc-200 dark:hover:bg-zinc-700 border border-zinc-200 dark:border-zinc-700/50 text-zinc-700 dark:text-zinc-200 rounded-xl flex items-center justify-center active:scale-95 transition-all cursor-pointer"
                                         >
                                             <Minus size={14} />
                                         </button>
                                         <button
                                             type="button"
-                                            onClick={() => handleUpdateDrop(idx, 'reps', drop.reps + 1)}
+                                            onClick={() => handleUpdateDrop(idx, 'reps', (Number(drop.reps) || 0) + 1)}
                                             className="w-8 h-8 bg-zinc-100 dark:bg-zinc-800/80 hover:bg-zinc-200 dark:hover:bg-zinc-700 border border-zinc-200 dark:border-zinc-700/50 text-zinc-700 dark:text-zinc-200 rounded-xl flex items-center justify-center active:scale-95 transition-all cursor-pointer"
                                         >
                                             <Plus size={14} />
@@ -226,7 +242,7 @@ export function DropsetEditor({
                                     ? 'bg-lime-400/20 text-lime-700 dark:text-lime-300 border border-lime-500/30 dark:border-lime-400/30'
                                     : 'bg-zinc-200/80 dark:bg-zinc-800/80 text-zinc-700 dark:text-zinc-300 border border-zinc-300/60 dark:border-zinc-700/40'
                             }`}>
-                                {d.weight}kg <span className="text-zinc-500 font-medium">×</span> {d.reps}
+                                {Number(d.weight) || 0}kg <span className="text-zinc-500 font-medium">×</span> {Number(d.reps) || 0}
                             </span>
                             {i < drops.length - 1 && (
                                 <ArrowRight size={12} className="text-zinc-400 dark:text-zinc-600 shrink-0" />

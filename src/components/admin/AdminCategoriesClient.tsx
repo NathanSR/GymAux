@@ -8,6 +8,7 @@ import { toast } from 'react-toastify';
 import { Plus, Edit2, Trash2, Check, X, Globe, Layers, ArrowLeft } from 'lucide-react';
 import { Link } from '@/i18n/routing';
 import { Modal } from '@/components/ui/Modal';
+import { numberInputUtils } from '@/utils/numberUtil';
 
 const SUPPORTED_LOCALES = [
     { code: 'pt', label: 'Português', flag: '🇧🇷' },
@@ -33,7 +34,7 @@ export default function AdminCategoriesClient({ initialCategories }: AdminCatego
     const [name, setName] = useState('');
     const [imageUrl, setImageUrl] = useState('');
     const [color, setColor] = useState('#a3e635');
-    const [displayOrder, setDisplayOrder] = useState(0);
+    const [displayOrder, setDisplayOrder] = useState<number | ''>(0);
     const [isActive, setIsActive] = useState(true);
     const [translations, setTranslations] = useState<Record<string, string>>({
         pt: '',
@@ -278,8 +279,9 @@ export default function AdminCategoriesClient({ initialCategories }: AdminCatego
                             <label className="text-xs font-bold text-zinc-300 uppercase">Ordem de Exibição</label>
                             <input
                                 type="number"
-                                value={displayOrder}
-                                onChange={(e) => setDisplayOrder(Number(e.target.value))}
+                                value={numberInputUtils.formatValue(displayOrder)}
+                                onFocus={numberInputUtils.onFocus}
+                                onChange={(e) => numberInputUtils.onChange(e, (val) => setDisplayOrder(val))}
                                 className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-lime-400"
                             />
                         </div>
