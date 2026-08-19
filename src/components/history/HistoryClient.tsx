@@ -19,10 +19,16 @@ interface HistoryClientProps {
     initialDate?: string;
     initialWorkoutId?: string;
     baseUrl?: string;
+    isSessionLoading?: boolean;
 }
 
 export default function HistoryClient({
-    userId, initialHistoryList, initialDate, initialWorkoutId, baseUrl = '/history'
+    userId,
+    initialHistoryList,
+    initialDate,
+    initialWorkoutId,
+    baseUrl = '/history',
+    isSessionLoading = false
 }: HistoryClientProps) {
     const t = useTranslations('History');
     const locale = useLocale();
@@ -34,7 +40,6 @@ export default function HistoryClient({
     const [currentDate, setCurrentDate] = useState(() => initialDate ? new Date(initialDate) : new Date());
     const [selectedWorkouts, setSelectedWorkouts] = useState<History[] | null>(null);
     const [remoteHistoryList, setRemoteHistoryList] = useState<History[]>([]);
-    const [loading, setLoading] = useState(false);
     const [hasOpenedInitial, setHasOpenedInitial] = useState(false);
 
     // Date Helpers
@@ -61,6 +66,10 @@ export default function HistoryClient({
         },
         [userId, startMonthDate.getTime(), endMonthDate.getTime()]
     );
+
+    const isDexieLoading = dexieMonthHistory === undefined;
+    const hasAnyData = (initialHistoryList && initialHistoryList.length > 0) || (dexieMonthHistory && dexieMonthHistory.length > 0) || remoteHistoryList.length > 0;
+    const isInitialLoading = isSessionLoading || (isDexieLoading && !hasAnyData);
 
     // Merge initialHistoryList, Dexie live query results, and remote fetches
     const historyList = useMemo(() => {
@@ -95,11 +104,10 @@ export default function HistoryClient({
         return data;
     }, [historyList, debouncedSearch]);
 
-    // Fetch Logic para mudança de mês/ano no calendário
+    // Fetch Logic para atualização remota em segundo plano
     useEffect(() => {
         let isSubscribed = true;
         const fetchHistory = async () => {
-            setLoading(true);
             try {
                 const list = await HistoryService.getHistoryByRange(userId, startMonthDate, endMonthDate);
                 if (isSubscribed) {
@@ -107,12 +115,12 @@ export default function HistoryClient({
                 }
             } catch (error: any) {
                 console.error("Error fetching history:", error?.message || error);
-            } finally {
-                if (isSubscribed) setLoading(false);
             }
         };
 
-        fetchHistory();
+        if (userId) {
+            fetchHistory();
+        }
         return () => {
             isSubscribed = false;
         };
@@ -176,7 +184,7 @@ export default function HistoryClient({
                     currentDate={currentDate}
                     onMonthChange={changeMonth}
                     calendarDays={calendarDays}
-                    loading={loading}
+                    loading={isInitialLoading}
                     onSelectDay={setSelectedWorkouts}
                     dayLabels={dayLabels}
                     locale={locale}

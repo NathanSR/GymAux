@@ -28,12 +28,14 @@ export default function SchedulesPage() {
         ScheduleService.getSchedulesByUserId(activeUser.id, '', { page: 1, limit: 100 }).catch(() => {});
     }, [activeUser?.id]);
 
+    const isInitialLoading = (loading && !activeUser) || schedules === undefined;
+
     return (
         <SchedulesClient 
             initialSchedules={schedules || []} 
             initialTotalCount={(schedules || []).length}
             userId={activeUser?.id || ''}
-            isSessionLoading={loading && !activeUser}
+            isSessionLoading={isInitialLoading}
         />
     );
 }

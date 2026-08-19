@@ -7,13 +7,14 @@ import { useDexieWorkouts } from '@/hooks/useDexieData';
 export default function WorkoutsPage() {
     const { activeUser, loading } = useSession();
     const workouts = useDexieWorkouts(activeUser?.id);
+    const isInitialLoading = (loading && !activeUser) || workouts === undefined;
 
     return (
         <WorkoutsClient 
-            initialWorkouts={workouts} 
-            initialTotalCount={workouts.length}
+            initialWorkouts={workouts || []} 
+            initialTotalCount={(workouts || []).length}
             userId={activeUser?.id || ''}
-            isSessionLoading={loading && !activeUser}
+            isSessionLoading={isInitialLoading}
         />
     );
 }

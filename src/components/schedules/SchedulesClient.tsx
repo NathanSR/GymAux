@@ -79,17 +79,11 @@ export default function SchedulesClient({ initialSchedules, initialTotalCount, u
     useEffect(() => {
         if (!debouncedSearch.trim()) {
             setInitialData(sortByNewest(initialSchedules));
-        }
-    }, [initialSchedules, debouncedSearch]);
-
-    useEffect(() => {
-        if (!debouncedSearch.trim()) {
-            setInitialData(initialSchedules);
             return;
         }
 
         fetchFirstPage();
-    }, [debouncedSearch, fetchFirstPage]);
+    }, [initialSchedules, debouncedSearch, fetchFirstPage]);
 
     // Handle online/visibility recovery
     useEffect(() => {

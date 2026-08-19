@@ -9,7 +9,6 @@ import { BannerSkeleton, ListSkeleton, Skeleton } from '@/components/ui/Skeleton
 import { getBrazilToday, getBrazilDayRange } from '@/utils/dateUtil';
 import { useEffect, useState } from 'react';
 import { Workout, History } from '@/config/types';
-import { SessionService } from '@/services/sessionService';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '@/config/db';
 import { stopTopLoader } from '@/utils/topLoader';
@@ -23,8 +22,8 @@ export function HomePageClient() {
     }, []);
 
     const activeSchedule = useDexieActiveSchedule(activeUser?.id);
-    const historyList = useDexieHistory(activeUser?.id, 4);
-    const userWorkouts = useDexieWorkouts(activeUser?.id);
+    const historyList = useDexieHistory(activeUser?.id, 4) || [];
+    const userWorkouts = useDexieWorkouts(activeUser?.id) || [];
 
     const [todayWorkout, setTodayWorkout] = useState<Workout | null>(null);
     const [todayHistory, setTodayHistory] = useState<History | null>(null);

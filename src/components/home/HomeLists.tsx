@@ -17,7 +17,6 @@ import { formatDuration, getRelativeTime } from '@/utils/dateUtil';
 import Link from 'next/link';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '@/config/db';
-import { ListSkeleton } from '../ui/Skeleton';
 import ConnectionConfirmationModal from '@/components/home/ConnectionConfirmationModal';
 import { LocalizedExerciseName } from '@/components/ui/LocalizedExerciseName';
 
@@ -31,7 +30,6 @@ export function HomeLists({
     activeUserId: string;
 }) {
     const t = useTranslations('Home');
-    const te = useTranslations('Exercises');
     const tw = useTranslations('WorkoutForm');
     const locale = useLocale();
     const router = useRouter();
@@ -76,7 +74,6 @@ export function HomeLists({
         .slice(0, 4);
 
     // 2. Reconciliation Logic for Sessions:
-    // We only proceed if localSessions is loaded to avoid flickering stale server data
     const sessions: Session[] = [];
 
     if (localSessions !== undefined) {
@@ -106,10 +103,6 @@ export function HomeLists({
 
             sessions.push(serverSession);
         });
-    } else {
-        // While loading local DB, we show nothing to prevent "ghost" sessions
-        // This will be very brief (milliseconds)
-        return <ListSkeleton count={2} />;
     }
 
     const handleCancelSession = async (sessionId: string) => {

@@ -9,14 +9,14 @@ import { HistoryService } from '@/services/historyService';
 import { ExerciseService } from '@/services/exerciseService';
 import { SessionService } from '@/services/sessionService';
 import { Workout, Schedule, History, Exercise, Session } from '@/config/types';
-
-import { getEffectiveTime, sortByNewest } from '@/utils/dateUtil';
+import { sortByNewest } from '@/utils/dateUtil';
 
 /**
  * Retorna lista reativa de treinos do usuário via Dexie.
+ * Retorna undefined enquanto a consulta ao IndexedDB estiver em andamento.
  * Atualiza o Dexie em segundo plano se houver conexão.
  */
-export function useDexieWorkouts(userId?: string | null): Workout[] {
+export function useDexieWorkouts(userId?: string | null): Workout[] | undefined {
     const workouts = useLiveQuery(
         async () => {
             if (!userId) return [];
@@ -36,13 +36,14 @@ export function useDexieWorkouts(userId?: string | null): Workout[] {
         });
     }, [userId]);
 
-    return workouts ?? [];
+    return workouts;
 }
 
 /**
  * Retorna o cronograma ativo do usuário via Dexie.
+ * Retorna undefined enquanto a consulta ao IndexedDB estiver em andamento.
  */
-export function useDexieActiveSchedule(userId?: string | null): Schedule | null {
+export function useDexieActiveSchedule(userId?: string | null): Schedule | null | undefined {
     const schedule = useLiveQuery(
         async () => {
             if (!userId) return null;
@@ -64,13 +65,14 @@ export function useDexieActiveSchedule(userId?: string | null): Schedule | null 
         });
     }, [userId]);
 
-    return schedule ?? null;
+    return schedule;
 }
 
 /**
  * Retorna histórico de treinos do usuário via Dexie.
+ * Retorna undefined enquanto a consulta ao IndexedDB estiver em andamento.
  */
-export function useDexieHistory(userId?: string | null, limit = 20): History[] {
+export function useDexieHistory(userId?: string | null, limit = 20): History[] | undefined {
     const history = useLiveQuery(
         async () => {
             if (!userId) return [];
@@ -94,13 +96,14 @@ export function useDexieHistory(userId?: string | null, limit = 20): History[] {
         });
     }, [userId, limit]);
 
-    return history ?? [];
+    return history;
 }
 
 /**
  * Retorna sessão ativa do usuário via Dexie.
+ * Retorna undefined enquanto a consulta ao IndexedDB estiver em andamento.
  */
-export function useDexieActiveSession(userId?: string | null): Session | null {
+export function useDexieActiveSession(userId?: string | null): Session | null | undefined {
     const session = useLiveQuery(
         async () => {
             if (!userId) return null;
@@ -125,13 +128,14 @@ export function useDexieActiveSession(userId?: string | null): Session | null {
         });
     }, [userId]);
 
-    return session ?? null;
+    return session;
 }
 
 /**
  * Retorna todos os exercícios disponíveis via Dexie.
+ * Retorna undefined enquanto a consulta ao IndexedDB estiver em andamento.
  */
-export function useDexieExercises(): Exercise[] {
+export function useDexieExercises(): Exercise[] | undefined {
     const exercises = useLiveQuery(
         async () => {
             return await db.exercises.toArray();
@@ -146,5 +150,5 @@ export function useDexieExercises(): Exercise[] {
         });
     }, []);
 
-    return exercises ?? [];
+    return exercises;
 }

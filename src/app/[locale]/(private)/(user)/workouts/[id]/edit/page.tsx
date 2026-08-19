@@ -49,7 +49,7 @@ export default function EditWorkoutPage({ params }: EditWorkoutPageProps) {
     return (
         <EditWorkoutClient
             initialWorkout={workout}
-            availableExercises={availableExercises}
+            availableExercises={availableExercises || []}
             workoutId={id}
             callerId={activeUser?.id || ''}
             isFetching={isFetching}

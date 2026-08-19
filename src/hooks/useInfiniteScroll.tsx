@@ -31,42 +31,51 @@ export function useInfiniteScroll<T>(
     keyExtractor
   }: useInfiniteScrollOptions<T> = {}
 ) {
-  const [visibleData, setVisibleData] = useState<T[]>([]);
-  const [page, setPage] = useState(initialPage);
-  const [hasMore, setHasMore] = useState(false);
+  // Compute initial state synchronously to prevent empty 1-frame flashes
+  const computeInitialVisible = (data: T[]): T[] => {
+    if (!data) return [];
+    return fetchData ? data : data.slice(0, pageSize);
+  };
+
+  const computeInitialPage = (data: T[]): number => {
+    if (!data) return initialPage;
+    return fetchData
+      ? Math.max(initialPage + 1, Math.floor(data.length / pageSize) + 1)
+      : 2;
+  };
+
+  const computeInitialHasMore = (data: T[]): boolean => {
+    if (!data) return false;
+    return fetchData ? data.length >= pageSize : data.length > pageSize;
+  };
+
+  const [visibleData, setVisibleData] = useState<T[]>(() => computeInitialVisible(allItemsOrInitialData));
+  const [page, setPage] = useState<number>(() => computeInitialPage(allItemsOrInitialData));
+  const [hasMore, setHasMore] = useState<boolean>(() => computeInitialHasMore(allItemsOrInitialData));
   const [isLoadingMore, setIsLoadingMore] = useState(false);
 
-  // Store callbacks in refs so they never trigger the reset effect
+  // Store callbacks in refs so they never trigger unnecessary resets
   const fetchDataRef = useRef(fetchData);
   fetchDataRef.current = fetchData;
 
   const keyExtractorRef = useRef(keyExtractor);
   keyExtractorRef.current = keyExtractor;
 
-  // Guard ref to prevent concurrent loadMore calls (belt-and-suspenders)
+  // Guard ref to prevent concurrent loadMore calls
   const isLoadingRef = useRef(false);
 
-  // Reset only when actual data / pageSize change — NOT when fetchData reference changes
-  useEffect(() => {
-    if (fetchDataRef.current) {
-      // Dynamic true pagination: show the initial data as-is
-      setVisibleData(allItemsOrInitialData);
-      const nextCalculatedPage = Math.max(
-        initialPage + 1,
-        Math.floor(allItemsOrInitialData.length / pageSize) + 1
-      );
-      setPage(nextCalculatedPage);
-      setHasMore(allItemsOrInitialData.length >= pageSize);
-    } else {
-      // Legacy slicing
-      setVisibleData(allItemsOrInitialData.slice(0, pageSize));
-      setPage(2);
-      setHasMore(allItemsOrInitialData.length > pageSize);
-    }
+  // Sync state when allItemsOrInitialData or pageSize changes
+  const prevDataRef = useRef(allItemsOrInitialData);
+  const prevPageSizeRef = useRef(pageSize);
 
-    // Reset the loading guard on data change
+  if (prevDataRef.current !== allItemsOrInitialData || prevPageSizeRef.current !== pageSize) {
+    prevDataRef.current = allItemsOrInitialData;
+    prevPageSizeRef.current = pageSize;
+    setVisibleData(computeInitialVisible(allItemsOrInitialData));
+    setPage(computeInitialPage(allItemsOrInitialData));
+    setHasMore(computeInitialHasMore(allItemsOrInitialData));
     isLoadingRef.current = false;
-  }, [allItemsOrInitialData, pageSize, initialPage]);
+  }
 
   const loadMore = useCallback(async () => {
     if (isLoadingRef.current || isLoadingMore || !hasMore) return;

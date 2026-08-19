@@ -87,21 +87,16 @@ export default function ExercisesClient({ initialExercises, initialTotalCount, i
         }
     }, [debouncedSearch, selectedCategory, selectedEquipment, te, tt, locale]);
 
-    useEffect(() => {
-        if (selectedCategory === 'all' && selectedEquipment === 'all' && !debouncedSearch.trim()) {
-            setInitialData(initialExercises);
-        }
-    }, [initialExercises, selectedCategory, selectedEquipment, debouncedSearch]);
+    const isFilterActive = selectedCategory !== 'all' || selectedEquipment !== 'all' || debouncedSearch.trim() !== '';
 
     useEffect(() => {
-        // Se não houver filtros ativos nem busca, utiliza os dados iniciais providos do Dexie/props
-        if (selectedCategory === 'all' && selectedEquipment === 'all' && !debouncedSearch.trim()) {
+        if (!isFilterActive) {
             setInitialData(initialExercises);
             return;
         }
 
         fetchFirstPage();
-    }, [debouncedSearch, selectedCategory, selectedEquipment, fetchFirstPage]);
+    }, [initialExercises, isFilterActive, debouncedSearch, selectedCategory, selectedEquipment, fetchFirstPage]);
 
     // Handle online/visibility recovery
     useEffect(() => {

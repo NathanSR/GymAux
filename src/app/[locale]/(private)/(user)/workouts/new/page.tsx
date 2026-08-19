@@ -16,6 +16,6 @@ export default function NewWorkoutPage() {
     if (!activeUser) return null;
 
     return (
-        <NewWorkoutClient availableExercises={availableExercises} userId={activeUser.id!} />
+        <NewWorkoutClient availableExercises={availableExercises || []} userId={activeUser.id!} />
     );
 }
