@@ -17,28 +17,12 @@ export const HAMSTRING_EXERCISES: Exercise[] = [
         "level": "intermediate",
         "parentId": null,
         "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/hamstrings/barbell_stiff_leg_deadlift.webp",
-        "videoUrl": "null",
+        "videoUrl": null,
         "gallery": [],
         "created_by_type": "system",
         "translations": {
-            "pt": {
-                "name": "Stiff (Barra)",
-                "description": "Foco máximo no alongamento e volume dos posteriores.",
-                "howTo": "1. Mantenha os joelhos quase retos e a barra rente às pernas.\n2. Desça o tronco empurrando o quadril para trás até sentir o alongamento.\n3. Suba contraindo os posteriores sem arredondar as costas.",
-                "tags": [
-                    "Posteriores de Coxa",
-                    "Cadeia Posterior",
-                    "Pernas",
-                    "Alongamento Máximo",
-                    "Glúteos e Posteriores",
-                    "Barra",
-                    "Composto"
-                ]
-            },
             "en": {
                 "name": "Stiff Leg Deadlift (Barbell)",
-                "description": "Maximum focus on hamstring stretch and volume.",
-                "howTo": "1. Keep knees almost straight and the bar close to your legs.\n2. Lower your torso by pushing hips back until you feel the stretch.\n3. Rise by contracting hamstrings without rounding your back.",
                 "tags": [
                     "Hamstrings",
                     "Posterior Chain",
@@ -47,12 +31,12 @@ export const HAMSTRING_EXERCISES: Exercise[] = [
                     "Glutes & Hamstrings",
                     "Barbell",
                     "Compound"
-                ]
+                ],
+                "howTo": "1. Keep knees almost straight and the bar close to your legs.\n2. Lower your torso by pushing hips back until you feel the stretch.\n3. Rise by contracting hamstrings without rounding your back.",
+                "description": "Maximum focus on hamstring stretch and volume."
             },
             "es": {
                 "name": "Stiff Leg Deadlift (Barra)",
-                "description": "Foco máximo en el estiramiento y volumen de los isquiotibiales.",
-                "howTo": "1. Mantén rodillas casi rectas y la barra pegada a las piernas.\n2. Baja el tronco empujando la cadera atrás hasta sentir el estiramiento.\n3. Sube apretando los isquios sin arquear la espalda.",
                 "tags": [
                     "Isquiotibiales",
                     "Cadena Posterior",
@@ -61,7 +45,23 @@ export const HAMSTRING_EXERCISES: Exercise[] = [
                     "Glúteos e Isquios",
                     "Barra",
                     "Compuesto"
-                ]
+                ],
+                "howTo": "1. Mantén rodillas casi rectas y la barra pegada a las piernas.\n2. Baja el tronco empujando la cadera atrás hasta sentir el estiramiento.\n3. Sube apretando los isquios sin arquear la espalda.",
+                "description": "Foco máximo en el estiramiento y volumen de los isquiotibiales."
+            },
+            "pt": {
+                "name": "Stiff (Barra)",
+                "tags": [
+                    "Posteriores de Coxa",
+                    "Cadeia Posterior",
+                    "Pernas",
+                    "Alongamento Máximo",
+                    "Glúteos e Posteriores",
+                    "Barra",
+                    "Composto"
+                ],
+                "howTo": "1. Mantenha os joelhos quase retos e a barra rente às pernas.\n2. Desça o tronco empurrando o quadril para trás até sentir o alongamento.\n3. Suba contraindo os posteriores sem arredondar as costas.",
+                "description": "Foco máximo no alongamento e volume dos posteriores."
             }
         }
     },
@@ -81,27 +81,12 @@ export const HAMSTRING_EXERCISES: Exercise[] = [
         "level": "intermediate",
         "parentId": null,
         "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/hamstrings/dumbbell_stiff_leg_deadlift.webp",
-        "videoUrl": "null",
+        "videoUrl": null,
         "gallery": [],
         "created_by_type": "system",
         "translations": {
-            "pt": {
-                "name": "Stiff (Halteres)",
-                "description": "Permite um ajuste mais natural da pegada e maior amplitude.",
-                "howTo": "1. Segure os halteres à frente das coxas.\n2. Desça os pesos em direção aos pés mantendo a coluna reta.\n3. Sinta o alongamento atrás das coxas e suba com controle.",
-                "tags": [
-                    "Posteriores de Coxa",
-                    "Cadeia Posterior",
-                    "Pernas",
-                    "Alongamento Máximo",
-                    "Glúteos e Posteriores",
-                    "Composto"
-                ]
-            },
             "en": {
                 "name": "Stiff Leg Deadlift (Dumbbell)",
-                "description": "Allows for a more natural grip adjustment and greater range.",
-                "howTo": "1. Hold dumbbells in front of your thighs.\n2. Lower the weights toward your feet while keeping a straight spine.\n3. Feel the stretch in the back of your thighs and rise with control.",
                 "tags": [
                     "Hamstrings",
                     "Posterior Chain",
@@ -109,12 +94,12 @@ export const HAMSTRING_EXERCISES: Exercise[] = [
                     "Maximum Stretch",
                     "Glutes & Hamstrings",
                     "Compound"
-                ]
+                ],
+                "howTo": "1. Hold dumbbells in front of your thighs.\n2. Lower the weights toward your feet while keeping a straight spine.\n3. Feel the stretch in the back of your thighs and rise with control.",
+                "description": "Allows for a more natural grip adjustment and greater range."
             },
             "es": {
                 "name": "Stiff Leg Deadlift (Mancuernas)",
-                "description": "Permite un ajuste de agarre más natural y mayor rango.",
-                "howTo": "1. Sujeta las mancuernas frente a los muslos.\n2. Baja el peso hacia los pies manteniendo la espalda recta.\n3. Siente el estiramiento y sube con control.",
                 "tags": [
                     "Isquiotibiales",
                     "Cadena Posterior",
@@ -122,7 +107,22 @@ export const HAMSTRING_EXERCISES: Exercise[] = [
                     "Estiramiento Máximo",
                     "Glúteos e Isquios",
                     "Compuesto"
-                ]
+                ],
+                "howTo": "1. Sujeta las mancuernas frente a los muslos.\n2. Baja el peso hacia los pies manteniendo la espalda recta.\n3. Siente el estiramiento y sube con control.",
+                "description": "Permite un ajuste de agarre más natural y mayor rango."
+            },
+            "pt": {
+                "name": "Stiff (Halteres)",
+                "tags": [
+                    "Posteriores de Coxa",
+                    "Cadeia Posterior",
+                    "Pernas",
+                    "Alongamento Máximo",
+                    "Glúteos e Posteriores",
+                    "Composto"
+                ],
+                "howTo": "1. Segure os halteres à frente das coxas.\n2. Desça os pesos em direção aos pés mantendo a coluna reta.\n3. Sinta o alongamento atrás das coxas e suba com controle.",
+                "description": "Permite um ajuste mais natural da pegada e maior amplitude."
             }
         }
     },
@@ -142,28 +142,12 @@ export const HAMSTRING_EXERCISES: Exercise[] = [
         "level": "intermediate",
         "parentId": null,
         "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/hamstrings/barbell_romanian_deadlift.webp",
-        "videoUrl": "null",
+        "videoUrl": null,
         "gallery": [],
         "created_by_type": "system",
         "translations": {
-            "pt": {
-                "name": "RDL (Levantamento Romeno)",
-                "description": "Exercício base para força da cadeia posterior.",
-                "howTo": "1. Inicie o movimento pelo quadril, flexionando levemente os joelhos.\n2. Desça a barra até logo abaixo dos joelhos.\n3. Retorne à posição inicial contraindo glúteos e posteriores.",
-                "tags": [
-                    "Posteriores de Coxa",
-                    "Cadeia Posterior",
-                    "Pernas",
-                    "Alongamento Máximo",
-                    "Glúteos e Posteriores",
-                    "Barra",
-                    "Composto"
-                ]
-            },
             "en": {
                 "name": "Romanian Deadlift (Barbell)",
-                "description": "Core exercise for posterior chain strength.",
-                "howTo": "1. Start the movement at the hips, slightly bending the knees.\n2. Lower the bar until just below the knees.\n3. Return to starting position by squeezing glutes and hamstrings.",
                 "tags": [
                     "Hamstrings",
                     "Posterior Chain",
@@ -172,12 +156,12 @@ export const HAMSTRING_EXERCISES: Exercise[] = [
                     "Glutes & Hamstrings",
                     "Barbell",
                     "Compound"
-                ]
+                ],
+                "howTo": "1. Start the movement at the hips, slightly bending the knees.\n2. Lower the bar until just below the knees.\n3. Return to starting position by squeezing glutes and hamstrings.",
+                "description": "Core exercise for posterior chain strength."
             },
             "es": {
                 "name": "Romanian Deadlift (Barra)",
-                "description": "Ejercicio base para la fuerza de la cadena posterior.",
-                "howTo": "1. Inicia el movimiento en la cadera, flexionando levemente las rodillas.\n2. Baja la barra hasta justo debajo de las rodillas.\n3. Regresa al inicio apretando glúteos e isquiotibiales.",
                 "tags": [
                     "Isquiotibiales",
                     "Cadena Posterior",
@@ -186,7 +170,23 @@ export const HAMSTRING_EXERCISES: Exercise[] = [
                     "Glúteos e Isquios",
                     "Barra",
                     "Compuesto"
-                ]
+                ],
+                "howTo": "1. Inicia el movimiento en la cadera, flexionando levemente las rodillas.\n2. Baja la barra hasta justo debajo de las rodillas.\n3. Regresa al inicio apretando glúteos e isquiotibiales.",
+                "description": "Ejercicio base para la fuerza de la cadena posterior."
+            },
+            "pt": {
+                "name": "RDL (Levantamento Romeno)",
+                "tags": [
+                    "Posteriores de Coxa",
+                    "Cadeia Posterior",
+                    "Pernas",
+                    "Alongamento Máximo",
+                    "Glúteos e Posteriores",
+                    "Barra",
+                    "Composto"
+                ],
+                "howTo": "1. Inicie o movimento pelo quadril, flexionando levemente os joelhos.\n2. Desça a barra até logo abaixo dos joelhos.\n3. Retorne à posição inicial contraindo glúteos e posteriores.",
+                "description": "Exercício base para força da cadeia posterior."
             }
         }
     },
@@ -205,51 +205,51 @@ export const HAMSTRING_EXERCISES: Exercise[] = [
         "level": "advanced",
         "parentId": null,
         "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/hamstrings/good_morning_barbell.webp",
-        "videoUrl": "null",
+        "videoUrl": null,
         "gallery": [],
         "created_by_type": "system",
         "translations": {
-            "pt": {
-                "name": "Good Morning (Barra)",
-                "description": "Excelente para fortalecer a zona lombar e posteriores.",
-                "howTo": "1. Apoie a barra no trapézio como no agachamento.\n2. Incline o tronco para a frente mantendo as pernas esticadas.\n3. Volte à posição vertical usando a força das coxas.",
-                "tags": [
-                    "Posteriores de Coxa",
-                    "Cadeia Posterior",
-                    "Pernas",
-                    "Alongamento Máximo",
-                    "Glúteos e Posteriores",
-                    "Barra",
-                    "Composto"
-                ]
-            },
             "en": {
                 "name": "Good Morning (Barbell)",
-                "description": "Excellent for strengthening the lower back and hamstrings.",
-                "howTo": "1. Rest the bar on your traps as you would for a squat.\n2. Hinge at the hips, leaning forward while keeping legs straight.\n3. Return to upright position using thigh strength.",
                 "tags": [
                     "Hamstrings",
                     "Posterior Chain",
                     "Legs",
-                    "Maximum Stretch",
-                    "Glutes & Hamstrings",
+                    "Lower Back",
+                    "Glutes",
                     "Barbell",
                     "Compound"
-                ]
+                ],
+                "howTo": "1. Rest the barbell securely across your traps.\n2. Hinge forward at your hips while keeping a slight knee bend and flat back.\n3. Lower your torso until you feel a deep hamstring stretch, then drive hips forward to return.",
+                "description": "Classic posterior chain builder targeting hamstrings, glutes, and the lower back with a pure hip hinge."
             },
             "es": {
-                "name": "Good Morning (Barra)",
-                "description": "Excelente para fortalecer la zona lumbar e isquiotibiales.",
-                "howTo": "1. Apoya la barra en los trapecios como en una sentadilla.\n2. Inclina el tronco adelante con las piernas estiradas.\n3. Vuelve a la posición vertical usando la fuerza de los muslos.",
+                "name": "Buenos Días (Barra)",
                 "tags": [
                     "Isquiotibiales",
                     "Cadena Posterior",
                     "Piernas",
-                    "Estiramiento Máximo",
-                    "Glúteos e Isquios",
+                    "Lumbar",
+                    "Glúteos",
                     "Barra",
                     "Compuesto"
-                ]
+                ],
+                "howTo": "1. Apoya la barra sobre los trapecios como en una sentadilla.\n2. Flexiona la cadera inclinando el torso hacia adelante con la espalda recta.\n3. Baja hasta sentir el estiramiento en los isquiotibiales y regresa empujando con la cadera.",
+                "description": "Excelente ejercicio para fortalecer la cadena posterior, zona lumbar, glúteos e isquiotibiales."
+            },
+            "pt": {
+                "name": "Bom Dia (Barra)",
+                "tags": [
+                    "Posteriores de Coxa",
+                    "Cadeia Posterior",
+                    "Pernas",
+                    "Lombar",
+                    "Glúteos",
+                    "Barra",
+                    "Composto"
+                ],
+                "howTo": "1. Apoie a barra sobre o trapézio como no agachamento.\n2. Incline o tronco para a frente flexionando o quadril mantendo as costas retas e joelhos levemente destravados.\n3. Desça até sentir o alongamento nos posteriores e retorne contraindo glúteos e lombar.",
+                "description": "Excelente exercício para fortalecimento da cadeia posterior, lombar, glúteos e posteriores de coxa."
             }
         }
     },
@@ -267,51 +267,48 @@ export const HAMSTRING_EXERCISES: Exercise[] = [
         "level": "beginner",
         "parentId": null,
         "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/hamstrings/lying_leg_curl_machine.webp",
-        "videoUrl": "null",
+        "videoUrl": null,
         "gallery": [],
         "created_by_type": "system",
         "translations": {
-            "pt": {
-                "name": "Rosca Direta (Máquina)",
-                "description": "Isola os posteriores através da flexão do joelho.",
-                "howTo": "1. Deite-se e alinhe os joelhos com o eixo da máquina.\n2. Flexione as pernas levando o rolo em direção ao glúteo.\n3. Desça o peso de forma lenta e controlada.",
-                "tags": [
-                    "Posteriores de Coxa",
-                    "Cadeia Posterior",
-                    "Pernas",
-                    "Tensão Constante",
-                    "Seguro para o Joelho",
-                    "Máquina",
-                    "Isolado"
-                ]
-            },
             "en": {
                 "name": "Lying Leg Curl (Machine)",
-                "description": "Isolates the hamstrings through knee flexion.",
-                "howTo": "1. Lie face down and align knees with the machine's axis.\n2. Flex your legs, bringing the roller toward your glutes.\n3. Lower the weight in a slow and controlled manner.",
                 "tags": [
                     "Hamstrings",
+                    "Lying Leg Curl",
                     "Posterior Chain",
                     "Legs",
-                    "Constant Tension",
-                    "Knee Friendly",
                     "Machine",
                     "Isolation"
-                ]
+                ],
+                "howTo": "1. Lie face down on the bench with the pad positioned just above your heels.\n2. Grip the handles firmly to keep hips pressed flat into the pad.\n3. Curl your legs up toward your glutes, squeezing your hamstrings.\n4. Lower the weight slowly under control back to full extension.",
+                "description": "Direct mechanical isolation for the hamstrings through knee flexion in the prone position."
             },
             "es": {
-                "name": "Lying Leg Curl (Máquina)",
-                "description": "Aísla los isquiotibiales mediante la flexión de rodilla.",
-                "howTo": "1. Túmbate y alinea las rodillas con el eje de la máquina.\n2. Flexiona las piernas llevando el rodillo hacia el glúteo.\n3. Baja el peso de forma lenta y controlada.",
+                "name": "Femoral Tumbado / Mesa Flexora (Máquina)",
                 "tags": [
                     "Isquiotibiales",
+                    "Femoral Tumbado",
                     "Cadena Posterior",
                     "Piernas",
-                    "Tensión Constante",
-                    "Seguro para Rodilla",
                     "Máquina",
                     "Aislamiento"
-                ]
+                ],
+                "howTo": "1. Túmbate boca abajo con el rodillo apoyado justo sobre los talones.\n2. Sujeta los manerales para mantener la cadera pegada al banco.\n3. Flexiona las piernas llevando el rodillo hacia los glúteos.\n4. Desciende el peso de forma lenta y controlada.",
+                "description": "Aislamiento mecánico directo de los isquiotibiales mediante flexión de rodilla en posición tumbada."
+            },
+            "pt": {
+                "name": "Mesa Flexora (Máquina)",
+                "tags": [
+                    "Posteriores de Coxa",
+                    "Mesa Flexora",
+                    "Cadeia Posterior",
+                    "Pernas",
+                    "Máquina",
+                    "Isolado"
+                ],
+                "howTo": "1. Deite-se de bruços na máquina com o rolo de apoio posicionado logo acima dos calcanhares.\n2. Segure as manoplas firmemente para manter o quadril colado ao banco.\n3. Flexione os joelhos puxando o rolo em direção aos glúteos e contraindo os posteriores.\n4. Retorne controlando o peso sem deixar a carga bater.",
+                "description": "Isolamento mecânico direto para os posteriores de coxa através da flexão de joelhos na posição deitada."
             }
         }
     },
@@ -329,51 +326,48 @@ export const HAMSTRING_EXERCISES: Exercise[] = [
         "level": "beginner",
         "parentId": null,
         "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/hamstrings/seated_leg_curl_machine.webp",
-        "videoUrl": "null",
+        "videoUrl": null,
         "gallery": [],
         "created_by_type": "system",
         "translations": {
-            "pt": {
-                "name": "Rosca Direta (Máquina)",
-                "description": "Proporciona uma contração muscular mais intensa.",
-                "howTo": "1. Ajuste o suporte sobre as coxas para não se mexer.\n2. Empurre o rolo para baixo até a flexão máxima.\n3. Controle o retorno para manter a tensão muscular.",
-                "tags": [
-                    "Posteriores de Coxa",
-                    "Cadeia Posterior",
-                    "Pernas",
-                    "Tensão Constante",
-                    "Seguro para o Joelho",
-                    "Máquina",
-                    "Isolado"
-                ]
-            },
             "en": {
                 "name": "Seated Leg Curl (Machine)",
-                "description": "Provides a more intense muscle contraction.",
-                "howTo": "1. Adjust the thigh pad so you remain secure.\n2. Push the roller down to maximum flexion.\n3. Control the return to maintain muscle tension.",
                 "tags": [
                     "Hamstrings",
+                    "Seated Leg Curl",
                     "Posterior Chain",
                     "Legs",
-                    "Constant Tension",
-                    "Knee Friendly",
                     "Machine",
                     "Isolation"
-                ]
+                ],
+                "howTo": "1. Sit firmly with back against the pad and lock the thigh pad down securely.\n2. Place the back of your lower calves/ankles against the lever pad.\n3. Pull the lever down and back by flexing your knees fully.\n4. Return slowly through a full range of motion under control.",
+                "description": "Premier hamstring isolation in a seated position, challenging the muscle in a greater stretched state due to hip flexion."
             },
             "es": {
-                "name": "Seated Leg Curl (Máquina)",
-                "description": "Proporciona una contracción muscular más intensa.",
-                "howTo": "1. Ajusta el soporte sobre los muslos para no moverte.\n2. Empuja el rodillo hacia abajo hasta la flexión máxima.\n3. Controla el regreso para mantener la tensión.",
+                "name": "Femoral Sentado / Cadeira Flexora (Máquina)",
                 "tags": [
                     "Isquiotibiales",
+                    "Femoral Sentado",
                     "Cadena Posterior",
                     "Piernas",
-                    "Tensión Constante",
-                    "Seguro para Rodilla",
                     "Máquina",
                     "Aislamiento"
-                ]
+                ],
+                "howTo": "1. Siéntate con la espalda apoyada y ajusta la almohadilla superior sobre los muslos.\n2. Coloca los tobillos sobre el rodillo inferior.\n3. Flexiona las rodillas tirando del rodillo hacia abajo y atrás.\n4. Regresa despacio sintiendo el estiramiento muscular.",
+                "description": "Excelente aislamiento de los isquiotibiales en posición sentada, trabajando el músculo con mayor estiramiento inicial."
+            },
+            "pt": {
+                "name": "Cadeira Flexora (Máquina)",
+                "tags": [
+                    "Posteriores de Coxa",
+                    "Cadeira Flexora",
+                    "Cadeia Posterior",
+                    "Pernas",
+                    "Máquina",
+                    "Isolado"
+                ],
+                "howTo": "1. Sente-se na máquina com as costas bem apoiadas e o rolo superior travando as coxas com firmeza.\n2. Apoie a parte posterior dos tornozelos no rolo inferior.\n3. Flexione os joelhos puxando o rolo para baixo e para trás.\n4. Retorne devagar sentindo o alongamento dos posteriores.",
+                "description": "Excelente isolamento dos posteriores de coxa na posição sentada, trabalhando o músculo em posição de maior alongamento prévio."
             }
         }
     },
@@ -391,54 +385,48 @@ export const HAMSTRING_EXERCISES: Exercise[] = [
         "level": "beginner",
         "parentId": null,
         "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/hamstrings/standing_leg_curl.webp",
-        "videoUrl": "null",
+        "videoUrl": null,
         "gallery": [],
         "created_by_type": "system",
         "translations": {
-            "pt": {
-                "name": "Rosca Direta (Máquina)",
-                "description": "Corrige assimetrias e foca no isolamento individual.",
-                "howTo": "1. Apoie o corpo na máquina e posicione o rolo no tornozelo.\n2. Flexione a perna para trás o máximo possível.\n3. Alterne as pernas após completar a série.",
-                "tags": [
-                    "Posteriores de Coxa",
-                    "Cadeia Posterior",
-                    "Pernas",
-                    "Tensão Constante",
-                    "Seguro para o Joelho",
-                    "Máquina",
-                    "Isolado",
-                    "Unilateral"
-                ]
-            },
             "en": {
-                "name": "Standing Single Leg Curl (Machine)",
-                "description": "Corrects imbalances and focuses on individual isolation.",
-                "howTo": "1. Lean against the machine and position the roller on your ankle.\n2. Curl your leg back as far as possible.\n3. Alternate legs after completing the set.",
+                "name": "Standing Leg Curl (Machine)",
                 "tags": [
                     "Hamstrings",
+                    "Standing Leg Curl",
+                    "Unilateral",
                     "Posterior Chain",
-                    "Legs",
-                    "Constant Tension",
-                    "Knee Friendly",
                     "Machine",
-                    "Isolation",
-                    "Unilateral"
-                ]
+                    "Isolation"
+                ],
+                "howTo": "1. Stand facing the machine resting your thighs against the support pad.\n2. Place the back of your working ankle beneath the roller pad.\n3. Curl your leg upward bringing your heel toward your glute.\n4. Lower with control through the full eccentric phase before switching sides.",
+                "description": "Unilateral standing leg curl on the machine, ideal for balancing strength and hypertrophy between legs."
             },
             "es": {
-                "name": "Standing Single Leg Curl (Máquina)",
-                "description": "Corrige asimetrías y enfoca en el aislamiento individual.",
-                "howTo": "1. Apóyate en la máquina y coloca el rodillo en el tobillo.\n2. Flexiona la pierna hacia atrás lo más posible.\n3. Alterna las piernas al terminar la serie.",
+                "name": "Femoral de Pie (Máquina)",
                 "tags": [
                     "Isquiotibiales",
+                    "Femoral de Pie",
+                    "Unilateral",
                     "Cadena Posterior",
-                    "Piernas",
-                    "Tensión Constante",
-                    "Seguro para Rodilla",
                     "Máquina",
-                    "Aislamiento",
-                    "Unilateral"
-                ]
+                    "Aislamiento"
+                ],
+                "howTo": "1. De pie apoyando el muslo contra el soporte de la máquina.\n2. Coloca la parte posterior del tobillo debajo del rodillo.\n3. Flexiona la rodilla subiendo el talón hacia el glúteo.\n4. Desciende de forma controlada antes de cambiar de pierna.",
+                "description": "Flexión de pierna unilateral de pie en máquina para corregir desequilibrios y lograr un aislamiento preciso."
+            },
+            "pt": {
+                "name": "Flexora em Pé (Máquina)",
+                "tags": [
+                    "Posteriores de Coxa",
+                    "Flexora em Pé",
+                    "Unilateral",
+                    "Cadeia Posterior",
+                    "Máquina",
+                    "Isolado"
+                ],
+                "howTo": "1. Fique de pé apoiando a frente da coxa no suporte da máquina.\n2. Posicione a parte de trás do tornozelo da perna ativa sob o rolo de apoio.\n3. Flexione o joelho elevando o calcanhar em direção ao glúteo.\n4. Desça de forma lenta e controlada antes de alternar de perna.",
+                "description": "Flexão de perna unilateral em pé na máquina, ideal para corrigir assimetrias de força e volume entre as pernas."
             }
         }
     },
@@ -456,29 +444,12 @@ export const HAMSTRING_EXERCISES: Exercise[] = [
         "level": "advanced",
         "parentId": null,
         "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/hamstrings/nordic_hamstring_curl.webp",
-        "videoUrl": "null",
+        "videoUrl": null,
         "gallery": [],
         "created_by_type": "system",
         "translations": {
-            "pt": {
-                "name": "Flexão Nórdica (Peso Corporal)",
-                "description": "Exercício de elite para força excêntrica e prevenção de lesões.",
-                "howTo": "1. Ajoelhado, peça a alguém para segurar os seus calcanhares.\n2. Desça o corpo para a frente o mais devagar possível.\n3. Use as mãos para se impulsionar de volta no final.",
-                "tags": [
-                    "Posteriores de Coxa",
-                    "Cadeia Posterior",
-                    "Pernas",
-                    "Tensão Constante",
-                    "Seguro para o Joelho",
-                    "Peso Corporal",
-                    "Em Casa",
-                    "Isolado"
-                ]
-            },
             "en": {
                 "name": "Nordic Hamstring Curl",
-                "description": "Elite exercise for eccentric strength and injury prevention.",
-                "howTo": "1. Kneel and have someone hold your ankles down.\n2. Lower your body forward as slowly as possible.\n3. Use your hands to push yourself back up at the bottom.",
                 "tags": [
                     "Hamstrings",
                     "Posterior Chain",
@@ -488,12 +459,12 @@ export const HAMSTRING_EXERCISES: Exercise[] = [
                     "Bodyweight",
                     "Home",
                     "Isolation"
-                ]
+                ],
+                "howTo": "1. Kneel and have someone hold your ankles down.\n2. Lower your body forward as slowly as possible.\n3. Use your hands to push yourself back up at the bottom.",
+                "description": "Elite exercise for eccentric strength and injury prevention."
             },
             "es": {
                 "name": "Curl Nórdico (Peso Corporal)",
-                "description": "Ejercicio de élite para fuerza excéntrica y prevención de lesiones.",
-                "howTo": "1. Arrodillado, pide a alguien que sujete tus talones.\n2. Baja el cuerpo hacia adelante lo más lento posible.\n3. Usa las manos para impulsarte de vuelta al final.",
                 "tags": [
                     "Isquiotibiales",
                     "Cadena Posterior",
@@ -503,7 +474,24 @@ export const HAMSTRING_EXERCISES: Exercise[] = [
                     "Peso Corporal",
                     "En Casa",
                     "Aislamiento"
-                ]
+                ],
+                "howTo": "1. Arrodillado, pide a alguien que sujete tus talones.\n2. Baja el cuerpo hacia adelante lo más lento posible.\n3. Usa las manos para impulsarte de vuelta al final.",
+                "description": "Ejercicio de élite para fuerza excéntrica y prevención de lesiones."
+            },
+            "pt": {
+                "name": "Flexão Nórdica (Peso Corporal)",
+                "tags": [
+                    "Posteriores de Coxa",
+                    "Cadeia Posterior",
+                    "Pernas",
+                    "Tensão Constante",
+                    "Seguro para o Joelho",
+                    "Peso Corporal",
+                    "Em Casa",
+                    "Isolado"
+                ],
+                "howTo": "1. Ajoelhado, peça a alguém para segurar os seus calcanhares.\n2. Desça o corpo para a frente o mais devagar possível.\n3. Use as mãos para se impulsionar de volta no final.",
+                "description": "Exercício de elite para força excêntrica e prevenção de lesões."
             }
         }
     },
@@ -521,54 +509,48 @@ export const HAMSTRING_EXERCISES: Exercise[] = [
         "level": "beginner",
         "parentId": null,
         "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/hamstrings/sliding_leg_curl_towel.webp",
-        "videoUrl": "null",
+        "videoUrl": null,
         "gallery": [],
         "created_by_type": "system",
         "translations": {
-            "pt": {
-                "name": "Rosca Direta",
-                "description": "Ótima opção para treinar em casa usando uma toalha ou meia.",
-                "howTo": "1. Deitado, apoie os calcanhares numa toalha em chão liso.\n2. Eleve o quadril e puxe os calcanhares em direção ao corpo.\n3. Estenda as pernas novamente sem descer o quadril.",
-                "tags": [
-                    "Posteriores de Coxa",
-                    "Cadeia Posterior",
-                    "Pernas",
-                    "Tensão Constante",
-                    "Seguro para o Joelho",
-                    "Peso Corporal",
-                    "Em Casa",
-                    "Isolado"
-                ]
-            },
             "en": {
-                "name": "Sliding Leg Curl Towel",
-                "description": "Great home option using a towel or socks on a smooth floor.",
-                "howTo": "1. Lying down, place heels on a towel on a smooth surface.\n2. Lift your hips and pull your heels toward your body.\n3. Extend legs back out without dropping your hips.",
+                "name": "Sliding Leg Curl (Towel)",
                 "tags": [
                     "Hamstrings",
-                    "Posterior Chain",
-                    "Legs",
-                    "Constant Tension",
-                    "Knee Friendly",
                     "Bodyweight",
                     "Home",
+                    "Posterior Chain",
+                    "Towel",
                     "Isolation"
-                ]
+                ],
+                "howTo": "1. Lie on your back with heels resting on a towel or sliders on a smooth surface.\n2. Bridge your hips upward keeping your glutes and core engaged.\n3. Drag your heels toward your glutes while maintaining high hip position.\n4. Slide back out slowly to straight legs without dropping your hips.",
+                "description": "Bodyweight hamstring and glute curl variation using a towel or sliding discs on a smooth floor."
             },
             "es": {
-                "name": "Sliding Leg Curl Towel",
-                "description": "Opción para casa usando una toalla en suelo liso.",
-                "howTo": "1. Tumbado, apoya talones en una toalla en suelo liso.\n2. Eleva la cadera y tira de los talones hacia el cuerpo.\n3. Estira las piernas sin bajar la cadera.",
+                "name": "Curl Femoral Deslizante (Toalla)",
                 "tags": [
                     "Isquiotibiales",
-                    "Cadena Posterior",
-                    "Piernas",
-                    "Tensión Constante",
-                    "Seguro para Rodilla",
                     "Peso Corporal",
                     "En Casa",
+                    "Cadena Posterior",
+                    "Toalla",
                     "Aislamiento"
-                ]
+                ],
+                "howTo": "1. Túmbate boca arriba con los talones sobre una toalla en superficie resbaladiza.\n2. Eleva la cadera en puente de glúteos.\n3. Tira de los talones hacia los glúteos flexionando las rodillas con la cadera alta.\n4. Desliza hacia afuera de forma lenta y controlada.",
+                "description": "Variación con peso corporal para isquiotibiales y glúteos usando una toalla en suelo liso."
+            },
+            "pt": {
+                "name": "Flexão de Pernas Deslizante (Toalha)",
+                "tags": [
+                    "Posteriores de Coxa",
+                    "Peso Corporal",
+                    "Em Casa",
+                    "Cadeia Posterior",
+                    "Toalha",
+                    "Isolado"
+                ],
+                "howTo": "1. Deite-se de barriga para cima com os calcanhares apoiados sobre uma toalha em chão liso.\n2. Eleve o quadril em ponte glútea mantendo o abdômen firme.\n3. Puxe os calcanhares em direção aos glúteos flexionando os joelhos e mantendo os quadris altos.\n4. Deslize os pés de volta à extensão completa sem deixar o quadril tocar o chão.",
+                "description": "Excelente variação com peso corporal para posteriores e glúteos usando uma toalha ou meia em superfície lisa."
             }
         }
     },
@@ -580,54 +562,51 @@ export const HAMSTRING_EXERCISES: Exercise[] = [
             "calves",
             "glutes"
         ],
-        "equipment": "none",
+        "equipment": "bodyweight",
         "executionMode": "bilateral",
         "mechanics": "isolation",
         "level": "intermediate",
         "parentId": null,
         "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/hamstrings/stability_ball_leg_curl.webp",
-        "videoUrl": "null",
+        "videoUrl": null,
         "gallery": [],
         "created_by_type": "system",
         "translations": {
-            "pt": {
-                "name": "Rosca Direta",
-                "description": "Trabalha posteriores e estabilidade do core.",
-                "howTo": "1. Apoie os calcanhares no topo da bola.\n2. Eleve o quadril e puxe a bola em direção ao corpo.\n3. Mantenha o corpo firme e não deixe o quadril cair.",
-                "tags": [
-                    "Posteriores de Coxa",
-                    "Cadeia Posterior",
-                    "Pernas",
-                    "Tensão Constante",
-                    "Seguro para o Joelho",
-                    "Isolado"
-                ]
-            },
             "en": {
-                "name": "Stability Ball Leg Curl",
-                "description": "Works hamstrings and core stability.",
-                "howTo": "1. Rest your heels on top of the ball.\n2. Lift your hips and pull the ball toward your body.\n3. Keep your core tight and don't let your hips sag.",
+                "name": "Stability Ball Leg Curl (Swiss Ball)",
                 "tags": [
                     "Hamstrings",
+                    "Swiss Ball",
                     "Posterior Chain",
-                    "Legs",
-                    "Constant Tension",
-                    "Knee Friendly",
+                    "Stability",
                     "Isolation"
-                ]
+                ],
+                "howTo": "1. Lie flat on your back with heels and lower calves on top of the stability ball.\n2. Bridge hips upward forming a straight line from shoulders to ankles.\n3. Roll the ball toward your hips by curling knees and lifting hips higher.\n4. Extend legs slowly under control back to the start.",
+                "description": "Posterior chain exercise combining active knee flexion with glute and core stabilization on a Swiss ball."
             },
             "es": {
-                "name": "Stability Ball Leg Curl",
-                "description": "Trabaja isquiotibiales y estabilidad del core.",
-                "howTo": "1. Apoya los talones sobre la pelota.\n2. Eleva la cadera y trae la pelota hacia ti.\n3. Mantén el cuerpo firme y no bajes la cadera.",
+                "name": "Curl Femoral en Pelota Suiza (Pelota)",
                 "tags": [
                     "Isquiotibiales",
+                    "Pelota Suiza",
                     "Cadena Posterior",
-                    "Piernas",
-                    "Tensión Constante",
-                    "Seguro para Rodilla",
+                    "Estabilidad",
                     "Aislamiento"
-                ]
+                ],
+                "howTo": "1. Túmbate boca arriba con los talones sobre la pelota suiza.\n2. Eleva la cadera alineando hombros, cadera y pies.\n3. Rueda la pelota hacia los glúteos flexionando las rodillas.\n4. Extiende las piernas de forma lenta y controlada.",
+                "description": "Ejercicio para la cadena posterior que combina flexión de rodilla con estabilización del core sobre pelota suiza."
+            },
+            "pt": {
+                "name": "Flexão de Pernas (Bola Suíça)",
+                "tags": [
+                    "Posteriores de Coxa",
+                    "Bola Suíça",
+                    "Cadeia Posterior",
+                    "Estabilidade",
+                    "Isolado"
+                ],
+                "howTo": "1. Deite-se de barriga para cima com os calcanhares e panturrilhas apoiados no topo da bola.\n2. Eleve o quadril mantendo o corpo reto dos ombros aos pés.\n3. Puxe a bola em direção aos glúteos flexionando os joelhos e empurrando o quadril para cima.\n4. Retorne controlando o movimento até a extensão das pernas.",
+                "description": "Exercício de cadeia posterior que combina flexão de joelhos com estabilização do core e glúteos na bola de pilates/suíça."
             }
         }
     },
@@ -646,28 +625,12 @@ export const HAMSTRING_EXERCISES: Exercise[] = [
         "level": "intermediate",
         "parentId": null,
         "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/hamstrings/glute_ham_raise.webp",
-        "videoUrl": "null",
+        "videoUrl": null,
         "gallery": [],
         "created_by_type": "system",
         "translations": {
-            "pt": {
-                "name": "Elevação Glúteo-Isquiotibiais / GHR (Máquina)",
-                "description": "Desenvolvimento brutal de força e potência posterior.",
-                "howTo": "1. Posicione os joelhos no suporte e os pés no apoio.\n2. Desça o tronco para a frente e suba usando apenas as coxas.\n3. Mantenha a coluna neutra durante todo o trajeto.",
-                "tags": [
-                    "Posteriores de Coxa",
-                    "Cadeia Posterior",
-                    "Pernas",
-                    "Força Excêntrica",
-                    "Saúde Articular",
-                    "Máquina",
-                    "Isolado"
-                ]
-            },
             "en": {
                 "name": "Glute Ham Raise (Machine)",
-                "description": "Brutal strength and posterior power development.",
-                "howTo": "1. Position knees on the pad and feet against the support.\n2. Lower your torso forward and rise using only your thighs.\n3. Keep a neutral spine throughout the entire range.",
                 "tags": [
                     "Hamstrings",
                     "Posterior Chain",
@@ -676,12 +639,12 @@ export const HAMSTRING_EXERCISES: Exercise[] = [
                     "Joint Health",
                     "Machine",
                     "Isolation"
-                ]
+                ],
+                "howTo": "1. Position knees on the pad and feet against the support.\n2. Lower your torso forward and rise using only your thighs.\n3. Keep a neutral spine throughout the entire range.",
+                "description": "Brutal strength and posterior power development."
             },
             "es": {
                 "name": "Elevación Glúteo-Isquiotibiales (GHR)",
-                "description": "Desarrollo brutal de fuerza y potencia posterior.",
-                "howTo": "1. Pon las rodillas en el soporte y pies en el apoyo.\n2. Baja el tronco adelante y sube usando solo los muslos.\n3. Mantén la columna neutra durante todo el trayecto.",
                 "tags": [
                     "Isquiotibiales",
                     "Cadena Posterior",
@@ -690,7 +653,23 @@ export const HAMSTRING_EXERCISES: Exercise[] = [
                     "Salud Articular",
                     "Máquina",
                     "Aislamiento"
-                ]
+                ],
+                "howTo": "1. Pon las rodillas en el soporte y pies en el apoyo.\n2. Baja el tronco adelante y sube usando solo los muslos.\n3. Mantén la columna neutra durante todo el trayecto.",
+                "description": "Desarrollo brutal de fuerza y potencia posterior."
+            },
+            "pt": {
+                "name": "Elevação Glúteo-Isquiotibiais / GHR (Máquina)",
+                "tags": [
+                    "Posteriores de Coxa",
+                    "Cadeia Posterior",
+                    "Pernas",
+                    "Força Excêntrica",
+                    "Saúde Articular",
+                    "Máquina",
+                    "Isolado"
+                ],
+                "howTo": "1. Posicione os joelhos no suporte e os pés no apoio.\n2. Desça o tronco para a frente e suba usando apenas as coxas.\n3. Mantenha a coluna neutra durante todo o trajeto.",
+                "description": "Desenvolvimento brutal de força e potência posterior."
             }
         }
     },
@@ -710,51 +689,47 @@ export const HAMSTRING_EXERCISES: Exercise[] = [
         "level": "intermediate",
         "parentId": null,
         "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/hamstrings/single_leg_rdl.webp",
-        "videoUrl": "null",
+        "videoUrl": null,
         "gallery": [],
         "created_by_type": "system",
         "translations": {
-            "pt": {
-                "name": "RDL Unilateral (Halteres)",
-                "description": "Melhora o equilíbrio e isola cada perna individualmente.",
-                "howTo": "1. Segure o halter na mão oposta à perna que está no chão.\n2. Incline o tronco e eleve a perna de trás para equilíbrio.\n3. Desça até sentir o alongamento e suba com firmeza.",
-                "tags": [
-                    "Posteriores de Coxa",
-                    "Cadeia Posterior",
-                    "Pernas",
-                    "Alongamento Máximo",
-                    "Glúteos e Posteriores",
-                    "Composto",
-                    "Unilateral"
-                ]
-            },
             "en": {
-                "name": "Single Leg Romanian Deadlift (Dumbbell)",
-                "description": "Improves balance and isolates each leg individually.",
-                "howTo": "1. Hold the dumbbell in the hand opposite to the standing leg.\n2. Hinge at the hip and lift the back leg for balance.\n3. Lower until you feel the stretch and rise firmly.",
+                "name": "Single Leg RDL (Dumbbell)",
                 "tags": [
                     "Hamstrings",
-                    "Posterior Chain",
-                    "Legs",
-                    "Maximum Stretch",
-                    "Glutes & Hamstrings",
-                    "Compound",
-                    "Unilateral"
-                ]
+                    "RDL",
+                    "Single Leg",
+                    "Unilateral",
+                    "Dumbbell",
+                    "Compound"
+                ],
+                "howTo": "1. Stand tall balancing on one leg holding a dumbbell in the opposite hand (or both hands).\n2. Hinge at your hip driving your free leg straight behind you in line with your torso.\n3. Lower until you feel a deep stretch in the standing hamstring keeping spine neutral.\n4. Drive through the heel to stand back up.",
+                "description": "Unilateral Romanian deadlift with dumbbells, enhancing balance, hip stability, and targeting hamstrings and glutes individually."
             },
             "es": {
                 "name": "Peso Muerto Rumano Unilateral (Mancuernas)",
-                "description": "Mejora el equilibrio e isla cada pierna.",
-                "howTo": "1. Sujeta la mancuerna en la mano opuesta a la pierna de apoyo.\n2. Inclina el tronco y eleva la pierna trasera para equilibrar.\n3. Baja hasta sentir el estiramiento y sube con firmeza.",
                 "tags": [
                     "Isquiotibiales",
-                    "Cadena Posterior",
-                    "Piernas",
-                    "Estiramiento Máximo",
-                    "Glúteos e Isquios",
-                    "Compuesto",
-                    "Unilateral"
-                ]
+                    "RDL",
+                    "Unilateral",
+                    "Mancuernas",
+                    "Compuesto"
+                ],
+                "howTo": "1. De pie apoyado en una pierna sujetando la mancuerna en la mano contraria.\n2. Inclina el torso hacia adelante elevando la pierna libre alineada a la espalda.\n3. Desciende hasta sentir el estiramiento en los isquiotibiales de la pierna de apoyo.\n4. Regresa arriba contrayendo glúteos e isquiotibiales.",
+                "description": "Variación unilateral de RDL con mancuernas para mejorar el equilibrio, la estabilidad de cadera y el desarrollo de isquiotibiales y glúteos."
+            },
+            "pt": {
+                "name": "Stiff Unilateral (Halteres)",
+                "tags": [
+                    "Posteriores de Coxa",
+                    "Stiff",
+                    "RDL",
+                    "Unilateral",
+                    "Halteres",
+                    "Composto"
+                ],
+                "howTo": "1. Fique em pé apoiado em uma perna segurando um halter na mão oposta (ou um em cada mão).\n2. Incline o tronco para a frente projetando o quadril para trás e elevando a perna livre alinhada ao corpo.\n3. Desça até sentir o alongamento profundo nos posteriores da perna de apoio.\n4. Retorne contraindo glúteos e posteriores até a posição inicial.",
+                "description": "Variação unilateral de RDL/Stiff com halteres, excelente para equilíbrio, estabilidade do quadril e hipertrofia dos posteriores de coxa e glúteos."
             }
         }
     },
@@ -773,45 +748,48 @@ export const HAMSTRING_EXERCISES: Exercise[] = [
         "level": "intermediate",
         "parentId": null,
         "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/hamstrings/cable_pull_through.webp",
-        "videoUrl": "null",
+        "videoUrl": null,
         "gallery": [],
         "created_by_type": "system",
         "translations": {
-            "pt": {
-                "name": "Pull Through (Polia)",
-                "description": "Tensão constante focada na articulação do quadril.",
-                "howTo": "1. De costas para a polia, segure a corda entre as pernas.\n2. Jogue o quadril para trás e depois empurre para a frente.\n3. Contraia os glúteos e posteriores no topo do movimento.",
-                "tags": [
-                    "Posteriores de Coxa",
-                    "Cadeia Posterior",
-                    "Pernas",
-                    "Glúteos e Posteriores",
-                    "Composto"
-                ]
-            },
             "en": {
                 "name": "Pull Through (Cable)",
-                "description": "Constant tension focused on the hip hinge.",
-                "howTo": "1. Facing away from the pulley, hold the rope between your legs.\n2. Hinge your hips back and then drive them forward.\n3. Squeeze glutes and hamstrings at the top of the movement.",
                 "tags": [
                     "Hamstrings",
+                    "Pull Through",
+                    "Glutes",
                     "Posterior Chain",
-                    "Legs",
-                    "Glutes & Hamstrings",
+                    "Cable",
                     "Compound"
-                ]
+                ],
+                "howTo": "1. Face away from a low cable pulley holding the rope attachment between your legs.\n2. Take a couple of steps forward to create preload tension with feet shoulder-width apart.\n3. Hinge backward at your hips allowing the cable to pull your hands back.\n4. Drive your hips powerfully forward squeezing glutes and hamstrings at lockout.",
+                "description": "Cable hip hinge exercise with rope attachment, maximizing glute and hamstring tension without axial spine compression."
             },
             "es": {
-                "name": "Pull Through de Glúteos (Polea)",
-                "description": "Tensión constante enfocada en la bisagra de cadera.",
-                "howTo": "1. De espaldas a la polea, sujeta la cuerda entre las piernas.\n2. Lleva la cadera hacia atrás y luego empuja adelante.\n3. Aprieta glúteos e isquios al final del movimiento.",
+                "name": "Pull Through (Polea)",
                 "tags": [
                     "Isquiotibiales",
+                    "Pull Through",
+                    "Glúteos",
                     "Cadena Posterior",
-                    "Piernas",
-                    "Glúteos e Isquios",
+                    "Polea",
                     "Compuesto"
-                ]
+                ],
+                "howTo": "1. De espaldas a la polea baja, sujeta la cuerda entre las piernas.\n2. Da unos pasos al frente con los pies al ancho de hombros.\n3. Empuja la cadera hacia atrás sintiendo el estiramiento en los isquiotibiales.\n4. Extiende las caderas hacia adelante con fuerza apretando glúteos arriba.",
+                "description": "Ejercicio de bisagra de cadera en polea baja con cuerda, maximizando la contracción de glúteos e isquiotibiales sin compresión axial."
+            },
+            "pt": {
+                "name": "Pull Through (Polia)",
+                "tags": [
+                    "Posteriores de Coxa",
+                    "Pull Through",
+                    "Glúteos",
+                    "Cadeia Posterior",
+                    "Polia",
+                    "Composto"
+                ],
+                "howTo": "1. De costas para a polia baixa, segure a corda passando-a por entre as pernas.\n2. Dê dois passos à frente para criar tensão no cabo com os pés na largura dos ombros.\n3. Incline o tronco flexionando os quadris para trás até sentir os posteriores alongarem.\n4. Estenda os quadris para a frente com força contraindo glúteos e posteriores no topo.",
+                "description": "Movimento de bisagra de quadril na polia baixa com corda, promovendo contração máxima de glúteos e posteriores sem carga axial na coluna."
             }
         }
     },
@@ -829,27 +807,12 @@ export const HAMSTRING_EXERCISES: Exercise[] = [
         "level": "beginner",
         "parentId": null,
         "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/hamstrings/dumbbell_leg_curl_lying.webp",
-        "videoUrl": "null",
+        "videoUrl": null,
         "gallery": [],
         "created_by_type": "system",
         "translations": {
-            "pt": {
-                "name": "Flexão de Pernas Deitado (Halteres)",
-                "description": "Adaptação eficaz da mesa flexora usando apenas um halter.",
-                "howTo": "1. Deitado de bruços, prenda um halter entre os pés.\n2. Flexione os joelhos levando o peso para cima.\n3. Desça devagar para não deixar o halter cair.",
-                "tags": [
-                    "Posteriores de Coxa",
-                    "Cadeia Posterior",
-                    "Pernas",
-                    "Tensão Constante",
-                    "Seguro para o Joelho",
-                    "Isolado"
-                ]
-            },
             "en": {
                 "name": "Leg Curl Lying (Dumbbell)",
-                "description": "Effective leg curl adaptation using only a dumbbell.",
-                "howTo": "1. Lying face down, secure a dumbbell between your feet.\n2. Flex your knees, bringing the weight upward.\n3. Lower slowly to ensure the dumbbell doesn't slip.",
                 "tags": [
                     "Hamstrings",
                     "Posterior Chain",
@@ -857,12 +820,12 @@ export const HAMSTRING_EXERCISES: Exercise[] = [
                     "Constant Tension",
                     "Knee Friendly",
                     "Isolation"
-                ]
+                ],
+                "howTo": "1. Lying face down, secure a dumbbell between your feet.\n2. Flex your knees, bringing the weight upward.\n3. Lower slowly to ensure the dumbbell doesn't slip.",
+                "description": "Effective leg curl adaptation using only a dumbbell."
             },
             "es": {
                 "name": "Flexión Femoral Deitado (Mancuerna)",
-                "description": "Adaptación eficaz usando solo una mancuerna.",
-                "howTo": "1. Tumbado boca abajo, sujeta una mancuerna entre los pies.\n2. Flexiona las rodillas llevando el peso hacia arriba.\n3. Baja despacio para que la mancuerna no se caiga.",
                 "tags": [
                     "Isquiotibiales",
                     "Cadena Posterior",
@@ -870,7 +833,22 @@ export const HAMSTRING_EXERCISES: Exercise[] = [
                     "Tensión Constante",
                     "Seguro para Rodilla",
                     "Aislamiento"
-                ]
+                ],
+                "howTo": "1. Tumbado boca abajo, sujeta una mancuerna entre los pies.\n2. Flexiona las rodillas llevando el peso hacia arriba.\n3. Baja despacio para que la mancuerna no se caiga.",
+                "description": "Adaptación eficaz usando solo una mancuerna."
+            },
+            "pt": {
+                "name": "Flexão de Pernas Deitado (Halteres)",
+                "tags": [
+                    "Posteriores de Coxa",
+                    "Cadeia Posterior",
+                    "Pernas",
+                    "Tensão Constante",
+                    "Seguro para o Joelho",
+                    "Isolado"
+                ],
+                "howTo": "1. Deitado de bruços, prenda um halter entre os pés.\n2. Flexione os joelhos levando o peso para cima.\n3. Desça devagar para não deixar o halter cair.",
+                "description": "Adaptação eficaz da mesa flexora usando apenas um halter."
             }
         }
     },
@@ -890,27 +868,12 @@ export const HAMSTRING_EXERCISES: Exercise[] = [
         "level": "intermediate",
         "parentId": null,
         "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/hamstrings/kettlebell_swing.webp",
-        "videoUrl": "null",
+        "videoUrl": null,
         "gallery": [],
         "created_by_type": "system",
         "translations": {
-            "pt": {
-                "name": "Swing de Quadril (Kettlebell)",
-                "description": "Movimento explosivo para toda a cadeia posterior.",
-                "howTo": "1. Segure o kettlebell e projete o quadril para trás.\n2. Impulsione o peso para a frente com a força do quadril.\n3. O movimento é de dobrar o quadril, não um agachamento.",
-                "tags": [
-                    "Posteriores de Coxa",
-                    "Cadeia Posterior",
-                    "Pernas",
-                    "Glúteos e Posteriores",
-                    "Kettlebell",
-                    "Composto"
-                ]
-            },
             "en": {
                 "name": "Swing (Kettlebell)",
-                "description": "Explosive movement for the entire posterior chain.",
-                "howTo": "1. Hold the kettlebell and hinge your hips back.\n2. Drive the weight forward using hip power.\n3. The movement is a hip hinge, not a squat.",
                 "tags": [
                     "Hamstrings",
                     "Posterior Chain",
@@ -918,12 +881,12 @@ export const HAMSTRING_EXERCISES: Exercise[] = [
                     "Glutes & Hamstrings",
                     "Kettlebell",
                     "Compound"
-                ]
+                ],
+                "howTo": "1. Hold the kettlebell and hinge your hips back.\n2. Drive the weight forward using hip power.\n3. The movement is a hip hinge, not a squat.",
+                "description": "Explosive movement for the entire posterior chain."
             },
             "es": {
                 "name": "Balanceo de Cadera (Kettlebell)",
-                "description": "Movimiento explosivo para toda la cadena posterior.",
-                "howTo": "1. Sujeta la pesa y lleva la cadera hacia atrás.\n2. Impulsa el peso adelante con la fuerza de la cadera.\n3. El movimiento es de cadera, no una sentadilla.",
                 "tags": [
                     "Isquiotibiales",
                     "Cadena Posterior",
@@ -931,7 +894,22 @@ export const HAMSTRING_EXERCISES: Exercise[] = [
                     "Glúteos e Isquios",
                     "Pesa Rusa",
                     "Compuesto"
-                ]
+                ],
+                "howTo": "1. Sujeta la pesa y lleva la cadera hacia atrás.\n2. Impulsa el peso adelante con la fuerza de la cadera.\n3. El movimiento es de cadera, no una sentadilla.",
+                "description": "Movimiento explosivo para toda la cadena posterior."
+            },
+            "pt": {
+                "name": "Swing de Quadril (Kettlebell)",
+                "tags": [
+                    "Posteriores de Coxa",
+                    "Cadeia Posterior",
+                    "Pernas",
+                    "Glúteos e Posteriores",
+                    "Kettlebell",
+                    "Composto"
+                ],
+                "howTo": "1. Segure o kettlebell e projete o quadril para trás.\n2. Impulsione o peso para a frente com a força do quadril.\n3. O movimento é de dobrar o quadril, não um agachamento.",
+                "description": "Movimento explosivo para toda a cadeia posterior."
             }
         }
     },
@@ -951,27 +929,12 @@ export const HAMSTRING_EXERCISES: Exercise[] = [
         "level": "intermediate",
         "parentId": 252,
         "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/hamstrings/smith_stiff_leg_deadlift.webp",
-        "videoUrl": "null",
+        "videoUrl": null,
         "gallery": [],
         "created_by_type": "system",
         "translations": {
-            "pt": {
-                "name": "Stiff (Smith)",
-                "description": "Movimento de alta exigência muscular para o quadríceps e membros inferiores com Smith.",
-                "howTo": "1. Posicione os pés na largura dos ombros com a coluna rígida e neutra.\n2. Projete o quadril para trás flexionando levemente os joelhos.\n3. Sinta o alongamento da cadeia posterior e retorne estendendo o quadril.",
-                "tags": [
-                    "Posteriores de Coxa",
-                    "Cadeia Posterior",
-                    "Pernas",
-                    "Alongamento Máximo",
-                    "Glúteos e Posteriores",
-                    "Composto"
-                ]
-            },
             "en": {
                 "name": "Stiff Leg Deadlift (Smith Machine)",
-                "description": "Technical execution for Smith Stiff Leg Deadlift.",
-                "howTo": "1. Set up proper body alignment and lock your core.\n2. Execute the concentric phase focusing on target muscle contraction.\n3. Control the eccentric return through a full range of motion.",
                 "tags": [
                     "Hamstrings",
                     "Posterior Chain",
@@ -979,12 +942,12 @@ export const HAMSTRING_EXERCISES: Exercise[] = [
                     "Maximum Stretch",
                     "Glutes & Hamstrings",
                     "Compound"
-                ]
+                ],
+                "howTo": "1. Set up proper body alignment and lock your core.\n2. Execute the concentric phase focusing on target muscle contraction.\n3. Control the eccentric return through a full range of motion.",
+                "description": "Technical execution for Smith Stiff Leg Deadlift."
             },
             "es": {
                 "name": "Stiff Leg Deadlift (Máquina Smith)",
-                "description": "Movimiento de alta exigencia muscular para cuadríceps y piernas con Máquina Smith.",
-                "howTo": "1. Mantenga una postura recta y el abdomen contraído.\n2. Realice la fase de contracción enfocado en el músculo objetivo.\n3. Controle el retorno de forma lenta completando el rango de movimiento.",
                 "tags": [
                     "Isquiotibiales",
                     "Cadena Posterior",
@@ -992,7 +955,22 @@ export const HAMSTRING_EXERCISES: Exercise[] = [
                     "Estiramiento Máximo",
                     "Glúteos e Isquios",
                     "Compuesto"
-                ]
+                ],
+                "howTo": "1. Mantenga una postura recta y el abdomen contraído.\n2. Realice la fase de contracción enfocado en el músculo objetivo.\n3. Controle el retorno de forma lenta completando el rango de movimiento.",
+                "description": "Movimiento de alta exigencia muscular para cuadríceps y piernas con Máquina Smith."
+            },
+            "pt": {
+                "name": "Stiff (Smith)",
+                "tags": [
+                    "Posteriores de Coxa",
+                    "Cadeia Posterior",
+                    "Pernas",
+                    "Alongamento Máximo",
+                    "Glúteos e Posteriores",
+                    "Composto"
+                ],
+                "howTo": "1. Posicione os pés na largura dos ombros com a coluna rígida e neutra.\n2. Projete o quadril para trás flexionando levemente os joelhos.\n3. Sinta o alongamento da cadeia posterior e retorne estendendo o quadril.",
+                "description": "Movimento de alta exigência muscular para o quadríceps e membros inferiores com Smith."
             }
         }
     },
@@ -1012,27 +990,12 @@ export const HAMSTRING_EXERCISES: Exercise[] = [
         "level": "beginner",
         "parentId": 251,
         "imageUrl": "https://fkoppszkihbgpsottpfq.supabase.co/storage/v1/object/public/exercises/hamstrings/dumbbell_rdl.webp",
-        "videoUrl": "null",
+        "videoUrl": null,
         "gallery": [],
         "created_by_type": "system",
         "translations": {
-            "pt": {
-                "name": "RDL - Levantamento Romeno (Halteres)",
-                "description": "Movimento de alta exigência muscular para o quadríceps e membros inferiores com Halteres.",
-                "howTo": "1. Posicione os pés na largura dos ombros com a coluna rígida e neutra.\n2. Projete o quadril para trás flexionando levemente os joelhos.\n3. Sinta o alongamento da cadeia posterior e retorne estendendo o quadril.",
-                "tags": [
-                    "Posteriores de Coxa",
-                    "Cadeia Posterior",
-                    "Pernas",
-                    "Alongamento Máximo",
-                    "Glúteos e Posteriores",
-                    "Composto"
-                ]
-            },
             "en": {
                 "name": "Rdl (Dumbbell)",
-                "description": "Technical execution for Dumbbell Rdl.",
-                "howTo": "1. Set up proper body alignment and lock your core.\n2. Execute the concentric phase focusing on target muscle contraction.\n3. Control the eccentric return through a full range of motion.",
                 "tags": [
                     "Hamstrings",
                     "Posterior Chain",
@@ -1040,12 +1003,12 @@ export const HAMSTRING_EXERCISES: Exercise[] = [
                     "Maximum Stretch",
                     "Glutes & Hamstrings",
                     "Compound"
-                ]
+                ],
+                "howTo": "1. Set up proper body alignment and lock your core.\n2. Execute the concentric phase focusing on target muscle contraction.\n3. Control the eccentric return through a full range of motion.",
+                "description": "Technical execution for Dumbbell Rdl."
             },
             "es": {
                 "name": "Rdl (Mancuernas)",
-                "description": "Movimiento de alta exigencia muscular para cuadríceps y piernas con Mancuernas.",
-                "howTo": "1. Mantenga una postura recta y el abdomen contraído.\n2. Realice la fase de contracción enfocado en el músculo objetivo.\n3. Controle el retorno de forma lenta completando el rango de movimiento.",
                 "tags": [
                     "Isquiotibiales",
                     "Cadena Posterior",
@@ -1053,136 +1016,22 @@ export const HAMSTRING_EXERCISES: Exercise[] = [
                     "Estiramiento Máximo",
                     "Glúteos e Isquios",
                     "Compuesto"
-                ]
-            }
-        }
-    },
-    {
-        "id": 542,
-        "name": "single_leg_rdl_dumbbell",
-        "category": "hamstrings",
-        "secondaryMuscles": [
-            "glutes",
-            "back",
-            "core",
-            "forearms"
-        ],
-        "equipment": "dumbbell",
-        "executionMode": "unilateral",
-        "mechanics": "compound",
-        "level": "intermediate",
-        "parentId": 251,
-        "imageUrl": "null",
-        "videoUrl": "null",
-        "gallery": [],
-        "created_by_type": "system",
-        "translations": {
+                ],
+                "howTo": "1. Mantenga una postura recta y el abdomen contraído.\n2. Realice la fase de contracción enfocado en el músculo objetivo.\n3. Controle el retorno de forma lenta completando el rango de movimiento.",
+                "description": "Movimiento de alta exigencia muscular para cuadríceps y piernas con Mancuernas."
+            },
             "pt": {
-                "name": "RDL Unilateral (Halteres)",
-                "description": "Movimento de alta exigência muscular para o quadríceps e membros inferiores com Halteres.",
-                "howTo": "1. Posicione os pés na largura dos ombros com a coluna rígida e neutra.\n2. Projete o quadril para trás flexionando levemente os joelhos.\n3. Sinta o alongamento da cadeia posterior e retorne estendendo o quadril.",
+                "name": "RDL - Levantamento Romeno (Halteres)",
                 "tags": [
                     "Posteriores de Coxa",
                     "Cadeia Posterior",
                     "Pernas",
                     "Alongamento Máximo",
                     "Glúteos e Posteriores",
-                    "Composto",
-                    "Unilateral"
-                ]
-            },
-            "en": {
-                "name": "Single Leg Rdl (Dumbbell)",
-                "description": "Technical execution for Single Leg Rdl.",
-                "howTo": "1. Set up proper body alignment and lock your core.\n2. Execute the concentric phase focusing on target muscle contraction.\n3. Control the eccentric return through a full range of motion.",
-                "tags": [
-                    "Hamstrings",
-                    "Posterior Chain",
-                    "Legs",
-                    "Maximum Stretch",
-                    "Glutes & Hamstrings",
-                    "Compound",
-                    "Unilateral"
-                ]
-            },
-            "es": {
-                "name": "Peso Muerto Rumano Unilateral (Mancuernas)",
-                "description": "Movimiento de alta exigencia muscular para cuadríceps y piernas con Mancuernas.",
-                "howTo": "1. Mantenga una postura recta y el abdomen contraído.\n2. Realice la fase de contracción enfocado en el músculo objetivo.\n3. Controle el retorno de forma lenta completando el rango de movimiento.",
-                "tags": [
-                    "Isquiotibiales",
-                    "Cadena Posterior",
-                    "Piernas",
-                    "Estiramiento Máximo",
-                    "Glúteos e Isquios",
-                    "Compuesto",
-                    "Unilateral"
-                ]
-            }
-        }
-    },
-    {
-        "id": 543,
-        "name": "standing_leg_curl_machine",
-        "category": "hamstrings",
-        "secondaryMuscles": [
-            "calves",
-            "glutes"
-        ],
-        "equipment": "machine",
-        "executionMode": "unilateral",
-        "mechanics": "isolation",
-        "level": "beginner",
-        "parentId": 253,
-        "imageUrl": "null",
-        "videoUrl": "null",
-        "gallery": [],
-        "created_by_type": "system",
-        "translations": {
-            "pt": {
-                "name": "Flexora em Pé (Máquina)",
-                "description": "Movimento de alta exigência muscular para o quadríceps e membros inferiores com Máquina.",
-                "howTo": "1. Afaste os pés e mantenha o joelho alinhado com a ponta dos pés.\n2. Flexione os joelhos e desça com controle mantendo o tronco firme.\n3. Empurre o chão com os calcanhares para retornar à posição inicial.",
-                "tags": [
-                    "Posteriores de Coxa",
-                    "Cadeia Posterior",
-                    "Pernas",
-                    "Tensão Constante",
-                    "Seguro para o Joelho",
-                    "Máquina",
-                    "Isolado",
-                    "Unilateral"
-                ]
-            },
-            "en": {
-                "name": "Standing Leg Curl (Machine)",
-                "description": "Technical execution for Standing Leg Curl.",
-                "howTo": "1. Set up proper body alignment and lock your core.\n2. Execute the concentric phase focusing on target muscle contraction.\n3. Control the eccentric return through a full range of motion.",
-                "tags": [
-                    "Hamstrings",
-                    "Posterior Chain",
-                    "Legs",
-                    "Constant Tension",
-                    "Knee Friendly",
-                    "Machine",
-                    "Isolation",
-                    "Unilateral"
-                ]
-            },
-            "es": {
-                "name": "Standing Leg Curl (Máquina)",
-                "description": "Movimiento de alta exigencia muscular para cuadríceps y piernas con Máquina.",
-                "howTo": "1. Mantenga una postura recta y el abdomen contraído.\n2. Realice la fase de contracción enfocado en el músculo objetivo.\n3. Controle el retorno de forma lenta completando el rango de movimiento.",
-                "tags": [
-                    "Isquiotibiales",
-                    "Cadena Posterior",
-                    "Piernas",
-                    "Tensión Constante",
-                    "Seguro para Rodilla",
-                    "Máquina",
-                    "Aislamiento",
-                    "Unilateral"
-                ]
+                    "Composto"
+                ],
+                "howTo": "1. Posicione os pés na largura dos ombros com a coluna rígida e neutra.\n2. Projete o quadril para trás flexionando levemente os joelhos.\n3. Sinta o alongamento da cadeia posterior e retorne estendendo o quadril.",
+                "description": "Movimento de alta exigência muscular para o quadríceps e membros inferiores com Halteres."
             }
         }
     }
