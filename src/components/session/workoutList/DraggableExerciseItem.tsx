@@ -1,7 +1,7 @@
 'use client';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Check, GripVertical, Trash2, Pencil, RefreshCw, Activity } from "lucide-react";
+import { Check, GripVertical, Trash2, Pencil, RefreshCw, Activity, Zap } from "lucide-react";
 import { useTranslations } from 'next-intl';
 import { ExerciseGroup } from '@/config/types';
 import { motion } from 'framer-motion';
@@ -47,7 +47,10 @@ export const DraggableExerciseItem = ({
     const isCompleted = idx < currentGroupIndex;
     const isAlternating = group.groupType !== 'straight';
 
-    const totalSets = group.exercises.reduce((sum, ex) => sum + ex.sets.length, 0);
+    const totalSets = group.exercises.reduce((sum, ex) => sum + (ex.sets?.length || 0), 0);
+    const hasDropset = group.exercises.some(ex =>
+        (ex.sets || []).some(s => s.technique === 'drop_set' || (s.dropset && s.dropset.length > 0))
+    );
 
     const isMinimized = isAnyItemDragging || isDragging || isOverlay;
 
@@ -126,7 +129,7 @@ export const DraggableExerciseItem = ({
                                 return (
                                     <div key={exIdx} className="relative flex items-center gap-2">
                                         {isAlternating && (
-                                            <div className="absolute -left-[19px] top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-lime-500/40" />
+                                             <div className="absolute -left-[19px] top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-lime-500/40" />
                                         )}
                                         <p className={`font-black text-xs sm:text-sm uppercase italic tracking-tight truncate ${isCurrent ? 'text-zinc-900 dark:text-white' : 'text-zinc-700 dark:text-zinc-400'}`}>
                                             <LocalizedExerciseName
@@ -139,17 +142,15 @@ export const DraggableExerciseItem = ({
                                 );
                             })}
                         </div>
-                        <div className="flex items-center gap-2 mt-1">
+                        <div className="flex items-center gap-2 mt-1 flex-wrap">
                             <span className="text-[10px] text-zinc-500 dark:text-zinc-400 font-bold uppercase tracking-wider">
-                                {totalSets} {t('sets')}
+                                {isAlternating ? `${group.rounds || 1} ${t('rounds')}` : `${totalSets} ${t('sets')}`}
                             </span>
-                            {group.rounds > 1 && (
-                                <>
-                                    <span className="w-1 h-1 rounded-full bg-zinc-300 dark:bg-zinc-800" />
-                                    <span className="text-[10px] text-zinc-500 dark:text-zinc-400 font-bold uppercase tracking-wider">
-                                        {group.rounds} {t('rounds')}
-                                    </span>
-                                </>
+                            {hasDropset && (
+                                <span className="inline-flex items-center gap-1 text-[8px] font-black text-lime-700 dark:text-lime-400 uppercase tracking-wider bg-lime-400/10 px-2 py-0.5 rounded-full border border-lime-500/20">
+                                    <Zap size={8} className="fill-current text-lime-500" />
+                                    {t('dropset')}
+                                </span>
                             )}
                         </div>
                     </div>

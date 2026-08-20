@@ -671,7 +671,15 @@
     "confirmTypeChange": "¿Cambiar tipo de grupo?",
     "confirmTypeChangeText": "Al cambiar a {type}, se eliminarán los ejercicios con datos completos. ¿Deseas continuar?",
     "confirmChange": "Sí, cambiar",
-    "cancelChange": "Cancelar"
+    "cancelChange": "Cancelar",
+    "dropset": "Dropset",
+    "dropsetBadge": "Dropset ({count}x)",
+    "editDropset": "Editar",
+    "removeDropset": "Eliminar",
+    "addDrop": "Añadir Drop",
+    "initialDrop": "Inicial",
+    "dropLabel": "Drop {index}",
+    "convertToDropset": "+ Dropset"
   },
   "DrawerWorkoutExerciseAdd": {
     "successTitle": "¡Éxito!",

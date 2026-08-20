@@ -78,7 +78,7 @@ export const useWorkoutDrawer = (
         }
     };
 
-    const handleUpdateHistorySet = (groupIdx: number, exIdx: number, setIdx: number, field: string, value: string) => {
+    const handleUpdateHistorySet = (groupIdx: number, exIdx: number, setIdx: number, field: string, value: string | number) => {
         const updatedDone = [...(session.exercisesDone || [])];
         const group = updatedDone[groupIdx];
         if (!group) return;
@@ -92,6 +92,192 @@ export const useWorkoutDrawer = (
         exercises[exIdx] = { ...exercise, sets };
         updatedDone[groupIdx] = { ...group, exercises };
         
+        const updatedSession = { ...session, exercisesDone: updatedDone };
+        setSession(updatedSession);
+        syncSession(updatedSession);
+    };
+
+    const handleUpdateHistorySetDrop = (
+        groupIdx: number,
+        exIdx: number,
+        setIdx: number,
+        dropIdx: number,
+        field: 'weight' | 'reps',
+        value: number
+    ) => {
+        const updatedDone = [...(session.exercisesDone || [])];
+        const group = updatedDone[groupIdx];
+        if (!group) return;
+
+        const exercises = [...(group.exercises || [])];
+        const exercise = exercises[exIdx];
+        if (!exercise) return;
+
+        const sets = [...(exercise.sets || [])];
+        const targetSet = sets[setIdx];
+        if (!targetSet || !targetSet.dropset) return;
+
+        const dropset = [...targetSet.dropset];
+        if (!dropset[dropIdx]) return;
+
+        dropset[dropIdx] = {
+            ...dropset[dropIdx],
+            [field]: Math.max(field === 'reps' ? 1 : 0, Number(value) || 0)
+        };
+
+        const totalReps = dropset.reduce((sum, d) => sum + Number(d.reps || 0), 0);
+        const firstWeight = Number(dropset[0]?.weight || 0);
+
+        sets[setIdx] = {
+            ...targetSet,
+            dropset,
+            weight: firstWeight,
+            reps: totalReps
+        };
+
+        exercises[exIdx] = { ...exercise, sets };
+        updatedDone[groupIdx] = { ...group, exercises };
+
+        const updatedSession = { ...session, exercisesDone: updatedDone };
+        setSession(updatedSession);
+        syncSession(updatedSession);
+    };
+
+    const handleUpdateHistorySetDropset = (
+        groupIdx: number,
+        exIdx: number,
+        setIdx: number,
+        dropset: { reps: number; weight: number }[] | null
+    ) => {
+        const updatedDone = [...(session.exercisesDone || [])];
+        const group = updatedDone[groupIdx];
+        if (!group) return;
+
+        const exercises = [...(group.exercises || [])];
+        const exercise = exercises[exIdx];
+        if (!exercise) return;
+
+        const sets = [...(exercise.sets || [])];
+        const targetSet = sets[setIdx];
+        if (!targetSet) return;
+
+        if (dropset && dropset.length > 1) {
+            const sanitizedDrops = dropset.map((d, idx) => ({
+                weight: Math.max(0, Number(d.weight) || (idx === 0 ? (Number(targetSet.weight) || 20) : 0)),
+                reps: Math.max(1, Number(d.reps) || (Number(targetSet.reps) || 10))
+            }));
+            const totalReps = sanitizedDrops.reduce((sum, d) => sum + Number(d.reps || 0), 0);
+            const firstWeight = Number(sanitizedDrops[0]?.weight || 0);
+
+            sets[setIdx] = {
+                ...targetSet,
+                technique: 'drop_set',
+                dropset: sanitizedDrops,
+                weight: firstWeight,
+                reps: totalReps
+            };
+        } else {
+            sets[setIdx] = {
+                ...targetSet,
+                technique: targetSet.technique === 'drop_set' ? 'normal' : targetSet.technique,
+                dropset: undefined
+            };
+        }
+
+        exercises[exIdx] = { ...exercise, sets };
+        updatedDone[groupIdx] = { ...group, exercises };
+
+        const updatedSession = { ...session, exercisesDone: updatedDone };
+        setSession(updatedSession);
+        syncSession(updatedSession);
+    };
+
+    const handleAddHistoryDrop = (groupIdx: number, exIdx: number, setIdx: number) => {
+        const updatedDone = [...(session.exercisesDone || [])];
+        const group = updatedDone[groupIdx];
+        if (!group) return;
+
+        const exercises = [...(group.exercises || [])];
+        const exercise = exercises[exIdx];
+        if (!exercise) return;
+
+        const sets = [...(exercise.sets || [])];
+        const targetSet = sets[setIdx];
+        if (!targetSet) return;
+
+        let dropset: { reps: number; weight: number }[] = [];
+        if (targetSet.dropset && targetSet.dropset.length > 0) {
+            dropset = [...targetSet.dropset];
+            const lastDrop = dropset[dropset.length - 1];
+            const nextWeight = Math.max(0, Math.round(Number(lastDrop.weight) * 0.8 * 2) / 2);
+            dropset.push({ weight: nextWeight, reps: Number(lastDrop.reps) || 10 });
+        } else {
+            const currentWeight = Number(targetSet.weight) || 20;
+            const currentReps = Number(targetSet.reps) || 10;
+            dropset = [
+                { weight: currentWeight, reps: currentReps },
+                { weight: Math.max(0, Math.round(currentWeight * 0.8 * 2) / 2), reps: currentReps }
+            ];
+        }
+
+        const totalReps = dropset.reduce((sum, d) => sum + Number(d.reps || 0), 0);
+        const firstWeight = Number(dropset[0]?.weight || 0);
+
+        sets[setIdx] = {
+            ...targetSet,
+            technique: 'drop_set',
+            dropset,
+            weight: firstWeight,
+            reps: totalReps
+        };
+
+        exercises[exIdx] = { ...exercise, sets };
+        updatedDone[groupIdx] = { ...group, exercises };
+
+        const updatedSession = { ...session, exercisesDone: updatedDone };
+        setSession(updatedSession);
+        syncSession(updatedSession);
+    };
+
+    const handleRemoveHistoryDrop = (groupIdx: number, exIdx: number, setIdx: number, dropIdx: number) => {
+        const updatedDone = [...(session.exercisesDone || [])];
+        const group = updatedDone[groupIdx];
+        if (!group) return;
+
+        const exercises = [...(group.exercises || [])];
+        const exercise = exercises[exIdx];
+        if (!exercise) return;
+
+        const sets = [...(exercise.sets || [])];
+        const targetSet = sets[setIdx];
+        if (!targetSet || !targetSet.dropset) return;
+
+        const dropset = [...targetSet.dropset];
+        dropset.splice(dropIdx, 1);
+
+        if (dropset.length <= 1) {
+            sets[setIdx] = {
+                ...targetSet,
+                technique: targetSet.technique === 'drop_set' ? 'normal' : targetSet.technique,
+                dropset: undefined,
+                weight: dropset[0]?.weight ?? targetSet.weight ?? 0,
+                reps: dropset[0]?.reps ?? targetSet.reps ?? 10
+            };
+        } else {
+            const totalReps = dropset.reduce((sum, d) => sum + Number(d.reps || 0), 0);
+            const firstWeight = Number(dropset[0]?.weight || 0);
+
+            sets[setIdx] = {
+                ...targetSet,
+                dropset,
+                weight: firstWeight,
+                reps: totalReps
+            };
+        }
+
+        exercises[exIdx] = { ...exercise, sets };
+        updatedDone[groupIdx] = { ...group, exercises };
+
         const updatedSession = { ...session, exercisesDone: updatedDone };
         setSession(updatedSession);
         syncSession(updatedSession);
@@ -165,6 +351,10 @@ export const useWorkoutDrawer = (
         handleDragEnd,
         handleDeleteGroup,
         handleUpdateHistorySet,
+        handleUpdateHistorySetDrop,
+        handleUpdateHistorySetDropset,
+        handleAddHistoryDrop,
+        handleRemoveHistoryDrop,
         handleSaveGroup,
         onConfirmDeleteSession,
         handleFullClose,

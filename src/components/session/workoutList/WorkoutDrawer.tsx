@@ -43,6 +43,10 @@ export const WorkoutDrawer = ({
         handleDragEnd,
         handleDeleteGroup,
         handleUpdateHistorySet,
+        handleUpdateHistorySetDrop,
+        handleUpdateHistorySetDropset,
+        handleAddHistoryDrop,
+        handleRemoveHistoryDrop,
         handleSaveGroup,
         onConfirmDeleteSession,
         handleFullClose,
@@ -92,6 +96,10 @@ export const WorkoutDrawer = ({
                         t={t}
                         te={te}
                         handleUpdateHistorySet={handleUpdateHistorySet}
+                        handleUpdateHistorySetDrop={handleUpdateHistorySetDrop}
+                        handleUpdateHistorySetDropset={handleUpdateHistorySetDropset}
+                        handleAddHistoryDrop={handleAddHistoryDrop}
+                        handleRemoveHistoryDrop={handleRemoveHistoryDrop}
                     />
                 )}
             </div>
