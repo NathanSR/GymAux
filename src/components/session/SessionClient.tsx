@@ -107,7 +107,7 @@ export default function SessionClient({ initialSession, isReadOnly = false }: Se
                             onClose={() => setShowPreview(false)}
                             session={session}
                             setSession={setSession}
-                            syncSession={() => synchronizeProgress(session)}
+                            syncSession={synchronizeProgress}
                             currentExerciseIndex={currentGroupIndex}
                         />
 
@@ -188,7 +188,11 @@ export default function SessionClient({ initialSession, isReadOnly = false }: Se
                                             lastWeightUsed={lastWeightUsed}
                                             onSubstituteExercise={() => setShowSubstitute(true)}
                                             onOpenStandaloneTimer={() => setShowStandaloneTimer(true)}
-                                            currentRestDuration={restDuration}
+                                            currentRestDuration={
+                                                currentGroup?.groupType === 'straight'
+                                                    ? (currentPlannedSet?.restTime ?? 60)
+                                                    : (currentExercise?.restAfterExercise ?? currentGroup?.restAfterGroup ?? 60)
+                                            }
                                             onUpdateRestDuration={handleUpdateRestDuration}
                                             isActionsOpen={showActionsModal}
                                             onActionsOpenChange={setShowActionsModal}

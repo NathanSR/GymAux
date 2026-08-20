@@ -15,7 +15,7 @@ interface WorkoutDrawerProps {
     onClose: () => void;
     session: Session;
     setSession: (session: Session) => void;
-    syncSession: () => void;
+    syncSession: (session: Session) => void;
     currentExerciseIndex: number;
 }
 
@@ -40,10 +40,10 @@ export const WorkoutDrawer = ({
         activeId,
         activeGroup,
         handleDragStart,
-        handleDragOver,
         handleDragEnd,
         handleDeleteGroup,
         handleUpdateHistorySet,
+        handleSaveGroup,
         onConfirmDeleteSession,
         handleFullClose,
         handleOpenAdd
@@ -53,19 +53,6 @@ export const WorkoutDrawer = ({
     const doneGroups = session.exercisesDone || [];
     const hasDoneExercises = doneGroups.some(g => g && g.exercises && g.exercises.length > 0);
     const currentGroupIndex = session.current?.groupIndex || 0;
-
-    const handleSaveGroup = (updatedGroup: any) => {
-        const updatedGroups = [...(session.exercisesToDo || [])];
-        if (editingGroupIdx !== null && updatedGroups[editingGroupIdx]) {
-            updatedGroups[editingGroupIdx] = updatedGroup;
-        } else {
-            updatedGroups.push(updatedGroup);
-        }
-        setSession({ ...session, exercisesToDo: updatedGroups });
-        syncSession();
-        setIsFormOpen(false);
-        setEditingGroupIdx(null);
-    };
 
     return (
         <Drawer
@@ -91,7 +78,6 @@ export const WorkoutDrawer = ({
                         activeId={activeId}
                         activeGroup={activeGroup}
                         handleDragStart={handleDragStart}
-                        handleDragOver={handleDragOver}
                         handleDragEnd={handleDragEnd}
                         handleDeleteGroup={handleDeleteGroup}
                         handleEditClick={(_, idx) => {

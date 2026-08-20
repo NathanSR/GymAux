@@ -23,6 +23,7 @@ const mapGroupFromSupabase = (g: any): ExerciseGroup => {
     const exercisesList = safeParseArray(parsedGroup.exercises);
 
     return {
+        id: parsedGroup.id || undefined,
         groupType: parsedGroup.groupType || 'straight',
         rounds: safeParseNumber(parsedGroup.rounds, 1),
         restBetweenRounds: safeParseNumber(parsedGroup.restBetweenRounds, 0),
@@ -36,12 +37,14 @@ const mapGroupFromSupabase = (g: any): ExerciseGroup => {
                 exerciseName: parsedEx.exerciseName || '',
                 sets: setsList.map((s: any) => {
                     const parsedSet = safeParseObject(s);
+                    const dropsetArray = safeParseArray(parsedSet.dropset);
                     return {
                         reps: safeParseNumber(parsedSet.reps, 10),
                         weight: parsedSet.weight !== undefined && parsedSet.weight !== null && parsedSet.weight !== '' ? safeParseNumber(parsedSet.weight, 0) : undefined,
                         restTime: safeParseNumber(parsedSet.restTime, 60),
                         technique: parsedSet.technique || 'normal',
                         notes: parsedSet.notes,
+                        dropset: dropsetArray.length > 0 ? dropsetArray : undefined,
                     };
                 }),
                 restAfterExercise: safeParseNumber(parsedEx.restAfterExercise, 0),

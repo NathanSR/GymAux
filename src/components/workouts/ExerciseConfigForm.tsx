@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
-import { Plus, Trash2, Dumbbell, HelpCircle, Save, Zap, ArrowRight, Sliders, Edit2, Edit } from 'lucide-react';
+import { Plus, Trash2, Dumbbell, HelpCircle, Save, Zap, ArrowRight, Sliders, Edit } from 'lucide-react';
 import { ExerciseGroup, PlannedSet, GroupType, SetTechnique } from '@/config/types';
 import { ExerciseSelector } from '@/components/exercises/ExerciseSelector';
 import { GroupTypeHelpModal } from './GroupTypeHelpModal';
@@ -53,7 +53,6 @@ export const ExerciseConfigForm: React.FC<ExerciseConfigFormProps> = ({
 }) => {
     const locale = useLocale();
     const t = useTranslations('WorkoutForm');
-    const te = useTranslations('Exercises');
     const tw = useTranslations('WorkoutDrawer');
     const ts = useTranslations('Session');
 
@@ -166,7 +165,10 @@ export const ExerciseConfigForm: React.FC<ExerciseConfigFormProps> = ({
                 newSets = newSets.slice(0, newCount);
             }
 
-            updatedExercises[exIndex].sets = newSets;
+            updatedExercises[exIndex] = {
+                ...updatedExercises[exIndex],
+                sets: newSets
+            };
             return {
                 ...prev,
                 rounds: newCount,
@@ -175,41 +177,49 @@ export const ExerciseConfigForm: React.FC<ExerciseConfigFormProps> = ({
         });
     };
 
-    const handleGlobalRepsChange = (exIndex: number, newReps: number) => {
+    const handleGlobalRepsChange = (exIndex: number, newReps: number | "") => {
         setGroup(prev => {
             const updatedExercises = [...prev.exercises];
-            const updatedSets = (updatedExercises[exIndex].sets || []).map(s => ({
+            const updatedSets = (updatedExercises[exIndex]?.sets || []).map(s => ({
                 ...s,
-                reps: newReps
+                reps: newReps as any
             }));
-            updatedExercises[exIndex].sets = updatedSets;
+            updatedExercises[exIndex] = {
+                ...updatedExercises[exIndex],
+                sets: updatedSets
+            };
             return { ...prev, exercises: updatedExercises };
         });
     };
 
-    const handleGlobalWeightChange = (exIndex: number, newWeight: number) => {
+    const handleGlobalWeightChange = (exIndex: number, newWeight: number | "") => {
         setGroup(prev => {
             const updatedExercises = [...prev.exercises];
-            const updatedSets = (updatedExercises[exIndex].sets || []).map(s => ({
+            const updatedSets = (updatedExercises[exIndex]?.sets || []).map(s => ({
                 ...s,
-                weight: newWeight
+                weight: newWeight as any
             }));
-            updatedExercises[exIndex].sets = updatedSets;
+            updatedExercises[exIndex] = {
+                ...updatedExercises[exIndex],
+                sets: updatedSets
+            };
             return { ...prev, exercises: updatedExercises };
         });
     };
 
-    const handleGlobalRestChange = (exIndex: number, newRest: number) => {
+    const handleGlobalRestChange = (exIndex: number, newRest: number | "") => {
         setGroup(prev => {
             const updatedExercises = [...prev.exercises];
-            const updatedSets = (updatedExercises[exIndex].sets || []).map(s => ({
+            const updatedSets = (updatedExercises[exIndex]?.sets || []).map(s => ({
                 ...s,
-                restTime: newRest
+                restTime: newRest as any
             }));
-            updatedExercises[exIndex].sets = updatedSets;
+            updatedExercises[exIndex] = {
+                ...updatedExercises[exIndex],
+                sets: updatedSets
+            };
             return {
                 ...prev,
-                restAfterGroup: newRest,
                 exercises: updatedExercises
             };
         });
@@ -619,7 +629,7 @@ export const ExerciseConfigForm: React.FC<ExerciseConfigFormProps> = ({
                                                                 <input
                                                                     type="number"
                                                                     onFocus={numberInputUtils.onFocus}
-                                                                    value={numberInputUtils.formatValue(ex.sets?.[0]?.restTime ?? 60)}
+                                                                    value={numberInputUtils.formatValue(ex.sets?.[0]?.restTime)}
                                                                     onChange={(e) => numberInputUtils.onChange(e, (val) => handleGlobalRestChange(exIndex, val as any))}
                                                                     className="w-full bg-white dark:bg-zinc-900 border border-zinc-200/60 dark:border-zinc-800/80 focus:border-lime-500 rounded-xl p-2 text-sm font-black outline-none text-center text-zinc-900 dark:text-zinc-100"
                                                                 />
@@ -809,18 +819,8 @@ export const ExerciseConfigForm: React.FC<ExerciseConfigFormProps> = ({
                                                 <input
                                                     type="number"
                                                     onFocus={numberInputUtils.onFocus}
-                                                    value={numberInputUtils.formatValue(ex.sets?.[0]?.reps || 10)}
-                                                    onChange={(e) => {
-                                                        numberInputUtils.onChange(e, (val) => {
-                                                            const updatedExercises = [...group.exercises];
-                                                            const updatedSets = (updatedExercises[exIndex].sets || [DEFAULT_SET]).map(s => ({
-                                                                ...s,
-                                                                reps: val as any
-                                                            }));
-                                                            updatedExercises[exIndex].sets = updatedSets;
-                                                            setGroup(prev => ({ ...prev, exercises: updatedExercises }));
-                                                        });
-                                                    }}
+                                                    value={numberInputUtils.formatValue(ex.sets?.[0]?.reps)}
+                                                    onChange={(e) => numberInputUtils.onChange(e, (val) => handleGlobalRepsChange(exIndex, val as any))}
                                                     className="w-full bg-white dark:bg-zinc-900 border border-zinc-200/60 dark:border-zinc-800/80 focus:border-lime-500 rounded-lg p-2 text-xs font-black outline-none text-zinc-900 dark:text-zinc-100"
                                                 />
                                             </div>
@@ -832,18 +832,8 @@ export const ExerciseConfigForm: React.FC<ExerciseConfigFormProps> = ({
                                                     type="number"
                                                     step="any"
                                                     onFocus={numberInputUtils.onFocus}
-                                                    value={numberInputUtils.formatValue(ex.sets?.[0]?.weight || 0)}
-                                                    onChange={(e) => {
-                                                        numberInputUtils.onChange(e, (val) => {
-                                                            const updatedExercises = [...group.exercises];
-                                                            const updatedSets = (updatedExercises[exIndex].sets || [DEFAULT_SET]).map(s => ({
-                                                                ...s,
-                                                                weight: val as any
-                                                            }));
-                                                            updatedExercises[exIndex].sets = updatedSets;
-                                                            setGroup(prev => ({ ...prev, exercises: updatedExercises }));
-                                                        });
-                                                    }}
+                                                    value={numberInputUtils.formatValue(ex.sets?.[0]?.weight)}
+                                                    onChange={(e) => numberInputUtils.onChange(e, (val) => handleGlobalWeightChange(exIndex, val as any))}
                                                     className="w-full bg-white dark:bg-zinc-900 border border-zinc-200/60 dark:border-zinc-800/80 focus:border-lime-500 rounded-lg p-2 text-xs font-black outline-none text-lime-600 dark:text-lime-400"
                                                 />
                                             </div>
@@ -857,12 +847,17 @@ export const ExerciseConfigForm: React.FC<ExerciseConfigFormProps> = ({
                                                 <input
                                                     type="number"
                                                     onFocus={numberInputUtils.onFocus}
-                                                    value={numberInputUtils.formatValue(ex.restAfterExercise || 0)}
+                                                    value={numberInputUtils.formatValue(ex.restAfterExercise)}
                                                     onChange={(e) => {
                                                         numberInputUtils.onChange(e, (val) => {
-                                                            const updatedExercises = [...group.exercises];
-                                                            updatedExercises[exIndex].restAfterExercise = val as any;
-                                                            setGroup(prev => ({ ...prev, exercises: updatedExercises }));
+                                                            setGroup(prev => {
+                                                                const updatedExercises = [...prev.exercises];
+                                                                updatedExercises[exIndex] = {
+                                                                    ...updatedExercises[exIndex],
+                                                                    restAfterExercise: val as any
+                                                                };
+                                                                return { ...prev, exercises: updatedExercises };
+                                                            });
                                                         });
                                                     }}
                                                     className="w-full bg-white dark:bg-zinc-900 border border-zinc-200/60 dark:border-zinc-800/80 focus:border-lime-500 rounded-lg p-2 text-xs font-black outline-none text-zinc-900 dark:text-zinc-100"

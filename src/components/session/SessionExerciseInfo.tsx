@@ -326,7 +326,9 @@ export function SessionExerciseInfo({
                                 {t('adjustRestTime')}
                             </span>
                             <span className="text-xl sm:text-2xl font-black tabular-nums flex items-baseline gap-1 text-lime-600 dark:text-lime-400">
-                                {restDuration ?? currentPlannedSet?.restTime ?? 60}
+                                {currentGroup?.groupType === 'straight'
+                                    ? (currentPlannedSet?.restTime ?? 60)
+                                    : (currentExercise?.restAfterExercise ?? currentGroup?.restAfterGroup ?? 60)}
                                 <span className="text-[8px] text-zinc-400 dark:text-zinc-500 uppercase font-black tracking-tighter">s</span>
                             </span>
                         </button>

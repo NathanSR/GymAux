@@ -38,6 +38,8 @@ export const DraggableExerciseItem = ({
     });
 
     const style = {
+        transform: CSS.Translate.toString(transform),
+        transition,
         zIndex: isOverlay ? 100 : (isDragging ? 50 : 1),
     };
 

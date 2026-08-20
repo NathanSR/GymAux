@@ -9,7 +9,6 @@ interface WorkoutDrawerTodoListProps {
     activeId: string | null;
     activeGroup: ExerciseGroup | null;
     handleDragStart: (event: any) => void;
-    handleDragOver: (event: any) => void;
     handleDragEnd: (event: any) => void;
     handleDeleteGroup: (idx: number) => void;
     handleEditClick: (group: ExerciseGroup, idx: number) => void;
@@ -21,7 +20,6 @@ export const WorkoutDrawerTodoList = ({
     activeId,
     activeGroup,
     handleDragStart,
-    handleDragOver,
     handleDragEnd,
     handleDeleteGroup,
     handleEditClick
@@ -38,7 +36,6 @@ export const WorkoutDrawerTodoList = ({
                 sensors={sensors} 
                 collisionDetection={closestCenter} 
                 onDragStart={handleDragStart}
-                onDragOver={handleDragOver}
                 onDragEnd={handleDragEnd}
             >
                 <SortableContext items={groups.map((g: any) => g.id || '')} strategy={verticalListSortingStrategy}>
