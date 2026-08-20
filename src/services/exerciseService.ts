@@ -79,6 +79,7 @@ export const ExerciseService = {
             searchQuery?: string,
             category?: string,
             equipment?: string,
+            level?: string,
             pagination?: { page: number; limit: number },
             translations?: { te: any, tt: any },
             locale?: string,
@@ -89,6 +90,7 @@ export const ExerciseService = {
             searchQuery = '',
             category = 'all',
             equipment = 'all',
+            level = 'all',
             pagination = { page: 1, limit: 20 },
             translations,
             locale = 'pt',
@@ -123,20 +125,15 @@ export const ExerciseService = {
                 if (category !== 'all') {
                     query = query.eq('category', category);
                 }
+                if (level !== 'all') {
+                    query = query.eq('level', level);
+                }
 
                 const { data, error } = await withTimeout(query, 1800);
 
                 if (error) throw error;
 
                 exercises = (data || []).map(mapExerciseFromSupabase);
-
-                // Sync to local DB for cache (only user/trainer exercises, system ones are seeded)
-                if (typeof window !== 'undefined') {
-                    const userExercises = exercises.filter((ex: Exercise) => ex.created_by_type !== 'system' && Boolean(ex.id && ex.name && ex.category));
-                    if (userExercises.length > 0) {
-                        await safeBulkPut(db.exercises, userExercises, 'EXERCISE');
-                    }
-                }
             } catch (error) {
                 console.warn('[ExerciseService] Fetch failed, falling back to local DB:', error);
                 exercises = await fetchFromLocalDB();
@@ -146,6 +143,11 @@ export const ExerciseService = {
         // Filtro por Equipamento (JS para suportar os mapeados/inferidos)
         if (equipment !== 'all') {
             exercises = exercises.filter(ex => ex.equipment === equipment);
+        }
+
+        // Filtro por Nível
+        if (level !== 'all') {
+            exercises = exercises.filter(ex => ex.level === level);
         }
 
         // 2. Filtro de Texto (Nome ou Tag) - Suporte dinâmico e fallback

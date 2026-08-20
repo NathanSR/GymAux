@@ -18,39 +18,27 @@ import QuickExerciseDrawer from './QuickExerciseDrawer';
 import { ExerciseFilterPanel } from './ExerciseFilterPanel';
 import { getExerciseLocalized } from '@/utils/exerciseLocalization';
 
-const getLevelBadge = (level?: string) => {
+const getLevelBadge = (level?: string, tl?: any) => {
     if (!level) return null;
     const colors: Record<string, string> = {
         beginner: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20',
         intermediate: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20',
         advanced: 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20',
     };
-    const labels: Record<string, string> = {
-        beginner: 'Iniciante',
-        intermediate: 'Intermediário',
-        advanced: 'Avançado',
-    };
+    const label = tl && tl.has(level) ? tl(level) : level;
     return (
-        <span className={`px-2 py-0.5 text-[8px] font-black uppercase tracking-wider rounded-lg border ${colors[level] || ''}`}>
-            {labels[level] || level}
+        <span className={`px-2 py-0.5 text-[8px] font-black uppercase tracking-wider rounded-lg border ${colors[level] || 'bg-zinc-100 dark:bg-zinc-800 text-zinc-500 border-zinc-200 dark:border-zinc-700'}`}>
+            {label}
         </span>
     );
 };
 
-const getEquipmentBadge = (equipment?: string) => {
+const getEquipmentBadge = (equipment?: string, teq?: any) => {
     if (!equipment || equipment === 'none') return null;
-    const labels: Record<string, string> = {
-        barbell: 'Barra',
-        dumbbell: 'Halter',
-        machine: 'Máquina',
-        cable: 'Cabo',
-        bodyweight: 'Peso Corporal',
-        smith: 'Smith',
-        kettlebell: 'Kettlebell',
-    };
+    const label = teq && teq.has(equipment) ? teq(equipment) : equipment;
     return (
         <span className="px-2 py-0.5 text-[8px] font-black uppercase tracking-wider rounded-lg bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 border border-zinc-200/50 dark:border-zinc-700/50">
-            {labels[equipment] || equipment}
+            {label}
         </span>
     );
 };
@@ -65,10 +53,13 @@ export const ExerciseSelector = ({ isOpen, onClose, onSelect }: {
     const te = useTranslations('Exercises');
     const tc = useTranslations('Categories');
     const tf = useTranslations('ExerciseForm');
+    const teq = useTranslations('Equipment');
+    const tl = useTranslations('Levels');
 
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('all');
     const [selectedEquipment, setSelectedEquipment] = useState('all');
+    const [selectedLevel, setSelectedLevel] = useState('all');
     const [isLoading, setIsLoading] = useState(false);
     const [isQuickAddOpen, setIsQuickAddOpen] = useState(false);
 
@@ -81,6 +72,7 @@ export const ExerciseSelector = ({ isOpen, onClose, onSelect }: {
                 searchQuery: debouncedSearchTerm,
                 category: selectedCategory,
                 equipment: selectedEquipment,
+                level: selectedLevel,
                 pagination: { page, limit: pageSize },
                 translations: { te, tt: te },
                 locale
@@ -90,7 +82,7 @@ export const ExerciseSelector = ({ isOpen, onClose, onSelect }: {
             console.error('Error fetching more exercises:', error);
             return [];
         }
-    }, [debouncedSearchTerm, selectedCategory, selectedEquipment, te, locale]);
+    }, [debouncedSearchTerm, selectedCategory, selectedEquipment, selectedLevel, te, locale]);
 
     const fetchFirstPage = useCallback(async () => {
         setIsLoading(true);
@@ -99,6 +91,7 @@ export const ExerciseSelector = ({ isOpen, onClose, onSelect }: {
                 searchQuery: debouncedSearchTerm,
                 category: selectedCategory,
                 equipment: selectedEquipment,
+                level: selectedLevel,
                 pagination: { page: 1, limit: 10 },
                 translations: { te, tt: te },
                 locale
@@ -109,13 +102,13 @@ export const ExerciseSelector = ({ isOpen, onClose, onSelect }: {
         } finally {
             setIsLoading(false);
         }
-    }, [debouncedSearchTerm, selectedCategory, selectedEquipment, te, locale]);
+    }, [debouncedSearchTerm, selectedCategory, selectedEquipment, selectedLevel, te, locale]);
 
     useEffect(() => {
         if (isOpen) {
             fetchFirstPage();
         }
-    }, [isOpen, fetchFirstPage]);
+    }, [isOpen, debouncedSearchTerm, selectedCategory, selectedEquipment, selectedLevel]);
 
     useEffect(() => {
         if (!isOpen) return;
@@ -137,7 +130,7 @@ export const ExerciseSelector = ({ isOpen, onClose, onSelect }: {
             window.removeEventListener('online', onReconnect);
             document.removeEventListener('visibilitychange', onVisibilityChange);
         };
-    }, [isOpen, fetchFirstPage]);
+    }, [isOpen]);
 
     const { visibleData: exercises, isLoadingMore, lastItemRef } = useInfiniteScroll(initialData, {
         pageSize: 10,
@@ -193,6 +186,8 @@ export const ExerciseSelector = ({ isOpen, onClose, onSelect }: {
                             onCategoryChange={setSelectedCategory}
                             selectedEquipment={selectedEquipment}
                             onEquipmentChange={setSelectedEquipment}
+                            selectedLevel={selectedLevel}
+                            onLevelChange={setSelectedLevel}
                             zIndex="z-[250]"
                         />
                     </div>
@@ -224,8 +219,8 @@ export const ExerciseSelector = ({ isOpen, onClose, onSelect }: {
                                                 <span className="text-[9px] text-zinc-400 font-bold uppercase tracking-widest">
                                                     {tc(ex.category)}
                                                 </span>
-                                                {getEquipmentBadge(ex.equipment)}
-                                                {getLevelBadge(ex.level)}
+                                                {getEquipmentBadge(ex.equipment, teq)}
+                                                {getLevelBadge(ex.level, tl)}
                                             </div>
                                         </div>
                                         <div className="w-10 h-10 flex items-center justify-center rounded-full bg-zinc-100 dark:bg-zinc-800 opacity-0 group-hover:opacity-100 transition-all">

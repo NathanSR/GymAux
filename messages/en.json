@@ -1045,5 +1045,20 @@
     "beginner": "Beginner",
     "intermediate": "Intermediate",
     "advanced": "Advanced"
+  },
+  "ExerciseFilterPanel": {
+    "filters": "Filters",
+    "title": "Exercise Filters",
+    "categories": "Muscle Group",
+    "equipment": "Equipment",
+    "level": "Difficulty Level",
+    "clearSelection": "Clear Selection",
+    "all": "All",
+    "clear": "Clear",
+    "clearAll": "Clear All",
+    "applyFilters": "Apply Filters",
+    "removeCategoryFilter": "Remove muscle group filter",
+    "removeEquipmentFilter": "Remove equipment filter",
+    "removeLevelFilter": "Remove level filter"
   }
 }

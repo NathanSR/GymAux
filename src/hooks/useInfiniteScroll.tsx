@@ -17,9 +17,6 @@ interface useInfiniteScrollOptions<T> {
  * 
  * Um hook senior para lidar com paginação. Suporta tanto paginação local (slicing)
  * para listas que já foram carregadas, quanto paginação dinâmica (fetchData) para chamadas API via Intersection Observer.
- * 
- * @param allItemsOrInitialData Array completo de itens (legacy) ou dados iniciais
- * @param options Configurações de tamanho de página, delay visual e função de busca
  */
 export function useInfiniteScroll<T>(
   allItemsOrInitialData: T[],
@@ -31,7 +28,6 @@ export function useInfiniteScroll<T>(
     keyExtractor
   }: useInfiniteScrollOptions<T> = {}
 ) {
-  // Compute initial state synchronously to prevent empty 1-frame flashes
   const computeInitialVisible = (data: T[]): T[] => {
     if (!data) return [];
     return fetchData ? data : data.slice(0, pageSize);
@@ -54,31 +50,53 @@ export function useInfiniteScroll<T>(
   const [hasMore, setHasMore] = useState<boolean>(() => computeInitialHasMore(allItemsOrInitialData));
   const [isLoadingMore, setIsLoadingMore] = useState(false);
 
-  // Store callbacks in refs so they never trigger unnecessary resets
+  // Maintain latest values in refs to keep callbacks and observers stable
+  const visibleDataRef = useRef(visibleData);
+  visibleDataRef.current = visibleData;
+
+  const pageRef = useRef(page);
+  pageRef.current = page;
+
+  const hasMoreRef = useRef(hasMore);
+  hasMoreRef.current = hasMore;
+
+  const isLoadingRef = useRef(false);
+
   const fetchDataRef = useRef(fetchData);
   fetchDataRef.current = fetchData;
 
   const keyExtractorRef = useRef(keyExtractor);
   keyExtractorRef.current = keyExtractor;
 
-  // Guard ref to prevent concurrent loadMore calls
-  const isLoadingRef = useRef(false);
+  const allItemsRef = useRef(allItemsOrInitialData);
+  allItemsRef.current = allItemsOrInitialData;
 
-  // Sync state when allItemsOrInitialData or pageSize changes
+  const pageSizeRef = useRef(pageSize);
+  pageSizeRef.current = pageSize;
+
+  // Sync state when allItemsOrInitialData changes
   const prevDataRef = useRef(allItemsOrInitialData);
-  const prevPageSizeRef = useRef(pageSize);
 
-  if (prevDataRef.current !== allItemsOrInitialData || prevPageSizeRef.current !== pageSize) {
-    prevDataRef.current = allItemsOrInitialData;
-    prevPageSizeRef.current = pageSize;
-    setVisibleData(computeInitialVisible(allItemsOrInitialData));
-    setPage(computeInitialPage(allItemsOrInitialData));
-    setHasMore(computeInitialHasMore(allItemsOrInitialData));
-    isLoadingRef.current = false;
-  }
+  useEffect(() => {
+    if (prevDataRef.current !== allItemsOrInitialData) {
+      prevDataRef.current = allItemsOrInitialData;
+      const newVisible = computeInitialVisible(allItemsOrInitialData);
+      const newPage = computeInitialPage(allItemsOrInitialData);
+      const newHasMore = computeInitialHasMore(allItemsOrInitialData);
+
+      setVisibleData(newVisible);
+      setPage(newPage);
+      setHasMore(newHasMore);
+      pageRef.current = newPage;
+      hasMoreRef.current = newHasMore;
+      visibleDataRef.current = newVisible;
+      isLoadingRef.current = false;
+      setIsLoadingMore(false);
+    }
+  }, [allItemsOrInitialData, pageSize]);
 
   const loadMore = useCallback(async () => {
-    if (isLoadingRef.current || isLoadingMore || !hasMore) return;
+    if (isLoadingRef.current || !hasMoreRef.current) return;
 
     isLoadingRef.current = true;
     setIsLoadingMore(true);
@@ -90,62 +108,92 @@ export function useInfiniteScroll<T>(
 
       const currentFetchData = fetchDataRef.current;
       const currentKeyExtractor = keyExtractorRef.current;
+      const currentPage = pageRef.current;
+      const currentPageSize = pageSizeRef.current;
 
       if (currentFetchData) {
         // True pagination
-        const nextBatch = await currentFetchData(page, pageSize);
+        const nextBatch = await currentFetchData(currentPage, currentPageSize);
 
-        if (nextBatch.length > 0) {
+        if (nextBatch && nextBatch.length > 0) {
           let unique = nextBatch;
           if (currentKeyExtractor) {
-            const seen = new Set(visibleData.map(currentKeyExtractor));
+            const seen = new Set(visibleDataRef.current.map(currentKeyExtractor));
             unique = nextBatch.filter(item => !seen.has(currentKeyExtractor(item)));
           }
 
           if (unique.length > 0) {
             setVisibleData(prev => [...prev, ...unique]);
-            setPage(prev => prev + 1);
+            setPage(prev => {
+              const nextPage = prev + 1;
+              pageRef.current = nextPage;
+              return nextPage;
+            });
           }
 
-          setHasMore(nextBatch.length === pageSize && unique.length > 0);
+          const canHaveMore = nextBatch.length === currentPageSize && unique.length > 0;
+          setHasMore(canHaveMore);
+          hasMoreRef.current = canHaveMore;
         } else {
           setHasMore(false);
+          hasMoreRef.current = false;
         }
       } else {
         // Legacy slicing
-        const start = (page - 1) * pageSize;
-        const end = start + pageSize;
-        const nextBatch = allItemsOrInitialData.slice(start, end);
+        const currentAllItems = allItemsRef.current;
+        const start = (currentPage - 1) * currentPageSize;
+        const end = start + currentPageSize;
+        const nextBatch = currentAllItems.slice(start, end);
 
         if (nextBatch.length > 0) {
           setVisibleData(prev => [...prev, ...nextBatch]);
-          setPage(prev => prev + 1);
+          setPage(prev => {
+            const nextPage = prev + 1;
+            pageRef.current = nextPage;
+            return nextPage;
+          });
         }
-        setHasMore(end < allItemsOrInitialData.length);
+        const canHaveMore = end < currentAllItems.length;
+        setHasMore(canHaveMore);
+        hasMoreRef.current = canHaveMore;
       }
     } catch (error) {
       console.error('Error fetching more items:', error);
       setHasMore(false);
+      hasMoreRef.current = false;
     } finally {
       isLoadingRef.current = false;
       setIsLoadingMore(false);
     }
-  }, [page, isLoadingMore, hasMore, allItemsOrInitialData, pageSize, visualDelay, visibleData]);
+  }, [visualDelay]);
 
   const observer = useRef<IntersectionObserver | null>(null);
 
   const lastItemRef = useCallback((node: HTMLElement | null) => {
-    if (isLoadingMore || isLoadingRef.current) return;
-    if (observer.current) observer.current.disconnect();
+    if (observer.current) {
+      observer.current.disconnect();
+      observer.current = null;
+    }
+
+    if (!node) return;
 
     observer.current = new IntersectionObserver(entries => {
-      if (entries[0].isIntersecting && hasMore && !isLoadingRef.current) {
+      if (entries[0].isIntersecting && hasMoreRef.current && !isLoadingRef.current) {
         loadMore();
       }
-    });
+    }, { threshold: 0.1 });
 
-    if (node) observer.current.observe(node);
-  }, [isLoadingMore, hasMore, loadMore]);
+    observer.current.observe(node);
+  }, [loadMore]);
+
+  // Clean up observer on unmount
+  useEffect(() => {
+    return () => {
+      if (observer.current) {
+        observer.current.disconnect();
+      }
+    };
+  }, []);
 
   return {
     visibleData,
@@ -162,3 +210,4 @@ export function useInfiniteScroll<T>(
     }
   };
 }
+

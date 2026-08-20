@@ -5,7 +5,19 @@ import { CATEGORIES, EQUIPMENT, CATEGORY_METADATA, EQUIPMENT_METADATA } from '@/
 import { ExerciseCategory, ExerciseEquipment } from '@/config/types';
 import { taxonomyService } from '@/services/taxonomyService';
 import { useTranslations, useLocale } from 'next-intl';
-import { SlidersHorizontal, RotateCcw, Dumbbell, Target, Check, X } from 'lucide-react';
+import {
+    SlidersHorizontal,
+    RotateCcw,
+    Dumbbell,
+    Target,
+    Check,
+    X,
+    Flame,
+    Sparkles,
+    Zap,
+    Layers,
+    Activity
+} from 'lucide-react';
 import { Modal } from '@/components/ui/Modal';
 
 interface ExerciseFilterPanelProps {
@@ -13,22 +25,70 @@ interface ExerciseFilterPanelProps {
     onCategoryChange: (category: string) => void;
     selectedEquipment: string;
     onEquipmentChange: (equipment: string) => void;
+    selectedLevel?: string;
+    onLevelChange?: (level: string) => void;
     className?: string;
     zIndex?: string | number;
 }
+
+const LEVEL_CONFIGS = [
+    {
+        key: 'beginner',
+        icon: Sparkles,
+        bgActive: 'bg-emerald-500/10',
+        borderActive: 'border-emerald-500',
+        shadowActive: 'shadow-[0_0_20px_rgba(16,185,129,0.15)]',
+        ringActive: 'ring-emerald-500/40',
+        badgeBg: 'bg-emerald-500',
+        badgeText: 'text-zinc-950',
+        iconBgActive: 'bg-emerald-500/20',
+        iconColorActive: 'text-emerald-500 dark:text-emerald-400',
+        textColorActive: 'text-emerald-600 dark:text-emerald-400',
+    },
+    {
+        key: 'intermediate',
+        icon: Zap,
+        bgActive: 'bg-amber-500/10',
+        borderActive: 'border-amber-500',
+        shadowActive: 'shadow-[0_0_20px_rgba(245,158,11,0.15)]',
+        ringActive: 'ring-amber-500/40',
+        badgeBg: 'bg-amber-500',
+        badgeText: 'text-zinc-950',
+        iconBgActive: 'bg-amber-500/20',
+        iconColorActive: 'text-amber-500 dark:text-amber-400',
+        textColorActive: 'text-amber-600 dark:text-amber-400',
+    },
+    {
+        key: 'advanced',
+        icon: Flame,
+        bgActive: 'bg-rose-500/10',
+        borderActive: 'border-rose-500',
+        shadowActive: 'shadow-[0_0_20px_rgba(244,63,94,0.15)]',
+        ringActive: 'ring-rose-500/40',
+        badgeBg: 'bg-rose-500',
+        badgeText: 'text-white',
+        iconBgActive: 'bg-rose-500/20',
+        iconColorActive: 'text-rose-500 dark:text-rose-400',
+        textColorActive: 'text-rose-600 dark:text-rose-400',
+    },
+] as const;
 
 export function ExerciseFilterPanel({
     selectedCategory,
     onCategoryChange,
     selectedEquipment,
     onEquipmentChange,
+    selectedLevel = 'all',
+    onLevelChange,
     className = "",
     zIndex = "z-[250]"
 }: ExerciseFilterPanelProps) {
     const locale = useLocale();
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const t = useTranslations('ExerciseFilterPanel');
     const tc = useTranslations('Categories');
     const te = useTranslations('Equipment');
+    const tl = useTranslations('Levels');
 
     const [categoriesList, setCategoriesList] = useState<ExerciseCategory[]>([]);
     const [equipmentList, setEquipmentList] = useState<ExerciseEquipment[]>([]);
@@ -64,15 +124,21 @@ export function ExerciseFilterPanel({
         ? taxonomyService.getEquipmentLocalizedName(activeEquipmentItem, locale)
         : (te.has(selectedEquipment) ? te(selectedEquipment) : selectedEquipment);
 
-    const hasActiveFilters = selectedCategory !== 'all' || selectedEquipment !== 'all';
+    const activeLevelLabel = selectedLevel !== 'all'
+        ? (tl.has(selectedLevel) ? tl(selectedLevel) : selectedLevel)
+        : '';
+
+    const hasActiveFilters = selectedCategory !== 'all' || selectedEquipment !== 'all' || selectedLevel !== 'all';
 
     const activeFiltersCount =
         (selectedCategory !== 'all' ? 1 : 0) +
-        (selectedEquipment !== 'all' ? 1 : 0);
+        (selectedEquipment !== 'all' ? 1 : 0) +
+        (selectedLevel !== 'all' ? 1 : 0);
 
     const handleClearAll = () => {
         onCategoryChange('all');
         onEquipmentChange('all');
+        onLevelChange?.('all');
     };
 
     return (
@@ -88,7 +154,7 @@ export function ExerciseFilterPanel({
                         }`}
                 >
                     <SlidersHorizontal size={14} />
-                    <span>Filtros</span>
+                    <span>{t('filters')}</span>
                     {activeFiltersCount > 0 && (
                         <span className="flex items-center justify-center w-5 h-5 rounded-full bg-zinc-950 text-lime-400 text-[10px] font-black leading-none">
                             {activeFiltersCount}
@@ -105,7 +171,7 @@ export function ExerciseFilterPanel({
                             type="button"
                             onClick={() => onCategoryChange('all')}
                             className="p-1 hover:bg-lime-400/20 rounded-md transition-colors cursor-pointer"
-                            aria-label="Remover filtro de grupo muscular"
+                            aria-label={t('removeCategoryFilter')}
                         >
                             <X size={12} />
                         </button>
@@ -121,7 +187,23 @@ export function ExerciseFilterPanel({
                             type="button"
                             onClick={() => onEquipmentChange('all')}
                             className="p-1 hover:bg-lime-400/20 rounded-md transition-colors cursor-pointer"
-                            aria-label="Remover filtro de equipamento"
+                            aria-label={t('removeEquipmentFilter')}
+                        >
+                            <X size={12} />
+                        </button>
+                    </div>
+                )}
+
+                {/* Active Level Chip */}
+                {selectedLevel !== 'all' && (
+                    <div className="flex items-center gap-1.5 pl-3 pr-2 py-1.5 rounded-xl bg-lime-400/10 dark:bg-lime-400/15 border border-lime-400/30 text-lime-600 dark:text-lime-400 text-[11px] font-bold">
+                        <Activity size={12} />
+                        <span>{activeLevelLabel}</span>
+                        <button
+                            type="button"
+                            onClick={() => onLevelChange?.('all')}
+                            className="p-1 hover:bg-lime-400/20 rounded-md transition-colors cursor-pointer"
+                            aria-label={t('removeLevelFilter')}
                         >
                             <X size={12} />
                         </button>
@@ -136,7 +218,7 @@ export function ExerciseFilterPanel({
                         className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider text-zinc-400 hover:text-rose-500 transition-colors active:scale-95 cursor-pointer ml-auto"
                     >
                         <RotateCcw size={12} />
-                        <span>Limpar</span>
+                        <span>{t('clear')}</span>
                     </button>
                 )}
             </div>
@@ -145,7 +227,7 @@ export function ExerciseFilterPanel({
             <Modal
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
-                title="Filtros de Exercício"
+                title={t('title')}
                 maxWidth="max-w-2xl"
                 zIndex={zIndex}
                 className="!rounded-[36px]"
@@ -157,7 +239,7 @@ export function ExerciseFilterPanel({
                             <div className="flex items-center justify-between px-1">
                                 <div className="flex items-center gap-2 text-xs font-black uppercase text-zinc-900 dark:text-zinc-100 tracking-wider">
                                     <Target size={14} className="text-lime-500" />
-                                    <span>Grupo Muscular</span>
+                                    <span>{t('categories')}</span>
                                 </div>
                                 {selectedCategory !== 'all' && (
                                     <button
@@ -165,7 +247,7 @@ export function ExerciseFilterPanel({
                                         onClick={() => onCategoryChange('all')}
                                         className="text-[10px] font-bold text-lime-500 hover:underline uppercase tracking-wider cursor-pointer"
                                     >
-                                        Limpar Seleção
+                                        {t('clearSelection')}
                                     </button>
                                 )}
                             </div>
@@ -195,7 +277,7 @@ export function ExerciseFilterPanel({
                                     </div>
                                     <span className={`relative z-20 text-[10px] sm:text-xs font-black uppercase tracking-wider text-center truncate w-full ${selectedCategory === 'all' ? 'text-lime-400' : 'text-zinc-600 dark:text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-white'
                                         }`}>
-                                        Todos
+                                        {t('all')}
                                     </span>
                                 </button>
 
@@ -247,7 +329,7 @@ export function ExerciseFilterPanel({
                             <div className="flex items-center justify-between px-1">
                                 <div className="flex items-center gap-2 text-xs font-black uppercase text-zinc-900 dark:text-zinc-100 tracking-wider">
                                     <Dumbbell size={14} className="text-lime-500" />
-                                    <span>Equipamento</span>
+                                    <span>{t('equipment')}</span>
                                 </div>
                                 {selectedEquipment !== 'all' && (
                                     <button
@@ -255,7 +337,7 @@ export function ExerciseFilterPanel({
                                         onClick={() => onEquipmentChange('all')}
                                         className="text-[10px] font-bold text-lime-500 hover:underline uppercase tracking-wider cursor-pointer"
                                     >
-                                        Limpar Seleção
+                                        {t('clearSelection')}
                                     </button>
                                 )}
                             </div>
@@ -285,7 +367,7 @@ export function ExerciseFilterPanel({
                                     </div>
                                     <span className={`relative z-20 text-[10px] sm:text-xs font-black uppercase tracking-wider text-center truncate w-full ${selectedEquipment === 'all' ? 'text-lime-400' : 'text-zinc-600 dark:text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-white'
                                         }`}>
-                                        Todos
+                                        {t('all')}
                                     </span>
                                 </button>
 
@@ -331,6 +413,91 @@ export function ExerciseFilterPanel({
                                 })}
                             </div>
                         </div>
+
+                        {/* Difficulty Level Section */}
+                        <div className="space-y-3">
+                            <div className="flex items-center justify-between px-1">
+                                <div className="flex items-center gap-2 text-xs font-black uppercase text-zinc-900 dark:text-zinc-100 tracking-wider">
+                                    <Flame size={14} className="text-lime-500" />
+                                    <span>{t('level')}</span>
+                                </div>
+                                {selectedLevel !== 'all' && (
+                                    <button
+                                        type="button"
+                                        onClick={() => onLevelChange?.('all')}
+                                        className="text-[10px] font-bold text-lime-500 hover:underline uppercase tracking-wider cursor-pointer"
+                                    >
+                                        {t('clearSelection')}
+                                    </button>
+                                )}
+                            </div>
+
+                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                                {/* All Levels Card */}
+                                <button
+                                    type="button"
+                                    onClick={() => onLevelChange?.('all')}
+                                    className={`relative flex flex-col justify-between h-28 sm:h-32 p-3 rounded-2xl border transition-all cursor-pointer overflow-hidden group select-none ${selectedLevel === 'all'
+                                        ? 'bg-lime-400/10 border-lime-400 shadow-[0_0_20px_rgba(163,230,71,0.15)] ring-2 ring-lime-400/40'
+                                        : 'bg-zinc-100 dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700'
+                                        }`}
+                                >
+                                    {selectedLevel === 'all' && (
+                                        <div className="absolute top-2.5 right-2.5 z-30 w-5 h-5 rounded-full bg-lime-400 text-zinc-950 flex items-center justify-center shadow-md">
+                                            <Check size={12} strokeWidth={3} />
+                                        </div>
+                                    )}
+                                    <div className="flex-1 flex items-center justify-center">
+                                        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all ${selectedLevel === 'all'
+                                            ? 'bg-lime-400/20 text-lime-400 shadow-[0_0_15px_rgba(163,230,71,0.25)] scale-110'
+                                            : 'bg-zinc-200/60 dark:bg-zinc-900 text-zinc-500 border border-zinc-300/40 dark:border-zinc-800'
+                                            }`}>
+                                            <Layers size={22} />
+                                        </div>
+                                    </div>
+                                    <span className={`relative z-20 text-[10px] sm:text-xs font-black uppercase tracking-wider text-center truncate w-full ${selectedLevel === 'all' ? 'text-lime-400 font-black' : 'text-zinc-600 dark:text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-white'
+                                        }`}>
+                                        {t('all')}
+                                    </span>
+                                </button>
+
+                                {/* Level Cards */}
+                                {LEVEL_CONFIGS.map((lvl) => {
+                                    const isSelected = selectedLevel === lvl.key;
+                                    const label = tl.has(lvl.key) ? tl(lvl.key) : lvl.key;
+                                    const Icon = lvl.icon;
+                                    return (
+                                        <button
+                                            key={lvl.key}
+                                            type="button"
+                                            onClick={() => onLevelChange?.(lvl.key)}
+                                            className={`relative flex flex-col justify-between h-28 sm:h-32 p-3 rounded-2xl border transition-all cursor-pointer overflow-hidden group select-none ${isSelected
+                                                ? `${lvl.bgActive} ${lvl.borderActive} ${lvl.shadowActive} ring-2 ${lvl.ringActive}`
+                                                : 'bg-zinc-100 dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700'
+                                                }`}
+                                        >
+                                            {isSelected && (
+                                                <div className={`absolute top-2.5 right-2.5 z-30 w-5 h-5 rounded-full ${lvl.badgeBg} ${lvl.badgeText} flex items-center justify-center shadow-md`}>
+                                                    <Check size={12} strokeWidth={3} />
+                                                </div>
+                                            )}
+                                            <div className="flex-1 flex items-center justify-center">
+                                                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all ${isSelected
+                                                    ? `${lvl.iconBgActive} ${lvl.iconColorActive} scale-110 shadow-lg`
+                                                    : 'bg-zinc-200/60 dark:bg-zinc-900 text-zinc-500 border border-zinc-300/40 dark:border-zinc-800'
+                                                    }`}>
+                                                    <Icon size={22} />
+                                                </div>
+                                            </div>
+                                            <span className={`relative z-20 text-[10px] sm:text-xs font-black uppercase tracking-wider text-center truncate w-full ${isSelected ? `${lvl.textColorActive} font-black` : 'text-zinc-600 dark:text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-white'
+                                                }`}>
+                                                {label}
+                                            </span>
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        </div>
                     </div>
 
                     {/* Modal Footer */}
@@ -342,7 +509,7 @@ export function ExerciseFilterPanel({
                                 className="flex items-center gap-1.5 px-4 py-3 rounded-2xl border border-zinc-200 dark:border-zinc-700 text-xs font-black uppercase tracking-wider text-zinc-600 dark:text-zinc-400 hover:text-rose-500 dark:hover:text-rose-400 hover:border-rose-300 dark:hover:border-rose-900/50 transition-all cursor-pointer active:scale-95"
                             >
                                 <RotateCcw size={14} />
-                                <span>Limpar Tudo</span>
+                                <span>{t('clearAll')}</span>
                             </button>
                         ) : (
                             <div />
@@ -353,7 +520,7 @@ export function ExerciseFilterPanel({
                             onClick={() => setIsModalOpen(false)}
                             className="flex-1 sm:flex-initial flex items-center justify-center gap-2 px-8 py-3.5 rounded-2xl bg-lime-400 hover:bg-lime-500 text-zinc-950 font-black text-xs uppercase tracking-wider shadow-lg shadow-lime-500/20 active:scale-95 transition-all cursor-pointer"
                         >
-                            <span>Aplicar Filtros</span>
+                            <span>{t('applyFilters')}</span>
                         </button>
                     </div>
                 </div>
@@ -361,4 +528,5 @@ export function ExerciseFilterPanel({
         </div>
     );
 }
+
 

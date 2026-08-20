@@ -72,3 +72,11 @@ export const EQUIPMENT_METADATA: Record<EquipmentType, { imagePath: string; tran
 };
 
 export const LANGUAGES = ["en", "pt", "es"] as const;
+
+export const LEVELS = [
+    'beginner',
+    'intermediate',
+    'advanced',
+] as const;
+
+export type LevelType = typeof LEVELS[number];

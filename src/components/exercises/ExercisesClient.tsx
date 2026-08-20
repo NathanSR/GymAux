@@ -29,6 +29,7 @@ export default function ExercisesClient({ initialExercises, initialTotalCount, i
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('all');
     const [selectedEquipment, setSelectedEquipment] = useState('all');
+    const [selectedLevel, setSelectedLevel] = useState('all');
     const [loading, setLoading] = useState(false);
 
     // Debounce de 300ms para a busca
@@ -54,6 +55,7 @@ export default function ExercisesClient({ initialExercises, initialTotalCount, i
                 searchQuery: debouncedSearch,
                 category: selectedCategory,
                 equipment: selectedEquipment,
+                level: selectedLevel,
                 pagination: { page, limit: pageSize },
                 translations: { te, tt },
                 locale
@@ -63,7 +65,7 @@ export default function ExercisesClient({ initialExercises, initialTotalCount, i
             console.error("Error fetching more exercises:", error);
             return [];
         }
-    }, [debouncedSearch, selectedCategory, selectedEquipment, te, tt, locale]);
+    }, [debouncedSearch, selectedCategory, selectedEquipment, selectedLevel, te, tt, locale]);
 
     // Estados locais para controlar a data inicial que será passada para o hook
     const [initialData, setInitialData] = useState<Exercise[]>(initialExercises);
@@ -75,6 +77,7 @@ export default function ExercisesClient({ initialExercises, initialTotalCount, i
                 searchQuery: debouncedSearch,
                 category: selectedCategory,
                 equipment: selectedEquipment,
+                level: selectedLevel,
                 pagination: { page: 1, limit: 20 },
                 translations: { te, tt },
                 locale
@@ -85,23 +88,28 @@ export default function ExercisesClient({ initialExercises, initialTotalCount, i
         } finally {
             setLoading(false);
         }
-    }, [debouncedSearch, selectedCategory, selectedEquipment, te, tt, locale]);
+    }, [debouncedSearch, selectedCategory, selectedEquipment, selectedLevel, te, tt, locale]);
 
-    const isFilterActive = selectedCategory !== 'all' || selectedEquipment !== 'all' || debouncedSearch.trim() !== '';
+    const isFilterActive = selectedCategory !== 'all' || selectedEquipment !== 'all' || selectedLevel !== 'all' || debouncedSearch.trim() !== '';
 
+    // Sincroniza dados iniciais apenas quando nenhum filtro estiver ativo
     useEffect(() => {
         if (!isFilterActive) {
             setInitialData(initialExercises);
-            return;
         }
+    }, [initialExercises, isFilterActive]);
 
-        fetchFirstPage();
-    }, [initialExercises, isFilterActive, debouncedSearch, selectedCategory, selectedEquipment, fetchFirstPage]);
+    // Busca primeira página apenas quando filtros mudarem e houver filtro ativo
+    useEffect(() => {
+        if (isFilterActive) {
+            fetchFirstPage();
+        }
+    }, [isFilterActive, debouncedSearch, selectedCategory, selectedEquipment, selectedLevel]);
 
     // Handle online/visibility recovery
     useEffect(() => {
         const handleRecovery = () => {
-            if (selectedCategory !== 'all' || selectedEquipment !== 'all' || debouncedSearch !== '') {
+            if (isFilterActive) {
                 console.log('[ExercisesClient] App recovered, refreshing filtered exercises...');
                 fetchFirstPage();
             }
@@ -119,7 +127,7 @@ export default function ExercisesClient({ initialExercises, initialTotalCount, i
             window.removeEventListener('online', handleRecovery);
             document.removeEventListener('visibilitychange', handleVisibilityChange);
         };
-    }, [debouncedSearch, selectedCategory, selectedEquipment, fetchFirstPage]);
+    }, [isFilterActive, fetchFirstPage]);
 
     // Hook de Scroll Infinito
     const { visibleData, isLoadingMore, lastItemRef } = useInfiniteScroll(initialData, {
@@ -163,6 +171,8 @@ export default function ExercisesClient({ initialExercises, initialTotalCount, i
                     onCategoryChange={setSelectedCategory}
                     selectedEquipment={selectedEquipment}
                     onEquipmentChange={setSelectedEquipment}
+                    selectedLevel={selectedLevel}
+                    onLevelChange={setSelectedLevel}
                     className="mb-6"
                 />
 
