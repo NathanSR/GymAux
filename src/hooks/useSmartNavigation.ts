@@ -195,6 +195,40 @@ export function useSmartNavigation(options: UseSmartNavigationOptions = {}) {
     }, [isDirty, onConfirmLeave, onBack, resolveFallbackUrl, pathname, router]);
 
     /**
+     * Volta no histórico desempilhando todas as rotas intermediárias até encontrar uma rota específica (ex: sair de um contexto de aluno e voltar para /trainer).
+     * Se a rota alvo estiver no histórico SPA, executa window.history.go(-delta).
+     * Se não estiver na pilha, redefine a pilha e utiliza router.replace(targetUrl) para não empilhar histórico duplicado.
+     */
+    const goBackTo = useCallback(async (targetUrl: string) => {
+        if (isDirty && onConfirmLeave) {
+            const confirmed = await onConfirmLeave();
+            if (!confirmed) return;
+        }
+
+        const normalizedTarget = normalizePath(targetUrl);
+        const cleanPath = normalizePath(pathname);
+
+        if (cleanPath === normalizedTarget) return;
+
+        if (typeof window !== 'undefined') {
+            const stack = getSpaHistory();
+            const targetIndex = stack.lastIndexOf(normalizedTarget);
+
+            if (targetIndex !== -1 && targetIndex < stack.length - 1) {
+                const delta = (stack.length - 1) - targetIndex;
+                saveSpaHistory(stack.slice(0, targetIndex + 1));
+                window.history.go(-delta);
+                return;
+            }
+
+            // Se a rota alvo não estiver na pilha anterior, redefine a pilha e substitui a rota atual
+            saveSpaHistory([normalizedTarget]);
+        }
+
+        router.replace(targetUrl);
+    }, [isDirty, onConfirmLeave, pathname, router]);
+
+    /**
      * Redirecionamento pós-salvamento ou pós-exclusão para evitar empilhar formulários no histórico
      */
     const navigateAfterAction = useCallback((customTargetUrl?: string) => {
@@ -259,8 +293,10 @@ export function useSmartNavigation(options: UseSmartNavigationOptions = {}) {
 
     return {
         goBack,
+        goBackTo,
         navigateAfterAction,
         resolveFallbackUrl,
     };
 }
+
 
