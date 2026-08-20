@@ -1002,6 +1002,7 @@
     "generatingCard": "Generating workout card...",
     "saveToGallery": "Save to Gallery",
     "copyImage": "Copy Image",
+    "copied": "Copied!",
     "shareViaApp": "Share",
     "workoutCompleted": "WORKOUT COMPLETED",
     "tagline": "GYMAUX • DAILY SUPREMACY",
@@ -1011,7 +1012,7 @@
     "workoutCompletedSuccess": "WORKOUT SUCCESSFULLY COMPLETED",
     "setsShort": "sets",
     "repsShort": "reps",
-    "moreExercises": "+ {count} MORE EXERCISES COMPLETED",
+    "moreExercises": "{count, plural, =1 {1 MORE EXERCISE} other {# MORE EXERCISES}}",
     "dropsetBadge": "DROPSET",
     "totalVolume": "Total Volume",
     "duration": "Duration",
@@ -1021,7 +1022,9 @@
     "imageCopied": "Image copied to clipboard!",
     "imageDownloaded": "Image saved successfully!",
     "sharedSuccess": "Workout shared!",
-    "shareError": "Failed to share image."
+    "shareError": "Failed to share image.",
+    "shareText": "Just finished {workout} workout on GymAux! 💪🔥",
+    "shareTitle": "GymAux - {workout}"
   },
   "CookieBanner": {
     "title": "We Value Your Privacy",

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useRef, useState, useEffect, useMemo } from 'react';
-import { Share2, Download, Copy, Loader2, Sparkles, Check } from 'lucide-react';
+import { Share2, Download, Copy, Loader2, Check } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Modal } from '@/components/ui/Modal';
 import { WorkoutShareCard, WorkoutShareData } from './WorkoutShareCard';
@@ -29,7 +29,7 @@ export function WorkoutShareModal({ isOpen, onClose, data }: WorkoutShareModalPr
     const [copied, setCopied] = useState(false);
 
     const activeData: WorkoutShareData = data || {
-        workoutName: 'Treino Finalizado',
+        workoutName: t('workoutCompleted'),
         date: new Date(),
         duration: 0,
         exercises: [],
@@ -64,8 +64,8 @@ export function WorkoutShareModal({ isOpen, onClose, data }: WorkoutShareModalPr
         const processImage = async () => {
             try {
                 setIsGenerating(true);
-                // Pequeno delay para garantir que o DOM do cardRef foi completamente renderizado com estilos
-                await new Promise((res) => setTimeout(res, 200));
+                // Pequeno delay para garantir que o DOM do cardRef foi completamente renderizado com estilos e imagens
+                await new Promise((res) => setTimeout(res, 250));
 
                 if (!cardRef.current || !isMounted) return;
 
@@ -90,24 +90,27 @@ export function WorkoutShareModal({ isOpen, onClose, data }: WorkoutShareModalPr
         return () => {
             isMounted = false;
         };
-    }, [isOpen, dataKey]);
+    }, [isOpen, dataKey, t]);
 
     if (!isOpen) return null;
 
     const handleShare = async () => {
         if (!imageBlob) return;
 
-        const file = new File([imageBlob], `treino-${Date.now()}.png`, { type: 'image/png' });
+        const file = new File([imageBlob], `gymaux-${Date.now()}.png`, { type: 'image/png' });
+        const shareTitle = t.has('shareTitle') ? t('shareTitle', { workout: activeData.workoutName }) : `GymAux - ${activeData.workoutName}`;
+        const shareText = t.has('shareText') ? t('shareText', { workout: activeData.workoutName }) : `GymAux • ${activeData.workoutName}`;
+
         const shared = await shareWorkoutImageFile(
             file,
-            `GymAux - ${activeData.workoutName}`,
-            `Acabei de concluir o treino ${activeData.workoutName} no GymAux! 💪🔥`
+            shareTitle,
+            shareText
         );
 
         if (shared) {
             toast.success(t('sharedSuccess'));
         } else {
-            // Se o navegador não suportar compartilhamento direto por arquivo, cai no fallback de cópia ou download
+            // Fallback: cópia ou download direto
             const copiedSuccess = await copyImageToClipboard(imageBlob);
             if (copiedSuccess) {
                 toast.info(t('imageCopied'));
@@ -139,7 +142,7 @@ export function WorkoutShareModal({ isOpen, onClose, data }: WorkoutShareModalPr
 
     return (
         <>
-            {/* Elemento Oculto Renderizado para Captura do html-to-image */}
+            {/* Elemento Oculto Renderizado para Captura de Alta Definição do html-to-image */}
             <div className="fixed top-[-9999px] left-[-9999px] pointer-events-none z-[-1]">
                 <WorkoutShareCard ref={cardRef} data={activeData} />
             </div>
@@ -152,11 +155,11 @@ export function WorkoutShareModal({ isOpen, onClose, data }: WorkoutShareModalPr
                 maxWidth="max-w-md"
                 zIndex="z-[250]"
             >
-                <div className="p-6 space-y-6 flex flex-col items-center">
-                    {/* Área de Preview da Imagem Gerada */}
-                    <div className="w-full flex items-center justify-center min-h-[300px] bg-zinc-900/60 rounded-[24px] border border-zinc-800 p-3 overflow-hidden relative shadow-inner">
+                <div className="p-5 sm:p-6 space-y-5 flex flex-col items-center">
+                    {/* Área de Preview da Imagem Gerada (Adaptável à Altura Real com Teto 9:16) */}
+                    <div className="w-full flex items-center justify-center min-h-[220px] max-h-[500px] bg-zinc-900/60 rounded-[28px] border border-zinc-800/80 p-3 overflow-hidden relative shadow-inner">
                         {isGenerating ? (
-                            <div className="flex flex-col items-center justify-center space-y-3 py-12 text-zinc-400">
+                            <div className="flex flex-col items-center justify-center space-y-3 py-16 text-zinc-400">
                                 <Loader2 className="w-8 h-8 animate-spin text-lime-400" />
                                 <span className="text-xs font-bold uppercase tracking-wider">{t('generatingCard')}</span>
                             </div>
@@ -164,7 +167,7 @@ export function WorkoutShareModal({ isOpen, onClose, data }: WorkoutShareModalPr
                             <img
                                 src={previewUrl}
                                 alt="GymAux Workout Share Card"
-                                className="max-w-full max-h-[420px] object-contain rounded-2xl shadow-xl transition-all animate-in fade-in zoom-in-95 duration-300"
+                                className="max-h-[460px] w-auto max-w-full object-contain rounded-2xl shadow-2xl transition-all animate-in fade-in zoom-in-95 duration-300"
                             />
                         ) : (
                             <div className="text-xs text-zinc-500">{t('shareError')}</div>
@@ -172,12 +175,12 @@ export function WorkoutShareModal({ isOpen, onClose, data }: WorkoutShareModalPr
                     </div>
 
                     {/* Botões de Ação */}
-                    <div className="w-full space-y-3 pt-1">
+                    <div className="w-full space-y-2.5 pt-1">
                         <button
                             type="button"
                             onClick={handleShare}
                             disabled={isGenerating || !imageBlob}
-                            className="w-full py-4 bg-lime-400 text-zinc-950 rounded-[20px] font-black uppercase tracking-wider text-xs hover:bg-lime-500 transition-all shadow-lg shadow-lime-500/10 active:scale-95 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                            className="w-full py-3.5 bg-lime-400 text-zinc-950 rounded-[20px] font-black uppercase tracking-wider text-xs hover:bg-lime-500 transition-all shadow-lg shadow-lime-500/10 active:scale-95 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
                         >
                             <Share2 className="w-4 h-4" />
                             <span>{t('shareViaApp')}</span>
@@ -188,7 +191,7 @@ export function WorkoutShareModal({ isOpen, onClose, data }: WorkoutShareModalPr
                                 type="button"
                                 onClick={handleDownload}
                                 disabled={isGenerating || !imageBlob}
-                                className="py-3.5 bg-zinc-800 hover:bg-zinc-700 text-white rounded-[18px] font-extrabold uppercase tracking-wider text-[11px] transition-all active:scale-95 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 border border-zinc-700/50"
+                                className="py-3 bg-zinc-800 hover:bg-zinc-700 text-white rounded-[18px] font-extrabold uppercase tracking-wider text-[11px] transition-all active:scale-95 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 border border-zinc-700/50"
                             >
                                 <Download className="w-4 h-4 text-lime-400" />
                                 <span>{t('saveToGallery')}</span>
@@ -198,12 +201,12 @@ export function WorkoutShareModal({ isOpen, onClose, data }: WorkoutShareModalPr
                                 type="button"
                                 onClick={handleCopy}
                                 disabled={isGenerating || !imageBlob}
-                                className="py-3.5 bg-zinc-800 hover:bg-zinc-700 text-white rounded-[18px] font-extrabold uppercase tracking-wider text-[11px] transition-all active:scale-95 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 border border-zinc-700/50"
+                                className="py-3 bg-zinc-800 hover:bg-zinc-700 text-white rounded-[18px] font-extrabold uppercase tracking-wider text-[11px] transition-all active:scale-95 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 border border-zinc-700/50"
                             >
                                 {copied ? (
                                     <>
                                         <Check className="w-4 h-4 text-lime-400" />
-                                        <span>Copiado!</span>
+                                        <span>{t('copied')}</span>
                                     </>
                                 ) : (
                                     <>

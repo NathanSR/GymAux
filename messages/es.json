@@ -1002,6 +1002,7 @@
     "generatingCard": "Generando tarjeta de entrenamiento...",
     "saveToGallery": "Guardar en Galería",
     "copyImage": "Copiar Imagen",
+    "copied": "¡Copiado!",
     "shareViaApp": "Compartir",
     "workoutCompleted": "ENTRENAMIENTO COMPLETADO",
     "tagline": "GYMAUX • SUPERACIÓN DIARIA",
@@ -1011,7 +1012,7 @@
     "workoutCompletedSuccess": "ENTRENAMIENTO FINALIZADO CON ÉXITO",
     "setsShort": "srs",
     "repsShort": "reps",
-    "moreExercises": "+ {count} EJERCICIOS MÁS COMPLETADOS",
+    "moreExercises": "{count, plural, =1 {1 EJERCICIO MÁS} other {# EJERCICIOS MÁS}}",
     "dropsetBadge": "DROPSET",
     "totalVolume": "Volumen Total",
     "duration": "Duración",
@@ -1021,7 +1022,9 @@
     "imageCopied": "¡Imagen copiada al portapapeles!",
     "imageDownloaded": "¡Imagen guardada con éxito!",
     "sharedSuccess": "¡Entrenamiento compartido!",
-    "shareError": "No se pudo compartir la imagen."
+    "shareError": "No se pudo compartir la imagen.",
+    "shareText": "¡Acabo de completar el entrenamiento {workout} en GymAux! 💪🔥",
+    "shareTitle": "GymAux - {workout}"
   },
   "CookieBanner": {
     "title": "Valoramos tu Privacidad",
