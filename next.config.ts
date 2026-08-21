@@ -54,16 +54,39 @@ const withPWA = withPWAInit({
         },
       },
       {
-        // Navegação de páginas HTML (App Shell) - StaleWhileRevalidate para abertura instantânea
+        // Intercepta e salva as trocas de rotas internas do Next.js App Router (RSC)
+        urlPattern: ({ request, url }: { request: any; url: URL }) =>
+          request.headers.get("RSC") === "1" || url.searchParams.has("_rsc"),
+        handler: "NetworkFirst",
+        options: {
+          cacheName: "next-rsc-cache",
+          expiration: {
+            maxEntries: 200,
+            maxAgeSeconds: 30 * 24 * 60 * 60, // 30 dias
+          },
+          matchOptions: {
+            ignoreVary: true,
+            ignoreSearch: false,
+          },
+          networkTimeoutSeconds: 1.5,
+        },
+      },
+      {
+        // Navegação de páginas HTML (App Shell) - NetworkFirst com fail-fast para offline
         urlPattern: ({ request, url }: { request: any; url: URL }) =>
           request.mode === "navigate" && !url.pathname.includes('/login') && !url.pathname.includes('/register') && !url.pathname.includes('/admin'),
-        handler: "StaleWhileRevalidate",
+        handler: "NetworkFirst",
         options: {
           cacheName: "pages-html-cache",
           expiration: {
             maxEntries: 100,
-            maxAgeSeconds: 30 * 24 * 60 * 60, // 30 dias — os dados da UI vêm do Dexie
+            maxAgeSeconds: 30 * 24 * 60 * 60, // 30 dias
           },
+          matchOptions: {
+            ignoreVary: true,
+            ignoreSearch: true,
+          },
+          networkTimeoutSeconds: 1.5,
         },
       },
       {
@@ -76,7 +99,10 @@ const withPWA = withPWAInit({
             maxEntries: 100,
             maxAgeSeconds: 24 * 60 * 60,
           },
-          networkTimeoutSeconds: 2,
+          matchOptions: {
+            ignoreVary: true,
+          },
+          networkTimeoutSeconds: 1.5,
         },
       },
     ],
@@ -87,11 +113,9 @@ const withPWA = withPWAInit({
 });
 
 const nextConfig = {
-  // Melhora a performance de carregamento de pacotes pesados
-  optimizePackageImports: ['lucide-react', 'framer-motion'],
-  // Configuracoes experimentais para performance de SPA
   experimental: {
     scrollRestoration: true,
+    optimizePackageImports: ['lucide-react', 'framer-motion'],
   },
 };
 
