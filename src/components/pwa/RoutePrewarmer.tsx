@@ -6,10 +6,19 @@ import { usePathname } from 'next/navigation';
 const MAIN_ROUTES = [
     '/home',
     '/workouts',
+    '/workouts/new',
     '/exercises',
     '/schedules',
     '/history',
     '/profile/my-id',
+    '/profile/edit',
+    '/offline',
+];
+
+const STATIC_ASSETS = [
+    '/sounds/3-2-1-ja.mp3',
+    '/manifest.json',
+    '/favicon.ico',
 ];
 
 export function RoutePrewarmer() {
@@ -35,10 +44,20 @@ export function RoutePrewarmer() {
 
         // Schedule pre-warming during idle time so it doesn't impact initial page performance
         const prewarm = async () => {
+            // 1. Prewarm all static audio/media assets
+            for (const asset of STATIC_ASSETS) {
+                try {
+                    await fetch(asset, { priority: 'low' }).catch(() => {});
+                } catch {
+                    // Ignore
+                }
+            }
+
+            // 2. Prewarm full HTML documents and RSC payloads for user routes
             for (const route of MAIN_ROUTES) {
                 const targetUrl = `/${locale}${route}`;
                 try {
-                    // 1. Warm up RSC (React Server Component payload for SPA transitions)
+                    // Warm up RSC (React Server Component payload for SPA transitions)
                     await fetch(targetUrl, {
                         headers: {
                             'RSC': '1',
@@ -46,7 +65,7 @@ export function RoutePrewarmer() {
                         priority: 'low',
                     }).catch(() => {});
 
-                    // 2. Warm up Full HTML Document (for direct page refreshes/reloads)
+                    // Warm up Full HTML Document (for direct page refreshes/reloads)
                     await fetch(targetUrl, {
                         priority: 'low',
                     }).catch(() => {});

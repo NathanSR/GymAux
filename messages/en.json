@@ -721,6 +721,7 @@
     "title": "You are offline",
     "description": "This page hasn't been saved to your device yet, but all your saved workouts and history remain fully accessible!",
     "retry": "Try Again",
+    "goBack": "Go Back to Previous Page",
     "goToWorkouts": "Go to My Workouts"
   },
   "SplashScreen": {

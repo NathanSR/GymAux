@@ -206,10 +206,14 @@ export const ExerciseService = {
 
     // Buscar por ID
     async getExerciseById(id: number, supabaseInput?: any) {
-        // Local-first
+        // Local-first (0ms)
         if (typeof window !== 'undefined') {
             const local = await db.exercises.get(id);
             if (local) return local;
+
+            if (!navigator.onLine) {
+                return null;
+            }
         }
 
         try {
@@ -220,7 +224,7 @@ export const ExerciseService = {
                     .select('*')
                     .eq('id', id)
                     .maybeSingle(),
-                3000
+                2000
             );
 
             if (error) throw error;
@@ -236,6 +240,10 @@ export const ExerciseService = {
             return null;
         } catch (error) {
             console.warn('[ExerciseService] getExerciseById failed:', error);
+            if (typeof window !== 'undefined') {
+                const local = await db.exercises.get(id);
+                if (local) return local;
+            }
             return null;
         }
     },

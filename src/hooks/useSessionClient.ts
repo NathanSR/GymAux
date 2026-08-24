@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { Session, ExecutedSet, Exercise } from '@/config/types';
 import { useSessionNavigation } from '@/hooks/useSessionNavigation';
 import { useSessionActions } from '@/hooks/useSessionActions';
@@ -54,12 +54,19 @@ export function useSessionClient({ initialSession, isReadOnly = false, watchValu
         };
     }, [currentExercise?.exerciseId]);
 
+    const sessionRef = useRef(session);
+    sessionRef.current = session;
+    const exitSessionRef = useRef(exitSession);
+    exitSessionRef.current = exitSession;
+
     useEffect(() => {
         if (isReadOnly) return;
 
-        if (typeof window !== 'undefined') {
+        // Interceptação controlada do botão voltar: empurra estado uma única vez no início
+        if (typeof window !== 'undefined' && !window.history.state?.__sessionTrap) {
             window.history.pushState({ ...window.history.state, __sessionTrap: true }, '', window.location.href);
         }
+
         const handleBackButton = (event: PopStateEvent) => {
             if (OverlayStackManager.isCleaningUpHistory()) {
                 return;
@@ -70,16 +77,17 @@ export function useSessionClient({ initialSession, isReadOnly = false, watchValu
             }
 
             event.preventDefault();
-            if (session.id) exitSession(session.id);
-            if (typeof window !== 'undefined') {
-                window.history.pushState({ ...window.history.state, __sessionTrap: true }, '', window.location.href);
+            const currentSession = sessionRef.current;
+            if (currentSession?.id) {
+                exitSessionRef.current(currentSession.id);
             }
         };
+
         window.addEventListener('popstate', handleBackButton);
         return () => {
             window.removeEventListener('popstate', handleBackButton);
         };
-    }, [session.id, exitSession, showPreview, isReadOnly]);
+    }, [isReadOnly, showPreview]);
 
     const synchronizeProgress = useCallback(async (newSession: Session) => {
         if (!newSession.id) return;

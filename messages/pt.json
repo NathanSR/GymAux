@@ -721,6 +721,7 @@
     "title": "Você está sem conexão",
     "description": "Esta página ainda não foi salva no seu dispositivo, mas todos os seus treinos e históricos salvos continuam totalmente acessíveis!",
     "retry": "Tentar Novamente",
+    "goBack": "Voltar à Página Anterior",
     "goToWorkouts": "Ir para Meus Treinos"
   },
   "SplashScreen": {

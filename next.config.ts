@@ -17,19 +17,37 @@ const withPWA = withPWAInit({
     clientsClaim: true,
     runtimeCaching: [
       {
-        // Sons do timer de treino e mídia local - CacheFirst imediato
-        urlPattern: /\.(?:mp3|wav|ogg|m4a|aac)$/i,
+        // Sons do timer de treino e mídia local - CacheFirst imediato com longo prazo
+        urlPattern: /(?:\/sounds\/.*|\.(?:mp3|wav|ogg|m4a|aac))$/i,
         handler: "CacheFirst",
         options: {
           cacheName: "sounds-media-cache",
           expiration: {
             maxEntries: 50,
-            maxAgeSeconds: 60 * 24 * 60 * 60, // 60 dias
+            maxAgeSeconds: 90 * 24 * 60 * 60, // 90 dias
+          },
+          cacheableResponse: {
+            statuses: [0, 200],
           },
         },
       },
       {
-        // Supabase API requests - NetworkFirst com cache fallback para offline
+        // Assets estáticos (imagens, fontes, favicons, webmanifest) - CacheFirst
+        urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp|woff2?|ico|webmanifest)$/i,
+        handler: "CacheFirst",
+        options: {
+          cacheName: "static-assets-cache",
+          expiration: {
+            maxEntries: 500,
+            maxAgeSeconds: 60 * 24 * 60 * 60, // 60 dias
+          },
+          cacheableResponse: {
+            statuses: [0, 200],
+          },
+        },
+      },
+      {
+        // Supabase API requests - NetworkFirst com fallback local do Dexie
         urlPattern: /^https:\/\/.*\.supabase\.(co|in)\/.*/i,
         handler: "NetworkFirst",
         options: {
@@ -38,19 +56,7 @@ const withPWA = withPWAInit({
             maxEntries: 200,
             maxAgeSeconds: 7 * 24 * 60 * 60, // 7 dias
           },
-          networkTimeoutSeconds: 2, // Fail-fast para resposta instantânea offline
-        },
-      },
-      {
-        // Assets estáticos (imagens, fontes) - CacheFirst
-        urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp|woff2?|ico)$/i,
-        handler: "CacheFirst",
-        options: {
-          cacheName: "static-assets-cache",
-          expiration: {
-            maxEntries: 500,
-            maxAgeSeconds: 30 * 24 * 60 * 60, // 30 dias
-          },
+          networkTimeoutSeconds: 2,
         },
       },
       {
@@ -61,7 +67,7 @@ const withPWA = withPWAInit({
         options: {
           cacheName: "next-rsc-cache",
           expiration: {
-            maxEntries: 200,
+            maxEntries: 300,
             maxAgeSeconds: 30 * 24 * 60 * 60, // 30 dias
           },
           matchOptions: {
@@ -69,6 +75,9 @@ const withPWA = withPWAInit({
             ignoreSearch: false,
           },
           networkTimeoutSeconds: 1.5,
+          cacheableResponse: {
+            statuses: [0, 200],
+          },
         },
       },
       {
@@ -79,7 +88,7 @@ const withPWA = withPWAInit({
         options: {
           cacheName: "pages-html-cache",
           expiration: {
-            maxEntries: 100,
+            maxEntries: 150,
             maxAgeSeconds: 30 * 24 * 60 * 60, // 30 dias
           },
           matchOptions: {
@@ -87,6 +96,9 @@ const withPWA = withPWAInit({
             ignoreSearch: true,
           },
           networkTimeoutSeconds: 1.5,
+          cacheableResponse: {
+            statuses: [0, 200],
+          },
         },
       },
       {
@@ -103,6 +115,9 @@ const withPWA = withPWAInit({
             ignoreVary: true,
           },
           networkTimeoutSeconds: 1.5,
+          cacheableResponse: {
+            statuses: [0, 200],
+          },
         },
       },
     ],

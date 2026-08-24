@@ -16,7 +16,22 @@ export function useSession() {
 
         const loadUser = async () => {
             try {
-                // Use resilient resolver instead of direct auth call
+                // 1. Resolução imediata do Dexie (0ms de latência - crucial para modo offline e renderização instantânea)
+                if (typeof window !== 'undefined') {
+                    const cached = await (await import('@/config/db')).db.users.toCollection().first();
+                    if (cached && isMounted) {
+                        setActiveUser(cached);
+                        setLoading(false);
+                    }
+                }
+
+                // 2. Se offline, a hidratação local já é suficiente
+                if (typeof window !== 'undefined' && !navigator.onLine) {
+                    if (isMounted) setLoading(false);
+                    return;
+                }
+
+                // 3. Se online, revalida com o Supabase Auth em background
                 const userId = await userService.resolveCurrentUserId();
 
                 if (!isMounted) return;
@@ -26,19 +41,12 @@ export function useSession() {
                     if (!isMounted) return;
                     if (profile) {
                         setActiveUser(profile);
-                    } else if (typeof window !== 'undefined') {
-                        const cached = await (await import('@/config/db')).db.users.get(userId);
-                        if (isMounted) setActiveUser(cached || null);
                     }
-                } else if (typeof window !== 'undefined') {
-                    const cached = await (await import('@/config/db')).db.users.toCollection().first();
-                    if (isMounted) setActiveUser(cached || null);
-                } else {
+                } else if (!activeUser) {
                     if (isMounted) setActiveUser(null);
                 }
             } catch (error: any) {
                 console.warn('[useSession] Error loading session:', error?.message || error);
-                if (isMounted && !activeUser) setActiveUser(null);
             } finally {
                 if (isMounted) {
                     setLoading(false);

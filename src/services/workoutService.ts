@@ -205,10 +205,18 @@ export const WorkoutService = {
     },
 
     async getWorkoutById(id: string, supabaseInput?: any) {
-        // Local-first
+        // Local-first (0ms)
         if (typeof window !== 'undefined') {
-            const local = await db.workouts.get(id);
+            let local = await db.workouts.get(id);
+            if (!local && !isNaN(Number(id))) {
+                local = await db.workouts.get(Number(id));
+            }
             if (local) return local;
+
+            // Se offline e não encontrado localmente, encerra imediatamente
+            if (!navigator.onLine) {
+                return null;
+            }
         }
 
         try {
@@ -219,7 +227,7 @@ export const WorkoutService = {
                     .select('*')
                     .eq('id', id)
                     .maybeSingle(),
-                3000
+                2000
             );
 
             if (error) throw error;
@@ -235,6 +243,13 @@ export const WorkoutService = {
             return null;
         } catch (error) {
             console.warn('[WorkoutService] getWorkoutById failed:', error);
+            if (typeof window !== 'undefined') {
+                let local = await db.workouts.get(id);
+                if (!local && !isNaN(Number(id))) {
+                    local = await db.workouts.get(Number(id));
+                }
+                if (local) return local;
+            }
             return null;
         }
     },

@@ -1,17 +1,23 @@
 'use client';
 
 import React from 'react';
-import { WifiOff, RotateCcw, Dumbbell } from 'lucide-react';
-import Link from 'next/link';
+import { WifiOff, RotateCcw, Dumbbell, ArrowLeft } from 'lucide-react';
+import { Link } from '@/i18n/routing';
 import { useTranslations } from 'next-intl';
+import { useSmartNavigation } from '@/hooks/useSmartNavigation';
 
 export default function OfflineFallbackPage() {
     const t = useTranslations('OfflineFallback');
+    const { goBack } = useSmartNavigation({ fallbackUrl: '/home' });
 
     const handleRetry = () => {
         if (typeof window !== 'undefined') {
             window.location.reload();
         }
+    };
+
+    const handleSmartBack = () => {
+        goBack('/home');
     };
 
     return (
@@ -28,22 +34,33 @@ export default function OfflineFallbackPage() {
                 {t('description')}
             </p>
 
-            <div className="flex flex-col sm:flex-row items-center gap-3 w-full max-w-xs">
+            <div className="flex flex-col items-center gap-3 w-full max-w-xs">
+                {/* Botão de Voltar Inteligente */}
                 <button
-                    onClick={handleRetry}
-                    className="w-full flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-200 hover:text-white hover:bg-zinc-800 text-sm font-medium transition-colors cursor-pointer"
+                    onClick={handleSmartBack}
+                    className="w-full flex items-center justify-center gap-2 px-5 py-3.5 rounded-2xl bg-lime-400 text-zinc-950 hover:bg-lime-300 active:scale-[0.98] text-sm font-bold transition-all shadow-lg shadow-lime-400/20 cursor-pointer"
                 >
-                    <RotateCcw className="w-4 h-4" />
-                    {t('retry')}
+                    <ArrowLeft className="w-4 h-4" />
+                    {t('goBack')}
                 </button>
 
-                <Link
-                    href="/"
-                    className="w-full flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-lime-400 text-zinc-950 hover:bg-lime-300 text-sm font-semibold transition-colors shadow-lg shadow-lime-400/20"
-                >
-                    <Dumbbell className="w-4 h-4" />
-                    {t('goToWorkouts')}
-                </Link>
+                <div className="grid grid-cols-2 gap-2.5 w-full">
+                    <button
+                        onClick={handleRetry}
+                        className="flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-300 hover:text-white hover:bg-zinc-800 text-xs font-semibold transition-colors cursor-pointer"
+                    >
+                        <RotateCcw className="w-3.5 h-3.5" />
+                        {t('retry')}
+                    </button>
+
+                    <Link
+                        href="/home"
+                        className="flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-300 hover:text-white hover:bg-zinc-800 text-xs font-semibold transition-colors"
+                    >
+                        <Dumbbell className="w-3.5 h-3.5" />
+                        {t('goToWorkouts')}
+                    </Link>
+                </div>
             </div>
         </div>
     );
