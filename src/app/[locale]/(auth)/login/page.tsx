@@ -6,7 +6,7 @@ import { migrateLocalData } from '@/lib/migration/migrateLocalData'
 import { Link, useRouter } from '@/i18n/routing'
 import { LogIn, ArrowRight, Loader2, CheckCircle2, Mail, Lock, AlertCircle } from 'lucide-react'
 import { useForm } from 'react-hook-form'
-import { useTranslations } from 'next-intl'
+import { useTranslations, useLocale } from 'next-intl'
 import { motion, AnimatePresence } from 'framer-motion'
 
 type AuthFormData = {
@@ -15,6 +15,7 @@ type AuthFormData = {
 }
 export default function LoginPage() {
   const t = useTranslations('Auth')
+  const locale = useLocale()
   const [loading, setLoading] = useState(false)
   const [migrating, setMigrating] = useState(false)
   const [migrated, setMigrated] = useState(false)
@@ -76,7 +77,7 @@ export default function LoginPage() {
 
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/auth/callback?next=/update-password`,
+        redirectTo: `${window.location.origin}/auth/callback?next=/${locale}/update-password`,
       })
 
       if (error) {

@@ -60,7 +60,7 @@ export default async function middleware(request: NextRequest) {
     const pathname = request.nextUrl.pathname;
 
     // Páginas que não requerem autenticação
-    const publicPages = ['/', '/login', '/register', '/admin/login', '/privacy', '/terms', '/cookies'];
+    const publicPages = ['/', '/login', '/register', '/update-password', '/admin/login', '/privacy', '/terms', '/cookies'];
 
     const isPublicPage = publicPages.some((page) => {
         const locales = routing.locales.join('|');
@@ -98,6 +98,6 @@ export default async function middleware(request: NextRequest) {
 
 export const config = {
     matcher: [
-        '/((?!api|_next/static|_next/image|sounds|manifest\\.json|favicon\\.ico|sw\\.js|workbox-|fallback-|swe-worker-|.*\\.(?:svg|png|jpg|jpeg|gif|webp|mp3|webmanifest)$).*)',
+        '/((?!api|auth|_next/static|_next/image|sounds|manifest\\.json|favicon\\.ico|sw\\.js|workbox-|fallback-|swe-worker-|.*\\.(?:svg|png|jpg|jpeg|gif|webp|mp3|webmanifest)$).*)',
     ],
 };
