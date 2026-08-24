@@ -51,18 +51,22 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const actionLink = linkData.properties.action_link
+    // Se houver hashed_token, constrói o link DIRETO para o nosso domínio
+    // evitando qualquer intermediário ou redirecionamento do servidor Supabase para localhost
+    const resetLink = linkData.properties?.hashed_token
+      ? `${origin}/auth/callback?token_hash=${linkData.properties.hashed_token}&type=recovery&next=/${targetLocale}/update-password`
+      : linkData.properties.action_link
 
     // 2. Monta o template do e-mail com design Dark/Lime no idioma solicitado
     const { subject, html } = getResetPasswordEmail({
       email,
-      resetLink: actionLink,
+      resetLink,
       locale: targetLocale,
     })
 
     // 3. Dispara diretamente via Resend API
     const resend = new Resend(resendApiKey)
-    const fromAddress = process.env.RESEND_FROM_EMAIL || 'GymAux <onboarding@resend.dev>'
+    const fromAddress = process.env.RESEND_FROM_EMAIL || 'GymAux <noreply@radcod.com>'
 
     const { error: resendError } = await resend.emails.send({
       from: fromAddress,
