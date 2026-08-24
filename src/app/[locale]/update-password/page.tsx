@@ -3,9 +3,9 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { useTranslations } from 'next-intl'
-import { useRouter } from '@/i18n/routing'
+import { Link, useRouter } from '@/i18n/routing'
 import { useForm } from 'react-hook-form'
-import { Lock, ArrowRight, Loader2, CheckCircle2, AlertCircle } from 'lucide-react'
+import { Lock, ArrowRight, Loader2, CheckCircle2, AlertCircle, ArrowLeft } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 
 type UpdatePasswordFormData = {
@@ -74,7 +74,15 @@ export default function UpdatePasswordPage() {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-white dark:bg-zinc-950 p-6 sm:p-8">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-white dark:bg-zinc-950 p-6 sm:p-8 relative">
+      <Link 
+        href="/login" 
+        className="flex items-center gap-2 absolute top-4 left-4 bg-zinc-100 dark:bg-white/5 backdrop-blur-md text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white p-2.5 rounded-xl border border-zinc-200 dark:border-white/10 transition-all hover:bg-zinc-200 dark:hover:bg-white/10 group z-50"
+      >
+        <ArrowLeft size={20} className="transition-transform group-hover:-translate-x-1" /> 
+        <span className="text-sm font-medium">{t('backToLogin')}</span>
+      </Link>
+
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -155,7 +163,7 @@ export default function UpdatePasswordPage() {
             whileTap={{ scale: 0.98 }}
             type="submit"
             disabled={loading}
-            className="w-full flex items-center justify-center gap-3 p-5 rounded-2xl bg-lime-500 text-black font-black uppercase tracking-widest shadow-lg shadow-lime-500/20 mt-6 group"
+            className="w-full flex items-center justify-center gap-3 p-5 rounded-2xl bg-lime-500 text-black font-black uppercase tracking-widest shadow-lg shadow-lime-500/20 mt-6 group cursor-pointer"
           >
             {loading ? (
               <Loader2 className="animate-spin" size={22} />
