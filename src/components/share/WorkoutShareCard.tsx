@@ -82,10 +82,28 @@ export const WorkoutShareCard = forwardRef<HTMLDivElement, WorkoutShareCardProps
     const [logoError, setLogoError] = useState(false);
     const { getLocalizedName, exercisesMap } = useExerciseLocalization();
 
-    // Domínio dinâmico do app
+    // Domínio dinâmico do app sincronizado com Vercel e navegador em tempo real
     const getAppDomain = () => {
-        const rawUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_VERCEL_URL || 'gymaux.vercel.app';
-        return rawUrl.replace(/^https?:\/\//, '').replace(/\/.*$/, '').toLowerCase();
+        if (process.env.NEXT_PUBLIC_APP_URL) {
+            return process.env.NEXT_PUBLIC_APP_URL.replace(/^https?:\/\//, '').replace(/\/.*$/, '').toLowerCase();
+        }
+
+        if (process.env.NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL) {
+            return process.env.NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL.replace(/^https?:\/\//, '').replace(/\/.*$/, '').toLowerCase();
+        }
+
+        if (typeof window !== 'undefined' && window.location.hostname) {
+            const host = window.location.hostname.toLowerCase();
+            if (host === 'localhost' || host === '127.0.0.1') {
+                return 'gymaux.app';
+            }
+            if (host.endsWith('.vercel.app')) {
+                return 'gymaux.vercel.app';
+            }
+            return host;
+        }
+
+        return 'gymaux.radcod.com';
     };
 
     const rawDate = data?.date ? new Date(data.date) : new Date();
