@@ -76,12 +76,18 @@ export default function LoginPage() {
     setAuthError(null)
 
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/auth/callback?next=/${locale}/update-password`,
+      const res = await fetch('/api/auth/reset-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, locale }),
       })
 
-      if (error) {
-        setAuthError(error.message)
+      const data = await res.json().catch(() => ({}))
+
+      if (!res.ok || data.error) {
+        setAuthError(data.error || "Ocorreu um erro ao enviar o e-mail.")
       } else {
         setResetSent(true)
       }
