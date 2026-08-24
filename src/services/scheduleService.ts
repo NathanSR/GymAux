@@ -105,20 +105,6 @@ export const ScheduleService = {
      * Busca o cronograma que está marcado como ativo para o usuário.
      */
     async getActiveSchedule(userId: string, supabaseInput?: any) {
-        // Local-first (0ms de latência)
-        if (typeof window !== 'undefined') {
-            const local = await db.schedules
-                .where('userId')
-                .equals(userId)
-                .filter(s => s.active === true)
-                .first();
-            if (local) return local;
-
-            if (!navigator.onLine) {
-                return null;
-            }
-        }
-
         try {
             const supabase = supabaseInput || createClient();
             const { data, error } = await withTimeout(
@@ -129,7 +115,7 @@ export const ScheduleService = {
                     .eq('active', true)
                     .order('created_at', { ascending: false })
                     .limit(1),
-                2000
+                3000
             );
 
             if (error) throw error;
@@ -142,6 +128,7 @@ export const ScheduleService = {
         } catch (error) {
             console.warn('[ScheduleService] getActiveSchedule failed, falling back to local DB:', error);
             if (typeof window !== 'undefined') {
+                // active is stored as boolean in Dexie — use filter
                 const local = await db.schedules
                     .where('userId')
                     .equals(userId)
@@ -154,14 +141,10 @@ export const ScheduleService = {
     },
 
     async getScheduleById(id: string, supabaseInput?: any) {
-        // Local-first (0ms)
+        // Local-first
         if (typeof window !== 'undefined') {
             const local = await db.schedules.get(id);
             if (local) return local;
-
-            if (!navigator.onLine) {
-                return null;
-            }
         }
 
         try {
@@ -172,7 +155,7 @@ export const ScheduleService = {
                     .select('*')
                     .eq('id', id)
                     .maybeSingle(),
-                2000
+                3000
             );
 
             if (error) throw error;
@@ -183,10 +166,6 @@ export const ScheduleService = {
             return schedule;
         } catch (error) {
             console.error('[ScheduleService] getScheduleById failed:', error);
-            if (typeof window !== 'undefined') {
-                const local = await db.schedules.get(id);
-                if (local) return local;
-            }
             return null;
         }
     },

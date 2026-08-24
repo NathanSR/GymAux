@@ -34,32 +34,25 @@ export default async function middleware(request: NextRequest) {
         }
     );
 
-    // 4. Verificamos a sessão do usuário com resiliência offline completa
-    let user: any = null;
+    // 4. Verificamos a sessão do usuário com resiliência offline
+    let user = null;
     try {
-        const { data: userData } = await supabase.auth.getUser();
-        if (userData?.user) {
-            user = userData.user;
-        } else {
-            // Se getUser retornou null (ex: sem rede para validar JWT), tenta getSession local
-            const { data: sessionData } = await supabase.auth.getSession();
-            if (sessionData?.session?.user) {
-                user = sessionData.session.user;
-            }
-        }
+        const { data } = await supabase.auth.getUser();
+        user = data?.user || null;
     } catch {
-        // Falha de rede ou timeout
-    }
-
-    // Se ainda não obteve user, verifica se há cookie de autenticação do Supabase (incluindo fragmentados .0, .1)
-    if (!user) {
-        const allCookies = request.cookies.getAll();
-        const hasAuthCookie = allCookies.some(c =>
-            c.name.startsWith('sb-') && (c.name.includes('auth-token') || c.name.includes('access-token'))
-        );
-        if (hasAuthCookie) {
-            // Permite a passagem se houver cookie de sessão; a validação e hidratação serão feitas via Dexie no client
-            user = { offlineAllowed: true };
+        // Operação de rede falhou (offline): tentar obter a sessão cacheada dos cookies
+        try {
+            const { data: { session } } = await supabase.auth.getSession();
+            user = session?.user || null;
+        } catch {
+            // Sessão também falhou offline — verifica se há cookie de autenticação do Supabase
+            const hasAuthCookie = request.cookies.getAll().some(c =>
+                c.name.startsWith('sb-') && c.name.endsWith('-auth-token')
+            );
+            if (hasAuthCookie) {
+                // Permite a passagem se houver cookie de sessão; a validação e hidratação serão feitas via Dexie no client
+                user = { offlineAllowed: true } as any;
+            }
         }
     }
 
@@ -86,21 +79,17 @@ export default async function middleware(request: NextRequest) {
     }
 
     // 7. Se autenticado, garante que apenas admins acessam rotas do painel admin
-    if (user && user.id && !user.offlineAllowed && pathname.includes('/admin') && !pathname.includes('/admin/login')) {
-        try {
-            const { data: profile } = await supabase
-                .from('profiles')
-                .select('role')
-                .eq('id', user.id)
-                .maybeSingle();
+    if (user && pathname.includes('/admin') && !pathname.includes('/admin/login')) {
+        const { data: profile } = await supabase
+            .from('profiles')
+            .select('role')
+            .eq('id', user.id)
+            .maybeSingle();
 
-            if (!profile || profile.role !== 'admin') {
-                const locale = pathname.split('/')[1] || routing.defaultLocale;
-                const homeUrl = new URL(`/${locale}/home`, request.url);
-                return NextResponse.redirect(homeUrl);
-            }
-        } catch {
-            // Em caso de falha de rede, permite que a verificação client-side faça a checagem
+        if (!profile || profile.role !== 'admin') {
+            const locale = pathname.split('/')[1] || routing.defaultLocale;
+            const homeUrl = new URL(`/${locale}/home`, request.url);
+            return NextResponse.redirect(homeUrl);
         }
     }
 

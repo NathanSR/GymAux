@@ -6,18 +6,12 @@ import { toast } from 'react-toastify';
 import { InstallPromptBanner } from '@/components/pwa/InstallPromptBanner';
 import { RoutePrewarmer } from '@/components/pwa/RoutePrewarmer';
 import { OfflineIndicator } from '@/components/ui/OfflineIndicator';
-import { useSession } from '@/hooks/useSession';
-import { useDataPreloader } from '@/hooks/useDataPreloader';
 
 import { useTranslations } from 'next-intl';
 
 export function OfflineSyncProvider({ children }: { children: React.ReactNode }) {
     const t = useTranslations('OfflineSync');
     const toastIdRef = useRef<string | number | null>(null);
-    const { activeUser } = useSession();
-
-    // Dispara o pré-carregamento global de todos os dados do banco para o Dexie
-    useDataPreloader(activeUser?.id);
 
     useEffect(() => {
         // Trigger initial sync attempt if online on load

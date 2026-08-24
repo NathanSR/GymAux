@@ -12,10 +12,8 @@ import { Workout, History } from '@/config/types';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '@/config/db';
 import { stopTopLoader } from '@/utils/topLoader';
-import { useLocale } from 'next-intl';
 
 export function HomePageClient() {
-    const locale = useLocale();
     const { activeUser, loading: sessionLoading } = useSession();
     useDataPreloader(activeUser?.id);
 
@@ -71,6 +69,7 @@ export function HomePageClient() {
         }
     }, [activeUser?.id, activeSchedule, userWorkouts, historyList]);
 
+    const locale = 'pt';
     const today = new Date();
     const formattedDate = new Intl.DateTimeFormat(locale, {
         weekday: 'long',
