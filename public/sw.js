@@ -1,10 +1,11 @@
 /**
- * GymAux - Service Worker Nativo Cirúrgico (Web Standards)
+ * GymAux - Service Worker Nativo Ultra-Resiliente (Web Standards)
  * Separação estrita entre HTML_CACHE, RSC_CACHE e STATIC_CACHE.
- * Garante que payloads RSC nunca substituam páginas HTML e que o App Shell funcione 100% offline.
+ * Suporte completo a rotas estáticas e dinâmicas ([id], /session, /edit).
+ * 100% Offline-First.
  */
 
-const CACHE_VERSION = 'gymaux-v4.0.0';
+const CACHE_VERSION = 'gymaux-v5.1.0';
 const CORE_CACHE = `gymaux-core-${CACHE_VERSION}`;
 const HTML_CACHE = `gymaux-html-${CACHE_VERSION}`;
 const RSC_CACHE = `gymaux-rsc-${CACHE_VERSION}`;
@@ -43,7 +44,7 @@ self.addEventListener('install', (event) => {
     );
 });
 
-// 2. Ativação: Limpeza agressiva de qualquer cache de versão anterior
+// 2. Ativação: Limpeza de caches antigos
 self.addEventListener('activate', (event) => {
     event.waitUntil(
         caches.keys().then((keys) => {
@@ -114,7 +115,13 @@ self.addEventListener('fetch', (event) => {
 
                     if (cachedRsc) return cachedRsc;
 
-                    // Se não encontrar o RSC exato, retorna resposta vazia com header correto para o React não quebrar
+                    // Fallback para rota dinâmica de edição ou detalhe
+                    if (url.pathname.includes('/edit')) {
+                        const genericEditRsc = await rscCache.match(url.pathname.replace(/\/[^/]+\/edit$/, '/new'));
+                        if (genericEditRsc) return genericEditRsc;
+                    }
+
+                    // Resposta RSC vazia válida para o Next.js cliente assumir sem crash
                     return new Response('', {
                         status: 200,
                         headers: { 'Content-Type': 'text/x-component' }
@@ -138,14 +145,13 @@ self.addEventListener('fetch', (event) => {
                 .then(async (networkResponse) => {
                     if (networkResponse && networkResponse.status === 200) {
                         const contentType = networkResponse.headers.get('content-type') || '';
-                        // Garante cirurgicamente que APENAS HTML seja salvo no HTML_CACHE
+                        // Salva APENAS documentos HTML válidos no HTML_CACHE
                         if (contentType.includes('text/html')) {
                             const clone = networkResponse.clone();
                             const htmlCache = await caches.open(HTML_CACHE);
                             await htmlCache.put(url.pathname, clone.clone());
                             await htmlCache.put(request, clone.clone());
 
-                            // Se for a Home autenticada, define como App Shell padrão
                             if (url.pathname.endsWith('/home')) {
                                 await htmlCache.put(APP_SHELL_PATH, clone);
                             }
@@ -156,13 +162,13 @@ self.addEventListener('fetch', (event) => {
                 .catch(async () => {
                     const htmlCache = await caches.open(HTML_CACHE);
 
-                    // Redirecionamento offline amigável para a Home se a rota for a raiz '/'
+                    // Redirecionamento amigável offline da raiz '/' para o App
                     if (url.pathname === '/' || url.pathname === '') {
                         const homeHtml = await htmlCache.match(APP_SHELL_PATH);
                         if (homeHtml) return homeHtml;
                     }
 
-                    // 1. Tenta a página exata em cache
+                    // 1. Tenta a página exata da URL
                     const cachedPage = (await htmlCache.match(url.pathname)) || (await htmlCache.match(request));
                     if (cachedPage) return cachedPage;
 
@@ -170,18 +176,38 @@ self.addEventListener('fetch', (event) => {
                     const cachedNoQuery = await htmlCache.match(url.pathname, { ignoreSearch: true });
                     if (cachedNoQuery) return cachedNoQuery;
 
-                    // 3. Se for qualquer subrota privada de usuário, serve o App Shell
-                    const isUserRoute =
-                        !url.pathname.includes('/login') &&
-                        !url.pathname.includes('/register') &&
-                        !url.pathname.includes('/admin');
-
-                    if (isUserRoute) {
-                        const appShell = await htmlCache.match(APP_SHELL_PATH);
-                        if (appShell) return appShell;
+                    // 3. Fallbacks inteligentes para rotas dinâmicas com ID
+                    // Edição de treino: /workouts/[id]/edit -> fallback para shell de edição/treinos
+                    if (url.pathname.match(/\/workouts\/[^/]+\/edit$/)) {
+                        const editHtml = (await htmlCache.match('/pt/workouts/new')) || (await htmlCache.match('/pt/workouts'));
+                        if (editHtml) return editHtml;
                     }
 
-                    // 4. Fallback final para a tela offline
+                    // Edição de exercício: /exercises/[id]/edit
+                    if (url.pathname.match(/\/exercises\/[^/]+\/edit$/)) {
+                        const editHtml = (await htmlCache.match('/pt/exercises/new')) || (await htmlCache.match('/pt/exercises'));
+                        if (editHtml) return editHtml;
+                    }
+
+                    // Detalhe de exercício: /exercises/[id]
+                    if (url.pathname.match(/\/exercises\/[^/]+$/)) {
+                        const exHtml = (await htmlCache.match('/pt/exercises/1')) || (await htmlCache.match('/pt/exercises'));
+                        if (exHtml) return exHtml;
+                    }
+
+                    // Edição de agenda: /schedules/[id]/edit
+                    if (url.pathname.match(/\/schedules\/[^/]+\/edit$/)) {
+                        const editHtml = (await htmlCache.match('/pt/schedules/new')) || (await htmlCache.match('/pt/schedules'));
+                        if (editHtml) return editHtml;
+                    }
+
+                    // Sessão de treino: /session/[id] -> fallback para lista de treinos
+                    if (url.pathname.match(/\/session\/[^/]+$/)) {
+                        const workoutsHtml = await htmlCache.match('/pt/workouts');
+                        if (workoutsHtml) return workoutsHtml;
+                    }
+
+                    // 4. Fallback final para tela offline
                     const coreCache = await caches.open(CORE_CACHE);
                     const offlinePage = await coreCache.match('/offline.html');
                     return offlinePage || new Response('Offline', { status: 503, statusText: 'Offline' });

@@ -174,28 +174,39 @@ export const userService = {
 
     /**
      * Resolve the current authenticated user ID.
-     * Returns the cached auth user ID even when offline.
+     * Returns the cached auth user ID even when offline with fail-fast timeouts.
      * This is the SINGLE SOURCE OF TRUTH for "who is the current user".
      */
     async resolveCurrentUserId(): Promise<string | null> {
-        try {
-            const supabase = createClient();
-            const { data: { user } } = await supabase.auth.getUser();
-            if (user?.id) return user.id;
-        } catch {
-            // Auth call failed (offline, token stale, etc.)
+        // 1. Se estiver offline no navegador, vai direto para o Dexie em 0ms
+        if (typeof window !== 'undefined' && !navigator.onLine) {
+            try {
+                const cached = await db.users.toCollection().first();
+                if (cached?.id) return cached.id;
+            } catch {
+                // Ignore Dexie errors
+            }
         }
 
-        // Fallback: check Supabase session (works even if getUser() times out)
+        // 2. Se online, tenta Supabase com fail-fast de 800ms
         try {
             const supabase = createClient();
-            const { data: { session } } = await supabase.auth.getSession();
-            if (session?.user?.id) return session.user.id;
+            const { data } = await withTimeout(supabase.auth.getUser(), 800);
+            if (data?.user?.id) return data.user.id;
+        } catch {
+            // Auth call failed or timed out
+        }
+
+        // 3. Fallback: check Supabase session (instantânea a partir de cookies/storage)
+        try {
+            const supabase = createClient();
+            const { data } = await withTimeout(supabase.auth.getSession(), 500);
+            if (data?.session?.user?.id) return data.session.user.id;
         } catch {
             // Session call also failed
         }
 
-        // Last resort: return the first cached user from Dexie
+        // 4. Último recurso: Dexie
         if (typeof window !== 'undefined') {
             const cached = await db.users.toCollection().first();
             if (cached?.id) return cached.id;
