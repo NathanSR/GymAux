@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from '@/i18n/routing';
 
 const MAIN_ROUTES = [
     '/home',
@@ -14,6 +14,7 @@ const MAIN_ROUTES = [
 
 export function RoutePrewarmer() {
     const pathname = usePathname();
+    const router = useRouter();
     const hasWarmedRef = useRef(false);
 
     useEffect(() => {
@@ -21,37 +22,25 @@ export function RoutePrewarmer() {
             return;
         }
 
-        // Detect current locale from URL (e.g. /pt or /en)
-        const pathSegments = pathname.split('/').filter(Boolean);
-        const locale = pathSegments[0] || 'pt';
-
         // Don't pre-warm on unauthenticated/public pages
-        const isAuthPage = pathname.includes('/login') || pathname.includes('/register') || pathname.includes('/admin');
+        const isAuthPage =
+            pathname.includes('/login') ||
+            pathname.includes('/register') ||
+            pathname.includes('/admin') ||
+            pathname === '/';
+
         if (isAuthPage) {
             return;
         }
 
         hasWarmedRef.current = true;
 
-        // Schedule pre-warming during idle time so it doesn't impact initial page performance
-        const prewarm = async () => {
+        const prewarm = () => {
             for (const route of MAIN_ROUTES) {
-                const targetUrl = `/${locale}${route}`;
                 try {
-                    // 1. Warm up RSC (React Server Component payload for SPA transitions)
-                    await fetch(targetUrl, {
-                        headers: {
-                            'RSC': '1',
-                        },
-                        priority: 'low',
-                    }).catch(() => {});
-
-                    // 2. Warm up Full HTML Document (for direct page refreshes/reloads)
-                    await fetch(targetUrl, {
-                        priority: 'low',
-                    }).catch(() => {});
+                    router.prefetch(route);
                 } catch {
-                    // Ignore transient network errors
+                    // Ignore prefetch failures
                 }
             }
         };
@@ -61,7 +50,7 @@ export function RoutePrewarmer() {
         } else {
             setTimeout(prewarm, 1500);
         }
-    }, [pathname]);
+    }, [pathname, router]);
 
     return null;
 }

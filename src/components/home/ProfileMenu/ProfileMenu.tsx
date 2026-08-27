@@ -24,6 +24,7 @@ import { useTranslations, useLocale } from 'next-intl';
 import { LANGUAGES } from '@/config/constants';
 import { User as AppUser } from '@/config/types';
 import { createClient } from '@/lib/supabase/client';
+import { authService } from '@/services/authService';
 import { motion, AnimatePresence } from 'framer-motion';
 
 import { Popover } from '@/components/ui/Popover';
@@ -92,7 +93,7 @@ const ProfileMenu: React.FC<ProfileMenuProps> = ({
     };
 
     const handleLogOut = async () => {
-        await supabase.auth.signOut();
+        await authService.signOut();
         setShowProfileMenu(false);
         router.push('/');
     };

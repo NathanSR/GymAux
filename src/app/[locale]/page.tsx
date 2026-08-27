@@ -1,7 +1,6 @@
 'use client';
 
 import React from 'react';
-import PWAInstallButton from '@/components/ui/PWAInstallButton';
 
 import Navbar from '@/components/initial/Navbar';
 import HeroSection from '@/components/initial/HeroSection';
@@ -40,11 +39,6 @@ export default function HomePage() {
             <Footer />
 
             <LoggedInRedirect />
-
-            {/* Floating PWA Button */}
-            <div className="fixed bottom-8 right-8 z-[100]">
-                <PWAInstallButton />
-            </div>
         </div>
     );
 }

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter, usePathname, Link } from '@/i18n/routing';
 import { createClient } from '@/lib/supabase/client';
+import { authService } from '@/services/authService';
 import { 
   LayoutDashboard, 
   Users, 
@@ -34,7 +35,7 @@ export default function AdminSidebar() {
   ];
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
+    await authService.signOut();
     router.push('/admin/login');
   };
 

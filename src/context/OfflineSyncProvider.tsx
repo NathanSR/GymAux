@@ -5,6 +5,7 @@ import { SyncManager } from '@/services/syncManager';
 import { toast } from 'react-toastify';
 import { InstallPromptBanner } from '@/components/pwa/InstallPromptBanner';
 import { RoutePrewarmer } from '@/components/pwa/RoutePrewarmer';
+import { RegisterSW } from '@/components/pwa/RegisterSW';
 import { OfflineIndicator } from '@/components/ui/OfflineIndicator';
 
 import { useTranslations } from 'next-intl';
@@ -104,6 +105,7 @@ export function OfflineSyncProvider({ children }: { children: React.ReactNode })
 
     return (
         <>
+            <RegisterSW />
             <OfflineIndicator />
             <RoutePrewarmer />
             {children}

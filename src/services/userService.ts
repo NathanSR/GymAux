@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/client';
 import { User } from '@/config/types';
 import { db } from '@/config/db';
 import { withTimeout } from '@/lib/utils/timeout';
+import { authService } from './authService';
 
 const mapProfileToUser = (profile: any): User => ({
     id: profile.id,
@@ -35,8 +36,9 @@ export const userService = {
 
             if (data) {
                 const user = mapProfileToUser(data);
-                // Cache to Dexie for offline access
+                // Cache to Dexie for offline access with user isolation check
                 if (typeof window !== 'undefined') {
+                    await authService.ensureUserIsolation(user.id);
                     await db.users.put(user).catch(() => {/* ignore Dexie errors on cache */});
                 }
                 return user;
