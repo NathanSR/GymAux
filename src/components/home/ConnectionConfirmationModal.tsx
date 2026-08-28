@@ -5,7 +5,7 @@ import { useTranslations } from 'next-intl';
 import { motion, AnimatePresence } from 'framer-motion';
 import { createClient } from '@/lib/supabase/client';
 import { connectionService, ConnectionLocal } from '@/services/connectionService';
-import { toast } from 'react-toastify';
+import { toast } from '@/utils/toast';
 import {
     UserPlus,
     Check,

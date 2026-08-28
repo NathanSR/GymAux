@@ -6,7 +6,7 @@ import { useTranslations } from 'next-intl';
 import { useSession } from '@/hooks/useSession';
 import ExerciseForm from '@/components/exercises/ExerciseForm';
 import { ExerciseService } from '@/services/exerciseService';
-import { toast } from 'react-toastify';
+import { toast } from '@/utils/toast';
 import PageHeader from '@/components/ui/PageHeader';
 
 export default function NewExerciseClient() {

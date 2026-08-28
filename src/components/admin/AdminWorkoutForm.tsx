@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { User, Exercise } from '@/config/types';
 import { Search, User as UserIcon, Check, ChevronDown } from 'lucide-react';
 import WorkoutForm from '@/components/workouts/WorkoutForm';
-import { toast } from 'react-toastify';
+import { toast } from '@/utils/toast';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface AdminWorkoutFormProps {

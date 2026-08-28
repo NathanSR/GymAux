@@ -8,7 +8,7 @@ import { SessionService } from '@/services/sessionService';
 import { useRouter } from '@/i18n/routing';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
-import { toast } from 'react-toastify';
+import { toast } from '@/utils/toast';
 import { useOnlineStatus } from '@/hooks/useOnlineStatus';
 import { useNavigationLoading } from '@/context/NavigationLoadingContext';
 import { WorkoutShareModal } from '@/components/share/WorkoutShareModal';

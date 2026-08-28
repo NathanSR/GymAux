@@ -5,7 +5,7 @@ import { useSmartNavigation } from "@/hooks/useSmartNavigation";
 import { ScheduleService } from "@/services/scheduleService";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
-import { toast } from "react-toastify";
+import { toast } from "@/utils/toast";
 import PageHeader from "@/components/ui/PageHeader";
 
 interface CreateScheduleClientProps {

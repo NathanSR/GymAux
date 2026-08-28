@@ -33,7 +33,7 @@ import { Popover } from '@/components/ui/Popover';
 import { ProfileMenuButton } from './ProfileMenuButton';
 import { ProfileMenuSectionTitle } from './ProfileMenuSectionTitle';
 
-import { toast } from 'react-toastify';
+import { toast } from '@/utils/toast';
 
 interface ProfileMenuProps {
     showProfileMenu: boolean;

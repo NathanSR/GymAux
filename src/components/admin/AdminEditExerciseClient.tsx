@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useSmartNavigation } from '@/hooks/useSmartNavigation';
 import ExerciseForm from '@/components/exercises/ExerciseForm';
 import { adminService } from '@/services/adminService';
-import { toast } from 'react-toastify';
+import { toast } from '@/utils/toast';
 import { User, Exercise } from '@/config/types';
 import PageHeader from '@/components/ui/PageHeader';
 

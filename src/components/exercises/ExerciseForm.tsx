@@ -26,7 +26,7 @@ import { useTranslations, useLocale } from 'next-intl';
 import { CATEGORIES, EQUIPMENT } from '@/config/constants';
 import { DEFAULT_EXERCISES } from '@/config/seeds';
 import { createClient } from '@/lib/supabase/client';
-import { toast } from 'react-toastify';
+import { toast } from '@/utils/toast';
 import { User, GalleryItem, Exercise, ExerciseTranslations, ExerciseCategory, ExerciseEquipment } from '@/config/types';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSession } from '@/hooks/useSession';

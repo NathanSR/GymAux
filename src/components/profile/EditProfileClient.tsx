@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { ChevronLeft, AlertCircle, Cookie, Shield, FileText, ChevronRight } from "lucide-react";
 import { User as AppUser } from "@/config/types";
-import { toast } from 'react-toastify';
+import { toast } from '@/utils/toast';
 import { useRouter, Link } from "@/i18n/routing";
 import { userService } from "@/services/userService";
 import UserForm from "@/components/users/UserForm";

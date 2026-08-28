@@ -6,7 +6,7 @@ import ExerciseForm from './ExerciseForm';
 import { useTranslations } from 'next-intl';
 import { ExerciseService } from '@/services/exerciseService';
 import { useSession } from '@/hooks/useSession';
-import { toast } from 'react-toastify';
+import { toast } from '@/utils/toast';
 import { Drawer } from '@/components/ui/Drawer';
 
 export default function QuickExerciseDrawer({

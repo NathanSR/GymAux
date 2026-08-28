@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { ExerciseCategory } from '@/config/types';
 import { taxonomyService } from '@/services/taxonomyService';
 import { createClient } from '@/lib/supabase/client';
-import { toast } from 'react-toastify';
+import { toast } from '@/utils/toast';
 import { Plus, Edit2, Trash2, Check, X, Globe, Layers, ArrowLeft } from 'lucide-react';
 import { Link } from '@/i18n/routing';
 import { Modal } from '@/components/ui/Modal';

@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useSmartNavigation } from '@/hooks/useSmartNavigation';
 import AdminWorkoutForm from '@/components/admin/AdminWorkoutForm';
 import { WorkoutService } from '@/services/workoutService';
-import { toast } from 'react-toastify';
+import { toast } from '@/utils/toast';
 import { User, Exercise } from '@/config/types';
 import PageHeader from '@/components/ui/PageHeader';
 

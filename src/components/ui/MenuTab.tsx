@@ -1,92 +1,98 @@
 "use client";
 
 import { useRouter, usePathname, Link } from "@/i18n/routing";
-import { BookCheck, Calendar, Check, Dumbbell, History, Play } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { BookCheck, Calendar, Dumbbell, History, Home } from "lucide-react";
+import { motion } from "framer-motion";
 
-interface MenuTabProps {
-    onPlay: () => void;
-    completed: boolean;
+interface NavItemConfig {
+    href: string;
+    icon: typeof Home;
+    label: string;
+    matches: (path: string) => boolean;
 }
 
-export const MenuTab = ({ onPlay, completed }: MenuTabProps) => {
+const NAV_ITEMS: NavItemConfig[] = [
+    {
+        href: "/home",
+        icon: Home,
+        label: "Início",
+        matches: (path) => path === "/home" || path === "/" || path === ""
+    },
+    {
+        href: "/workouts",
+        icon: Dumbbell,
+        label: "Treinos",
+        matches: (path) => path.startsWith("/workouts")
+    },
+    {
+        href: "/exercises",
+        icon: BookCheck,
+        label: "Exercícios",
+        matches: (path) => path.startsWith("/exercises")
+    },
+    {
+        href: "/schedules",
+        icon: Calendar,
+        label: "Cronogramas",
+        matches: (path) => path.startsWith("/schedules")
+    },
+    {
+        href: "/history",
+        icon: History,
+        label: "Histórico",
+        matches: (path) => path.startsWith("/history")
+    }
+];
+
+export const MenuTab = () => {
     const router = useRouter();
     const pathname = usePathname();
 
-    // Função para prefetch manual em eventos de toque/mouse
     const handlePrefetch = (route: string) => {
         router.prefetch(route);
     };
 
-    const NavItem = ({ href, icon: Icon }: { href: string; icon: any }) => {
-        const isActive = pathname === href;
-
-        return (
-            <Link
-                href={href}
-                onMouseEnter={() => handlePrefetch(href)}
-                onTouchStart={() => handlePrefetch(href)}
-                className="relative p-2 transition-colors duration-300 outline-none"
-            >
-                <Icon
-                    size={24}
-                    className={`relative z-10 transition-transform active:scale-90 ${isActive
-                        ? "text-lime-600 dark:text-lime-400"
-                        : "text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200"
-                        }`}
-                />
-                {isActive && (
-                    <motion.div
-                        layoutId="activeTab"
-                        className="absolute inset-0 bg-lime-500/10 dark:bg-lime-400/10 rounded-xl"
-                        transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-                    />
-                )}
-            </Link>
-        );
-    };
-
     return (
-        <nav className="fixed bottom-[calc(1.5rem+env(safe-area-inset-bottom,0px))] left-1/2 -translate-x-1/2 w-[92%] max-w-md bg-white/80 dark:bg-zinc-900/80 backdrop-blur-2xl border border-zinc-200/50 dark:border-zinc-800/50 px-6 py-3 rounded-[32px] flex justify-between items-center shadow-2xl z-50 shadow-black/10">
+        <nav
+            aria-label="Navegação Principal"
+            className="fixed bottom-[calc(0.85rem+env(safe-area-inset-bottom,0px))] left-1/2 -translate-x-1/2 w-[92%] max-w-sm sm:max-w-md bg-white/85 dark:bg-zinc-950/85 backdrop-blur-2xl border border-zinc-200/70 dark:border-zinc-800/80 p-1.5 rounded-full flex justify-between items-center shadow-xl shadow-black/10 dark:shadow-black/50 z-40 select-none transition-all duration-300"
+        >
+            {NAV_ITEMS.map((item) => {
+                const Icon = item.icon;
+                const isActive = item.matches(pathname);
 
-            <NavItem href="/exercises" icon={BookCheck} />
-            <NavItem href="/workouts" icon={Dumbbell} />
-
-            {/* Botão de Ação Central (Play/Check) */}
-            <motion.button
-                whileHover={!completed ? { scale: 1.1, y: -5 } : {}}
-                whileTap={!completed ? { scale: 0.9 } : {}}
-                disabled={completed}
-                onClick={onPlay}
-                className={`relative p-4 rounded-2xl -mt-12 shadow-xl transition-all duration-500 ${completed
-                    ? "bg-zinc-100 dark:bg-zinc-800 text-lime-500 cursor-not-allowed border border-zinc-200/50 dark:border-zinc-700/50 shadow-none"
-                    : "bg-zinc-950 dark:bg-lime-500 text-white dark:text-zinc-950 shadow-lime-500/30 cursor-pointer"
-                    }`}
-            >
-                <AnimatePresence mode="wait">
-                    <motion.div
-                        key={completed ? 'completed' : 'play'}
-                        initial={{ scale: 0.5, opacity: 0 }}
-                        animate={{ scale: 1, opacity: 1 }}
-                        exit={{ scale: 0.5, opacity: 0 }}
-                        transition={{ duration: 0.2 }}
+                return (
+                    <Link
+                        key={item.href}
+                        href={item.href}
+                        title={item.label}
+                        aria-label={item.label}
+                        onMouseEnter={() => handlePrefetch(item.href)}
+                        onTouchStart={() => handlePrefetch(item.href)}
+                        className="relative flex-1 flex flex-col items-center justify-center h-11 py-1 px-1 rounded-full outline-none transition-all"
                     >
-                        {completed ? <Check size={28} strokeWidth={3} /> : <Play size={28} fill="currentColor" />}
-                    </motion.div>
-                </AnimatePresence>
-                
-                {!completed && (
-                    <motion.span
-                        initial={{ scale: 0.8, opacity: 0 }}
-                        animate={{ scale: 1.5, opacity: 0 }}
-                        transition={{ repeat: Infinity, duration: 2 }}
-                        className="absolute inset-0 bg-lime-500 rounded-2xl -z-10"
-                    />
-                )}
-            </motion.button>
+                        {isActive && (
+                            <motion.div
+                                layoutId="activeUserTab"
+                                className="absolute inset-0 bg-lime-500/15 dark:bg-lime-400/15 border border-lime-500/30 dark:border-lime-400/25 rounded-full"
+                                transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                            />
+                        )}
 
-            <NavItem href="/schedules" icon={Calendar} />
-            <NavItem href="/history" icon={History} />
+                        <Icon
+                            size={21}
+                            strokeWidth={isActive ? 2.5 : 2}
+                            className={`relative z-10 transition-all duration-200 active:scale-90 ${
+                                isActive
+                                    ? "text-lime-600 dark:text-lime-400 scale-110"
+                                    : "text-zinc-400 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
+                            }`}
+                        />
+                    </Link>
+                );
+            })}
         </nav>
     );
 };
+
+export default MenuTab;

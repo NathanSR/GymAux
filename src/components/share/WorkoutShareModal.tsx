@@ -11,7 +11,7 @@ import {
     copyImageToClipboard,
     downloadImageBlob
 } from '@/utils/shareUtil';
-import { toast } from 'react-toastify';
+import { toast } from '@/utils/toast';
 
 interface WorkoutShareModalProps {
     isOpen: boolean;

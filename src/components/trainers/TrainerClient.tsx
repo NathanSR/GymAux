@@ -7,7 +7,7 @@ import { Html5QrcodeScanner } from 'html5-qrcode';
 import { createClient } from '@/lib/supabase/client';
 import { connectionService } from '@/services/connectionService';
 import { userService } from '@/services/userService';
-import { toast } from 'react-toastify';
+import { toast } from '@/utils/toast';
 import {
     Users,
     QrCode,

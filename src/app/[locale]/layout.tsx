@@ -13,7 +13,7 @@ import { NavigationLoadingProvider } from "@/context/NavigationLoadingContext";
 import { CookieConsentProvider } from "@/context/CookieConsentContext";
 import { CookieBanner } from "@/components/legal/CookieBanner";
 import { CookieModal } from "@/components/legal/CookieModal";
-import { ToastContainer } from 'react-toastify';
+import { ToastContainer } from '@/components/ui/toast/ToastContainer';
 import NextTopLoader from 'nextjs-toploader';
 
 import { AppSplashScreen } from "@/components/ui/AppSplashScreen";
@@ -100,7 +100,7 @@ export default async function RootLayout(props: {
 						</DialogProvider>
 					</ThemeProvider>
 				</NextIntlClientProvider>
-				<ToastContainer pauseOnHover closeOnClick draggable />
+				<ToastContainer />
 			</body>
 		</html>
 	);

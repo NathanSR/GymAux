@@ -8,7 +8,7 @@ import ExerciseForm from '@/components/exercises/ExerciseForm';
 import { ExerciseService } from '@/services/exerciseService';
 import { useAlerts } from '@/hooks/useAlerts';
 import { useTheme } from '@/context/ThemeContext';
-import { toast } from 'react-toastify';
+import { toast } from '@/utils/toast';
 import { Exercise } from '@/config/types';
 import { useSession } from '@/hooks/useSession';
 import PageHeader from '@/components/ui/PageHeader';

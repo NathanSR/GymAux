@@ -5,7 +5,7 @@ import { useSmartNavigation } from '@/hooks/useSmartNavigation';
 import { useTranslations } from 'next-intl';
 import WorkoutForm from '@/components/workouts/WorkoutForm';
 import { WorkoutService } from '@/services/workoutService';
-import { toast } from 'react-toastify';
+import { toast } from '@/utils/toast';
 import { Exercise } from '@/config/types';
 import PageHeader from '@/components/ui/PageHeader';
 

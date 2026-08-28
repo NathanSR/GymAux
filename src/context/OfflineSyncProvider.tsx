@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useState, useRef, useCallback } from 'react';
 import { SyncManager } from '@/services/syncManager';
-import { toast } from 'react-toastify';
+import { toast } from '@/utils/toast';
 import { InstallPromptBanner } from '@/components/pwa/InstallPromptBanner';
 import { RoutePrewarmer } from '@/components/pwa/RoutePrewarmer';
 import { RegisterSW } from '@/components/pwa/RegisterSW';
@@ -71,7 +71,7 @@ export function OfflineSyncProvider({ children }: { children: React.ReactNode })
             console.log('[OfflineSyncProvider] Back online event received...');
 
             if (toastIdRef.current) {
-                toast.dismiss(toastIdRef.current);
+                toast.dismiss(String(toastIdRef.current));
                 toastIdRef.current = null;
             }
 
@@ -82,10 +82,7 @@ export function OfflineSyncProvider({ children }: { children: React.ReactNode })
 
                     if (pendingBefore > 0) {
                         const syncingToastId = toast.loading(
-                            t('syncing', { count: pendingBefore }),
-                            {
-                                style: { background: '#27272a', color: '#fff', borderRadius: '16px', fontSize: '14px' }
-                            }
+                            t('syncing', { count: pendingBefore })
                         );
 
                         // Await actual completion of the queue
@@ -98,8 +95,7 @@ export function OfflineSyncProvider({ children }: { children: React.ReactNode })
                                 render: t('synced'),
                                 type: 'success',
                                 isLoading: false,
-                                autoClose: 2500,
-                                style: { background: '#27272a', color: '#4ade80', borderRadius: '16px', fontSize: '14px' }
+                                autoClose: 2500
                             });
                         } else {
                             toast.update(syncingToastId, {
@@ -114,14 +110,12 @@ export function OfflineSyncProvider({ children }: { children: React.ReactNode })
                                 type: 'warning',
                                 isLoading: false,
                                 autoClose: 5000,
-                                style: { background: '#27272a', color: '#fbbf24', borderRadius: '16px', fontSize: '14px', cursor: 'pointer' },
                                 onClick: () => setIsSyncModalOpen(true)
                             });
                         }
                     } else {
                         toast.success(t('backOnline'), {
-                            autoClose: 2000,
-                            style: { background: '#27272a', color: '#4ade80', borderRadius: '16px', fontSize: '14px' }
+                            autoClose: 2000
                         });
                     }
                 } catch (err) {

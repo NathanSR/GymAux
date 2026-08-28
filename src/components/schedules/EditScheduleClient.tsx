@@ -8,7 +8,7 @@ import { ScheduleForm } from "@/components/schedules/ScheduleForm";
 import { ScheduleService } from "@/services/scheduleService";
 import { useAlerts } from "@/hooks/useAlerts";
 import { useTheme } from "@/context/ThemeContext";
-import { toast } from "react-toastify";
+import { toast } from "@/utils/toast";
 import PageHeader from "@/components/ui/PageHeader";
 
 import { FormFieldsSkeleton } from '@/components/ui/Skeleton';

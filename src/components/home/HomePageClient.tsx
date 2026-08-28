@@ -3,8 +3,9 @@
 import { useSession } from '@/hooks/useSession';
 import { useDexieActiveSchedule, useDexieHistory, useDexieWorkouts } from '@/hooks/useDexieData';
 import { useDataPreloader } from '@/hooks/useDataPreloader';
-import { HomeHeader as HomeUIHeader, HomeWorkoutBanner as HomeUIWorkoutBanner, HomeLists } from '@/components/home/HomeClient';
-import HomeMenuTabHandler from '@/components/home/HomeMenuTabHandler';
+import { HomeHeader as HomeUIHeader } from '@/components/home/HomeHeader';
+import { HomeWorkoutBanner as HomeUIWorkoutBanner } from '@/components/home/HomeWorkoutBanner';
+import { HomeLists } from '@/components/home/HomeLists';
 import { BannerSkeleton, ListSkeleton, Skeleton } from '@/components/ui/Skeleton';
 import { getBrazilToday, getBrazilDayRange } from '@/utils/dateUtil';
 import { useEffect, useState } from 'react';
@@ -79,7 +80,7 @@ export function HomePageClient() {
     }).format(today);
 
     return (
-        <div className="min-h-dvh bg-white dark:bg-zinc-950 text-zinc-900 dark:text-white p-6 pb-32 transition-colors duration-300 font-sans">
+        <div className="min-h-dvh bg-white dark:bg-zinc-950 text-zinc-900 dark:text-white p-6 pb-28 transition-colors duration-300 font-sans">
             <HomeUIHeader activeUser={activeUser} formattedDate={formattedDate} />
             
             {sessionLoading && !activeUser ? (
@@ -98,7 +99,6 @@ export function HomePageClient() {
                         sessionList={activeSessions || []}
                         activeUserId={activeUser?.id || ''}
                     />
-                    <HomeMenuTabHandler todayWorkout={todayWorkout} todayHistory={todayHistory} />
                 </>
             )}
         </div>
