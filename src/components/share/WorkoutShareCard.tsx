@@ -172,6 +172,23 @@ export const WorkoutShareCard = forwardRef<HTMLDivElement, WorkoutShareCardProps
         }
     };
 
+    // Formatação de Métricas do Exercício (Séries, Reps e Peso unificados de forma compacta)
+    const formatExerciseMetrics = (ex: ShareExerciseItem) => {
+        const parts: string[] = [];
+        if (ex.bestReps) {
+            parts.push(`${ex.bestReps}${!ex.bestWeight ? ` ${tShare('repsShort')}` : ''}`);
+        }
+        if (ex.bestWeight) {
+            parts.push(`${ex.bestWeight}kg`);
+        }
+
+        if (parts.length === 0) {
+            return `${ex.setsCount} ${tShare('setsShort')}`;
+        }
+
+        return `${ex.setsCount}x ${parts.join(' • ')}`;
+    };
+
     // Formatação de Volume no idioma ativo (ex: 12.450 em PT, 12,450 em EN)
     const formattedVolume = data.totalVolume
         ? Number(data.totalVolume).toLocaleString(locale)
@@ -305,9 +322,9 @@ export const WorkoutShareCard = forwardRef<HTMLDivElement, WorkoutShareCardProps
                     </div>
                 </div>
 
-                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-lime-400/10 border border-lime-400/30 text-lime-400 shadow-sm">
-                    <Trophy className="w-3.5 h-3.5" />
-                    <span className="text-[10px] font-black uppercase tracking-wider">
+                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-lime-400/10 border border-lime-400/30 text-lime-400 shadow-sm shrink-0 whitespace-nowrap">
+                    <Trophy className="w-3.5 h-3.5 shrink-0" />
+                    <span className="text-[10px] font-black uppercase tracking-wider whitespace-nowrap">
                         {tShare('completed')}
                     </span>
                 </div>
@@ -316,8 +333,8 @@ export const WorkoutShareCard = forwardRef<HTMLDivElement, WorkoutShareCardProps
             {/* SEÇÃO 2: TÍTULO DO TREINO & DATA */}
             <div className="space-y-1 relative z-10 shrink-0">
                 <div className="flex items-center gap-1.5 text-[9px] font-black uppercase tracking-[0.2em] text-zinc-400">
-                    <span className="inline-block w-1.5 h-1.5 rounded-full bg-lime-400" />
-                    <span>{formattedDate}</span>
+                    <span className="inline-block w-1.5 h-1.5 rounded-full bg-lime-400 shrink-0" />
+                    <span className="whitespace-nowrap">{formattedDate}</span>
                 </div>
                 <h2 className="text-[22px] font-black italic uppercase tracking-tight text-white leading-tight truncate">
                     {data.workoutName}
@@ -327,8 +344,8 @@ export const WorkoutShareCard = forwardRef<HTMLDivElement, WorkoutShareCardProps
             {/* SEÇÃO 3: DASHBOARD INFOGRÁFICO DE MÉTRICAS */}
             <div className="grid grid-cols-3 gap-2 relative z-10 shrink-0">
                 {/* Duração */}
-                <div className="bg-zinc-900/90 border border-zinc-800/80 p-2.5 rounded-xl flex flex-col justify-between shadow-sm">
-                    <div className="flex items-center gap-1 text-lime-400 mb-1">
+                <div className="bg-zinc-900/90 border border-zinc-800/80 p-2.5 rounded-xl flex flex-col justify-between shadow-sm min-w-0">
+                    <div className="flex items-center gap-1 text-lime-400 mb-1 min-w-0">
                         <Clock className="w-3.5 h-3.5 shrink-0" />
                         <span className="text-[8.5px] font-black uppercase tracking-wider text-zinc-400 truncate">
                             {tShare('duration')}
@@ -340,8 +357,8 @@ export const WorkoutShareCard = forwardRef<HTMLDivElement, WorkoutShareCardProps
                 </div>
 
                 {/* Exercícios & Séries */}
-                <div className="bg-zinc-900/90 border border-zinc-800/80 p-2.5 rounded-xl flex flex-col justify-between shadow-sm">
-                    <div className="flex items-center gap-1 text-lime-400 mb-1">
+                <div className="bg-zinc-900/90 border border-zinc-800/80 p-2.5 rounded-xl flex flex-col justify-between shadow-sm min-w-0">
+                    <div className="flex items-center gap-1 text-lime-400 mb-1 min-w-0">
                         <Activity className="w-3.5 h-3.5 shrink-0" />
                         <span className="text-[8.5px] font-black uppercase tracking-wider text-zinc-400 truncate">
                             {tShare('exercisesCount')}
@@ -353,8 +370,8 @@ export const WorkoutShareCard = forwardRef<HTMLDivElement, WorkoutShareCardProps
                 </div>
 
                 {/* Volume Total ou Peso */}
-                <div className="bg-zinc-900/90 border border-zinc-800/80 p-2.5 rounded-xl flex flex-col justify-between shadow-sm">
-                    <div className="flex items-center gap-1 text-lime-400 mb-1">
+                <div className="bg-zinc-900/90 border border-zinc-800/80 p-2.5 rounded-xl flex flex-col justify-between shadow-sm min-w-0">
+                    <div className="flex items-center gap-1 text-lime-400 mb-1 min-w-0">
                         {formattedVolume ? (
                             <Zap className="w-3.5 h-3.5 shrink-0" />
                         ) : (
@@ -375,10 +392,10 @@ export const WorkoutShareCard = forwardRef<HTMLDivElement, WorkoutShareCardProps
                 {/* Header da Lista */}
                 <div className="text-[9px] font-black uppercase tracking-[0.2em] text-zinc-400 pb-1.5 border-b border-zinc-800/70 flex justify-between items-center shrink-0">
                     <div className="flex items-center gap-1.5">
-                        <Flame className="w-3.5 h-3.5 text-lime-400" />
-                        <span>{tShare('performedExercises')}</span>
+                        <Flame className="w-3.5 h-3.5 text-lime-400 shrink-0" />
+                        <span className="whitespace-nowrap">{tShare('performedExercises')}</span>
                     </div>
-                    <CheckCircle2 className="w-3.5 h-3.5 text-lime-400" />
+                    <CheckCircle2 className="w-3.5 h-3.5 text-lime-400 shrink-0" />
                 </div>
 
                 {/* Itens dos Exercícios (Sem quebra de texto, linha única e truncamento com ...) */}
@@ -391,12 +408,12 @@ export const WorkoutShareCard = forwardRef<HTMLDivElement, WorkoutShareCardProps
                             return (
                                 <div
                                     key={idx}
-                                    className={`bg-zinc-950/90 border-l-2 ${style.border} border border-zinc-800/70 p-2 rounded-xl space-y-1.5 shadow-sm`}
+                                    className={`bg-zinc-950/90 border-l-2 ${style.border} border border-zinc-800/70 p-2 rounded-xl space-y-1.5 shadow-sm min-w-0`}
                                 >
-                                    <div className="flex items-center gap-1.5 pb-0.5">
-                                        <span className={`text-[8px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded border ${style.badge} flex items-center gap-1`}>
-                                            <Layers className="w-2.5 h-2.5" />
-                                            {typeLabel}
+                                    <div className="flex items-center gap-1.5 pb-0.5 overflow-hidden">
+                                        <span className={`text-[8px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded border ${style.badge} inline-flex items-center gap-1 shrink-0 whitespace-nowrap hyphens-none`}>
+                                            <Layers className="w-2.5 h-2.5 shrink-0" />
+                                            <span className="whitespace-nowrap">{typeLabel}</span>
                                         </span>
                                     </div>
 
@@ -407,21 +424,21 @@ export const WorkoutShareCard = forwardRef<HTMLDivElement, WorkoutShareCardProps
 
                                         return (
                                             <div key={eIdx} className="flex items-center justify-between gap-2 text-[11px] leading-tight min-w-0">
-                                                <div className="flex items-center gap-2 min-w-0 flex-1">
+                                                <div className="flex items-center gap-2 min-w-0 flex-1 overflow-hidden">
                                                     <ExerciseThumbnail src={imageUrl} alt={localizedName} />
-                                                    <span className="font-bold text-zinc-100 truncate flex-1 min-w-0 tracking-tight" title={localizedName}>
+                                                    <span className="font-bold text-zinc-100 truncate whitespace-nowrap block flex-1 min-w-0 tracking-tight" title={localizedName}>
                                                         {localizedName}
                                                     </span>
                                                 </div>
 
                                                 <div className="flex items-center gap-1.5 shrink-0">
                                                     {ex.hasDropset && (
-                                                        <span className="text-[7.5px] font-black text-amber-400 bg-amber-400/10 px-1 py-0.5 rounded border border-amber-400/25 uppercase tracking-wider whitespace-nowrap">
+                                                        <span className="text-[7.5px] font-black text-amber-400 bg-amber-400/10 px-1 py-0.5 rounded border border-amber-400/25 uppercase tracking-wider whitespace-nowrap shrink-0">
                                                             {tShare('dropsetBadge')}
                                                         </span>
                                                     )}
-                                                    <span className="font-extrabold text-lime-400 text-[10px] bg-lime-400/10 px-1.5 py-0.5 rounded-lg border border-lime-400/20 whitespace-nowrap">
-                                                        {ex.setsCount}x {ex.bestWeight ? `${ex.bestWeight}kg` : (ex.bestReps ? `${ex.bestReps} ${tShare('repsShort')}` : '')}
+                                                    <span className="font-extrabold text-lime-400 text-[10px] bg-lime-400/10 px-1.5 py-0.5 rounded-lg border border-lime-400/20 whitespace-nowrap shrink-0">
+                                                        {formatExerciseMetrics(ex)}
                                                     </span>
                                                 </div>
                                             </div>
@@ -442,21 +459,21 @@ export const WorkoutShareCard = forwardRef<HTMLDivElement, WorkoutShareCardProps
                                 key={idx}
                                 className="bg-zinc-950/90 border border-zinc-800/80 px-2.5 py-1.5 rounded-xl flex items-center justify-between gap-2 text-[11.5px] leading-tight shadow-sm min-w-0"
                             >
-                                <div className="flex items-center gap-2 min-w-0 flex-1">
+                                <div className="flex items-center gap-2 min-w-0 flex-1 overflow-hidden">
                                     <ExerciseThumbnail src={imageUrl} alt={localizedName} />
-                                    <span className="font-bold text-zinc-100 truncate flex-1 min-w-0 tracking-tight" title={localizedName}>
+                                    <span className="font-bold text-zinc-100 truncate whitespace-nowrap block flex-1 min-w-0 tracking-tight" title={localizedName}>
                                         {localizedName}
                                     </span>
                                 </div>
 
                                 <div className="flex items-center gap-1.5 shrink-0">
                                     {ex.hasDropset && (
-                                        <span className="text-[7.5px] font-black text-amber-400 bg-amber-400/10 px-1 py-0.5 rounded border border-amber-400/25 uppercase tracking-wider whitespace-nowrap">
+                                        <span className="text-[7.5px] font-black text-amber-400 bg-amber-400/10 px-1 py-0.5 rounded border border-amber-400/25 uppercase tracking-wider whitespace-nowrap shrink-0">
                                             {tShare('dropsetBadge')}
                                         </span>
                                     )}
-                                    <span className="font-extrabold text-lime-400 text-[10.5px] bg-lime-400/10 px-2 py-0.5 rounded-lg border border-lime-400/20 whitespace-nowrap">
-                                        {ex.setsCount}x {ex.bestWeight ? `${ex.bestWeight}kg` : (ex.bestReps ? `${ex.bestReps} ${tShare('repsShort')}` : '')}
+                                    <span className="font-extrabold text-lime-400 text-[10.5px] bg-lime-400/10 px-2 py-0.5 rounded-lg border border-lime-400/20 whitespace-nowrap shrink-0">
+                                        {formatExerciseMetrics(ex)}
                                     </span>
                                 </div>
                             </div>
