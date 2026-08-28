@@ -5,7 +5,7 @@
  * 100% Offline-First.
  */
 
-const CACHE_VERSION = 'gymaux-v5.2.0';
+const CACHE_VERSION = 'gymaux-v5.3.0';
 const CORE_CACHE = `gymaux-core-${CACHE_VERSION}`;
 const HTML_CACHE = `gymaux-html-${CACHE_VERSION}`;
 const RSC_CACHE = `gymaux-rsc-${CACHE_VERSION}`;
@@ -110,73 +110,72 @@ self.addEventListener('fetch', (event) => {
     }
 
     // =========================================================================
-    // ESTRATÉGIA 1: Next.js App Router RSC (React Server Components)
+    // ESTRATÉGIA 1: Next.js App Router RSC (Stale-While-Revalidate em 0ms)
     // =========================================================================
     const isRsc = request.headers.get('RSC') === '1' || url.searchParams.has('_rsc');
     if (isRsc) {
         event.respondWith(
-            fetch(request)
-                .then(async (networkResponse) => {
-                    if (networkResponse && networkResponse.status === 200) {
-                        const clone = networkResponse.clone();
-                        const rscCache = await caches.open(RSC_CACHE);
-                        await rscCache.put(url.pathname, clone.clone());
-                        await rscCache.put(url.pathname + url.search, clone);
-                    }
-                    return networkResponse;
-                })
-                .catch(async () => {
-                    const rscCache = await caches.open(RSC_CACHE);
-                    const cachedRsc =
-                        (await rscCache.match(url.pathname + url.search)) ||
-                        (await rscCache.match(url.pathname)) ||
-                        (await rscCache.match(url.pathname, { ignoreSearch: true }));
+            (async () => {
+                const rscCache = await caches.open(RSC_CACHE);
 
-                    if (cachedRsc) return cachedRsc;
+                // 1. Tenta recuperar do cache imediatamente (0ms)
+                let cachedRsc =
+                    (await rscCache.match(url.pathname + url.search)) ||
+                    (await rscCache.match(url.pathname)) ||
+                    (await rscCache.match(url.pathname, { ignoreSearch: true }));
 
-                    // Fallbacks inteligentes por padrão para rotas dinâmicas RSC
-                    // 1. Sessão de treino: busca qualquer shell de sessão em cache
+                // 2. Fallbacks dinâmicos por padrão se não houver exato
+                if (!cachedRsc) {
                     if (url.pathname.includes('/session/')) {
-                        const sessionRsc = await findCachedByPattern(rscCache, /\/session\/[^/]+$/);
-                        if (sessionRsc) return sessionRsc;
+                        cachedRsc = await findCachedByPattern(rscCache, /\/session\/[^/]+$/);
+                    } else if (url.pathname.includes('/workouts/') && url.pathname.endsWith('/edit')) {
+                        cachedRsc = await findCachedByPattern(rscCache, /\/workouts\/[^/]+\/edit$/);
+                    } else if (url.pathname.includes('/schedules/') && url.pathname.endsWith('/edit')) {
+                        cachedRsc = await findCachedByPattern(rscCache, /\/schedules\/[^/]+\/edit$/);
+                    } else if (url.pathname.includes('/exercises/') && url.pathname.endsWith('/edit')) {
+                        cachedRsc = await findCachedByPattern(rscCache, /\/exercises\/[^/]+\/edit$/);
+                    } else if (url.pathname.includes('/exercises/') && !url.pathname.endsWith('/new')) {
+                        cachedRsc = await findCachedByPattern(rscCache, /\/exercises\/[^/]+$/);
                     }
+                }
 
-                    // 2. Edição de treino: busca qualquer shell de edição de treino em cache
-                    if (url.pathname.includes('/workouts/') && url.pathname.endsWith('/edit')) {
-                        const editWorkoutRsc = await findCachedByPattern(rscCache, /\/workouts\/[^/]+\/edit$/);
-                        if (editWorkoutRsc) return editWorkoutRsc;
+                // Função auxiliar para revalidar na rede em background
+                const revalidateRsc = async () => {
+                    try {
+                        const networkResponse = await fetch(request);
+                        if (networkResponse && networkResponse.status === 200) {
+                            const clone = networkResponse.clone();
+                            await rscCache.put(url.pathname, clone.clone());
+                            await rscCache.put(url.pathname + url.search, clone);
+                        }
+                        return networkResponse;
+                    } catch {
+                        return null;
                     }
+                };
 
-                    // 3. Edição de agenda: busca qualquer shell de edição de agenda em cache
-                    if (url.pathname.includes('/schedules/') && url.pathname.endsWith('/edit')) {
-                        const editScheduleRsc = await findCachedByPattern(rscCache, /\/schedules\/[^/]+\/edit$/);
-                        if (editScheduleRsc) return editScheduleRsc;
-                    }
+                // Se houver em cache, devolve em 0ms e revalida em segundo plano
+                if (cachedRsc) {
+                    event.waitUntil(revalidateRsc());
+                    return cachedRsc;
+                }
 
-                    // 4. Edição de exercício: busca qualquer shell de edição de exercício em cache
-                    if (url.pathname.includes('/exercises/') && url.pathname.endsWith('/edit')) {
-                        const editExerciseRsc = await findCachedByPattern(rscCache, /\/exercises\/[^/]+\/edit$/);
-                        if (editExerciseRsc) return editExerciseRsc;
-                    }
+                // Se não estiver em cache, aguarda a rede
+                const fresh = await revalidateRsc();
+                if (fresh) return fresh;
 
-                    // 5. Detalhes de exercício: busca qualquer shell de detalhe em cache
-                    if (url.pathname.includes('/exercises/') && !url.pathname.endsWith('/new')) {
-                        const viewExerciseRsc = await findCachedByPattern(rscCache, /\/exercises\/[^/]+$/);
-                        if (viewExerciseRsc) return viewExerciseRsc;
-                    }
-
-                    // Resposta RSC vazia válida para o Next.js cliente assumir sem crash
-                    return new Response('', {
-                        status: 200,
-                        headers: { 'Content-Type': 'text/x-component' }
-                    });
-                })
+                // Resposta RSC vazia válida para o Next.js cliente assumir sem crash
+                return new Response('', {
+                    status: 200,
+                    headers: { 'Content-Type': 'text/x-component' }
+                });
+            })()
         );
         return;
     }
 
     // =========================================================================
-    // ESTRATÉGIA 2: Navegações de Página HTML (Documentos e F5)
+    // ESTRATÉGIA 2: Navegações de Página HTML (Stale-While-Revalidate em 0ms)
     // =========================================================================
     const isHtmlNav =
         request.mode === 'navigate' ||
@@ -185,59 +184,75 @@ self.addEventListener('fetch', (event) => {
 
     if (isHtmlNav) {
         event.respondWith(
-            fetch(request)
-                .then(async (networkResponse) => {
-                    if (networkResponse && networkResponse.status === 200) {
-                        const contentType = networkResponse.headers.get('content-type') || '';
-                        // Salva APENAS documentos HTML válidos no HTML_CACHE
-                        if (contentType.includes('text/html')) {
-                            const clone = networkResponse.clone();
-                            const htmlCache = await caches.open(HTML_CACHE);
-                            await htmlCache.put(url.pathname, clone.clone());
-                            await htmlCache.put(request, clone.clone());
+            (async () => {
+                const htmlCache = await caches.open(HTML_CACHE);
 
-                            if (url.pathname.endsWith('/home')) {
-                                await htmlCache.put(APP_SHELL_PATH, clone);
+                // Redirecionamento amigável da raiz '/' para o App Shell
+                if (url.pathname === '/' || url.pathname === '') {
+                    const homeHtml = await htmlCache.match(APP_SHELL_PATH);
+                    if (homeHtml) return homeHtml;
+                }
+
+                // 1. Tenta recuperar página do cache (0ms)
+                let cachedHtml =
+                    (await htmlCache.match(url.pathname)) ||
+                    (await htmlCache.match(request)) ||
+                    (await htmlCache.match(url.pathname, { ignoreSearch: true }));
+
+                // 2. Fallbacks dinâmicos se não houver exato
+                if (!cachedHtml) {
+                    if (url.pathname.includes('/session/')) {
+                        cachedHtml = await findCachedByPattern(htmlCache, /\/session\/[^/]+$/);
+                    } else if (url.pathname.includes('/workouts/') && url.pathname.endsWith('/edit')) {
+                        cachedHtml = await findCachedByPattern(htmlCache, /\/workouts\/[^/]+\/edit$/);
+                    } else if (url.pathname.includes('/schedules/') && url.pathname.endsWith('/edit')) {
+                        cachedHtml = await findCachedByPattern(htmlCache, /\/schedules\/[^/]+\/edit$/);
+                    } else if (url.pathname.includes('/exercises/') && url.pathname.endsWith('/edit')) {
+                        cachedHtml = await findCachedByPattern(htmlCache, /\/exercises\/[^/]+\/edit$/);
+                    } else if (url.pathname.includes('/exercises/') && !url.pathname.endsWith('/new')) {
+                        cachedHtml = (await findCachedByPattern(htmlCache, /\/exercises\/[^/]+$/)) || (await htmlCache.match('/pt/exercises'));
+                    }
+                }
+
+                // Função auxiliar para revalidar documento na rede em background
+                const revalidateHtml = async () => {
+                    try {
+                        const networkResponse = await fetch(request);
+                        if (networkResponse && networkResponse.status === 200) {
+                            const contentType = networkResponse.headers.get('content-type') || '';
+                            if (contentType.includes('text/html')) {
+                                const clone = networkResponse.clone();
+                                await htmlCache.put(url.pathname, clone.clone());
+                                await htmlCache.put(request, clone.clone());
+                                if (url.pathname.endsWith('/home')) {
+                                    await htmlCache.put(APP_SHELL_PATH, clone);
+                                }
                             }
                         }
+                        return networkResponse;
+                    } catch {
+                        return null;
                     }
-                    return networkResponse;
-                })
-                .catch(async () => {
-                    const htmlCache = await caches.open(HTML_CACHE);
+                };
 
-                    // Redirecionamento amigável offline da raiz '/' para o App
-                    if (url.pathname === '/' || url.pathname === '') {
-                        const homeHtml = await htmlCache.match(APP_SHELL_PATH);
-                        if (homeHtml) return homeHtml;
-                    }
+                // Se houver em cache, devolve em 0ms e revalida em segundo plano
+                if (cachedHtml) {
+                    event.waitUntil(revalidateHtml());
+                    return cachedHtml;
+                }
 
-                    // 1. Tenta a página exata da URL
-                    const cachedPage = (await htmlCache.match(url.pathname)) || (await htmlCache.match(request));
-                    if (cachedPage) return cachedPage;
+                // Se não estiver em cache, aguarda a rede
+                const freshHtml = await revalidateHtml();
+                if (freshHtml) return freshHtml;
 
-                    // 2. Tenta ignorando parâmetros de busca
-                    const cachedNoQuery = await htmlCache.match(url.pathname, { ignoreSearch: true });
-                    if (cachedNoQuery) return cachedNoQuery;
-
-                    // 3. Fallbacks inteligentes por padrão para rotas dinâmicas
-                    // Sessão de treino: /session/[id] -> shell de sessão
-                    if (url.pathname.includes('/session/')) {
-                        const sessionHtml = await findCachedByPattern(htmlCache, /\/session\/[^/]+$/);
-                        if (sessionHtml) return sessionHtml;
-                    }
-
-                    // Edição de treino: /workouts/[id]/edit -> shell de edição de treino
-                    if (url.pathname.includes('/workouts/') && url.pathname.endsWith('/edit')) {
-                        const editHtml = await findCachedByPattern(htmlCache, /\/workouts\/[^/]+\/edit$/);
-                        if (editHtml) return editHtml;
-                    }
-
-                    // Edição de agenda: /schedules/[id]/edit -> shell de edição de agenda
-                    if (url.pathname.includes('/schedules/') && url.pathname.endsWith('/edit')) {
-                        const editHtml = await findCachedByPattern(htmlCache, /\/schedules\/[^/]+\/edit$/);
-                        if (editHtml) return editHtml;
-                    }
+                // Fallback final para tela offline se rede falhar
+                const coreCache = await caches.open(CORE_CACHE);
+                const offlinePage = await coreCache.match('/offline.html');
+                return offlinePage || new Response('Offline', { status: 503, statusText: 'Offline' });
+            })()
+        );
+        return;
+    }
 
                     // Edição de exercício: /exercises/[id]/edit -> shell de edição de exercício
                     if (url.pathname.includes('/exercises/') && url.pathname.endsWith('/edit')) {

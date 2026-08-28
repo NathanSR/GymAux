@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { User } from '@/config/types';
 import { userService } from '@/services/userService';
 import { createClient } from '@/lib/supabase/client';
+import { db } from '@/config/db';
 
 const supabase = createClient();
 
@@ -14,9 +15,19 @@ export function useSession() {
     useEffect(() => {
         let isMounted = true;
 
+        // 1. Carregamento imediato do cache local Dexie (0ms)
+        if (typeof window !== 'undefined') {
+            db.users.toCollection().first().then((cached) => {
+                if (isMounted && cached) {
+                    setActiveUser(cached);
+                    setLoading(false);
+                }
+            }).catch(() => {});
+        }
+
+        // 2. Validação e resolução completa em background
         const loadUser = async () => {
             try {
-                // Use resilient resolver instead of direct auth call
                 const userId = await userService.resolveCurrentUserId();
 
                 if (!isMounted) return;
@@ -27,11 +38,11 @@ export function useSession() {
                     if (profile) {
                         setActiveUser(profile);
                     } else if (typeof window !== 'undefined') {
-                        const cached = await (await import('@/config/db')).db.users.get(userId);
-                        if (isMounted) setActiveUser(cached || null);
+                        const cached = await db.users.get(userId);
+                        if (isMounted && cached) setActiveUser(cached);
                     }
                 } else if (typeof window !== 'undefined') {
-                    const cached = await (await import('@/config/db')).db.users.toCollection().first();
+                    const cached = await db.users.toCollection().first();
                     if (isMounted) setActiveUser(cached || null);
                 } else {
                     if (isMounted) setActiveUser(null);

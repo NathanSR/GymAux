@@ -101,10 +101,9 @@ export const ScheduleService = {
         };
     },
 
-    /**
-     * Busca o cronograma que está marcado como ativo para o usuário.
-     */
-    async getActiveSchedule(userId: string, supabaseInput?: any) {
+    // Revalidação em segundo plano do cronograma ativo sem bloquear a tela
+    async revalidateActiveScheduleInBackground(userId: string, supabaseInput?: any) {
+        if (typeof window === 'undefined' || !navigator.onLine) return;
         try {
             const supabase = supabaseInput || createClient();
             const { data, error } = await withTimeout(
@@ -115,7 +114,48 @@ export const ScheduleService = {
                     .eq('active', true)
                     .order('created_at', { ascending: false })
                     .limit(1),
-                3000
+                3500
+            );
+
+            if (!error && data && data.length > 0) {
+                const schedule = mapScheduleFromSupabase(data[0]);
+                await safeBulkPut(db.schedules, [schedule], 'SCHEDULE');
+            }
+        } catch {
+            // Silencioso em background
+        }
+    },
+
+    /**
+     * Busca o cronograma que está marcado como ativo para o usuário (0ms Local-First SWR).
+     */
+    async getActiveSchedule(userId: string, supabaseInput?: any) {
+        // 1. Tenta recuperar do Dexie local imediatamente (0ms)
+        if (typeof window !== 'undefined') {
+            const local = await db.schedules
+                .where('userId')
+                .equals(userId)
+                .filter(s => s.active === true)
+                .first();
+
+            if (local) {
+                this.revalidateActiveScheduleInBackground(userId, supabaseInput);
+                return local;
+            }
+        }
+
+        // 2. Se não houver no cache local (primeiro acesso), busca no Supabase
+        try {
+            const supabase = supabaseInput || createClient();
+            const { data, error } = await withTimeout(
+                supabase
+                    .from('schedules')
+                    .select('*')
+                    .eq('user_id', userId)
+                    .eq('active', true)
+                    .order('created_at', { ascending: false })
+                    .limit(1),
+                3500
             );
 
             if (error) throw error;
@@ -126,9 +166,8 @@ export const ScheduleService = {
             }
             return schedule;
         } catch (error) {
-            console.warn('[ScheduleService] getActiveSchedule failed, falling back to local DB:', error);
+            console.warn('[ScheduleService] getActiveSchedule cloud fetch failed, checking local DB:', error);
             if (typeof window !== 'undefined') {
-                // active is stored as boolean in Dexie — use filter
                 const local = await db.schedules
                     .where('userId')
                     .equals(userId)

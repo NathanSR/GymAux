@@ -20,8 +20,9 @@ const mapProfileToUser = (profile: any): User => ({
 
 export const userService = {
 
-    // Buscar por ID — com fallback local
-    async getUserById(id: string, supabaseInput?: any): Promise<User | null> {
+    // Revalidação em segundo plano sem bloquear a interface
+    async revalidateUserInBackground(id: string, supabaseInput?: any) {
+        if (typeof window === 'undefined' || !navigator.onLine) return;
         try {
             const supabase = supabaseInput || createClient();
             const { data, error } = await withTimeout(
@@ -30,30 +31,57 @@ export const userService = {
                     .select('*')
                     .eq('id', id)
                     .maybeSingle(),
-                3000
+                3500
+            );
+
+            if (!error && data) {
+                const user = mapProfileToUser(data);
+                await authService.ensureUserIsolation(user.id);
+                await db.users.put(user).catch(() => {});
+            }
+        } catch {
+            // Revalidação em segundo plano silenciosa
+        }
+    },
+
+    // Buscar por ID — Stale-While-Revalidate (0ms Local-First)
+    async getUserById(id: string, supabaseInput?: any): Promise<User | null> {
+        // 1. Tenta recuperar do Dexie local imediatamente (0ms)
+        if (typeof window !== 'undefined') {
+            const local = await db.users.get(id);
+            if (local) {
+                // Dispara sincronização em segundo plano se houver conexão
+                this.revalidateUserInBackground(id, supabaseInput);
+                return local;
+            }
+        }
+
+        // 2. Se não estiver no cache local (primeiro acesso), busca na nuvem
+        try {
+            const supabase = supabaseInput || createClient();
+            const { data, error } = await withTimeout(
+                supabase
+                    .from('profiles')
+                    .select('*')
+                    .eq('id', id)
+                    .maybeSingle(),
+                3500
             );
 
             if (error) throw error;
 
             if (data) {
                 const user = mapProfileToUser(data);
-                // Cache to Dexie for offline access with user isolation check
                 if (typeof window !== 'undefined') {
                     await authService.ensureUserIsolation(user.id);
-                    await db.users.put(user).catch(() => {/* ignore Dexie errors on cache */});
+                    await db.users.put(user).catch(() => {});
                 }
                 return user;
             }
 
-            // Supabase returned null — try local cache before giving up
-            if (typeof window !== 'undefined') {
-                const local = await db.users.get(id);
-                if (local) return local;
-            }
             return null;
         } catch (error) {
-            console.warn('[userService] getUserById failed, falling back to local DB:', error);
-            // Offline or network failure — resolve from Dexie
+            console.warn('[userService] getUserById cloud fetch failed, checking local DB:', error);
             if (typeof window !== 'undefined') {
                 const local = await db.users.get(id);
                 if (local) return local;

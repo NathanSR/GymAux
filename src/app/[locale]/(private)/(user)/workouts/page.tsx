@@ -7,7 +7,7 @@ import { useDexieWorkouts } from '@/hooks/useDexieData';
 export default function WorkoutsPage() {
     const { activeUser, loading } = useSession();
     const workouts = useDexieWorkouts(activeUser?.id);
-    const isInitialLoading = (loading && !activeUser) || workouts === undefined;
+    const isInitialLoading = (loading && !activeUser) && (workouts === undefined || workouts.length === 0);
 
     return (
         <WorkoutsClient 

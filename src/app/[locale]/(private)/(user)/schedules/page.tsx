@@ -28,7 +28,7 @@ export default function SchedulesPage() {
         ScheduleService.getSchedulesByUserId(activeUser.id, '', { page: 1, limit: 100 }).catch(() => {});
     }, [activeUser?.id]);
 
-    const isInitialLoading = (loading && !activeUser) || schedules === undefined;
+    const isInitialLoading = (loading && !activeUser) && (schedules === undefined || schedules.length === 0);
 
     return (
         <SchedulesClient 

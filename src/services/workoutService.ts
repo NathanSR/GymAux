@@ -99,7 +99,38 @@ const serializeGroups = (groups: ExerciseGroup[]) =>
     }));
 
 export const WorkoutService = {
+    // Revalidação em segundo plano sem travar a UI
+    async revalidateAllWorkoutsInBackground(supabaseInput?: any) {
+        if (typeof window === 'undefined' || !navigator.onLine) return;
+        try {
+            const supabase = supabaseInput || createClient();
+            const { data, error } = await withTimeout(
+                supabase.from('workouts').select('*'),
+                3500
+            );
+            if (!error && data && data.length > 0) {
+                const workouts: Workout[] = sortByNewest<Workout>((data || []).map(mapWorkoutFromSupabase));
+                const validWorkouts = workouts.filter((w: Workout) => Boolean(w.id && w.userId));
+                if (validWorkouts.length > 0) {
+                    await safeBulkPut(db.workouts, validWorkouts, 'WORKOUT');
+                }
+            }
+        } catch {
+            // Silencioso em background
+        }
+    },
+
     async getAllWorkouts(supabaseInput?: any) {
+        // 1. Tenta recuperar do Dexie imediatamente (0ms)
+        if (typeof window !== 'undefined') {
+            const local = await db.workouts.toArray();
+            if (local && local.length > 0) {
+                this.revalidateAllWorkoutsInBackground(supabaseInput);
+                return sortByNewest<Workout>(local);
+            }
+        }
+
+        // 2. Busca na nuvem se não houver no cache local
         let workouts: Workout[] = [];
         try {
             const supabase = supabaseInput || createClient();
@@ -107,11 +138,11 @@ export const WorkoutService = {
                 supabase
                     .from('workouts')
                     .select('*'),
-                3000
+                3500
             );
 
             if (error) throw error;
-            workouts = sortByNewest((data || []).map(mapWorkoutFromSupabase));
+            workouts = sortByNewest<Workout>((data || []).map(mapWorkoutFromSupabase));
 
             if (typeof window !== 'undefined' && workouts.length > 0) {
                 const validWorkouts = workouts.filter((w: Workout) => Boolean(w.id && w.userId));
@@ -122,7 +153,7 @@ export const WorkoutService = {
         } catch (error) {
             console.warn('[WorkoutService] getAllWorkouts failed, falling back to local DB:', error);
             if (typeof window !== 'undefined') {
-                workouts = sortByNewest(await db.workouts.toArray());
+                workouts = sortByNewest<Workout>(await db.workouts.toArray());
             }
         }
         return workouts;
