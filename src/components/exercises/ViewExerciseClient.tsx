@@ -22,10 +22,11 @@ import { CATEGORY_METADATA, EQUIPMENT_METADATA } from "@/config/constants";
 import { getExerciseLocalized, getLocalizedInstructions } from "@/utils/exerciseLocalization";
 
 interface ViewExerciseClientProps {
-    exercise: Exercise;
+    exercise: Exercise | null;
+    isFetching?: boolean;
 }
 
-export default function ViewExerciseClient({ exercise }: ViewExerciseClientProps) {
+export default function ViewExerciseClient({ exercise, isFetching = false }: ViewExerciseClientProps) {
     const locale = useLocale();
     const t = useTranslations('ExerciseDetails');
     const tc = useTranslations('Categories');
@@ -45,13 +46,18 @@ export default function ViewExerciseClient({ exercise }: ViewExerciseClientProps
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
     const [imageError, setImageError] = useState(false);
 
-    const localized = getExerciseLocalized(exercise, locale);
-    const instructions = getLocalizedInstructions(exercise, locale);
+    const localized = exercise ? getExerciseLocalized(exercise, locale) : { name: '', description: '', howTo: '', tags: [] };
+    const instructions = exercise ? getLocalizedInstructions(exercise, locale) : [];
 
-    const exerciseTitle = localized.name || (te.has(exercise.name) ? te(exercise.name) : exercise.name);
-    const exerciseDescription = localized.description || (exercise.description && te.has(exercise.description) ? te(exercise.description) : exercise.description);
+    const exerciseTitle = exercise 
+        ? (localized.name || (te.has(exercise.name) ? te(exercise.name) : exercise.name))
+        : '';
+    const exerciseDescription = exercise 
+        ? (localized.description || (exercise.description && te.has(exercise.description) ? te(exercise.description) : exercise.description))
+        : '';
 
     const handleShare = async () => {
+        if (!exercise) return;
         const shareData = {
             title: exerciseTitle,
             text: exerciseDescription || t("checkOutExercise"),
@@ -63,12 +69,13 @@ export default function ViewExerciseClient({ exercise }: ViewExerciseClientProps
                 await navigator.share(shareData);
             } else {
                 await navigator.clipboard.writeText(window.location.href);
-                // Optionally add a toast here if react-toastify is available
             }
         } catch (err) {
             console.error("Error sharing:", err);
         }
     };
+
+    const isLoading = isFetching || !exercise;
 
     return (
         <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 pb-32 transition-colors selection:bg-lime-400 selection:text-zinc-950">
@@ -80,7 +87,7 @@ export default function ViewExerciseClient({ exercise }: ViewExerciseClientProps
                     transition={{ duration: 1.2, ease: "easeOut" }}
                     className="absolute inset-0"
                 >
-                    {!imageError && (exercise.imageUrl || exercise.videoUrl) ? (
+                    {!isLoading && !imageError && exercise && (exercise.imageUrl || exercise.videoUrl) ? (
                         <img
                             src={exercise.imageUrl || exercise.videoUrl || ''}
                             alt={exercise.name}
@@ -92,7 +99,7 @@ export default function ViewExerciseClient({ exercise }: ViewExerciseClientProps
                             <div className="w-20 h-20 rounded-3xl bg-lime-400/10 border border-lime-400/20 flex items-center justify-center text-lime-400 shadow-xl mb-3">
                                 <Dumbbell size={40} />
                             </div>
-                            <span className="text-xs uppercase font-black tracking-widest text-zinc-500">{exerciseTitle}</span>
+                            <span className="text-xs uppercase font-black tracking-widest text-zinc-500">{exerciseTitle || 'GymAux'}</span>
                         </div>
                     )}
                 </motion.div>
@@ -127,229 +134,255 @@ export default function ViewExerciseClient({ exercise }: ViewExerciseClientProps
                         animate={{ y: 0, opacity: 1 }}
                         transition={{ delay: 0.3, duration: 0.8 }}
                     >
-                        <span className="inline-flex items-center px-4 py-1.5 bg-lime-400 text-zinc-950 text-[10px] font-black uppercase tracking-widest rounded-full shadow-xl shadow-lime-500/30 mb-4">
-                            <Target size={12} className="mr-1.5" />
-                            {tc(exercise.category)}
-                        </span>
-                        <h1 className="text-4xl md:text-5xl font-black uppercase italic tracking-tighter text-white drop-shadow-2xl leading-none">
-                            {exerciseTitle}
-                        </h1>
+                        {isLoading ? (
+                            <div className="space-y-2">
+                                <div className="h-6 w-24 bg-zinc-700/60 rounded-full animate-pulse" />
+                                <div className="h-10 w-48 bg-zinc-700/60 rounded-2xl animate-pulse" />
+                            </div>
+                        ) : (
+                            <>
+                                <span className="inline-flex items-center px-4 py-1.5 bg-lime-400 text-zinc-950 text-[10px] font-black uppercase tracking-widest rounded-full shadow-xl shadow-lime-500/30 mb-4">
+                                    <Target size={12} className="mr-1.5" />
+                                    {tc(exercise!.category)}
+                                </span>
+                                <h1 className="text-4xl md:text-5xl font-black uppercase italic tracking-tighter text-white drop-shadow-2xl leading-none">
+                                    {exerciseTitle}
+                                </h1>
+                            </>
+                        )}
                     </motion.div>
                 </div>
             </div>
 
             {/* --- MAIN CONTENT --- */}
             <main className="px-6 -mt-4 relative z-20 max-w-2xl mx-auto space-y-12">
-
-                {/* Visual Stats Row */}
-                <div className="grid grid-cols-3 gap-3 md:gap-4">
-                    {/* Categoria */}
-                    <motion.div
-                        initial={{ x: -20, opacity: 0 }}
-                        animate={{ x: 0, opacity: 1 }}
-                        transition={{ delay: 0.5 }}
-                        className="group bg-white dark:bg-zinc-900 p-4 rounded-[28px] border border-zinc-100 dark:border-zinc-800 shadow-sm hover:shadow-xl hover:border-lime-500/20 transition-all duration-300 flex flex-col items-center text-center justify-between"
-                    >
-                        <div className="w-12 h-12 flex items-center justify-center bg-zinc-50 dark:bg-zinc-950 rounded-2xl p-1 mb-2 group-hover:scale-110 transition-transform relative">
-                            {exercise.category && CATEGORY_METADATA[exercise.category] ? (
-                                <>
-                                    <img
-                                        src={CATEGORY_METADATA[exercise.category].imagePath}
-                                        alt={tc(exercise.category)}
-                                        className="w-full h-full object-contain"
-                                        onError={(e) => {
-                                            e.currentTarget.style.display = 'none';
-                                            const icon = e.currentTarget.nextElementSibling;
-                                            if (icon) icon.classList.remove('hidden');
-                                        }}
-                                    />
-                                    <Target size={20} className="text-blue-500 hidden" />
-                                </>
-                            ) : (
-                                <Target size={20} className="text-blue-500" />
-                            )}
+                {isLoading ? (
+                    <div className="space-y-6 pt-4">
+                        <div className="grid grid-cols-3 gap-3">
+                            <div className="h-28 bg-white dark:bg-zinc-900 rounded-[28px] border border-zinc-100 dark:border-zinc-800 animate-pulse" />
+                            <div className="h-28 bg-white dark:bg-zinc-900 rounded-[28px] border border-zinc-100 dark:border-zinc-800 animate-pulse" />
+                            <div className="h-28 bg-white dark:bg-zinc-900 rounded-[28px] border border-zinc-100 dark:border-zinc-800 animate-pulse" />
                         </div>
-                        <div className="w-full">
-                            <p className="text-[9px] font-black uppercase text-zinc-400 tracking-[0.15em] mb-0.5">{t("target")}</p>
-                            <p className="text-xs font-bold text-zinc-900 dark:text-zinc-100 truncate w-full" title={tc(exercise.category)}>
-                                {tc(exercise.category)}
-                            </p>
-                        </div>
-                    </motion.div>
-
-                    {/* Equipamento */}
-                    <motion.div
-                        initial={{ y: 20, opacity: 0 }}
-                        animate={{ y: 0, opacity: 1 }}
-                        transition={{ delay: 0.55 }}
-                        className="group bg-white dark:bg-zinc-900 p-4 rounded-[28px] border border-zinc-100 dark:border-zinc-800 shadow-sm hover:shadow-xl hover:border-lime-500/20 transition-all duration-300 flex flex-col items-center text-center justify-between"
-                    >
-                        <div className="w-12 h-12 flex items-center justify-center bg-zinc-50 dark:bg-zinc-950 rounded-2xl p-1 mb-2 group-hover:scale-110 transition-transform relative">
-                            {exercise.equipment && EQUIPMENT_METADATA[exercise.equipment] ? (
-                                <>
-                                    <img
-                                        src={EQUIPMENT_METADATA[exercise.equipment].imagePath}
-                                        alt={teq(exercise.equipment)}
-                                        className="w-full h-full object-contain"
-                                        onError={(e) => {
-                                            e.currentTarget.style.display = 'none';
-                                            const icon = e.currentTarget.nextElementSibling;
-                                            if (icon) icon.classList.remove('hidden');
-                                        }}
-                                    />
-                                    <Dumbbell size={20} className="text-lime-500 hidden" />
-                                </>
-                            ) : (
-                                <Dumbbell size={20} className="text-lime-500" />
-                            )}
-                        </div>
-                        <div className="w-full">
-                            <p className="text-[9px] font-black uppercase text-zinc-400 tracking-[0.15em] mb-0.5">Equipamento</p>
-                            <p className="text-xs font-bold text-zinc-900 dark:text-zinc-100 truncate w-full" title={exercise.equipment ? teq(exercise.equipment) : "---"}>
-                                {exercise.equipment ? teq(exercise.equipment) : "---"}
-                            </p>
-                        </div>
-                    </motion.div>
-
-                    {/* Nível */}
-                    <motion.div
-                        initial={{ x: 20, opacity: 0 }}
-                        animate={{ x: 0, opacity: 1 }}
-                        transition={{ delay: 0.6 }}
-                        className="group bg-white dark:bg-zinc-900 p-4 rounded-[28px] border border-zinc-100 dark:border-zinc-800 shadow-sm hover:shadow-xl hover:border-lime-500/20 transition-all duration-300 flex flex-col items-center text-center justify-between"
-                    >
-                        <div className="w-12 h-12 flex items-center justify-center bg-zinc-50 dark:bg-zinc-950 rounded-2xl p-1 mb-2 group-hover:scale-110 transition-transform">
-                            <div className="p-2 bg-amber-500/10 rounded-xl text-amber-500 group-hover:bg-amber-500 group-hover:text-white transition-colors">
-                                <Clock size={20} />
-                            </div>
-                        </div>
-                        <div className="w-full">
-                            <p className="text-[9px] font-black uppercase text-zinc-400 tracking-[0.15em] mb-0.5">{t("level")}</p>
-                            <p className="text-xs font-bold text-zinc-900 dark:text-zinc-100 truncate w-full">
-                                {exercise.level ? (levelTranslations[exercise.level] || exercise.level) : "---"}
-                            </p>
-                        </div>
-                    </motion.div>
-                </div>
-
-                {/* Description Section */}
-                <motion.section
-                    initial={{ y: 20, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    transition={{ delay: 0.7 }}
-                    className="space-y-4"
-                >
-                    <div className="flex items-center gap-3">
-                        <div className="p-2 bg-zinc-900 dark:bg-white rounded-lg">
-                            <Info size={14} className="text-white dark:text-zinc-950" />
-                        </div>
-                        <h2 className="text-xs font-black uppercase tracking-[0.2em] text-zinc-900 dark:text-white">{t("description")}</h2>
+                        <div className="h-32 bg-white dark:bg-zinc-900 rounded-[32px] border border-zinc-100 dark:border-zinc-800 animate-pulse" />
+                        <div className="h-48 bg-white dark:bg-zinc-900 rounded-[32px] border border-zinc-100 dark:border-zinc-800 animate-pulse" />
                     </div>
-                    <div className="bg-white dark:bg-zinc-900/50 p-6 rounded-[32px] border border-zinc-100 dark:border-zinc-800 shadow-sm">
-                        <p className="text-base text-zinc-500 dark:text-zinc-400 leading-relaxed font-medium">
-                            {exerciseDescription || "---"}
-                        </p>
-                    </div>
-                </motion.section>
-
-                {/* Tutorial Section - Modern Card List */}
-                <motion.section
-                    initial={{ y: 20, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    transition={{ delay: 0.8 }}
-                    className="space-y-6"
-                >
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                            <div className="p-2.5 bg-lime-400 rounded-2xl shadow-lg shadow-lime-500/20">
-                                <Play size={18} className="text-zinc-950 fill-current ml-0.5" />
-                            </div>
-                            <h2 className="text-sm font-black uppercase italic tracking-wider">{t("howToPerform")}</h2>
-                        </div>
-                    </div>
-
-                    <div className="space-y-4 p-4">
-                        {instructions.map((step, index) => (
+                ) : (
+                    <>
+                        {/* Visual Stats Row */}
+                        <div className="grid grid-cols-3 gap-3 md:gap-4">
+                            {/* Categoria */}
                             <motion.div
-                                key={index}
-                                initial={{ x: -10, opacity: 0 }}
-                                whileInView={{ x: 0, opacity: 1 }}
-                                viewport={{ once: true }}
-                                transition={{ delay: index * 0.1 }}
-                                className="flex gap-5 group"
+                                initial={{ x: -20, opacity: 0 }}
+                                animate={{ x: 0, opacity: 1 }}
+                                transition={{ delay: 0.5 }}
+                                className="group bg-white dark:bg-zinc-900 p-4 rounded-[28px] border border-zinc-100 dark:border-zinc-800 shadow-sm hover:shadow-xl hover:border-lime-500/20 transition-all duration-300 flex flex-col items-center text-center justify-between"
                             >
-                                <div className="flex flex-col items-center flex-shrink-0 pt-1">
-                                    <div className="w-10 h-10 aspect-square rounded-2xl bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 flex items-center justify-center group-hover:border-lime-500/50 group-hover:bg-lime-400/5 transition-all">
-                                        <span className="text-sm font-black italic text-zinc-400 group-hover:text-lime-500">
-                                            {(index + 1).toString().padStart(2, '0')}
-                                        </span>
-                                    </div>
-                                    {index !== instructions.length - 1 && (
-                                        <div className="w-px h-full bg-gradient-to-b from-zinc-200 dark:from-zinc-800 to-transparent my-2" />
+                                <div className="w-12 h-12 flex items-center justify-center bg-zinc-50 dark:bg-zinc-950 rounded-2xl p-1 mb-2 group-hover:scale-110 transition-transform relative">
+                                    {exercise!.category && CATEGORY_METADATA[exercise!.category] ? (
+                                        <>
+                                            <img
+                                                src={CATEGORY_METADATA[exercise!.category].imagePath}
+                                                alt={tc(exercise!.category)}
+                                                className="w-full h-full object-contain"
+                                                onError={(e) => {
+                                                    e.currentTarget.style.display = 'none';
+                                                    const icon = e.currentTarget.nextElementSibling;
+                                                    if (icon) icon.classList.remove('hidden');
+                                                }}
+                                            />
+                                            <Target size={20} className="text-blue-500 hidden" />
+                                        </>
+                                    ) : (
+                                        <Target size={20} className="text-blue-500" />
                                     )}
                                 </div>
-                                <div className="pb-4 pt-1">
-                                    <p className="text-base text-zinc-600 dark:text-zinc-300 font-semibold leading-relaxed group-hover:text-zinc-900 dark:group-hover:text-white transition-colors">
-                                        {step}
+                                <div className="w-full">
+                                    <p className="text-[9px] font-black uppercase text-zinc-400 tracking-[0.15em] mb-0.5">{t("target")}</p>
+                                    <p className="text-xs font-bold text-zinc-900 dark:text-zinc-100 truncate w-full" title={tc(exercise!.category)}>
+                                        {tc(exercise!.category)}
                                     </p>
                                 </div>
                             </motion.div>
-                        ))}
-                    </div>
-                </motion.section>
 
-                {/* Tags Section */}
-                <motion.section
-                    initial={{ y: 20, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    transition={{ delay: 0.9 }}
-                    className="space-y-4"
-                >
-                    <div className="flex items-center gap-2 px-2">
-                        <TagIcon size={14} className="text-zinc-400" />
-                        <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400">{t("tags")}</h2>
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                        {(localized.tags && localized.tags.length > 0 ? localized.tags : (exercise.tags || [])).map((tag, idx) => (
-                            <span
-                                key={idx}
-                                className="px-5 py-2.5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl text-[11px] font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-tight hover:border-lime-500/30 hover:text-lime-500 transition-colors cursor-default"
+                            {/* Equipamento */}
+                            <motion.div
+                                initial={{ y: 20, opacity: 0 }}
+                                animate={{ y: 0, opacity: 1 }}
+                                transition={{ delay: 0.55 }}
+                                className="group bg-white dark:bg-zinc-900 p-4 rounded-[28px] border border-zinc-100 dark:border-zinc-800 shadow-sm hover:shadow-xl hover:border-lime-500/20 transition-all duration-300 flex flex-col items-center text-center justify-between"
                             >
-                                #{tt.has(tag) ? tt(tag) : tag}
-                            </span>
-                        ))}
-                    </div>
-                </motion.section>
+                                <div className="w-12 h-12 flex items-center justify-center bg-zinc-50 dark:bg-zinc-950 rounded-2xl p-1 mb-2 group-hover:scale-110 transition-transform relative">
+                                    {exercise!.equipment && EQUIPMENT_METADATA[exercise!.equipment] ? (
+                                        <>
+                                            <img
+                                                src={EQUIPMENT_METADATA[exercise!.equipment].imagePath}
+                                                alt={teq(exercise!.equipment)}
+                                                className="w-full h-full object-contain"
+                                                onError={(e) => {
+                                                    e.currentTarget.style.display = 'none';
+                                                    const icon = e.currentTarget.nextElementSibling;
+                                                    if (icon) icon.classList.remove('hidden');
+                                                }}
+                                            />
+                                            <Dumbbell size={20} className="text-lime-500 hidden" />
+                                        </>
+                                    ) : (
+                                        <Dumbbell size={20} className="text-lime-500" />
+                                    )}
+                                </div>
+                                <div className="w-full">
+                                    <p className="text-[9px] font-black uppercase text-zinc-400 tracking-[0.15em] mb-0.5">Equipamento</p>
+                                    <p className="text-xs font-bold text-zinc-900 dark:text-zinc-100 truncate w-full" title={exercise!.equipment ? teq(exercise!.equipment) : "---"}>
+                                        {exercise!.equipment ? teq(exercise!.equipment) : "---"}
+                                    </p>
+                                </div>
+                            </motion.div>
+
+                            {/* Nível */}
+                            <motion.div
+                                initial={{ x: 20, opacity: 0 }}
+                                animate={{ x: 0, opacity: 1 }}
+                                transition={{ delay: 0.6 }}
+                                className="group bg-white dark:bg-zinc-900 p-4 rounded-[28px] border border-zinc-100 dark:border-zinc-800 shadow-sm hover:shadow-xl hover:border-lime-500/20 transition-all duration-300 flex flex-col items-center text-center justify-between"
+                            >
+                                <div className="w-12 h-12 flex items-center justify-center bg-zinc-50 dark:bg-zinc-950 rounded-2xl p-1 mb-2 group-hover:scale-110 transition-transform">
+                                    <div className="p-2 bg-amber-500/10 rounded-xl text-amber-500 group-hover:bg-amber-500 group-hover:text-white transition-colors">
+                                        <Clock size={20} />
+                                    </div>
+                                </div>
+                                <div className="w-full">
+                                    <p className="text-[9px] font-black uppercase text-zinc-400 tracking-[0.15em] mb-0.5">{t("level")}</p>
+                                    <p className="text-xs font-bold text-zinc-900 dark:text-zinc-100 truncate w-full">
+                                        {exercise!.level ? (levelTranslations[exercise!.level] || exercise!.level) : "---"}
+                                    </p>
+                                </div>
+                            </motion.div>
+                        </div>
+
+                        {/* Description Section */}
+                        <motion.section
+                            initial={{ y: 20, opacity: 0 }}
+                            animate={{ y: 0, opacity: 1 }}
+                            transition={{ delay: 0.7 }}
+                            className="space-y-4"
+                        >
+                            <div className="flex items-center gap-3">
+                                <div className="p-2 bg-zinc-900 dark:bg-white rounded-lg">
+                                    <Info size={14} className="text-white dark:text-zinc-950" />
+                                </div>
+                                <h2 className="text-xs font-black uppercase tracking-[0.2em] text-zinc-900 dark:text-white">{t("description")}</h2>
+                            </div>
+                            <div className="bg-white dark:bg-zinc-900/50 p-6 rounded-[32px] border border-zinc-100 dark:border-zinc-800 shadow-sm">
+                                <p className="text-base text-zinc-500 dark:text-zinc-400 leading-relaxed font-medium">
+                                    {exerciseDescription || "---"}
+                                </p>
+                            </div>
+                        </motion.section>
+
+                        {/* Tutorial Section - Modern Card List */}
+                        <motion.section
+                            initial={{ y: 20, opacity: 0 }}
+                            animate={{ y: 0, opacity: 1 }}
+                            transition={{ delay: 0.8 }}
+                            className="space-y-6"
+                        >
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-3">
+                                    <div className="p-2.5 bg-lime-400 rounded-2xl shadow-lg shadow-lime-500/20">
+                                        <Play size={18} className="text-zinc-950 fill-current ml-0.5" />
+                                    </div>
+                                    <h2 className="text-sm font-black uppercase italic tracking-wider">{t("howToPerform")}</h2>
+                                </div>
+                            </div>
+
+                            <div className="space-y-4 p-4">
+                                {instructions.map((step, index) => (
+                                    <motion.div
+                                        key={index}
+                                        initial={{ x: -10, opacity: 0 }}
+                                        whileInView={{ x: 0, opacity: 1 }}
+                                        viewport={{ once: true }}
+                                        transition={{ delay: index * 0.1 }}
+                                        className="flex gap-5 group"
+                                    >
+                                        <div className="flex flex-col items-center flex-shrink-0 pt-1">
+                                            <div className="w-10 h-10 aspect-square rounded-2xl bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 flex items-center justify-center group-hover:border-lime-500/50 group-hover:bg-lime-400/5 transition-all">
+                                                <span className="text-sm font-black italic text-zinc-400 group-hover:text-lime-500">
+                                                    {(index + 1).toString().padStart(2, '0')}
+                                                </span>
+                                            </div>
+                                            {index !== instructions.length - 1 && (
+                                                <div className="w-px h-full bg-gradient-to-b from-zinc-200 dark:from-zinc-800 to-transparent my-2" />
+                                            )}
+                                        </div>
+                                        <div className="pb-4 pt-1">
+                                            <p className="text-base text-zinc-600 dark:text-zinc-300 font-semibold leading-relaxed group-hover:text-zinc-900 dark:group-hover:text-white transition-colors">
+                                                {step}
+                                            </p>
+                                        </div>
+                                    </motion.div>
+                                ))}
+                            </div>
+                        </motion.section>
+
+                        {/* Tags Section */}
+                        <motion.section
+                            initial={{ y: 20, opacity: 0 }}
+                            animate={{ y: 0, opacity: 1 }}
+                            transition={{ delay: 0.9 }}
+                            className="space-y-4"
+                        >
+                            <div className="flex items-center gap-2 px-2">
+                                <TagIcon size={14} className="text-zinc-400" />
+                                <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400">{t("tags")}</h2>
+                            </div>
+                            <div className="flex flex-wrap gap-2">
+                                {(localized.tags && localized.tags.length > 0 ? localized.tags : (exercise!.tags || [])).map((tag, idx) => (
+                                    <span
+                                        key={idx}
+                                        className="px-5 py-2.5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl text-[11px] font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-tight hover:border-lime-500/30 hover:text-lime-500 transition-colors cursor-default"
+                                    >
+                                        #{tt.has(tag) ? tt(tag) : tag}
+                                    </span>
+                                ))}
+                            </div>
+                        </motion.section>
+                    </>
+                )}
             </main>
 
             {/* --- CTA BOTTOM BAR --- */}
-            <motion.div
-                initial={{ y: 100 }}
-                animate={{ y: 0 }}
-                transition={{ delay: 1, type: "spring", stiffness: 100 }}
-                className="fixed bottom-0 inset-x-0 p-6 z-50 bg-gradient-to-t from-zinc-50 dark:from-zinc-950 via-zinc-50/80 dark:via-zinc-950/80 to-transparent backdrop-blur-sm"
-            >
-                <div className="max-w-2xl mx-auto">
-                    <button
-                        onClick={() => setIsDrawerOpen(true)}
-                        className="group relative w-full overflow-hidden py-5 bg-zinc-950 dark:bg-lime-400 rounded-[32px] font-black uppercase text-xs tracking-[0.3em] shadow-2xl shadow-lime-500/40 active:scale-[0.98] transition-all flex items-center justify-center gap-3 border border-white/10 dark:border-none"
+            {!isLoading && exercise && (
+                <>
+                    <motion.div
+                        initial={{ y: 100 }}
+                        animate={{ y: 0 }}
+                        transition={{ delay: 1, type: "spring", stiffness: 100 }}
+                        className="fixed bottom-0 inset-x-0 p-6 z-50 bg-gradient-to-t from-zinc-50 dark:from-zinc-950 via-zinc-50/80 dark:via-zinc-950/80 to-transparent backdrop-blur-sm"
                     >
-                        {/* Interactive Shine Effect */}
-                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 dark:via-zinc-950/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+                        <div className="max-w-2xl mx-auto">
+                            <button
+                                onClick={() => setIsDrawerOpen(true)}
+                                className="group relative w-full overflow-hidden py-5 bg-zinc-950 dark:bg-lime-400 rounded-[32px] font-black uppercase text-xs tracking-[0.3em] shadow-2xl shadow-lime-500/40 active:scale-[0.98] transition-all flex items-center justify-center gap-3 border border-white/10 dark:border-none"
+                            >
+                                {/* Interactive Shine Effect */}
+                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 dark:via-zinc-950/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
 
-                        <div className="p-1.5 bg-white/10 dark:bg-zinc-950/10 rounded-lg group-hover:scale-110 transition-transform">
-                            <Dumbbell size={18} className="text-white dark:text-zinc-950" />
+                                <div className="p-1.5 bg-white/10 dark:bg-zinc-950/10 rounded-lg group-hover:scale-110 transition-transform">
+                                    <Dumbbell size={18} className="text-white dark:text-zinc-950" />
+                                </div>
+                                <span className="text-white dark:text-zinc-950">{t("addToWorkout")}</span>
+                            </button>
                         </div>
-                        <span className="text-white dark:text-zinc-950">{t("addToWorkout")}</span>
-                    </button>
-                </div>
-            </motion.div>
+                    </motion.div>
 
-            <DrawerWorkoutExerciseAdd
-                isOpen={isDrawerOpen}
-                onClose={() => setIsDrawerOpen(false)}
-                exercise={exercise}
-            />
+                    <DrawerWorkoutExerciseAdd
+                        isOpen={isDrawerOpen}
+                        onClose={() => setIsDrawerOpen(false)}
+                        exercise={exercise}
+                    />
+                </>
+            )}
         </div>
     );
 }

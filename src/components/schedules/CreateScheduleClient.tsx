@@ -18,17 +18,23 @@ export default function CreateScheduleClient({ userId, callerId, baseUrl = '/sch
     const { navigateAfterAction } = useSmartNavigation({ fallbackUrl: baseUrl });
     const t = useTranslations('ScheduleRegister');
     const [isLoading, setIsLoading] = useState(false);
-    const effectiveCallerId = callerId ?? userId;
 
     const handleCreate = async (data: any) => {
         setIsLoading(true);
         try {
+            let effectiveUserId = userId;
+            if (!effectiveUserId) {
+                const { userService } = await import('@/services/userService');
+                effectiveUserId = (await userService.resolveCurrentUserId()) || '';
+            }
+            const activeCallerId = callerId ?? effectiveUserId;
+
             await ScheduleService.createSchedule({
                 ...data,
-                userId: userId,
+                userId: effectiveUserId,
                 startDate: new Date(data.startDate),
                 endDate: data.endDate ? new Date(data.endDate) : undefined,
-            }, effectiveCallerId);
+            }, activeCallerId);
 
             toast.success(t('createSuccess'), {
                 position: "bottom-center",

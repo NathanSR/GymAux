@@ -56,9 +56,10 @@ export default function ExerciseDetailsPage({ params }: PageProps) {
         };
     }, [rawId, router]);
 
-    if (loading || !exercise) {
-        return <FormSkeleton />;
-    }
-
-    return <ViewExerciseClient exercise={exercise} />;
+    return (
+        <ViewExerciseClient 
+            exercise={exercise} 
+            isFetching={loading && !exercise} 
+        />
+    );
 }

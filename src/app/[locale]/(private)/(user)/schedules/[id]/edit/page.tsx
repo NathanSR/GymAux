@@ -5,7 +5,6 @@ import EditScheduleClient from '@/components/schedules/EditScheduleClient';
 import { ScheduleService } from '@/services/scheduleService';
 import { useSession } from '@/hooks/useSession';
 import { useRouter, usePathname } from '@/i18n/routing';
-import { FormSkeleton } from '@/components/ui/Skeleton';
 
 interface EditSchedulePageProps {
     params: Promise<{ id: string }>;

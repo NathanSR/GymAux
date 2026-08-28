@@ -5,7 +5,6 @@ import EditExerciseClient from '@/components/exercises/EditExerciseClient';
 import { ExerciseService } from '@/services/exerciseService';
 import { useSession } from '@/hooks/useSession';
 import { useRouter, usePathname } from '@/i18n/routing';
-import { FormSkeleton } from '@/components/ui/Skeleton';
 
 interface EditExercisePageProps {
     params: Promise<{ id: string }>;

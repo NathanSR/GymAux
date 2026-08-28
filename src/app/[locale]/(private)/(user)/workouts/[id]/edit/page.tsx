@@ -7,7 +7,6 @@ import { useSession } from '@/hooks/useSession';
 import { useDexieExercises } from '@/hooks/useDexieData';
 import { Workout } from '@/config/types';
 import { useRouter, usePathname } from '@/i18n/routing';
-import { FormSkeleton } from '@/components/ui/Skeleton';
 
 interface EditWorkoutPageProps {
     params: Promise<{ id: string }>;

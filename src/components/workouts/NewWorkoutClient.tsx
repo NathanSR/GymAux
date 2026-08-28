@@ -24,10 +24,16 @@ export default function NewWorkoutClient({ availableExercises, userId, callerId,
     const handleCreate = async (data: any) => {
         setIsLoading(true);
         try {
+            let effectiveUserId = userId;
+            if (!effectiveUserId) {
+                const { userService } = await import('@/services/userService');
+                effectiveUserId = (await userService.resolveCurrentUserId()) || '';
+            }
+
             await WorkoutService.createWorkout({
                 ...data,
-                userId,
-                callerId: callerId || userId,
+                userId: effectiveUserId,
+                callerId: callerId || effectiveUserId,
                 createdAt: new Date(),
             });
 
