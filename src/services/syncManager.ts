@@ -3,8 +3,19 @@ import { SyncOperation } from '../config/types';
 import { createClient } from '../lib/supabase/client';
 import { withTimeout } from '@/lib/utils/timeout';
 
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+function toValidUUIDOrNull(val: any): string | null {
+    if (typeof val === 'string' && UUID_REGEX.test(val.trim())) {
+        return val.trim();
+    }
+    return null;
+}
+
 export class SyncManager {
     private static isSyncing = false;
+    /** Holds the active processing promise so simultaneous callers await the same completion */
+    private static activeSyncPromise: Promise<void> | null = null;
     /** True when at least one enqueue happened while a sync was already running. */
     private static pendingAfterSync = false;
 
@@ -51,7 +62,7 @@ export class SyncManager {
         const existingOps = await db.syncQueue
             .where('entityType')
             .equals(entityType)
-            .and(op => op.entityId === entityId && op.status === 'PENDING')
+            .and(op => op.entityId === entityId && (op.status === 'PENDING' || op.status === 'FAILED'))
             .toArray();
 
         const pendingCreate = existingOps.find(op => op.action === 'CREATE');
@@ -77,6 +88,9 @@ export class SyncManager {
                 const mergedPayload = this.mergePayloads(pendingCreate.payload, payload);
                 await db.syncQueue.update(pendingCreate.id!, {
                     payload: mergedPayload,
+                    status: 'PENDING',
+                    retryCount: 0,
+                    errorMessage: undefined,
                     createdAt: new Date()
                 });
                 return pendingCreate.id!;
@@ -86,6 +100,9 @@ export class SyncManager {
                 const mergedPayload = this.mergePayloads(lastUpdate.payload, payload);
                 await db.syncQueue.update(lastUpdate.id!, {
                     payload: mergedPayload,
+                    status: 'PENDING',
+                    retryCount: 0,
+                    errorMessage: undefined,
                     createdAt: new Date()
                 });
                 return lastUpdate.id!;
@@ -103,13 +120,10 @@ export class SyncManager {
             retryCount: 0
         });
 
-        // If a sync is already running, flag it so we re-trigger after it finishes.
-        if (this.isSyncing) {
-            this.pendingAfterSync = true;
-        } else {
-            // Fire-and-forget — caller doesn't need to wait for the remote sync.
+        // Fire-and-forget processing in background if online
+        if (typeof window !== 'undefined' && navigator.onLine) {
             this.processQueue().catch((err) => {
-                console.error('[SyncManager] processQueue error:', err);
+                console.error('[SyncManager] background processQueue error:', err);
             });
         }
 
@@ -117,13 +131,29 @@ export class SyncManager {
     }
 
     /**
-     * Start processing the sync queue. Avoids overlapping syncs.
-     * After finishing, re-triggers itself once if new items were enqueued mid-run.
+     * Start processing the sync queue. Coalesces concurrent calls into a single active promise.
      */
-    static async processQueue() {
-        if (this.isSyncing) return;
+    static async processQueue(): Promise<void> {
         if (typeof window !== 'undefined' && !navigator.onLine) return;
 
+        // If a sync is already running, register intent to re-check and return the active promise
+        if (this.activeSyncPromise) {
+            this.pendingAfterSync = true;
+            return this.activeSyncPromise;
+        }
+
+        this.activeSyncPromise = this.doProcessQueue().finally(() => {
+            this.activeSyncPromise = null;
+        });
+
+        return this.activeSyncPromise;
+    }
+
+    /**
+     * Core execution loop of the sync queue.
+     */
+    private static async doProcessQueue(): Promise<void> {
+        if (this.isSyncing) return;
         this.isSyncing = true;
         this.pendingAfterSync = false;
 
@@ -164,27 +194,27 @@ export class SyncManager {
                 try {
                     // Inject/validate user_id in payload for entity types that require it
                     const sanitizedPayload = this.ensureUserId(op, activeUserId);
-
-                    const sanitizedOp = { ...op, payload: sanitizedPayload };
+                    const effectiveUserId = op.userId || activeUserId;
+                    const sanitizedOp = { ...op, userId: effectiveUserId, payload: sanitizedPayload };
 
                     switch (op.entityType) {
                         case 'HISTORY':
-                            success = await this.syncHistory(sanitizedOp, supabase);
+                            success = await this.syncHistory(sanitizedOp, supabase, activeUserId);
                             break;
                         case 'SESSION':
-                            success = await this.syncSession(sanitizedOp, supabase);
+                            success = await this.syncSession(sanitizedOp, supabase, activeUserId);
                             break;
                         case 'WORKOUT':
-                            success = await this.syncWorkout(sanitizedOp, supabase);
+                            success = await this.syncWorkout(sanitizedOp, supabase, activeUserId);
                             break;
                         case 'SCHEDULE':
-                            success = await this.syncSchedule(sanitizedOp, supabase);
+                            success = await this.syncSchedule(sanitizedOp, supabase, activeUserId);
                             break;
                         case 'EXERCISE':
-                            success = await this.syncExercise(sanitizedOp, supabase);
+                            success = await this.syncExercise(sanitizedOp, supabase, activeUserId);
                             break;
                         case 'USER':
-                            success = await this.syncUser(sanitizedOp, supabase);
+                            success = await this.syncUser(sanitizedOp, supabase, activeUserId);
                             break;
                         default:
                             console.warn(`[SyncManager] Unknown entityType: ${op.entityType}`);
@@ -198,18 +228,18 @@ export class SyncManager {
                     const errorCode = error?.code || '';
                     const errorMessage = error?.message || String(error);
 
-                    // Handle non-retryable errors — drop the operation
+                    // Handle non-retryable errors — drop the invalid operation so queue isn't blocked forever
                     if (this.isNonRetryable(errorCode, errorMessage)) {
-                        console.warn(`[SyncManager] Non-retryable error for op ${op.id}, dropping:`, errorMessage);
+                        console.warn(`[SyncManager] Non-retryable error for op ${op.id} (${errorCode}), dropping:`, errorMessage);
                         await db.syncQueue.delete(op.id!);
                         continue;
                     }
 
                     console.error(`[SyncManager] Error syncing op ${op.id} (${op.action} ${op.entityType}):`, errorMessage);
-                    const newRetryCount = op.retryCount + 1;
+                    const newRetryCount = (op.retryCount || 0) + 1;
                     await db.syncQueue.update(op.id!, {
                         retryCount: newRetryCount,
-                        status: newRetryCount >= 8 ? 'FAILED' : 'PENDING',
+                        status: newRetryCount >= 6 ? 'FAILED' : 'PENDING',
                         errorMessage
                     });
                 }
@@ -220,7 +250,7 @@ export class SyncManager {
             // If new items were enqueued while we were processing, run again immediately.
             if (this.pendingAfterSync) {
                 this.pendingAfterSync = false;
-                this.processQueue().catch((err) => {
+                await this.processQueue().catch((err) => {
                     console.error('[SyncManager] re-triggered processQueue error:', err);
                 });
             }
@@ -229,13 +259,10 @@ export class SyncManager {
 
     /**
      * Initialize listeners for connectivity changes.
-     * NOTE: If OfflineSyncProvider is mounted, it already registers these listeners.
-     * Call this only in environments without OfflineSyncProvider (e.g. Service Workers).
      */
     static init() {
         if (typeof window === 'undefined') return;
 
-        // Initial drain of any leftover items from a previous session
         this.processQueue().catch((err) => {
             console.error('[SyncManager] init processQueue error:', err);
         });
@@ -252,6 +279,25 @@ export class SyncManager {
     }
 
     /**
+     * Fetch all items in the queue (pending and failed) for UI display.
+     */
+    static async getQueueItems(): Promise<SyncOperation[]> {
+        if (typeof window === 'undefined') return [];
+        return await db.syncQueue.orderBy('createdAt').reverse().toArray();
+    }
+
+    /**
+     * Clear all operations with status FAILED.
+     */
+    static async clearFailedOps(): Promise<void> {
+        if (typeof window === 'undefined') return;
+        const failedOps = await db.syncQueue.where('status').equals('FAILED').toArray();
+        for (const op of failedOps) {
+            if (op.id) await db.syncQueue.delete(op.id);
+        }
+    }
+
+    /**
      * Retry all FAILED operations by resetting them to PENDING.
      */
     static async retryFailed(): Promise<void> {
@@ -264,26 +310,24 @@ export class SyncManager {
                 errorMessage: undefined
             });
         }
-        // Trigger processing
-        this.processQueue().catch(() => {});
+        await this.processQueue().catch(() => {});
     }
 
     // --- Private Helpers ---
 
     /**
      * Resolve the current user ID from Supabase auth.
-     * Falls back to getSession if getUser fails (e.g., network issues).
      */
     private static async resolveUserId(supabase: any): Promise<string | null> {
         try {
-            const { data: { user } } = await supabase.auth.getUser();
+            const { data: { user } } = await withTimeout(supabase.auth.getUser(), 1200);
             if (user?.id) return user.id;
         } catch {
-            // getUser failed
+            // getUser network failure/timeout
         }
 
         try {
-            const { data: { session } } = await supabase.auth.getSession();
+            const { data: { session } } = await withTimeout(supabase.auth.getSession(), 600);
             if (session?.user?.id) return session.user.id;
         } catch {
             // getSession failed
@@ -300,14 +344,12 @@ export class SyncManager {
 
     /**
      * Ensures that payloads contain the correct user_id.
-     * This prevents the "user not found" RLS violations.
      */
     private static ensureUserId(op: SyncOperation, userId: string): any {
         const payload = { ...op.payload };
 
         if (op.action === 'DELETE') return payload;
 
-        // Entity types that require user_id
         const userIdFields: Record<string, string> = {
             'HISTORY': 'user_id',
             'SESSION': 'user_id',
@@ -317,7 +359,7 @@ export class SyncManager {
         };
 
         const field = userIdFields[op.entityType];
-        if (field && !payload[field]) {
+        if (field && (!payload[field] || payload[field] === '')) {
             payload[field] = userId;
         }
 
@@ -328,14 +370,21 @@ export class SyncManager {
      * Detect errors that should not be retried (e.g., constraint violations that won't self-resolve).
      */
     private static isNonRetryable(code: string, message: string): boolean {
-        // 23503 = foreign key violation (referenced record doesn't exist)
+        // 23503 = foreign key violation
         // 42501 = insufficient privilege (RLS permanent block)
-        // PGRST301 = JWT expired, but we re-resolve auth each cycle so skip
-        const nonRetryableCodes = ['23503', '42501'];
+        // 22P02 = invalid input syntax for type (e.g. invalid UUID)
+        // 42703 / PGRST204 = undefined column in schema
+        // 23502 = not-null violation
+        const nonRetryableCodes = ['23503', '42501', '22P02', '42703', 'PGRST204', '23502'];
         if (nonRetryableCodes.includes(code)) return true;
 
-        // "row-level security" permanent blocks
-        if (message.includes('row-level security') || message.includes('violates row-level security')) {
+        if (
+            message.includes('row-level security') ||
+            message.includes('violates row-level security') ||
+            message.includes('invalid input syntax for type uuid') ||
+            message.includes('Could not find the') ||
+            message.includes('column') && message.includes('does not exist')
+        ) {
             return true;
         }
 
@@ -347,8 +396,11 @@ export class SyncManager {
         const cleaned = { ...payload };
         delete cleaned.id;
         delete cleaned.user_id;
+        delete cleaned.userId;
         delete cleaned.created_by;
+        delete cleaned.createdBy;
         delete cleaned.created_by_type;
+        delete cleaned.createdByType;
         delete cleaned.updated_at;
         delete cleaned.updatedAt;
         delete cleaned.createdAt;
@@ -356,18 +408,128 @@ export class SyncManager {
         return cleaned;
     }
 
-    private static cleanWorkoutInsertPayload(payload: any): any {
+    private static cleanHistoryInsertPayload(payload: any, activeUserId: string): any {
         if (!payload || typeof payload !== 'object') return payload;
-        const cleaned = { ...payload };
-        delete cleaned.updated_at;
-        delete cleaned.updatedAt;
-        delete cleaned.callerId;
+        const cleaned: any = {
+            id: toValidUUIDOrNull(payload.id) || crypto.randomUUID(),
+            user_id: toValidUUIDOrNull(payload.user_id || payload.userId) || activeUserId,
+            workout_id: toValidUUIDOrNull(payload.workout_id || payload.workoutId),
+            workout_name: payload.workout_name || payload.workoutName || 'Treino',
+            date: payload.date ? (payload.date instanceof Date ? payload.date.toISOString() : payload.date) : new Date().toISOString(),
+            end_date: payload.end_date ? (payload.end_date instanceof Date ? payload.end_date.toISOString() : payload.end_date) : undefined,
+            duration: typeof payload.duration === 'number' ? Math.max(0, payload.duration) : 0,
+            weight: typeof payload.weight === 'number' ? payload.weight : null,
+            description: payload.description || null,
+            using_creatine: Boolean(payload.using_creatine ?? payload.usingCreatine),
+            executions: payload.executions || []
+        };
         return cleaned;
     }
 
-    private static cleanScheduleInsertPayload(payload: any): any {
+    private static cleanSessionInsertPayload(payload: any, activeUserId: string): any {
+        if (!payload || typeof payload !== 'object') return payload;
+        const cleaned: any = {
+            id: toValidUUIDOrNull(payload.id) || crypto.randomUUID(),
+            user_id: toValidUUIDOrNull(payload.user_id || payload.userId) || activeUserId,
+            workout_id: toValidUUIDOrNull(payload.workout_id || payload.workoutId),
+            workout_name: payload.workout_name || payload.workoutName || 'Treino',
+            created_at: payload.created_at ? (payload.created_at instanceof Date ? payload.created_at.toISOString() : payload.created_at) : new Date().toISOString(),
+            exercises_to_do: payload.exercises_to_do || payload.exercisesToDo || [],
+            exercises_done: payload.exercises_done || payload.exercisesDone || [],
+            current_step: payload.current_step || payload.current || { step: 'executing', setIndex: 0, exerciseIndex: 0 },
+            duration: typeof payload.duration === 'number' ? Math.max(0, payload.duration) : 0,
+            paused_at: payload.paused_at ? (payload.paused_at instanceof Date ? payload.paused_at.toISOString() : payload.paused_at) : null,
+            resumed_at: payload.resumed_at ? (payload.resumed_at instanceof Date ? payload.resumed_at.toISOString() : payload.resumed_at) : null,
+        };
+        return cleaned;
+    }
+
+    private static cleanWorkoutInsertPayload(payload: any, activeUserId: string): any {
+        if (!payload || typeof payload !== 'object') return payload;
+        const cleaned: any = {
+            id: toValidUUIDOrNull(payload.id) || crypto.randomUUID(),
+            user_id: toValidUUIDOrNull(payload.user_id || payload.userId) || activeUserId,
+            created_by: toValidUUIDOrNull(payload.created_by || payload.createdBy) || activeUserId,
+            created_by_type: payload.created_by_type || payload.createdByType || 'user',
+            name: payload.name || 'Treino sem nome',
+            description: payload.description || null,
+            exercises: payload.exercises || [],
+            created_at: payload.created_at ? (payload.created_at instanceof Date ? payload.created_at.toISOString() : payload.created_at) : new Date().toISOString(),
+        };
+        return cleaned;
+    }
+
+    private static cleanScheduleInsertPayload(payload: any, activeUserId: string): any {
+        if (!payload || typeof payload !== 'object') return payload;
+        const cleaned: any = {
+            id: toValidUUIDOrNull(payload.id) || crypto.randomUUID(),
+            user_id: toValidUUIDOrNull(payload.user_id || payload.userId) || activeUserId,
+            created_by: toValidUUIDOrNull(payload.created_by || payload.createdBy) || activeUserId,
+            created_by_type: payload.created_by_type || payload.createdByType || 'user',
+            name: payload.name || 'Cronograma',
+            workouts: payload.workouts || [],
+            start_date: payload.start_date ? (payload.start_date instanceof Date ? payload.start_date.toISOString() : payload.start_date) : new Date().toISOString(),
+            end_date: payload.end_date ? (payload.end_date instanceof Date ? payload.end_date.toISOString() : payload.end_date) : null,
+            active: payload.active !== undefined ? Boolean(payload.active) : true,
+            last_completed: typeof payload.last_completed === 'number' ? payload.last_completed : -1,
+            created_at: payload.created_at ? (payload.created_at instanceof Date ? payload.created_at.toISOString() : payload.created_at) : new Date().toISOString(),
+        };
+        return cleaned;
+    }
+
+    private static cleanExerciseInsertPayload(payload: any, activeUserId: string): any {
+        if (!payload || typeof payload !== 'object') return payload;
+        const cleaned: any = {
+            name: payload.name,
+            category: payload.category,
+            level: payload.level || null,
+            created_by_type: payload.created_by_type || 'user',
+            created_by: toValidUUIDOrNull(payload.created_by) || activeUserId,
+            equipment: payload.equipment || 'none',
+            execution_mode: payload.execution_mode || 'bilateral',
+            mechanics: payload.mechanics || 'compound',
+            parent_id: payload.parent_id || null,
+            visibility: payload.visibility || 'private',
+            shared_with: payload.shared_with || [],
+            image_url: payload.image_url || null,
+            video_url: payload.video_url || null,
+            gallery: payload.gallery || [],
+            secondary_muscles: payload.secondary_muscles || [],
+            translations: payload.translations || {},
+        };
+        // Don't send custom numeric temporary ID so PostgreSQL auto-generates identity ID
+        if (typeof payload.id === 'number' && payload.id < 100000) {
+            cleaned.id = payload.id;
+        }
+        return cleaned;
+    }
+
+    private static cleanExerciseUpdatePayload(payload: any): any {
         if (!payload || typeof payload !== 'object') return payload;
         const cleaned = { ...payload };
+        // Delete local-only fields that do not exist in Supabase exercises schema
+        delete cleaned.tags;
+        delete cleaned.description;
+        delete cleaned.how_to;
+        delete cleaned.howTo;
+        delete cleaned.id;
+        delete cleaned.created_by;
+        delete cleaned.created_by_type;
+        delete cleaned.updated_at;
+        delete cleaned.updatedAt;
+        return cleaned;
+    }
+
+    private static cleanUserUpdatePayload(payload: any): any {
+        if (!payload || typeof payload !== 'object') return payload;
+        const cleaned = { ...payload };
+        if (cleaned.gymauxId !== undefined) {
+            cleaned.gymaux_id = cleaned.gymauxId;
+            delete cleaned.gymauxId;
+        }
+        delete cleaned.id;
+        delete cleaned.created_at;
+        delete cleaned.createdAt;
         delete cleaned.updated_at;
         delete cleaned.updatedAt;
         delete cleaned.callerId;
@@ -376,11 +538,26 @@ export class SyncManager {
 
     // --- Private Sync Implementations per Entity ---
 
-    private static async syncHistory(op: SyncOperation, supabase: any): Promise<boolean> {
+    private static async syncHistory(op: SyncOperation, supabase: any, activeUserId: string): Promise<boolean> {
         if (op.action === 'CREATE') {
-            const { error } = await withTimeout(supabase.from('history').insert(op.payload), 5000);
-            // 23505 = unique_violation — already exists, safe to drop
-            if (error && error.code !== '23505') throw error;
+            const payload = this.cleanHistoryInsertPayload(op.payload, activeUserId);
+            const { error } = await withTimeout(supabase.from('history').insert(payload), 5000);
+            if (error) {
+                if (error.code === '23505') {
+                    // Unique violation / already exists -> safely consider synced
+                    return true;
+                }
+                // 23503 = Foreign key constraint on workout_id failed (e.g. custom or deleted workout).
+                // Fallback: save with workout_id = null so user's workout data is NEVER lost!
+                if (error.code === '23503' && payload.workout_id) {
+                    console.warn(`[SyncManager] FK violation on workout_id for history ${op.entityId}, retrying with workout_id = null`);
+                    const fallbackPayload = { ...payload, workout_id: null };
+                    const { error: fallbackError } = await withTimeout(supabase.from('history').insert(fallbackPayload), 5000);
+                    if (fallbackError && fallbackError.code !== '23505') throw fallbackError;
+                    return true;
+                }
+                throw error;
+            }
         } else if (op.action === 'UPDATE') {
             const payload = this.cleanUpdatePayload(op.payload);
             const { error } = await withTimeout(supabase.from('history').update(payload).eq('id', op.entityId), 5000);
@@ -392,10 +569,20 @@ export class SyncManager {
         return true;
     }
 
-    private static async syncSession(op: SyncOperation, supabase: any): Promise<boolean> {
+    private static async syncSession(op: SyncOperation, supabase: any, activeUserId: string): Promise<boolean> {
         if (op.action === 'CREATE') {
-            const { error } = await withTimeout(supabase.from('sessions').insert(op.payload), 5000);
-            if (error && error.code !== '23505') throw error;
+            const payload = this.cleanSessionInsertPayload(op.payload, activeUserId);
+            const { error } = await withTimeout(supabase.from('sessions').insert(payload), 5000);
+            if (error) {
+                if (error.code === '23505') return true;
+                if (error.code === '23503' && payload.workout_id) {
+                    const fallbackPayload = { ...payload, workout_id: null };
+                    const { error: fallbackError } = await withTimeout(supabase.from('sessions').insert(fallbackPayload), 5000);
+                    if (fallbackError && fallbackError.code !== '23505') throw fallbackError;
+                    return true;
+                }
+                throw error;
+            }
         } else if (op.action === 'UPDATE') {
             const payload = this.cleanUpdatePayload(op.payload);
             const { error } = await withTimeout(supabase.from('sessions').update(payload).eq('id', op.entityId), 5000);
@@ -414,9 +601,9 @@ export class SyncManager {
         return true;
     }
 
-    private static async syncWorkout(op: SyncOperation, supabase: any): Promise<boolean> {
+    private static async syncWorkout(op: SyncOperation, supabase: any, activeUserId: string): Promise<boolean> {
         if (op.action === 'CREATE') {
-            const payload = this.cleanWorkoutInsertPayload(op.payload);
+            const payload = this.cleanWorkoutInsertPayload(op.payload, activeUserId);
             const { error } = await withTimeout(supabase.from('workouts').insert(payload), 5000);
             if (error && error.code !== '23505') throw error;
         } else if (op.action === 'UPDATE') {
@@ -430,9 +617,9 @@ export class SyncManager {
         return true;
     }
 
-    private static async syncSchedule(op: SyncOperation, supabase: any): Promise<boolean> {
+    private static async syncSchedule(op: SyncOperation, supabase: any, activeUserId: string): Promise<boolean> {
         if (op.action === 'CREATE') {
-            const payload = this.cleanScheduleInsertPayload(op.payload);
+            const payload = this.cleanScheduleInsertPayload(op.payload, activeUserId);
             const { error } = await withTimeout(supabase.from('schedules').insert(payload), 5000);
             if (error && error.code !== '23505') throw error;
         } else if (op.action === 'UPDATE') {
@@ -446,12 +633,13 @@ export class SyncManager {
         return true;
     }
 
-    private static async syncExercise(op: SyncOperation, supabase: any): Promise<boolean> {
+    private static async syncExercise(op: SyncOperation, supabase: any, activeUserId: string): Promise<boolean> {
         if (op.action === 'CREATE') {
-            const { error } = await withTimeout(supabase.from('exercises').insert(op.payload), 5000);
+            const payload = this.cleanExerciseInsertPayload(op.payload, activeUserId);
+            const { error } = await withTimeout(supabase.from('exercises').insert(payload), 5000);
             if (error && error.code !== '23505') throw error;
         } else if (op.action === 'UPDATE') {
-            const payload = this.cleanUpdatePayload(op.payload);
+            const payload = this.cleanExerciseUpdatePayload(op.payload);
             const { error } = await withTimeout(supabase.from('exercises').update(payload).eq('id', op.entityId), 5000);
             if (error && error.code !== 'PGRST116') throw error;
         } else if (op.action === 'DELETE') {
@@ -461,13 +649,12 @@ export class SyncManager {
         return true;
     }
 
-    private static async syncUser(op: SyncOperation, supabase: any): Promise<boolean> {
+    private static async syncUser(op: SyncOperation, supabase: any, _activeUserId: string): Promise<boolean> {
         if (op.action === 'UPDATE') {
-            const payload = this.cleanUpdatePayload(op.payload);
+            const payload = this.cleanUserUpdatePayload(op.payload);
             const { error } = await withTimeout(supabase.from('profiles').update(payload).eq('id', op.entityId), 5000);
             if (error && error.code !== 'PGRST116') throw error;
         }
         return true;
     }
 }
-

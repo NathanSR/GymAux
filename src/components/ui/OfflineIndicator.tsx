@@ -2,13 +2,15 @@
 
 import React, { useEffect, useState, useRef } from 'react';
 import { useNetworkStatus } from '@/hooks/useNetworkStatus';
-import { WifiOff, CheckCircle2 } from 'lucide-react';
+import { useOfflineSync } from '@/context/OfflineSyncProvider';
+import { WifiOff, CheckCircle2, RefreshCw } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export function OfflineIndicator() {
     const t = useTranslations('OfflineSync');
     const { isOnline } = useNetworkStatus();
+    const { openSyncModal, pendingCount } = useOfflineSync();
     const [wasOffline, setWasOffline] = useState(false);
     const [showReconnected, setShowReconnected] = useState(false);
     const [isExpanded, setIsExpanded] = useState(true);
@@ -42,18 +44,8 @@ export function OfflineIndicator() {
         };
     }, [isOnline, wasOffline]);
 
-    const handleToggleExpand = () => {
-        if (isOnline) return;
-        setIsExpanded(prev => {
-            const next = !prev;
-            if (next) {
-                if (collapseTimerRef.current) clearTimeout(collapseTimerRef.current);
-                collapseTimerRef.current = setTimeout(() => {
-                    setIsExpanded(false);
-                }, 5000);
-            }
-            return next;
-        });
+    const handleClick = () => {
+        openSyncModal();
     };
 
     if (isOnline && !showReconnected) return null;
@@ -69,9 +61,10 @@ export function OfflineIndicator() {
                         animate={{ y: 0, opacity: 1, scale: 1 }}
                         exit={{ y: -40, opacity: 0, scale: 0.9 }}
                         transition={{ type: "spring", stiffness: 350, damping: 25 }}
-                        onClick={handleToggleExpand}
+                        onClick={handleClick}
                         type="button"
-                        className="pointer-events-auto bg-amber-500/95 backdrop-blur-md text-zinc-950 px-3.5 py-1.5 rounded-full text-xs font-black shadow-xl shadow-amber-500/20 flex items-center gap-2 border border-amber-400/50 cursor-pointer active:scale-95 transition-all select-none"
+                        className="pointer-events-auto bg-amber-500/95 backdrop-blur-md text-zinc-950 px-3.5 py-1.5 rounded-full text-xs font-black shadow-xl shadow-amber-500/20 flex items-center gap-2 border border-amber-400/50 cursor-pointer active:scale-95 transition-all select-none hover:bg-amber-400"
+                        title={t('viewDetails') || 'Ver detalhes de sincronização'}
                     >
                         <WifiOff size={15} className="animate-pulse flex-shrink-0" />
                         <AnimatePresence>
@@ -82,27 +75,34 @@ export function OfflineIndicator() {
                                     animate={{ opacity: 1, width: "auto" }}
                                     exit={{ opacity: 0, width: 0 }}
                                     transition={{ duration: 0.2 }}
-                                    className="whitespace-nowrap overflow-hidden"
+                                    className="whitespace-nowrap overflow-hidden flex items-center gap-1.5"
                                 >
-                                    {t('offlineNotice') || 'Modo Offline — Seus treinos estão salvos localmente'}
+                                    <span>{t('offlineNotice') || 'Modo Offline — Seus treinos estão salvos localmente'}</span>
+                                    {pendingCount > 0 && (
+                                        <span className="bg-zinc-950 text-amber-400 px-1.5 py-0.2 rounded-full text-[10px] font-black">
+                                            {pendingCount}
+                                        </span>
+                                    )}
                                 </motion.span>
                             )}
                         </AnimatePresence>
                     </motion.button>
                 ) : showReconnected ? (
-                    <motion.div
+                    <motion.button
                         key="online-badge"
                         initial={{ y: -40, opacity: 0, scale: 0.9 }}
                         animate={{ y: 0, opacity: 1, scale: 1 }}
                         exit={{ y: -40, opacity: 0, scale: 0.9 }}
                         transition={{ type: "spring", stiffness: 350, damping: 25 }}
-                        className="pointer-events-auto bg-lime-400/95 backdrop-blur-md text-zinc-950 px-4 py-1.5 rounded-full text-xs font-black shadow-xl shadow-lime-500/20 flex items-center gap-2 border border-lime-300/50"
+                        onClick={handleClick}
+                        type="button"
+                        className="pointer-events-auto bg-lime-400/95 backdrop-blur-md text-zinc-950 px-4 py-1.5 rounded-full text-xs font-black shadow-xl shadow-lime-500/20 flex items-center gap-2 border border-lime-300/50 cursor-pointer active:scale-95 transition-all hover:bg-lime-300"
                     >
                         <CheckCircle2 size={15} className="flex-shrink-0" />
                         <span className="whitespace-nowrap">
                             {t('synced') || 'Conexão reestabelecida — Dados sincronizados'}
                         </span>
-                    </motion.div>
+                    </motion.button>
                 ) : null}
             </AnimatePresence>
         </div>

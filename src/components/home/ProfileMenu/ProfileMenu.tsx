@@ -15,11 +15,13 @@ import {
     User,
     ShieldCheck,
     Globe,
-    Cookie
+    Cookie,
+    RefreshCw
 } from "lucide-react";
 import { useRouter, usePathname } from '@/i18n/routing';
 import { useTheme } from '@/context/ThemeContext';
 import { useCookieConsent } from '@/context/CookieConsentContext';
+import { useOfflineSync } from '@/context/OfflineSyncProvider';
 import { useTranslations, useLocale } from 'next-intl';
 import { LANGUAGES } from '@/config/constants';
 import { User as AppUser } from '@/config/types';
@@ -55,6 +57,7 @@ const ProfileMenu: React.FC<ProfileMenuProps> = ({
     const supabase = createClient();
     const { toggleTheme, resolvedTheme } = useTheme();
     const { openModal } = useCookieConsent();
+    const { openSyncModal, pendingCount } = useOfflineSync();
 
     // --- PWA Installation Logic ---
     const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
@@ -266,6 +269,17 @@ const ProfileMenu: React.FC<ProfileMenuProps> = ({
                                             label={t('editProfile')}
                                             href="/profile/edit"
                                             onClick={() => setShowProfileMenu(false)}
+                                            showChevron
+                                        />
+
+                                        <ProfileMenuButton
+                                            icon={<RefreshCw size={18} className={pendingCount > 0 ? "text-amber-500 animate-pulse" : "text-lime-500"} />}
+                                            label={t('syncStatus') || 'Status de Sincronização'}
+                                            value={pendingCount > 0 ? `${pendingCount}` : undefined}
+                                            onClick={() => {
+                                                setShowProfileMenu(false);
+                                                openSyncModal();
+                                            }}
                                             showChevron
                                         />
 
