@@ -72,53 +72,49 @@ export function HistoryCalendar({
                     ))}
                 </div>
 
-                {/* Efeito Skeleton pulsante mantendo o dia fixo do calendário durante carregamento async */}
-                {loading ? (
-                    <HistoryCalendarSkeleton calendarDays={calendarDays} totalCells={calendarDays.length > 0 ? calendarDays.length : 35} />
-                ) : (
-                    <div className="grid grid-cols-7">
-                        {calendarDays.map((item, idx) => {
-                            const hasWorkout = !!item?.workouts.length;
-                            return (
-                                <div
-                                    key={idx}
-                                    onClick={() => hasWorkout && onSelectDay(item.workouts)}
-                                    className={`aspect-square border-b border-r border-zinc-100 dark:border-zinc-800/50 p-1 flex flex-col items-center justify-center relative transition-all ${
-                                        !item
-                                            ? 'bg-zinc-50/20 dark:bg-zinc-950/20'
-                                            : hasWorkout
-                                            ? 'hover:bg-lime-400/10 cursor-pointer group active:scale-95 bg-white dark:bg-zinc-900'
-                                            : 'hover:bg-zinc-50 dark:hover:bg-zinc-800/40 bg-white dark:bg-zinc-900'
-                                    }`}
-                                >
-                                    {item && (
-                                        <>
-                                            <span
-                                                className={`text-[11px] font-black mb-1 transition-colors select-none ${
-                                                    hasWorkout ? 'text-lime-500 group-hover:scale-110' : 'text-zinc-300 dark:text-zinc-700'
-                                                }`}
-                                            >
-                                                {item.day}
-                                            </span>
-                                            {hasWorkout && (
-                                                <div className="flex -space-x-1">
-                                                    {item.workouts.slice(0, 2).map((_, i) => (
-                                                        <div
-                                                            key={i}
-                                                            className="bg-lime-400 p-1 rounded-lg border-2 border-white dark:border-zinc-900 shadow-sm shadow-lime-500/20 group-hover:scale-110 transition-transform"
-                                                        >
-                                                            <Dumbbell size={8} className="text-zinc-950" />
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            )}
-                                        </>
-                                    )}
-                                </div>
-                            );
-                        })}
-                    </div>
-                )}
+                {/* Render direto dos dias em 0ms */}
+                <div className="grid grid-cols-7">
+                    {calendarDays.map((item, idx) => {
+                        const hasWorkout = !!item?.workouts.length;
+                        return (
+                            <div
+                                key={idx}
+                                onClick={() => hasWorkout && onSelectDay(item.workouts)}
+                                className={`aspect-square border-b border-r border-zinc-100 dark:border-zinc-800/50 p-1 flex flex-col items-center justify-center relative transition-all ${
+                                    !item
+                                        ? 'bg-zinc-50/20 dark:bg-zinc-950/20'
+                                        : hasWorkout
+                                        ? 'hover:bg-lime-400/10 cursor-pointer group active:scale-95 bg-white dark:bg-zinc-900'
+                                        : 'hover:bg-zinc-50 dark:hover:bg-zinc-800/40 bg-white dark:bg-zinc-900'
+                                }`}
+                            >
+                                {item && (
+                                    <>
+                                        <span
+                                            className={`text-[11px] font-black mb-1 transition-colors select-none ${
+                                                hasWorkout ? 'text-lime-500 group-hover:scale-110' : 'text-zinc-300 dark:text-zinc-700'
+                                            }`}
+                                        >
+                                            {item.day}
+                                        </span>
+                                        {hasWorkout && (
+                                            <div className="flex -space-x-1">
+                                                {item.workouts.slice(0, 2).map((_, i) => (
+                                                    <div
+                                                        key={i}
+                                                        className="bg-lime-400 p-1 rounded-lg border-2 border-white dark:border-zinc-900 shadow-sm shadow-lime-500/20 group-hover:scale-110 transition-transform"
+                                                    >
+                                                        <Dumbbell size={8} className="text-zinc-950" />
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </>
+                                )}
+                            </div>
+                        );
+                    })}
+                </div>
             </div>
         </div>
     );

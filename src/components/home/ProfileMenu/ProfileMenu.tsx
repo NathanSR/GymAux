@@ -31,6 +31,8 @@ import { Popover } from '@/components/ui/Popover';
 import { ProfileMenuButton } from './ProfileMenuButton';
 import { ProfileMenuSectionTitle } from './ProfileMenuSectionTitle';
 
+import { toast } from 'react-toastify';
+
 interface ProfileMenuProps {
     showProfileMenu: boolean;
     setShowProfileMenu: (show: boolean) => void;
@@ -87,12 +89,38 @@ const ProfileMenu: React.FC<ProfileMenuProps> = ({
     };
 
     const handleLanguageChange = (newLocale: Language) => {
+        if (typeof window !== 'undefined' && !navigator.onLine) {
+            toast.info("A troca de idioma requer conexão com a internet.", {
+                position: "bottom-center",
+                autoClose: 3500,
+            });
+            return;
+        }
         router.push(pathname, { locale: newLocale });
         setShowProfileMenu(false);
         setView('main');
     };
 
+    const handleOnlineOnlyNavigation = (targetPath: string, label: string) => {
+        if (typeof window !== 'undefined' && !navigator.onLine) {
+            toast.info(`${label} requer conexão com a internet.`, {
+                position: "bottom-center",
+                autoClose: 3500,
+            });
+            return;
+        }
+        setShowProfileMenu(false);
+        router.push(targetPath);
+    };
+
     const handleLogOut = async () => {
+        if (typeof window !== 'undefined' && !navigator.onLine) {
+            toast.info("O encerramento de sessão requer conexão com a internet.", {
+                position: "bottom-center",
+                autoClose: 3500,
+            });
+            return;
+        }
         await authService.signOut();
         setShowProfileMenu(false);
         router.push('/');
@@ -254,8 +282,7 @@ const ProfileMenu: React.FC<ProfileMenuProps> = ({
                                         <ProfileMenuButton
                                             icon={<Users size={18} className="text-lime-600 dark:text-lime-400" />}
                                             label={t('trainerPanel')}
-                                            href="/trainer"
-                                            onClick={() => setShowProfileMenu(false)}
+                                            onClick={() => handleOnlineOnlyNavigation('/trainer', t('trainerPanel'))}
                                             variant="premium"
                                             showChevron
                                         />
@@ -264,8 +291,7 @@ const ProfileMenu: React.FC<ProfileMenuProps> = ({
                                             <ProfileMenuButton
                                                 icon={<ShieldCheck size={18} className="text-amber-500" />}
                                                 label="Painel Admin"
-                                                href="/admin"
-                                                onClick={() => setShowProfileMenu(false)}
+                                                onClick={() => handleOnlineOnlyNavigation('/admin', 'Painel Admin')}
                                                 variant="premium"
                                                 showChevron
                                             />

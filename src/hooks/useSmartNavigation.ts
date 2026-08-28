@@ -165,6 +165,7 @@ export function useSmartNavigation(options: UseSmartNavigationOptions = {}) {
         }
 
         const target = customFallback || resolveFallbackUrl();
+        const normalizedTarget = normalizePath(target);
         const cleanPath = normalizePath(pathname);
 
         // Se a rota atual já é o topo (/home ou /), não faz nada para não sair do app
@@ -177,15 +178,30 @@ export function useSmartNavigation(options: UseSmartNavigationOptions = {}) {
             const hasInternalHistory = stack.length >= 2;
             const prevRoute = stack.length >= 2 ? stack[stack.length - 2] : null;
 
-            // Se a rota anterior no histórico era uma sub-rota (filha) da rota atual ou a mesma rota,
-            // chamar router.back() na navegação do navegador voltaria para a sub-rota (loop).
-            // Exemplo: estar em /trainer e a rota anterior no histórico do browser ser /trainer/student1/workouts.
-            const isPrevChildOrSame = prevRoute && (
+            // 1. Se a rota anterior no histórico é exatamente o target desejado, router.back() volta limpo
+            if (prevRoute && prevRoute === normalizedTarget) {
+                router.back();
+                return;
+            }
+
+            // 2. Se a rota alvo existe em uma posição anterior da pilha SPA, salta diretamente até ela
+            const targetIdx = stack.lastIndexOf(normalizedTarget);
+            if (targetIdx !== -1 && targetIdx < stack.length - 1) {
+                const delta = (stack.length - 1) - targetIdx;
+                saveSpaHistory(stack.slice(0, targetIdx + 1));
+                window.history.go(-delta);
+                return;
+            }
+
+            // 3. Se o histórico do navegador for válido e a rota anterior NÃO for um formulário (/new, /edit) ou sub-rota
+            const isPrevUnwanted = prevRoute && (
                 prevRoute === cleanPath ||
-                prevRoute.startsWith(cleanPath + '/')
+                prevRoute.startsWith(cleanPath + '/') ||
+                prevRoute.endsWith('/new') ||
+                prevRoute.endsWith('/edit')
             );
 
-            if (hasInternalHistory && !isPrevChildOrSame) {
+            if (hasInternalHistory && !isPrevUnwanted && !customFallback) {
                 router.back();
                 return;
             }
