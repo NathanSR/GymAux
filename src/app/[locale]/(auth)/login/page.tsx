@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { migrateLocalData } from '@/lib/migration/migrateLocalData'
+import { preloadUserData } from '@/hooks/useDataPreloader'
 import { Link, useRouter } from '@/i18n/routing'
 import { LogIn, ArrowRight, Loader2, CheckCircle2, Mail, Lock, AlertCircle } from 'lucide-react'
 import { useForm } from 'react-hook-form'
@@ -49,10 +50,11 @@ export default function LoginPage() {
         setMigrating(true)
         try {
           await migrateLocalData()
+          await preloadUserData(authData.user.id, { force: true })
           setMigrated(true)
-          setTimeout(() => router.push('/home'), 1500)
+          setTimeout(() => router.push('/home'), 800)
         } catch (err) {
-          console.error("Erro na migração:", err)
+          console.error("Erro na migração/sincronização:", err)
           router.push('/home')
         }
       }

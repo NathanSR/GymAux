@@ -79,11 +79,13 @@ export function HomePageClient() {
         timeZone: 'America/Sao_Paulo'
     }).format(today);
 
+    const isInitialLoading = (sessionLoading && !activeUser) || (!!activeUser && activeSchedule === undefined);
+
     return (
         <div className="min-h-dvh bg-white dark:bg-zinc-950 text-zinc-900 dark:text-white p-6 pb-28 transition-colors duration-300 font-sans">
             <HomeUIHeader activeUser={activeUser} formattedDate={formattedDate} />
             
-            {sessionLoading && !activeUser ? (
+            {isInitialLoading ? (
                 <div className="space-y-6">
                     <BannerSkeleton />
                     <div className="mt-8 space-y-4">
