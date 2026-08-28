@@ -3,15 +3,19 @@
 import { useEffect, useRef } from 'react';
 import { usePathname, useRouter } from '@/i18n/routing';
 
-const USER_ROUTES = [
+const BASE_USER_ROUTES = [
     '/home',
     '/workouts',
     '/workouts/new',
+    '/workouts/template/edit',
     '/exercises',
     '/exercises/new',
     '/exercises/1',
+    '/exercises/1/edit',
     '/schedules',
     '/schedules/new',
+    '/schedules/template/edit',
+    '/session/template',
     '/history',
     '/profile/my-id',
     '/profile/edit',
@@ -19,7 +23,7 @@ const USER_ROUTES = [
 
 /**
  * Pré-carrega de forma abrangente todas as páginas privadas do usuário,
- * seus documentos HTML, payloads RSC e todos os sub-chunks JS (ex: gráficos, QR code, editores).
+ * shells de rotas dinâmicas, documentos HTML, payloads RSC e todos os sub-chunks JS.
  */
 export function RoutePrewarmer() {
     const pathname = usePathname();
@@ -50,7 +54,38 @@ export function RoutePrewarmer() {
 
             console.log('[PWA] Pré-carregando todo o App e sub-chunks JS para uso 100% offline...');
 
-            for (const route of USER_ROUTES) {
+            // Coleta rotas base + rotas dinâmicas reais do usuário a partir do Dexie
+            const routesToWarm = new Set<string>(BASE_USER_ROUTES);
+
+            try {
+                const { db } = await import('@/config/db');
+                const [workouts, schedules, customExercises, sessions] = await Promise.all([
+                    db.workouts.toArray().catch(() => []),
+                    db.schedules.toArray().catch(() => []),
+                    db.exercises.where('id').aboveOrEqual(1000).toArray().catch(() => []),
+                    db.sessions.toArray().catch(() => []),
+                ]);
+
+                for (const w of workouts) {
+                    if (w.id) routesToWarm.add(`/workouts/${w.id}/edit`);
+                }
+                for (const s of schedules) {
+                    if (s.id) routesToWarm.add(`/schedules/${s.id}/edit`);
+                }
+                for (const e of customExercises) {
+                    if (e.id) {
+                        routesToWarm.add(`/exercises/${e.id}`);
+                        routesToWarm.add(`/exercises/${e.id}/edit`);
+                    }
+                }
+                for (const sess of sessions) {
+                    if (sess.id) routesToWarm.add(`/session/${sess.id}`);
+                }
+            } catch {
+                // Ignore Dexie read errors during prewarm
+            }
+
+            for (const route of Array.from(routesToWarm)) {
                 try {
                     // 1. Next.js router prefetch
                     router.prefetch(route);

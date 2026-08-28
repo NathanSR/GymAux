@@ -4,7 +4,7 @@ import { use, useEffect, useState } from 'react';
 import EditScheduleClient from '@/components/schedules/EditScheduleClient';
 import { ScheduleService } from '@/services/scheduleService';
 import { useSession } from '@/hooks/useSession';
-import { useRouter } from '@/i18n/routing';
+import { useRouter, usePathname } from '@/i18n/routing';
 import { FormSkeleton } from '@/components/ui/Skeleton';
 
 interface EditSchedulePageProps {
@@ -12,18 +12,27 @@ interface EditSchedulePageProps {
 }
 
 export default function EditSchedulePage({ params }: EditSchedulePageProps) {
-    const { id } = use(params);
+    const resolvedParams = use(params);
+    const pathname = usePathname();
     const router = useRouter();
     const { activeUser, loading: sessionLoading } = useSession();
+
+    const rawId = (resolvedParams?.id && resolvedParams.id !== 'template' && resolvedParams.id !== 'shell')
+        ? resolvedParams.id
+        : (pathname.match(/\/schedules\/([^/]+)\/edit/)?.[1] || resolvedParams?.id);
 
     const [formattedData, setFormattedData] = useState<any>(null);
     const [fetchingSchedule, setFetchingSchedule] = useState(true);
 
     useEffect(() => {
         let isMounted = true;
+        if (!rawId || rawId === 'template' || rawId === 'shell') {
+            return;
+        }
+
         setFetchingSchedule(true);
 
-        ScheduleService.getScheduleById(id).then(data => {
+        ScheduleService.getScheduleById(rawId).then(data => {
             if (!isMounted) return;
             if (!data) {
                 router.push('/schedules');
@@ -51,14 +60,14 @@ export default function EditSchedulePage({ params }: EditSchedulePageProps) {
         return () => {
             isMounted = false;
         };
-    }, [id, router]);
+    }, [rawId, router]);
 
     const isFetching = (sessionLoading || fetchingSchedule) && !formattedData;
 
     return (
         <EditScheduleClient 
             initialData={formattedData} 
-            scheduleId={id} 
+            scheduleId={rawId} 
             callerId={activeUser?.id || ''} 
             isFetching={isFetching}
         />

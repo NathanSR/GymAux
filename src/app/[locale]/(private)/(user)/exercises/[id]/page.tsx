@@ -1,74 +1,64 @@
-// import { Metadata } from 'next';
+'use client';
+
+import { use, useEffect, useState } from "react";
+import { usePathname } from "@/i18n/routing";
 import { ExerciseService } from "@/services/exerciseService";
-import { createClient } from "@/lib/supabase/server";
 import ViewExerciseClient from "@/components/exercises/ViewExerciseClient";
-import { notFound } from "next/navigation";
-// import { getTranslations } from 'next-intl/server';
+import { FormSkeleton } from "@/components/ui/Skeleton";
+import { useRouter } from "@/i18n/routing";
+import { Exercise } from "@/config/types";
 
 interface PageProps {
     params: Promise<{ id: string; locale: string }>;
 }
 
-/**
- * Metadata Generation for SEO
- */
-// export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-//     const { id, locale } = await params;
-//     const supabase = await createClient();
-//     const exercise = await ExerciseService.getExerciseById(Number(id), supabase);
-//     const t = await getTranslations({ locale, namespace: 'Exercises' });
+export default function ExerciseDetailsPage({ params }: PageProps) {
+    const resolvedParams = use(params);
+    const pathname = usePathname();
+    const router = useRouter();
 
-//     if (!exercise) {
-//         return {
-//             title: 'Exercise Not Found | GymAux',
-//         };
-//     }
+    const rawId = (resolvedParams?.id && resolvedParams.id !== 'template' && resolvedParams.id !== 'shell')
+        ? resolvedParams.id
+        : (pathname.match(/\/exercises\/([^/]+)/)?.[1] || resolvedParams?.id);
 
-//     const name = t.has(exercise.name) ? t(exercise.name) : exercise.name;
-//     const description = exercise.description 
-//         ? (t.has(exercise.description) ? t(exercise.description) : exercise.description) 
-//         : `Learn how to perform ${name} correctly with GymAux. Detailed instructions, tags, and category info.`;
+    const [exercise, setExercise] = useState<Exercise | null>(null);
+    const [loading, setLoading] = useState(true);
 
-//     return {
-//         title: `${name} - GymAux Exercises`,
-//         description: description,
-//         keywords: [`gym`, `workout`, `exercise`, name, exercise.category, ...(exercise.tags || [])],
-//         openGraph: {
-//             title: `${name} | GymAux`,
-//             description: description,
-//             images: [
-//                 {
-//                     url: exercise.mediaUrl || 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=1000&auto=format&fit=crop',
-//                     width: 1200,
-//                     height: 630,
-//                     alt: name,
-//                 }
-//             ],
-//             type: 'article',
-//         },
-//         twitter: {
-//             card: 'summary_large_image',
-//             title: name,
-//             description: description,
-//             images: [exercise.mediaUrl || 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=1000&auto=format&fit=crop'],
-//         },
-//     };
-// }
+    useEffect(() => {
+        let isMounted = true;
+        const exId = Number(rawId);
 
-/**
- * Exercise Details Page - Server Component
- * Fetches data on the server for better SEO and performance.
- */
-export default async function ExerciseDetailsPage({ params }: PageProps) {
-    const { id } = await params;
-    const supabase = await createClient();
-    const exercise = await ExerciseService.getExerciseById(Number(id), supabase);
+        if (isNaN(exId) || exId <= 0) {
+            router.push('/exercises');
+            return;
+        }
 
-    if (!exercise) {
-        notFound();
+        setLoading(true);
+        ExerciseService.getExerciseById(exId)
+            .then((data) => {
+                if (!isMounted) return;
+                if (data) {
+                    setExercise(data);
+                } else {
+                    router.push('/exercises');
+                }
+            })
+            .catch((err) => {
+                console.warn('[ExerciseDetailsPage] Error fetching exercise:', err);
+                if (isMounted) router.push('/exercises');
+            })
+            .finally(() => {
+                if (isMounted) setLoading(false);
+            });
+
+        return () => {
+            isMounted = false;
+        };
+    }, [rawId, router]);
+
+    if (loading || !exercise) {
+        return <FormSkeleton />;
     }
 
-    return (
-        <ViewExerciseClient exercise={exercise} />
-    );
+    return <ViewExerciseClient exercise={exercise} />;
 }

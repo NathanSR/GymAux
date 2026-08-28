@@ -18,12 +18,18 @@ export default function NewExerciseClient() {
     const handleCreate = async (data: any) => {
         setIsLoading(true);
         try {
+            const rawTags = data.tags;
+            let normalizedTags: string[] = [];
+            if (Array.isArray(rawTags)) {
+                normalizedTags = rawTags.map((tag: any) => String(tag).trim()).filter(Boolean);
+            } else if (typeof rawTags === 'string') {
+                normalizedTags = rawTags.split(',').map((tag: string) => tag.trim()).filter(Boolean);
+            }
+
             const formattedData = {
                 ...data,
                 userId: activeUser?.id,
-                tags: data.tags
-                    ? data.tags.split(',').map((tag: string) => tag.trim()).filter(Boolean)
-                    : []
+                tags: normalizedTags
             };
 
             await ExerciseService.createExercise(formattedData);

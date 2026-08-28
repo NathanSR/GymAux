@@ -348,25 +348,34 @@ export default function ExerciseForm({
 
         try {
             if (mediaType === 'upload' && selectedFile) {
-                const supabase = createClient();
-                const fileExt = selectedFile.name.split('.').pop();
-                const fileName = `${Date.now()}_${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
-                const filePath = `exercises/${fileName}`;
+                if (typeof window !== 'undefined' && !navigator.onLine) {
+                    // Modo offline: usa URL local do Blob para visualização imediata
+                    finalImageUrl = URL.createObjectURL(selectedFile);
+                } else {
+                    const supabase = createClient();
+                    const fileExt = selectedFile.name.split('.').pop();
+                    const fileName = `${Date.now()}_${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
+                    const filePath = `exercises/${fileName}`;
 
-                const { error: uploadError } = await supabase.storage
-                    .from('exercise-media')
-                    .upload(filePath, selectedFile, {
-                        cacheControl: '3600',
-                        upsert: false
-                    });
+                    try {
+                        const { error: uploadError } = await supabase.storage
+                            .from('exercise-media')
+                            .upload(filePath, selectedFile, {
+                                cacheControl: '3600',
+                                upsert: false
+                            });
 
-                if (uploadError) throw uploadError;
-
-                const { data: { publicUrl } } = supabase.storage
-                    .from('exercise-media')
-                    .getPublicUrl(filePath);
-
-                finalImageUrl = publicUrl;
+                        if (!uploadError) {
+                            const { data: { publicUrl } } = supabase.storage
+                                .from('exercise-media')
+                                .getPublicUrl(filePath);
+                            finalImageUrl = publicUrl;
+                        }
+                    } catch (uploadErr) {
+                        console.warn('[ExerciseForm] Upload falhou (provavelmente offline):', uploadErr);
+                        finalImageUrl = URL.createObjectURL(selectedFile);
+                    }
+                }
             }
 
             onSubmit({

@@ -6,7 +6,7 @@ import { WorkoutService } from '@/services/workoutService';
 import { useSession } from '@/hooks/useSession';
 import { useDexieExercises } from '@/hooks/useDexieData';
 import { Workout } from '@/config/types';
-import { useRouter } from '@/i18n/routing';
+import { useRouter, usePathname } from '@/i18n/routing';
 import { FormSkeleton } from '@/components/ui/Skeleton';
 
 interface EditWorkoutPageProps {
@@ -14,19 +14,28 @@ interface EditWorkoutPageProps {
 }
 
 export default function EditWorkoutPage({ params }: EditWorkoutPageProps) {
-    const { id } = use(params);
+    const resolvedParams = use(params);
+    const pathname = usePathname();
     const router = useRouter();
     const { activeUser, loading: sessionLoading } = useSession();
     const availableExercises = useDexieExercises();
+
+    const rawId = (resolvedParams?.id && resolvedParams.id !== 'template' && resolvedParams.id !== 'shell')
+        ? resolvedParams.id
+        : (pathname.match(/\/workouts\/([^/]+)\/edit/)?.[1] || resolvedParams?.id);
 
     const [workout, setWorkout] = useState<Workout | null>(null);
     const [fetchingWorkout, setFetchingWorkout] = useState(true);
 
     useEffect(() => {
         let isMounted = true;
+        if (!rawId || rawId === 'template' || rawId === 'shell') {
+            return;
+        }
+
         setFetchingWorkout(true);
 
-        WorkoutService.getWorkoutById(id).then(fetched => {
+        WorkoutService.getWorkoutById(rawId).then(fetched => {
             if (!isMounted) return;
             if (!fetched) {
                 router.push('/workouts');
@@ -42,7 +51,7 @@ export default function EditWorkoutPage({ params }: EditWorkoutPageProps) {
         return () => {
             isMounted = false;
         };
-    }, [id, router]);
+    }, [rawId, router]);
 
     const isFetching = (sessionLoading || fetchingWorkout) && !workout;
 
@@ -50,7 +59,7 @@ export default function EditWorkoutPage({ params }: EditWorkoutPageProps) {
         <EditWorkoutClient
             initialWorkout={workout}
             availableExercises={availableExercises || []}
-            workoutId={id}
+            workoutId={rawId}
             callerId={activeUser?.id || ''}
             isFetching={isFetching}
         />

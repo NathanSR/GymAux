@@ -5,7 +5,7 @@
  * 100% Offline-First.
  */
 
-const CACHE_VERSION = 'gymaux-v5.1.0';
+const CACHE_VERSION = 'gymaux-v5.2.0';
 const CORE_CACHE = `gymaux-core-${CACHE_VERSION}`;
 const HTML_CACHE = `gymaux-html-${CACHE_VERSION}`;
 const RSC_CACHE = `gymaux-rsc-${CACHE_VERSION}`;
@@ -28,6 +28,25 @@ const PRECACHE_ASSETS = [
     '/ios/192.png',
     '/ios/512.png',
 ];
+
+/**
+ * Localiza no cache qualquer entrada cujo pathname case com a regex informada.
+ * Permite servir o shell correto para rotas dinâmicas com IDs desconhecidos no offline.
+ */
+async function findCachedByPattern(cache, pattern) {
+    try {
+        const keys = await cache.keys();
+        for (const req of keys) {
+            const reqUrl = new URL(req.url);
+            if (pattern.test(reqUrl.pathname)) {
+                return await cache.match(req);
+            }
+        }
+    } catch {
+        // Ignora erros de leitura de cache
+    }
+    return null;
+}
 
 // 1. Instalação: Pré-cache individual e seguro
 self.addEventListener('install', (event) => {
@@ -115,10 +134,35 @@ self.addEventListener('fetch', (event) => {
 
                     if (cachedRsc) return cachedRsc;
 
-                    // Fallback para rota dinâmica de edição ou detalhe
-                    if (url.pathname.includes('/edit')) {
-                        const genericEditRsc = await rscCache.match(url.pathname.replace(/\/[^/]+\/edit$/, '/new'));
-                        if (genericEditRsc) return genericEditRsc;
+                    // Fallbacks inteligentes por padrão para rotas dinâmicas RSC
+                    // 1. Sessão de treino: busca qualquer shell de sessão em cache
+                    if (url.pathname.includes('/session/')) {
+                        const sessionRsc = await findCachedByPattern(rscCache, /\/session\/[^/]+$/);
+                        if (sessionRsc) return sessionRsc;
+                    }
+
+                    // 2. Edição de treino: busca qualquer shell de edição de treino em cache
+                    if (url.pathname.includes('/workouts/') && url.pathname.endsWith('/edit')) {
+                        const editWorkoutRsc = await findCachedByPattern(rscCache, /\/workouts\/[^/]+\/edit$/);
+                        if (editWorkoutRsc) return editWorkoutRsc;
+                    }
+
+                    // 3. Edição de agenda: busca qualquer shell de edição de agenda em cache
+                    if (url.pathname.includes('/schedules/') && url.pathname.endsWith('/edit')) {
+                        const editScheduleRsc = await findCachedByPattern(rscCache, /\/schedules\/[^/]+\/edit$/);
+                        if (editScheduleRsc) return editScheduleRsc;
+                    }
+
+                    // 4. Edição de exercício: busca qualquer shell de edição de exercício em cache
+                    if (url.pathname.includes('/exercises/') && url.pathname.endsWith('/edit')) {
+                        const editExerciseRsc = await findCachedByPattern(rscCache, /\/exercises\/[^/]+\/edit$/);
+                        if (editExerciseRsc) return editExerciseRsc;
+                    }
+
+                    // 5. Detalhes de exercício: busca qualquer shell de detalhe em cache
+                    if (url.pathname.includes('/exercises/') && !url.pathname.endsWith('/new')) {
+                        const viewExerciseRsc = await findCachedByPattern(rscCache, /\/exercises\/[^/]+$/);
+                        if (viewExerciseRsc) return viewExerciseRsc;
                     }
 
                     // Resposta RSC vazia válida para o Next.js cliente assumir sem crash
@@ -176,35 +220,35 @@ self.addEventListener('fetch', (event) => {
                     const cachedNoQuery = await htmlCache.match(url.pathname, { ignoreSearch: true });
                     if (cachedNoQuery) return cachedNoQuery;
 
-                    // 3. Fallbacks inteligentes para rotas dinâmicas com ID
-                    // Edição de treino: /workouts/[id]/edit -> fallback para shell de edição/treinos
-                    if (url.pathname.match(/\/workouts\/[^/]+\/edit$/)) {
-                        const editHtml = (await htmlCache.match('/pt/workouts/new')) || (await htmlCache.match('/pt/workouts'));
+                    // 3. Fallbacks inteligentes por padrão para rotas dinâmicas
+                    // Sessão de treino: /session/[id] -> shell de sessão
+                    if (url.pathname.includes('/session/')) {
+                        const sessionHtml = await findCachedByPattern(htmlCache, /\/session\/[^/]+$/);
+                        if (sessionHtml) return sessionHtml;
+                    }
+
+                    // Edição de treino: /workouts/[id]/edit -> shell de edição de treino
+                    if (url.pathname.includes('/workouts/') && url.pathname.endsWith('/edit')) {
+                        const editHtml = await findCachedByPattern(htmlCache, /\/workouts\/[^/]+\/edit$/);
                         if (editHtml) return editHtml;
                     }
 
-                    // Edição de exercício: /exercises/[id]/edit
-                    if (url.pathname.match(/\/exercises\/[^/]+\/edit$/)) {
-                        const editHtml = (await htmlCache.match('/pt/exercises/new')) || (await htmlCache.match('/pt/exercises'));
+                    // Edição de agenda: /schedules/[id]/edit -> shell de edição de agenda
+                    if (url.pathname.includes('/schedules/') && url.pathname.endsWith('/edit')) {
+                        const editHtml = await findCachedByPattern(htmlCache, /\/schedules\/[^/]+\/edit$/);
                         if (editHtml) return editHtml;
                     }
 
-                    // Detalhe de exercício: /exercises/[id]
-                    if (url.pathname.match(/\/exercises\/[^/]+$/)) {
-                        const exHtml = (await htmlCache.match('/pt/exercises/1')) || (await htmlCache.match('/pt/exercises'));
+                    // Edição de exercício: /exercises/[id]/edit -> shell de edição de exercício
+                    if (url.pathname.includes('/exercises/') && url.pathname.endsWith('/edit')) {
+                        const editHtml = await findCachedByPattern(htmlCache, /\/exercises\/[^/]+\/edit$/);
+                        if (editHtml) return editHtml;
+                    }
+
+                    // Detalhe de exercício: /exercises/[id] -> shell de detalhes
+                    if (url.pathname.includes('/exercises/') && !url.pathname.endsWith('/new')) {
+                        const exHtml = (await findCachedByPattern(htmlCache, /\/exercises\/[^/]+$/)) || (await htmlCache.match('/pt/exercises'));
                         if (exHtml) return exHtml;
-                    }
-
-                    // Edição de agenda: /schedules/[id]/edit
-                    if (url.pathname.match(/\/schedules\/[^/]+\/edit$/)) {
-                        const editHtml = (await htmlCache.match('/pt/schedules/new')) || (await htmlCache.match('/pt/schedules'));
-                        if (editHtml) return editHtml;
-                    }
-
-                    // Sessão de treino: /session/[id] -> fallback para lista de treinos
-                    if (url.pathname.match(/\/session\/[^/]+$/)) {
-                        const workoutsHtml = await htmlCache.match('/pt/workouts');
-                        if (workoutsHtml) return workoutsHtml;
                     }
 
                     // 4. Fallback final para tela offline

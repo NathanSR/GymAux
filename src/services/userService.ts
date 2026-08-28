@@ -3,6 +3,7 @@ import { User } from '@/config/types';
 import { db } from '@/config/db';
 import { withTimeout } from '@/lib/utils/timeout';
 import { authService } from './authService';
+import { SyncManager } from './syncManager';
 
 const mapProfileToUser = (profile: any): User => ({
     id: profile.id,
@@ -139,9 +140,8 @@ export const userService = {
         }
     },
 
-    // Atualizar com regras de negócio
+    // Atualizar com regras de negócio — 100% Local-First
     async updateUser(id: string, updateData: Partial<Omit<User, 'id' | 'createdAt'>>, supabaseInput?: any) {
-        const supabase = supabaseInput || createClient();
         if (updateData.name !== undefined) {
             const formattedName = updateData.name.trim();
             if (formattedName.length < 2) {
@@ -150,6 +150,19 @@ export const userService = {
             updateData.name = formattedName;
         }
 
+        // Local-first update
+        if (typeof window !== 'undefined') {
+            const local = await db.users.get(id);
+            const updated: User = local 
+                ? { ...local, ...updateData } 
+                : { id, name: updateData.name || '', weight: updateData.weight || 0, height: updateData.height || 0, role: updateData.role || 'user', createdAt: new Date(), ...updateData };
+            
+            await db.users.put(updated);
+            await SyncManager.enqueue('UPDATE', 'USER', id, updateData, id);
+            return updated;
+        }
+
+        const supabase = supabaseInput || createClient();
         const { data, error } = await withTimeout(
             supabase
                 .from('profiles')
@@ -178,13 +191,21 @@ export const userService = {
      * This is the SINGLE SOURCE OF TRUTH for "who is the current user".
      */
     async resolveCurrentUserId(): Promise<string | null> {
-        // 1. Se estiver offline no navegador, vai direto para o Dexie em 0ms
+        // 1. Se estiver offline no navegador, consulta Dexie e storage local
         if (typeof window !== 'undefined' && !navigator.onLine) {
             try {
                 const cached = await db.users.toCollection().first();
                 if (cached?.id) return cached.id;
             } catch {
                 // Ignore Dexie errors
+            }
+
+            try {
+                const supabase = createClient();
+                const { data } = await supabase.auth.getSession();
+                if (data?.session?.user?.id) return data.session.user.id;
+            } catch {
+                // Ignore
             }
         }
 

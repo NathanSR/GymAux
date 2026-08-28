@@ -12,37 +12,38 @@ import {
 } from 'lucide-react';
 import { useSmartNavigation } from '@/hooks/useSmartNavigation';
 import { useTranslations } from 'next-intl';
-import { createClient } from '@/lib/supabase/client';
+import { useSession } from '@/hooks/useSession';
 import { MyIdCardSkeleton } from '@/components/ui/Skeleton';
 
 export default function MyIDPage() {
     const t = useTranslations('MyID');
     const { goBack } = useSmartNavigation({ fallbackUrl: '/home' });
-    const supabase = createClient();
-    const [uid, setUid] = useState<string | null>(null);
+    const { activeUser, loading: sessionLoading } = useSession();
+    const [fallbackUid, setFallbackUid] = useState<string | null>(null);
     const [copied, setCopied] = useState(false);
-    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        if (activeUser?.id) return;
         const fetchUser = async () => {
             try {
                 const { userService } = await import('@/services/userService');
                 const userId = await userService.resolveCurrentUserId();
                 if (userId) {
-                    setUid(userId);
+                    setFallbackUid(userId);
                 }
             } catch (err) {
                 console.warn('[MyIDPage] Error resolving user ID:', err);
-            } finally {
-                setLoading(false);
             }
         };
         fetchUser();
-    }, []);
+    }, [activeUser?.id]);
+
+    const displayId = activeUser?.gymauxId || activeUser?.id || fallbackUid;
+    const isLoading = sessionLoading && !displayId;
 
     const handleCopy = () => {
-        if (uid) {
-            navigator.clipboard.writeText(uid);
+        if (displayId) {
+            navigator.clipboard.writeText(displayId);
             setCopied(true);
             setTimeout(() => setCopied(false), 2000);
         }
@@ -65,7 +66,7 @@ export default function MyIDPage() {
             </header>
 
             <main className="flex-1 flex flex-col items-center justify-center">
-                {loading ? (
+                {isLoading ? (
                     <MyIdCardSkeleton />
                 ) : (
                     <motion.div
@@ -103,9 +104,9 @@ export default function MyIDPage() {
                                 whileTap={{ scale: 0.98 }}
                                 className="bg-white p-6 rounded-[28px] shadow-sm mb-8 border border-zinc-100/50 dark:border-zinc-800/50"
                             >
-                                {uid && (
+                                {displayId && (
                                     <QRCodeSVG
-                                        value={uid}
+                                        value={displayId}
                                         size={180}
                                         level="H"
                                         includeMargin={false}
@@ -128,7 +129,7 @@ export default function MyIDPage() {
                                 </p>
                                 <div className="w-full bg-zinc-50 dark:bg-zinc-800/80 border border-zinc-100 dark:border-zinc-700/50 rounded-[20px] p-4 flex items-center justify-between gap-3 group/id">
                                     <span className="text-[12px] font-mono text-zinc-500 dark:text-zinc-400 truncate tracking-tight">
-                                        {uid}
+                                        {displayId || '---'}
                                     </span>
                                     <button
                                         onClick={handleCopy}

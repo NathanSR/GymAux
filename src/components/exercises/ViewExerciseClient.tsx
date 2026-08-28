@@ -43,6 +43,7 @@ export default function ViewExerciseClient({ exercise }: ViewExerciseClientProps
     const router = useRouter();
 
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+    const [imageError, setImageError] = useState(false);
 
     const localized = getExerciseLocalized(exercise, locale);
     const instructions = getLocalizedInstructions(exercise, locale);
@@ -72,21 +73,28 @@ export default function ViewExerciseClient({ exercise }: ViewExerciseClientProps
     return (
         <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 pb-32 transition-colors selection:bg-lime-400 selection:text-zinc-950">
             {/* --- HERO SECTION --- */}
-            <div className="relative h-[45vh] w-full overflow-hidden group">
+            <div className="relative h-[45vh] w-full overflow-hidden group bg-zinc-900">
                 <motion.div
                     initial={{ scale: 1.1, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     transition={{ duration: 1.2, ease: "easeOut" }}
                     className="absolute inset-0"
                 >
-                    <img
-                        src={exercise.imageUrl || exercise.videoUrl || 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=1000&auto=format&fit=crop'}
-                        alt={exercise.name}
-                        className="w-full h-full object-cover grayscale-[20%] group-hover:scale-105 transition-transform duration-700"
-                        onError={(e) => {
-                            (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=1000&auto=format&fit=crop';
-                        }}
-                    />
+                    {!imageError && (exercise.imageUrl || exercise.videoUrl) ? (
+                        <img
+                            src={exercise.imageUrl || exercise.videoUrl || ''}
+                            alt={exercise.name}
+                            className="w-full h-full object-cover grayscale-[20%] group-hover:scale-105 transition-transform duration-700"
+                            onError={() => setImageError(true)}
+                        />
+                    ) : (
+                        <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-zinc-800 via-zinc-900 to-zinc-950">
+                            <div className="w-20 h-20 rounded-3xl bg-lime-400/10 border border-lime-400/20 flex items-center justify-center text-lime-400 shadow-xl mb-3">
+                                <Dumbbell size={40} />
+                            </div>
+                            <span className="text-xs uppercase font-black tracking-widest text-zinc-500">{exerciseTitle}</span>
+                        </div>
+                    )}
                 </motion.div>
 
                 {/* Overlays */}

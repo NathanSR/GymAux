@@ -4,7 +4,7 @@ import { use, useEffect, useState } from 'react';
 import EditExerciseClient from '@/components/exercises/EditExerciseClient';
 import { ExerciseService } from '@/services/exerciseService';
 import { useSession } from '@/hooks/useSession';
-import { useRouter } from '@/i18n/routing';
+import { useRouter, usePathname } from '@/i18n/routing';
 import { FormSkeleton } from '@/components/ui/Skeleton';
 
 interface EditExercisePageProps {
@@ -12,30 +12,37 @@ interface EditExercisePageProps {
 }
 
 export default function EditExercisePage({ params }: EditExercisePageProps) {
-    const { id } = use(params);
+    const resolvedParams = use(params);
+    const pathname = usePathname();
     const router = useRouter();
     const { activeUser, loading: sessionLoading } = useSession();
+
+    const rawId = (resolvedParams?.id && resolvedParams.id !== 'template' && resolvedParams.id !== 'shell')
+        ? resolvedParams.id
+        : (pathname.match(/\/exercises\/([^/]+)\/edit/)?.[1] || resolvedParams?.id);
 
     const [exercise, setExercise] = useState<any>(null);
     const [fetching, setFetching] = useState(true);
 
     useEffect(() => {
         let isMounted = true;
-        const exId = Number(id);
+        const exId = Number(rawId);
 
         if (isNaN(exId) || exId < 1000) {
             router.push('/exercises');
             return;
         }
 
+        setFetching(true);
         ExerciseService.getExerciseById(exId).then(data => {
             if (!isMounted) return;
             if (
                 !data || 
                 data.created_by_type === 'system' || 
-                (data.id && data.id < 1000) || 
-                (activeUser?.id && data.created_by !== activeUser.id)
+                (data.id && data.id < 1000)
             ) {
+                router.push('/exercises');
+            } else if (!sessionLoading && activeUser?.id && data.created_by && data.created_by !== activeUser.id) {
                 router.push('/exercises');
             } else {
                 setExercise({
@@ -52,14 +59,14 @@ export default function EditExercisePage({ params }: EditExercisePageProps) {
         return () => {
             isMounted = false;
         };
-    }, [id, activeUser?.id, router]);
+    }, [rawId, activeUser?.id, sessionLoading, router]);
 
     const isFetching = (sessionLoading || fetching) && !exercise;
 
     return (
         <EditExerciseClient 
             initialExercise={exercise} 
-            exerciseId={Number(id)} 
+            exerciseId={Number(rawId)} 
             isFetching={isFetching}
         />
     );

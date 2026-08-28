@@ -183,6 +183,9 @@ export class SyncManager {
                         case 'EXERCISE':
                             success = await this.syncExercise(sanitizedOp, supabase);
                             break;
+                        case 'USER':
+                            success = await this.syncUser(sanitizedOp, supabase);
+                            break;
                         default:
                             console.warn(`[SyncManager] Unknown entityType: ${op.entityType}`);
                             success = true; // Drop unknown ops
@@ -453,6 +456,15 @@ export class SyncManager {
             if (error && error.code !== 'PGRST116') throw error;
         } else if (op.action === 'DELETE') {
             const { error } = await withTimeout(supabase.from('exercises').delete().eq('id', op.entityId), 5000);
+            if (error && error.code !== 'PGRST116') throw error;
+        }
+        return true;
+    }
+
+    private static async syncUser(op: SyncOperation, supabase: any): Promise<boolean> {
+        if (op.action === 'UPDATE') {
+            const payload = this.cleanUpdatePayload(op.payload);
+            const { error } = await withTimeout(supabase.from('profiles').update(payload).eq('id', op.entityId), 5000);
             if (error && error.code !== 'PGRST116') throw error;
         }
         return true;

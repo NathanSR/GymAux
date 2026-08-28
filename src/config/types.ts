@@ -284,7 +284,7 @@ export interface SyncOperation {
     id?: number;
     userId?: string;
     action: 'CREATE' | 'UPDATE' | 'DELETE';
-    entityType: 'SESSION' | 'HISTORY' | 'WORKOUT' | 'SCHEDULE' | 'EXERCISE';
+    entityType: 'SESSION' | 'HISTORY' | 'WORKOUT' | 'SCHEDULE' | 'EXERCISE' | 'USER';
     entityId: string | number; // Local ID or Temporary ID
     payload: any;
     status: 'PENDING' | 'FAILED' | 'SYNCED';
