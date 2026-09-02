@@ -1118,5 +1118,103 @@
     "removeCategoryFilter": "Remove muscle group filter",
     "removeEquipmentFilter": "Remove equipment filter",
     "removeLevelFilter": "Remove level filter"
+  },
+  "WorkoutGenerator": {
+    "badge": "AI & Biomechanics Assistant",
+    "title": "Workout Builder",
+    "subtitle": "Generate personalized and balanced workouts in seconds",
+    "ctaHome": "Build Automatic Workout",
+    "ctaHomeDesc": "Create a quick workout for today or a full routine",
+    "ctaWorkouts": "Smart Assistant",
+    "step1Title": "What is your focus right now?",
+    "step1Desc": "Choose whether you want to workout today or set up a weekly routine",
+    "step2Title": "What is your main goal?",
+    "step2Desc": "This determines rep ranges, volume, and rest intervals",
+    "step3Title": "What is your experience level?",
+    "step3Desc": "We adapt exercise complexity and volume to your experience",
+    "step4Title": "What equipment do you have access to?",
+    "step4Desc": "We strictly filter exercises you can actually perform",
+    "step5Title": "Session Configuration",
+    "step5Desc": "Set your workout duration or weekly distribution",
+    "step6Title": "Your Personalized Workout",
+    "step6Desc": "Review, swap any exercise if desired, and save",
+    "scopeToday": "Quick Workout for Today",
+    "scopeTodayDesc": "1 custom workout ready for you to perform right now",
+    "scopeWeekly": "Full Weekly Routine",
+    "scopeWeeklyDesc": "Complete split structured for your training days",
+    "goals": {
+      "hypertrophy": "Hypertrophy & Mass",
+      "hypertrophyDesc": "8 to 12 reps with 60 to 90s rest for optimal muscle stimulus",
+      "strength": "Strength & Density",
+      "strengthDesc": "4 to 6 heavy reps on compound movements with 2-3 min rest",
+      "endurance": "Endurance & Definition",
+      "enduranceDesc": "12 to 15+ reps with short rest (45s) and higher pace"
+    },
+    "levels": {
+      "beginner": "Beginner",
+      "beginnerDesc": "Focus on machines and guided movements for joint safety",
+      "intermediate": "Intermediate",
+      "intermediateDesc": "Balance between free weights, cables, and machines",
+      "advanced": "Advanced",
+      "advancedDesc": "Heavy free weights, compound lifts, and higher volume"
+    },
+    "equipments": {
+      "full_gym": "Full Gym",
+      "full_gymDesc": "Barbells, dumbbells, cables, pulleys, and machines",
+      "dumbbells_only": "Dumbbells & Bench",
+      "dumbbells_onlyDesc": "Ideal for home workouts with dumbbells and bodyweight",
+      "bodyweight_only": "Bodyweight (Calisthenics)",
+      "bodyweight_onlyDesc": "Pure bodyweight exercises with no equipment"
+    },
+    "focusAreas": {
+      "title": "Muscle Group for Today",
+      "chest_triceps": "Chest & Triceps",
+      "back_biceps": "Back & Biceps",
+      "legs": "Legs & Glutes",
+      "shoulders_arms": "Shoulders & Arms",
+      "upper_body": "Full Upper Body",
+      "lower_body": "Full Lower Body",
+      "full_body": "Full Body",
+      "core_cardio": "Core & Cardio"
+    },
+    "duration": {
+      "title": "Available Workout Time",
+      "min30": "30 to 40 min (Express)",
+      "min45": "45 to 60 min (Standard)",
+      "min75": "75+ min (Complete)"
+    },
+    "weekly": {
+      "daysTitle": "How many days per week will you train?",
+      "days2": "2 days per week (Full Body A/B)",
+      "days3": "3 days per week (ABC or Full Body)",
+      "days4": "4 days per week (Upper / Lower AB x2)",
+      "days5": "5 days per week (Push / Pull / Legs / Upper / Lower)",
+      "days6": "6 days per week (PPL x2)",
+      "scheduleSync": "Automatically link to my active Weekly Schedule"
+    },
+    "preview": {
+      "workoutsGenerated": "{count} workout generated | {count} workouts generated",
+      "replaceExercise": "Swap",
+      "sets": "{count} sets",
+      "reps": "{count} reps",
+      "rest": "{count}s rest",
+      "mechanicsCompound": "Compound",
+      "mechanicsIsolation": "Isolation",
+      "summaryExercises": "{count} exercises",
+      "summarySets": "{count} total sets",
+      "summaryTime": "~{time} min estimated"
+    },
+    "actions": {
+      "next": "Continue",
+      "back": "Back",
+      "generate": "Generate Workout",
+      "generating": "Building your workout...",
+      "save": "Save Workout",
+      "saveAll": "Save All Workouts",
+      "saveAndStart": "Save and Start Now",
+      "savedSuccess": "Workout saved successfully!",
+      "routineSavedSuccess": "Weekly routine saved successfully!",
+      "close": "Close"
+    }
   }
 }

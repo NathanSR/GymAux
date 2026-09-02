@@ -21,6 +21,8 @@ import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
 import PageHeader from '@/components/ui/PageHeader';
 import { ListSkeleton } from '@/components/ui/Skeleton';
 import { sortByNewest } from '@/utils/dateUtil';
+import { WorkoutGeneratorModal } from './WorkoutGeneratorModal';
+import { Sparkles } from 'lucide-react';
 
 interface WorkoutsClientProps {
     initialWorkouts: Workout[];
@@ -36,9 +38,11 @@ export default function WorkoutsClient({ initialWorkouts, initialTotalCount, use
 
     const [loading, setLoading] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
+    const [isGeneratorOpen, setIsGeneratorOpen] = useState(false);
 
     const debouncedSearch = useDebounce(searchQuery, 300);
     const t = useTranslations('WorkoutList');
+    const tg = useTranslations('WorkoutGenerator');
 
     // Função para buscar mais treinos
     const fetchMoreWorkouts = useCallback(async (page: number, pageSize: number): Promise<Workout[]> => {
@@ -112,6 +116,10 @@ export default function WorkoutsClient({ initialWorkouts, initialTotalCount, use
         keyExtractor: (item) => item.id as string
     });
 
+    const handleWorkoutCreated = (newWorkouts: Workout[]) => {
+        setInitialData(prev => sortByNewest([...newWorkouts, ...prev]));
+    };
+
     return (
         <div className="min-h-dvh bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white pb-32 transition-colors">
             {/* Header */}
@@ -119,12 +127,22 @@ export default function WorkoutsClient({ initialWorkouts, initialTotalCount, use
                 title={t('title')}
                 backHref={baseUrl === '/workouts' ? '/home' : `/trainer/${userId}`}
                 rightAction={
-                    <Link
-                        href={`${baseUrl}/new`}
-                        className="p-2 rounded-xl bg-lime-400 text-zinc-950 shadow-lg shadow-lime-500/20 active:scale-90 transition-transform cursor-pointer"
-                    >
-                        <Plus size={24} />
-                    </Link>
+                    <div className="flex items-center gap-2">
+                        <button
+                            type="button"
+                            onClick={() => setIsGeneratorOpen(true)}
+                            className="p-2 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-lime-600 dark:text-lime-400 border border-zinc-200 dark:border-zinc-700/60 active:scale-90 transition-transform cursor-pointer flex items-center gap-1.5"
+                            title={tg('ctaWorkouts')}
+                        >
+                            <Sparkles size={20} />
+                        </button>
+                        <Link
+                            href={`${baseUrl}/new`}
+                            className="p-2 rounded-xl bg-lime-400 text-zinc-950 shadow-lg shadow-lime-500/20 active:scale-90 transition-transform cursor-pointer"
+                        >
+                            <Plus size={24} />
+                        </Link>
+                    </div>
                 }
             >
                 <div className="relative">
@@ -194,9 +212,24 @@ export default function WorkoutsClient({ initialWorkouts, initialTotalCount, use
                         </div>
                     ))
                 ) : (
-                    <div className="flex flex-col items-center justify-center py-20 text-zinc-400">
-                        <Info size={40} className="mb-4 opacity-20" />
-                        <p className="text-sm font-medium">{t('noResults')}</p>
+                    <div className="flex flex-col items-center justify-center py-16 text-zinc-400 px-6 text-center">
+                        <div className="w-16 h-16 rounded-3xl bg-lime-500/10 text-lime-500 flex items-center justify-center mb-4">
+                            <Sparkles size={28} />
+                        </div>
+                        <h4 className="text-sm font-black uppercase text-zinc-900 dark:text-white mb-1">
+                            {t('noResults')}
+                        </h4>
+                        <p className="text-xs text-zinc-500 mb-6 max-w-xs">
+                            {tg('ctaHomeDesc')}
+                        </p>
+                        <button
+                            type="button"
+                            onClick={() => setIsGeneratorOpen(true)}
+                            className="px-6 py-3.5 bg-lime-400 hover:bg-lime-500 text-zinc-950 rounded-2xl font-black text-xs uppercase tracking-wider flex items-center gap-2 shadow-lg shadow-lime-500/20 active:scale-95 transition-all cursor-pointer"
+                        >
+                            <Sparkles size={16} />
+                            <span>{tg('ctaWorkouts')}</span>
+                        </button>
                     </div>
                 )}
 
@@ -207,6 +240,16 @@ export default function WorkoutsClient({ initialWorkouts, initialTotalCount, use
                     </div>
                 )}
             </main>
+
+            {/* Modal do Montador Inteligente */}
+            {userId && (
+                <WorkoutGeneratorModal
+                    isOpen={isGeneratorOpen}
+                    onClose={() => setIsGeneratorOpen(false)}
+                    userId={userId}
+                    onWorkoutCreated={handleWorkoutCreated}
+                />
+            )}
         </div>
     );
 }

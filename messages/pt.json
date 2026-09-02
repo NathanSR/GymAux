@@ -1118,5 +1118,103 @@
     "removeCategoryFilter": "Remover filtro de grupo muscular",
     "removeEquipmentFilter": "Remover filtro de equipamento",
     "removeLevelFilter": "Remover filtro de nível"
+  },
+  "WorkoutGenerator": {
+    "badge": "Assistente IA & Biomecânica",
+    "title": "Montador Automático",
+    "subtitle": "Gere treinos personalizados e balanceados em segundos",
+    "ctaHome": "Montar Treino Automático",
+    "ctaHomeDesc": "Crie um treino rápido para hoje ou uma ficha completa",
+    "ctaWorkouts": "Assistente Inteligente",
+    "step1Title": "Qual é o seu foco agora?",
+    "step1Desc": "Escolha se deseja treinar hoje ou montar uma rotina para a semana",
+    "step2Title": "Qual é o seu objetivo principal?",
+    "step2Desc": "Isso define as faixas de repetições, volume e tempo de descanso",
+    "step3Title": "Qual é o seu nível de treino?",
+    "step3Desc": "Adequamos a complexidade e a seleção de exercícios à sua experiência",
+    "step4Title": "Quais equipamentos você tem acesso?",
+    "step4Desc": "Filtramos apenas exercícios que você realmente pode realizar",
+    "step5Title": "Configuração da Sessão",
+    "step5Desc": "Defina o tempo ou a distribuição da sua rotina",
+    "step6Title": "Seu Treino Personalizado",
+    "step6Desc": "Revise, substitua qualquer exercício se desejar e salve",
+    "scopeToday": "Treino Rápido de Hoje",
+    "scopeTodayDesc": "1 treino sob medida para você executar agora mesmo",
+    "scopeWeekly": "Rotina Semanal Completa",
+    "scopeWeeklyDesc": "Ficha completa estruturada para os seus dias de treino",
+    "goals": {
+      "hypertrophy": "Hipertrofia & Massa",
+      "hypertrophyDesc": "8 a 12 reps com descansos de 60 a 90 segundos para máximo estímulo muscular",
+      "strength": "Força & Densidade",
+      "strengthDesc": "4 a 6 reps pesadas em compostos com descanso longo (2-3 min)",
+      "endurance": "Resistência & Definição",
+      "enduranceDesc": "12 a 15+ reps com descansos curtos (45s) e alta densidade"
+    },
+    "levels": {
+      "beginner": "Iniciante",
+      "beginnerDesc": "Foco em máquinas e exercícios guiados para segurança articular",
+      "intermediate": "Intermediário",
+      "intermediateDesc": "Equilíbrio entre pesos livres, polias e máquinas",
+      "advanced": "Avançado",
+      "advancedDesc": "Exercícios livres pesados e maior volume de séries"
+    },
+    "equipments": {
+      "full_gym": "Academia Completa",
+      "full_gymDesc": "Barras, halteres, polias, cabos e máquinas",
+      "dumbbells_only": "Halteres & Banco",
+      "dumbbells_onlyDesc": "Ideal para treinar em casa com halteres e peso do corpo",
+      "bodyweight_only": "Peso Corporal (Calistenia)",
+      "bodyweight_onlyDesc": "Apenas exercícios livres sem aparelhos"
+    },
+    "focusAreas": {
+      "title": "Grupo Muscular para Hoje",
+      "chest_triceps": "Peito & Tríceps",
+      "back_biceps": "Costas & Bíceps",
+      "legs": "Pernas & Glúteos",
+      "shoulders_arms": "Ombros & Braços",
+      "upper_body": "Superiores Completo",
+      "lower_body": "Inferiores Completo",
+      "full_body": "Full Body (Corpo Inteiro)",
+      "core_cardio": "Abdômen & Cardio"
+    },
+    "duration": {
+      "title": "Tempo Disponível para Treinar",
+      "min30": "30 a 40 min (Express)",
+      "min45": "45 a 60 min (Padrão)",
+      "min75": "75+ min (Completo)"
+    },
+    "weekly": {
+      "daysTitle": "Quantos dias na semana você vai treinar?",
+      "days2": "2 dias na semana (Full Body A/B)",
+      "days3": "3 dias na semana (ABC ou Full Body)",
+      "days4": "4 dias na semana (Upper / Lower AB x2)",
+      "days5": "5 dias na semana (Push / Pull / Legs / Upper / Lower)",
+      "days6": "6 dias na semana (PPL x2)",
+      "scheduleSync": "Ativar e vincular automaticamente ao meu Cronograma Semanal"
+    },
+    "preview": {
+      "workoutsGenerated": "{count} treino gerado | {count} treinos gerados",
+      "replaceExercise": "Substituir",
+      "sets": "{count} séries",
+      "reps": "{count} reps",
+      "rest": "{count}s descanso",
+      "mechanicsCompound": "Composto",
+      "mechanicsIsolation": "Isolador",
+      "summaryExercises": "{count} exercícios",
+      "summarySets": "{count} séries no total",
+      "summaryTime": "~{time} min estimados"
+    },
+    "actions": {
+      "next": "Continuar",
+      "back": "Voltar",
+      "generate": "Gerar Treino",
+      "generating": "Montando seu treino...",
+      "save": "Salvar Treino",
+      "saveAll": "Salvar Todos os Treinos",
+      "saveAndStart": "Salvar e Começar Agora",
+      "savedSuccess": "Treino salvo com sucesso!",
+      "routineSavedSuccess": "Rotina semanal salva com sucesso!",
+      "close": "Fechar"
+    }
   }
 }
