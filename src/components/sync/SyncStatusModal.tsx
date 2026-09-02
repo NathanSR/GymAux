@@ -58,7 +58,7 @@ export function SyncStatusModal({ isOpen, onClose }: SyncStatusModalProps) {
         if (isSyncing || !isOnline) return;
         setIsSyncing(true);
         try {
-            await SyncManager.retryFailed();
+            await SyncManager.resetFailedOps();
             await SyncManager.processQueue();
             await loadItems();
         } catch (err) {
@@ -157,21 +157,21 @@ export function SyncStatusModal({ isOpen, onClose }: SyncStatusModalProps) {
         >
             <div className="p-5 sm:p-6 space-y-5 text-zinc-900 dark:text-white">
                 {/* Header Status Banner */}
-                <div className="flex items-center justify-between p-3.5 rounded-2xl bg-zinc-100 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/60">
-                    <div className="flex items-center gap-3">
-                        <div className={`p-2 rounded-xl flex items-center justify-center ${
+                <div className="flex items-center justify-between p-3.5 rounded-2xl bg-zinc-100 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/60 gap-3">
+                    <div className="flex items-center gap-3 min-w-0">
+                        <div className={`p-2 rounded-xl flex items-center justify-center shrink-0 ${
                             isOnline 
                                 ? 'bg-lime-500/15 text-lime-600 dark:text-lime-400' 
                                 : 'bg-amber-500/15 text-amber-600 dark:text-amber-400'
                         }`}>
                             {isOnline ? <Wifi className="w-5 h-5" /> : <WifiOff className="w-5 h-5" />}
                         </div>
-                        <div>
+                        <div className="min-w-0">
                             <div className="text-sm font-bold flex items-center gap-2">
-                                <span>{isOnline ? t('statusOnline') || 'Conectado à Nuvem' : t('statusOffline') || 'Modo Offline'}</span>
-                                <span className={`w-2 h-2 rounded-full ${isOnline ? 'bg-lime-500 animate-pulse' : 'bg-amber-500'}`} />
+                                <span className="whitespace-nowrap">{isOnline ? t('statusOnline') || 'Conectado à Nuvem' : t('statusOffline') || 'Modo Offline'}</span>
+                                <span className={`w-2 h-2 rounded-full shrink-0 ${isOnline ? 'bg-lime-500 animate-pulse' : 'bg-amber-500'}`} />
                             </div>
-                            <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                            <p className="text-xs text-zinc-500 dark:text-zinc-400 truncate">
                                 {isOnline ? 'Pronto para enviar alterações' : 'Alterações serão salvas localmente'}
                             </p>
                         </div>
@@ -182,28 +182,28 @@ export function SyncStatusModal({ isOpen, onClose }: SyncStatusModalProps) {
                             type="button"
                             onClick={handleSyncNow}
                             disabled={isSyncing}
-                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-lime-400 hover:bg-lime-300 text-zinc-950 text-xs font-black transition-all active:scale-95 disabled:opacity-50 cursor-pointer"
+                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-lime-400 hover:bg-lime-300 text-zinc-950 text-xs font-black transition-all active:scale-95 disabled:opacity-50 cursor-pointer shrink-0 whitespace-nowrap"
                         >
-                            <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
-                            <span>{isSyncing ? (t('syncingBtn') || 'Sincronizando...') : (t('syncNowBtn') || 'Sincronizar')}</span>
+                            <RefreshCw className={`w-3.5 h-3.5 shrink-0 ${isSyncing ? 'animate-spin' : ''}`} />
+                            <span className="whitespace-nowrap">{isSyncing ? (t('syncingBtn') || 'Sincronizando...') : (t('syncNowBtn') || 'Sincronizar')}</span>
                         </button>
                     )}
                 </div>
 
                 {/* Queue Summary / Content */}
                 <div>
-                    <div className="flex items-center justify-between mb-3 px-1">
-                        <h3 className="text-xs font-black uppercase tracking-wider text-zinc-400 dark:text-zinc-500">
+                    <div className="flex items-center justify-between mb-3 px-1 gap-2">
+                        <h3 className="text-xs font-black uppercase tracking-wider text-zinc-400 dark:text-zinc-500 whitespace-nowrap">
                             {items.length === 0 ? 'Status da Fila' : t('pendingItemsTitle', { count: items.length }) || `${items.length} alterações na fila`}
                         </h3>
                         {failedCount > 0 && (
                             <button
                                 type="button"
                                 onClick={handleClearFailed}
-                                className="text-xs text-rose-500 hover:text-rose-400 font-semibold flex items-center gap-1 cursor-pointer transition-colors"
+                                className="text-xs text-rose-500 hover:text-rose-400 font-semibold flex items-center gap-1 cursor-pointer transition-colors whitespace-nowrap shrink-0"
                             >
-                                <Trash2 className="w-3.5 h-3.5" />
-                                <span>{t('clearFailedBtn') || 'Limpar com erro'}</span>
+                                <Trash2 className="w-3.5 h-3.5 shrink-0" />
+                                <span className="whitespace-nowrap">{t('clearFailedBtn') || 'Limpar com erro'}</span>
                             </button>
                         )}
                     </div>
@@ -218,7 +218,7 @@ export function SyncStatusModal({ isOpen, onClose }: SyncStatusModalProps) {
                                 <CheckCircle2 className="w-6 h-6" />
                             </div>
                             <div className="space-y-1">
-                                <h4 className="text-base font-black text-zinc-900 dark:text-zinc-100">
+                                <h4 className="text-base font-black text-zinc-900 dark:text-zinc-100 whitespace-nowrap">
                                     {t('allSyncedTitle') || 'Tudo em dia!'}
                                 </h4>
                                 <p className="text-xs text-zinc-500 dark:text-zinc-400 max-w-xs mx-auto">
@@ -254,16 +254,16 @@ export function SyncStatusModal({ isOpen, onClose }: SyncStatusModalProps) {
                                                             <h5 className="text-sm font-bold truncate text-zinc-900 dark:text-zinc-100">
                                                                 {getItemName(item)}
                                                             </h5>
-                                                            <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-md bg-zinc-200 dark:bg-zinc-700 text-zinc-700 dark:text-zinc-300">
+                                                            <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-md bg-zinc-200 dark:bg-zinc-700 text-zinc-700 dark:text-zinc-300 whitespace-nowrap shrink-0">
                                                                 {getActionLabel(item.action)}
                                                             </span>
                                                         </div>
                                                         <div className="flex items-center gap-2 mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-                                                            <span>{getEntityLabel(item.entityType)}</span>
-                                                            <span>•</span>
-                                                            <span className="flex items-center gap-1">
-                                                                <Clock className="w-3 h-3" />
-                                                                {formatRelativeTime(item.createdAt)}
+                                                            <span className="whitespace-nowrap shrink-0">{getEntityLabel(item.entityType)}</span>
+                                                            <span className="shrink-0">•</span>
+                                                            <span className="flex items-center gap-1 whitespace-nowrap shrink-0">
+                                                                <Clock className="w-3 h-3 shrink-0" />
+                                                                <span className="whitespace-nowrap">{formatRelativeTime(item.createdAt)}</span>
                                                             </span>
                                                         </div>
                                                     </div>
@@ -271,14 +271,14 @@ export function SyncStatusModal({ isOpen, onClose }: SyncStatusModalProps) {
 
                                                 <div className="shrink-0 text-right">
                                                     {isFailed ? (
-                                                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-black bg-rose-500/20 text-rose-500 border border-rose-500/30">
-                                                            <AlertCircle className="w-3 h-3" />
-                                                            {t('statusFailed') || 'Impedimento'}
+                                                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-black bg-rose-500/20 text-rose-500 border border-rose-500/30 whitespace-nowrap">
+                                                            <AlertCircle className="w-3 h-3 shrink-0" />
+                                                            <span className="whitespace-nowrap">{t('statusFailed') || 'Impedimento'}</span>
                                                         </span>
                                                     ) : (
-                                                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-black bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-400/20">
-                                                            <Clock className="w-3 h-3" />
-                                                            {t('statusPending') || 'Pendente'}
+                                                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-black bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-400/20 whitespace-nowrap">
+                                                            <Clock className="w-3 h-3 shrink-0" />
+                                                            <span className="whitespace-nowrap">{t('statusPending') || 'Pendente'}</span>
                                                         </span>
                                                     )}
                                                 </div>
