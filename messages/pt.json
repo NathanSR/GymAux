@@ -1,4 +1,18 @@
 {
+  "MenuTab": {
+    "home": "Início",
+    "workouts": "Treinos",
+    "exercises": "Exercícios",
+    "schedules": "Cronogramas",
+    "history": "Histórico",
+    "ariaLabel": "Navegação Principal"
+  },
+  "Toast": {
+    "processing": "Processando...",
+    "expandDetails": "Toque para expandir detalhes",
+    "collapseToast": "Recolher para indicador discreto",
+    "close": "Fechar notificação"
+  },
   "Auth": {
     "backToHome": "Voltar para o Início",
     "welcomeBack": "Bem-vindo de volta!",

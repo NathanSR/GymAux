@@ -1,4 +1,18 @@
 {
+  "MenuTab": {
+    "home": "Home",
+    "workouts": "Workouts",
+    "exercises": "Exercises",
+    "schedules": "Schedules",
+    "history": "History",
+    "ariaLabel": "Main Navigation"
+  },
+  "Toast": {
+    "processing": "Processing...",
+    "expandDetails": "Tap to expand details",
+    "collapseToast": "Collapse to compact badge",
+    "close": "Close notification"
+  },
   "Auth": {
     "backToHome": "Back to Home",
     "welcomeBack": "Welcome back!",

@@ -94,13 +94,13 @@ export default async function RootLayout(props: {
 										{children}
 										<CookieBanner />
 										<CookieModal />
+										<ToastContainer />
 									</CookieConsentProvider>
 								</NavigationLoadingProvider>
 							</OfflineSyncProvider>
 						</DialogProvider>
 					</ThemeProvider>
 				</NextIntlClientProvider>
-				<ToastContainer />
 			</body>
 		</html>
 	);

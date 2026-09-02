@@ -9,7 +9,7 @@ export default async function TrainerLayout({
     params
 }: {
     children: React.ReactNode,
-    params: Promise<{ studentId: string }>
+    params: Promise<any>
 }) {
     const { studentId } = await params;
     const t = await getTranslations('Trainer');
