@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Session, ExerciseGroup } from '@/config/types';
+import { Session, ExerciseGroup, Exercise } from '@/config/types';
 import { useDialog } from '@/hooks/useDialog';
 import { arrayMove } from '@dnd-kit/sortable';
 import { SessionService } from '@/services/sessionService';
@@ -20,6 +20,13 @@ export const useWorkoutDrawer = (
 
     const [activeId, setActiveId] = useState<string | null>(null);
     const [activeGroup, setActiveGroup] = useState<any>(null);
+
+    const [substituteTarget, setSubstituteTarget] = useState<{
+        groupIdx: number;
+        exIdx: number;
+        exerciseId: number;
+        exerciseName: string;
+    } | null>(null);
 
     // Ensure all groups have stable IDs for DnD
     useEffect(() => {
@@ -44,21 +51,23 @@ export const useWorkoutDrawer = (
         if (group) setActiveGroup(group);
     };
 
-    const handleDragEnd = (event: any) => {
-        setActiveId(null);
-        setActiveGroup(null);
+    const handleDragOver = (event: any) => {
         const { active, over } = event;
-        if (active && over && active.id !== over.id) {
+        if (over && active.id !== over.id) {
             const groups = [...(session.exercisesToDo || [])];
             const oldIndex = groups.findIndex(g => g.id === active.id);
             const newIndex = groups.findIndex(g => g.id === over.id);
             if (oldIndex !== -1 && newIndex !== -1 && oldIndex !== newIndex) {
                 const newGroups = arrayMove(groups, oldIndex, newIndex);
-                const updatedSession: Session = { ...session, exercisesToDo: newGroups };
-                setSession(updatedSession);
-                syncSession(updatedSession);
+                setSession({ ...session, exercisesToDo: newGroups });
             }
         }
+    };
+
+    const handleDragEnd = () => {
+        setActiveId(null);
+        setActiveGroup(null);
+        syncSession(session);
     };
 
     const handleDeleteGroup = async (idx: number) => {
@@ -330,12 +339,59 @@ export const useWorkoutDrawer = (
     const handleFullClose = () => {
         setIsFormOpen(false);
         setEditingGroupIdx(null);
+        setSubstituteTarget(null);
         onClose();
     };
 
     const handleOpenAdd = () => {
         setEditingGroupIdx(null);
         setIsFormOpen(true);
+    };
+
+    const handleOpenSubstitute = (groupIdx: number, exIdx: number = 0) => {
+        const group = session.exercisesToDo?.[groupIdx];
+        const ex = group?.exercises?.[exIdx];
+        if (!ex) return;
+
+        setSubstituteTarget({
+            groupIdx,
+            exIdx,
+            exerciseId: ex.exerciseId,
+            exerciseName: ex.exerciseName
+        });
+    };
+
+    const handleCloseSubstitute = () => {
+        setSubstituteTarget(null);
+    };
+
+    const handleSelectSubstitute = (newEx: Exercise) => {
+        if (!substituteTarget || !newEx.id) return;
+        const { groupIdx, exIdx } = substituteTarget;
+
+        const updatedToDo = [...(session.exercisesToDo || [])];
+        const group = updatedToDo[groupIdx];
+        if (!group) return;
+
+        const updatedExercises = [...group.exercises];
+        const currentEx = updatedExercises[exIdx];
+        if (!currentEx) return;
+
+        updatedExercises[exIdx] = {
+            ...currentEx,
+            exerciseId: newEx.id,
+            exerciseName: newEx.name
+        };
+
+        updatedToDo[groupIdx] = {
+            ...group,
+            exercises: updatedExercises
+        };
+
+        const updatedSession = { ...session, exercisesToDo: updatedToDo };
+        setSession(updatedSession);
+        syncSession(updatedSession);
+        setSubstituteTarget(null);
     };
 
     return {
@@ -348,6 +404,7 @@ export const useWorkoutDrawer = (
         activeId,
         activeGroup,
         handleDragStart,
+        handleDragOver,
         handleDragEnd,
         handleDeleteGroup,
         handleUpdateHistorySet,
@@ -358,6 +415,10 @@ export const useWorkoutDrawer = (
         handleSaveGroup,
         onConfirmDeleteSession,
         handleFullClose,
-        handleOpenAdd
+        handleOpenAdd,
+        substituteTarget,
+        handleOpenSubstitute,
+        handleCloseSubstitute,
+        handleSelectSubstitute
     };
 };

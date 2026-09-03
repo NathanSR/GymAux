@@ -1323,5 +1323,16 @@
     "suggestionTitle": "Diagnóstico del Día",
     "suggestionReadyDesc": "Grupos en el pico de recuperación listos para entrenar:",
     "suggestionRestDesc": "Grupos aún en proceso de reparación tisular o fatiga:"
+  },
+  "WorkoutExerciseCard": {
+    "viewInstructions": "Ver Instrucciones",
+    "editExercise": "Ajustar",
+    "replaceExercise": "Sustituir",
+    "removeExercise": "Eliminar",
+    "note": "Nota",
+    "sets": "series",
+    "rounds": "rondas",
+    "reps": "reps",
+    "actions": "Acciones del ejercicio"
   }
 }

@@ -1323,5 +1323,16 @@
     "suggestionTitle": "Daily Readiness Summary",
     "suggestionReadyDesc": "Muscles at peak recovery ready for intensity:",
     "suggestionRestDesc": "Muscles still undergoing tissue repair or fatigue:"
+  },
+  "WorkoutExerciseCard": {
+    "viewInstructions": "View Instructions",
+    "editExercise": "Adjust",
+    "replaceExercise": "Replace",
+    "removeExercise": "Remove",
+    "note": "Note",
+    "sets": "sets",
+    "rounds": "rounds",
+    "reps": "reps",
+    "actions": "Exercise actions"
   }
 }

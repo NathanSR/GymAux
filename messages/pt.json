@@ -1323,5 +1323,16 @@
     "suggestionTitle": "Diagnóstico do Dia",
     "suggestionReadyDesc": "Grupos no ápice de recuperação prontos para intensidade:",
     "suggestionRestDesc": "Grupos ainda em processo inflamatório ou reparo tecidual:"
+  },
+  "WorkoutExerciseCard": {
+    "viewInstructions": "Ver Instruções",
+    "editExercise": "Ajustar",
+    "replaceExercise": "Substituir",
+    "removeExercise": "Remover",
+    "note": "Nota",
+    "sets": "séries",
+    "rounds": "rounds",
+    "reps": "reps",
+    "actions": "Ações do exercício"
   }
 }

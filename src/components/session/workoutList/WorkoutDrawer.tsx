@@ -7,6 +7,7 @@ import { WorkoutDrawerHeader } from './WorkoutDrawerHeader';
 import { WorkoutDrawerTodoList } from './WorkoutDrawerTodoList';
 import { WorkoutDrawerDoneList } from './WorkoutDrawerDoneList';
 import ExerciseConfigModal from '@/components/workouts/ExerciseConfigModal';
+import { ExerciseSubstituteModal } from '@/components/exercises/ExerciseSubstituteModal';
 import { useWorkoutDrawer } from '@/hooks/useWorkoutDrawer';
 import { Drawer } from '@/components/ui/Drawer';
 
@@ -40,6 +41,7 @@ export const WorkoutDrawer = ({
         activeId,
         activeGroup,
         handleDragStart,
+        handleDragOver,
         handleDragEnd,
         handleDeleteGroup,
         handleUpdateHistorySet,
@@ -50,7 +52,11 @@ export const WorkoutDrawer = ({
         handleSaveGroup,
         onConfirmDeleteSession,
         handleFullClose,
-        handleOpenAdd
+        handleOpenAdd,
+        substituteTarget,
+        handleOpenSubstitute,
+        handleCloseSubstitute,
+        handleSelectSubstitute
     } = useWorkoutDrawer(session, setSession, syncSession, isDark, t, onClose);
 
     const groups = session.exercisesToDo || [];
@@ -82,11 +88,15 @@ export const WorkoutDrawer = ({
                         activeId={activeId}
                         activeGroup={activeGroup}
                         handleDragStart={handleDragStart}
+                        handleDragOver={handleDragOver}
                         handleDragEnd={handleDragEnd}
                         handleDeleteGroup={handleDeleteGroup}
                         handleEditClick={(_, idx) => {
                             setEditingGroupIdx(idx);
                             setIsFormOpen(true);
+                        }}
+                        handleReplaceClick={(_, idx) => {
+                            handleOpenSubstitute(idx, 0);
                         }}
                     />
                 ) : (
@@ -113,6 +123,16 @@ export const WorkoutDrawer = ({
                 groupData={editingGroupIdx !== null ? groups[editingGroupIdx] : null}
                 onSave={handleSaveGroup}
             />
+
+            {substituteTarget && (
+                <ExerciseSubstituteModal
+                    isOpen={Boolean(substituteTarget)}
+                    onClose={handleCloseSubstitute}
+                    exerciseId={substituteTarget.exerciseId}
+                    exerciseName={substituteTarget.exerciseName}
+                    onSelectSubstitute={handleSelectSubstitute}
+                />
+            )}
         </Drawer>
     );
 };

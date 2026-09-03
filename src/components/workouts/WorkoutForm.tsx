@@ -17,40 +17,14 @@ import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSo
 import SortableGroupItem from './SortableGroupItem';
 
 import ExerciseConfigModal from './ExerciseConfigModal';
+import { ExerciseSubstituteModal } from '@/components/exercises/ExerciseSubstituteModal';
+import { InsertionPoint } from './InsertionPoint';
 
 interface WorkoutFormProps {
     initialData?: any;
     availableExercises: Exercise[];
     onSubmit: (data: any) => void;
     isLoading?: boolean;
-}
-
-function InsertionPoint({ onClick, isVisible = true }: { onClick: () => void, isVisible?: boolean }) {
-    if (!isVisible) return null;
-
-    return (
-        <div className="h-8 flex items-center justify-center group pointer-events-none">
-            <motion.button
-                type="button"
-                initial={{ opacity: 0.25, scale: 0.9 }}
-                animate={{ opacity: 0.25, scale: 1 }}
-                whileHover={{
-                    opacity: 1,
-                    scale: 1.1,
-                    backgroundColor: "rgba(132, 204, 22, 0.15)",
-                    borderColor: "rgba(132, 204, 22, 0.4)",
-                }}
-                whileTap={{ scale: 0.95 }}
-                onClick={(e) => {
-                    e.stopPropagation();
-                    onClick();
-                }}
-                className="pointer-events-auto w-7 h-7 rounded-full bg-zinc-100/50 dark:bg-zinc-800/30 border border-zinc-500 dark:border-zinc-500 flex items-center justify-center text-zinc-500 dark:text-zinc-500 hover:text-lime-500 transition-all duration-300 shadow-sm"
-            >
-                <Plus size={16} strokeWidth={2} />
-            </motion.button>
-        </div>
-    );
 }
 
 export default function WorkoutForm({ initialData, availableExercises = [], onSubmit, isLoading }: WorkoutFormProps) {
@@ -95,6 +69,11 @@ export default function WorkoutForm({ initialData, availableExercises = [], onSu
     const [activeId, setActiveId] = useState<string | null>(null);
     const [isReorderMode, setIsReorderMode] = useState(false);
     const [insertionIndex, setInsertionIndex] = useState<number | null>(null);
+    const [substituteTarget, setSubstituteTarget] = useState<{
+        groupIndex: number;
+        exerciseId: number;
+        exerciseName: string;
+    } | null>(null);
 
     const sensors = useSensors(
         useSensor(PointerSensor, { activationConstraint: { distance: 10 } }),
@@ -112,6 +91,41 @@ export default function WorkoutForm({ initialData, availableExercises = [], onSu
     const openConfigModal = (groupIndex: number) => {
         setConfigModalIndex(groupIndex);
         setIsConfigModalOpen(true);
+    };
+
+    const handleOpenReplace = (groupIndex: number) => {
+        const currentGroup = groupFields[groupIndex] as any;
+        const primaryEx = currentGroup?.exercises?.[0];
+        if (!primaryEx) return;
+
+        setSubstituteTarget({
+            groupIndex,
+            exerciseId: primaryEx.exerciseId,
+            exerciseName: primaryEx.exerciseName
+        });
+    };
+
+    const handleSelectSubstitute = (exercise: Exercise) => {
+        if (!substituteTarget || !exercise.id) return;
+        const { groupIndex } = substituteTarget;
+        const currentGroup = getValues(`exercises.${groupIndex}`);
+        if (!currentGroup) return;
+
+        const updatedExercises = [...(currentGroup.exercises || [])];
+        if (updatedExercises[0]) {
+            updatedExercises[0] = {
+                ...updatedExercises[0],
+                exerciseId: exercise.id,
+                exerciseName: getExerciseLocalized(exercise, locale).name || exercise.name
+            };
+        }
+
+        update(groupIndex, {
+            ...currentGroup,
+            exercises: updatedExercises
+        });
+
+        setSubstituteTarget(null);
     };
 
     const handleSaveConfigGroup = (updatedGroup: any) => {
@@ -269,6 +283,7 @@ export default function WorkoutForm({ initialData, availableExercises = [], onSu
                                             groupIndex={index}
                                             removeGroup={removeGroup}
                                             onOpenConfigModal={openConfigModal}
+                                            onReplaceGroup={handleOpenReplace}
                                             isAnyItemDragging={!!activeId}
                                             isReorderMode={isReorderMode}
                                         />
@@ -364,6 +379,23 @@ export default function WorkoutForm({ initialData, availableExercises = [], onSu
                 isOpen={isHelpOpen}
                 onClose={() => setIsHelpOpen(false)}
             />
+
+            {substituteTarget && (
+                <ExerciseSubstituteModal
+                    isOpen={Boolean(substituteTarget)}
+                    onClose={() => setSubstituteTarget(null)}
+                    exerciseId={substituteTarget.exerciseId}
+                    exerciseName={substituteTarget.exerciseName}
+                    onSelectSubstitute={handleSelectSubstitute}
+                    onOpenFullSelector={() => {
+                        const targetIdx = substituteTarget.groupIndex;
+                        setSubstituteTarget(null);
+                        setTargetGroupIndex(targetIdx);
+                        setTargetExerciseIndex(0);
+                        setIsSelectorOpen(true);
+                    }}
+                />
+            )}
         </FormProvider>
     );
 }

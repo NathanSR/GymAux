@@ -22,7 +22,26 @@ import {
     Layers,
     Activity,
     X,
+    GripVertical,
 } from 'lucide-react';
+import {
+    DndContext,
+    closestCenter,
+    KeyboardSensor,
+    PointerSensor,
+    useSensor,
+    useSensors,
+    TouchSensor,
+    DragOverlay,
+    defaultDropAnimationSideEffects,
+} from '@dnd-kit/core';
+import {
+    arrayMove,
+    SortableContext,
+    sortableKeyboardCoordinates,
+    verticalListSortingStrategy,
+    useSortable,
+} from '@dnd-kit/sortable';
 import { useTranslations, useLocale } from 'next-intl';
 import { Exercise, Workout, ExerciseGroup } from '@/config/types';
 import { db } from '@/config/db';
@@ -38,10 +57,88 @@ import {
 } from '@/utils/workoutGenerator';
 import { ExerciseSubstituteModal } from '@/components/exercises/ExerciseSubstituteModal';
 import { ExerciseConfigModal } from './ExerciseConfigModal';
+import { WorkoutExerciseCard } from './WorkoutExerciseCard';
+import { InsertionPoint } from './InsertionPoint';
+import { ExerciseSelector } from '@/components/exercises/ExerciseSelector';
 import { CATEGORY_METADATA, CategoryType, CATEGORIES } from '@/config/constants';
 import { WorkoutService } from '@/services/workoutService';
 import { ScheduleService } from '@/services/scheduleService';
 import { useSessionActions } from '@/hooks/useSessionActions';
+
+interface SortablePreviewExerciseItemProps {
+    group: ExerciseGroup;
+    index: number;
+    exerciseDetails?: Exercise;
+    isReorderMode?: boolean;
+    isOverlay?: boolean;
+    onEdit: () => void;
+    onReplace: () => void;
+    onRemove: () => void;
+}
+
+function SortablePreviewExerciseItem({
+    group,
+    index,
+    exerciseDetails,
+    isReorderMode = false,
+    isOverlay = false,
+    onEdit,
+    onReplace,
+    onRemove,
+}: SortablePreviewExerciseItemProps) {
+    const {
+        attributes,
+        listeners,
+        setNodeRef,
+        isDragging,
+    } = useSortable({
+        id: group.id || `gen-group-${index}`,
+        disabled: isOverlay || !isReorderMode,
+    });
+
+    const style = {
+        zIndex: isOverlay ? 100 : (isDragging ? 50 : 1),
+    };
+
+    const dragHandle = isReorderMode ? (
+        <div
+            {...attributes}
+            {...listeners}
+            onClick={(e) => e.stopPropagation()}
+            className="p-1 rounded-lg cursor-grab active:cursor-grabbing text-zinc-400 hover:text-lime-500 transition-colors"
+            style={{ touchAction: 'none' }}
+        >
+            <GripVertical size={16} />
+        </div>
+    ) : undefined;
+
+    return (
+        <motion.div
+            layout
+            initial={{ opacity: 0, y: 12 }}
+            animate={{
+                opacity: isOverlay ? 1 : (isDragging ? 0.3 : 1),
+                y: 0,
+                scale: isOverlay ? 1.01 : 1,
+            }}
+            ref={setNodeRef}
+            style={style}
+        >
+            <WorkoutExerciseCard
+                group={group}
+                index={index}
+                exerciseDetails={exerciseDetails}
+                isDragging={isDragging && !isOverlay}
+                isReorderMode={isReorderMode}
+                dragHandle={dragHandle}
+                onEdit={!isReorderMode && !isOverlay ? onEdit : undefined}
+                onReplace={!isReorderMode && !isOverlay ? onReplace : undefined}
+                onRemove={!isReorderMode && !isOverlay ? onRemove : undefined}
+                className={isOverlay ? 'ring-2 ring-lime-400/30 border-lime-500 shadow-xl' : ''}
+            />
+        </motion.div>
+    );
+}
 import { useExerciseLocalization, getExerciseLocalized } from '@/utils/exerciseLocalization';
 import { toast } from 'react-toastify';
 
@@ -63,6 +160,7 @@ export function WorkoutGeneratorModal({
     const tc = useTranslations('Categories');
     const tEq = useTranslations('Equipment');
     const tLvl = useTranslations('Levels');
+    const tw = useTranslations('WorkoutForm');
     const { getLocalizedName } = useExerciseLocalization();
     const { startWorkout } = useSessionActions();
 
@@ -78,34 +176,39 @@ export function WorkoutGeneratorModal({
     const [todayFocus, setTodayFocus] = useState<GeneratorTodayFocus>('chest_triceps');
     const [selectedCategories, setSelectedCategories] = useState<CategoryType[]>(['chest', 'triceps']);
     const [duration, setDuration] = useState<GeneratorDuration>('min45');
-    const [weeklyDays, setWeeklyDays] = useState<number>(4);
+    const [weeklyDays, setWeeklyDays] = useState<number>(3);
     const [syncSchedule, setSyncSchedule] = useState<boolean>(true);
 
-    // Generation State
+    // Async / Data State
     const [availableExercises, setAvailableExercises] = useState<Exercise[]>([]);
-    const [generatedWorkouts, setGeneratedWorkouts] = useState<Workout[]>([]);
-    const [activePreviewTab, setActivePreviewTab] = useState<number>(0);
-    const [isGenerating, setIsGenerating] = useState<boolean>(false);
+    const [isGenerating, setIsGenerating] = useState(false);
     const [isSaving, setIsSaving] = useState<boolean>(false);
+    const [generatedWorkouts, setGeneratedWorkouts] = useState<Workout[]>([]);
+    const [activePreviewTab, setActivePreviewTab] = useState(0);
 
-    // Substitute Modal State
+    // Reorder & Insertion State (Step 6)
+    const [isReorderMode, setIsReorderMode] = useState(false);
+    const [activeId, setActiveId] = useState<string | null>(null);
+    const [insertionIndex, setInsertionIndex] = useState<number | null>(null);
+    const [isSelectorOpen, setIsSelectorOpen] = useState(false);
+
+    // Modais internos
     const [substituteState, setSubstituteState] = useState<{
         isOpen: boolean;
-        exerciseId: number | null;
-        exerciseName: string | null;
+        exerciseId: number;
+        exerciseName: string;
         workoutIndex: number;
         groupIndex: number;
         exerciseIndex: number;
     }>({
         isOpen: false,
-        exerciseId: null,
-        exerciseName: null,
+        exerciseId: 0,
+        exerciseName: '',
         workoutIndex: 0,
         groupIndex: 0,
         exerciseIndex: 0,
     });
 
-    // Exercise Config Modal State
     const [configModalState, setConfigModalState] = useState<{
         isOpen: boolean;
         groupData: ExerciseGroup | null;
@@ -125,6 +228,10 @@ export function WorkoutGeneratorModal({
             setDirection(1);
             setGeneratedWorkouts([]);
             setActivePreviewTab(0);
+            setIsReorderMode(false);
+            setActiveId(null);
+            setInsertionIndex(null);
+            setIsSelectorOpen(false);
 
             // Carrega todos os exercícios da base local Dexie
             db.exercises.toArray().then((exList) => {
@@ -155,6 +262,93 @@ export function WorkoutGeneratorModal({
         });
     };
 
+    const sensors = useSensors(
+        useSensor(PointerSensor, { activationConstraint: { distance: 10 } }),
+        useSensor(TouchSensor, { activationConstraint: { delay: 250, tolerance: 5 } }),
+        useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+    );
+
+    const handleDragStart = (event: any) => {
+        setActiveId(event.active.id);
+    };
+
+    const handleDragOver = (event: any) => {
+        const { active, over } = event;
+        if (over && active.id !== over.id) {
+            setGeneratedWorkouts((prev) => {
+                const copy = [...prev];
+                const workout = { ...copy[activePreviewTab] };
+                const oldIdx = workout.exercises.findIndex(g => (g.id || '') === active.id);
+                const newIdx = workout.exercises.findIndex(g => (g.id || '') === over.id);
+                if (oldIdx !== -1 && newIdx !== -1) {
+                    workout.exercises = arrayMove(workout.exercises, oldIdx, newIdx);
+                    copy[activePreviewTab] = workout;
+                }
+                return copy;
+            });
+        }
+    };
+
+    const handleDragEnd = () => {
+        setActiveId(null);
+    };
+
+    const openSelectorForInsertion = (index: number) => {
+        setInsertionIndex(index);
+        setIsSelectorOpen(true);
+    };
+
+    const handleExerciseSelected = (exercise: Exercise) => {
+        const newGroup: ExerciseGroup = {
+            id: `gen-group-${Date.now()}-${crypto.randomUUID()}`,
+            groupType: 'straight',
+            rounds: 3,
+            restBetweenRounds: 0,
+            restAfterGroup: 60,
+            exercises: [{
+                exerciseId: exercise.id!,
+                exerciseName: getExerciseLocalized(exercise, locale).name || exercise.name,
+                restAfterExercise: 0,
+                sets: [
+                    { reps: 10, weight: 0, restTime: 60, technique: 'normal' },
+                    { reps: 10, weight: 0, restTime: 60, technique: 'normal' },
+                    { reps: 10, weight: 0, restTime: 60, technique: 'normal' },
+                ]
+            }]
+        };
+
+        setGeneratedWorkouts((prev) => {
+            const copy = [...prev];
+            const workout = { ...copy[activePreviewTab] };
+            const exercises = [...workout.exercises];
+            if (insertionIndex !== null && insertionIndex >= 0) {
+                exercises.splice(insertionIndex, 0, newGroup);
+            } else {
+                exercises.push(newGroup);
+            }
+            workout.exercises = exercises;
+            copy[activePreviewTab] = workout;
+            return copy;
+        });
+
+        setIsSelectorOpen(false);
+        setInsertionIndex(null);
+    };
+
+    const handleRemoveGroup = (workoutIndex: number, groupIndex: number) => {
+        setGeneratedWorkouts((prev) => {
+            const copy = [...prev];
+            const workout = { ...copy[workoutIndex] };
+            if (workout.exercises.length <= 1) {
+                toast.warn('O treino precisa ter pelo menos um exercício.');
+                return prev;
+            }
+            workout.exercises = workout.exercises.filter((_, idx) => idx !== groupIndex);
+            copy[workoutIndex] = workout;
+            return copy;
+        });
+    };
+
     // Executa o algoritmo gerador
     const handleGenerate = () => {
         if (scope === 'today' && selectedCategories.length === 0) {
@@ -175,6 +369,13 @@ export function WorkoutGeneratorModal({
                 duration,
                 weeklyDays,
                 availableExercises,
+            });
+
+            workouts.forEach((w, wIdx) => {
+                w.exercises = w.exercises.map((g, gIdx) => ({
+                    ...g,
+                    id: g.id || `gen-group-${wIdx}-${gIdx}-${crypto.randomUUID()}`
+                }));
             });
 
             setGeneratedWorkouts(workouts);
@@ -967,86 +1168,115 @@ export function WorkoutGeneratorModal({
                                             </div>
                                         </div>
 
-                                        {/* Lista de Exercícios do Treino com Imagem e Ações Responsivas */}
-                                        <div className="space-y-2.5 max-h-[260px] overflow-y-auto pr-1 custom-scrollbar">
-                                            {currentWorkout.exercises.flatMap((group, gIdx) =>
-                                                group.exercises.map((ex, eIdx) => {
-                                                    const foundEx = availableExercises.find(a => a.id === ex.exerciseId);
-                                                    const categoryMeta = foundEx?.category ? CATEGORY_METADATA[foundEx.category] : null;
-                                                    const exerciseImage = foundEx?.imageUrl || categoryMeta?.imagePath;
-
-                                                    const setsCount = ex.sets.length;
-                                                    const reps = ex.sets[0]?.reps || 10;
-                                                    const rest = ex.sets[0]?.restTime || 60;
-                                                    const isCompound = rest >= 90;
-
-                                                    return (
-                                                        <div
-                                                            key={`${gIdx}-${eIdx}-${ex.exerciseId}`}
-                                                            className="p-3 rounded-2xl bg-zinc-50 dark:bg-zinc-950/50 border border-zinc-200 dark:border-zinc-800/80 flex items-center justify-between gap-3 group hover:border-lime-500/30 transition-all"
-                                                        >
-                                                            {/* Imagem + Detalhes do Exercício */}
-                                                            <div className="flex items-center gap-3 min-w-0">
-                                                                <div className="w-12 h-12 rounded-xl bg-zinc-200 dark:bg-zinc-800 overflow-hidden shrink-0 border border-zinc-200 dark:border-zinc-700/60 relative flex items-center justify-center">
-                                                                    {exerciseImage ? (
-                                                                        <img
-                                                                            src={exerciseImage}
-                                                                            alt={ex.exerciseName}
-                                                                            className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                                                                            onError={(e) => {
-                                                                                e.currentTarget.style.display = 'none';
-                                                                            }}
-                                                                        />
-                                                                    ) : (
-                                                                        <Dumbbell size={20} className="text-zinc-400" />
-                                                                    )}
-                                                                </div>
-
-                                                                <div className="min-w-0">
-                                                                    <p className="text-xs font-black uppercase text-zinc-900 dark:text-white truncate">
-                                                                        {getLocalizedName(ex.exerciseId, ex.exerciseName)}
-                                                                    </p>
-                                                                    <div className="flex flex-wrap items-center gap-1.5 mt-0.5 text-[10px] text-zinc-500 font-bold">
-                                                                        <span>{setsCount}x{reps} reps</span>
-                                                                        <span>•</span>
-                                                                        <span>{rest}s</span>
-                                                                        <span className={`px-1.5 py-0.2 rounded text-[8px] uppercase tracking-wider font-black ${
-                                                                            isCompound
-                                                                                ? 'bg-blue-500/10 text-blue-600 dark:text-blue-400'
-                                                                                : 'bg-zinc-200 dark:bg-zinc-800 text-zinc-500'
-                                                                        }`}>
-                                                                            {isCompound ? t('preview.mechanicsCompound') : t('preview.mechanicsIsolation')}
-                                                                        </span>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-
-                                                            {/* Ações: Ajustar (ConfigModal) e Substituir (SubstituteModal) */}
-                                                            <div className="flex items-center gap-1.5 shrink-0">
-                                                                <button
-                                                                    type="button"
-                                                                    onClick={() => handleOpenConfigModal(activePreviewTab, gIdx)}
-                                                                    className="p-2 sm:px-2.5 sm:py-1.5 rounded-xl bg-zinc-200/80 dark:bg-zinc-800 hover:bg-zinc-300 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200 text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5 transition-all cursor-pointer active:scale-95"
-                                                                    title={t('preview.editExercise')}
-                                                                >
-                                                                    <SlidersHorizontal size={13} />
-                                                                    <span className="hidden sm:inline">{t('preview.editExercise')}</span>
-                                                                </button>
-
-                                                                <button
-                                                                    type="button"
-                                                                    onClick={() => handleOpenSubstitute(activePreviewTab, gIdx, eIdx)}
-                                                                    className="p-2 sm:px-2.5 sm:py-1.5 rounded-xl bg-zinc-200/80 dark:bg-zinc-800 hover:bg-lime-500 hover:text-zinc-950 text-zinc-700 dark:text-zinc-200 text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5 transition-all cursor-pointer active:scale-95"
-                                                                    title={t('preview.replaceExercise')}
-                                                                >
-                                                                    <RefreshCw size={13} />
-                                                                    <span className="hidden sm:inline">{t('preview.replaceExercise')}</span>
-                                                                </button>
-                                                            </div>
-                                                        </div>
-                                                    );
-                                                })
+                                        {/* Barra de controle com botão de alternância do modo de reordenação */}
+                                        <div className="flex items-center justify-between px-1">
+                                            <span className="text-[10px] font-black uppercase tracking-wider text-zinc-400 dark:text-zinc-500">
+                                                {currentWorkout.exercises.length} {currentWorkout.exercises.length === 1 ? 'exercício' : 'exercícios'}
+                                            </span>
+                                            {currentWorkout.exercises.length > 1 && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setIsReorderMode(!isReorderMode)}
+                                                    className={`px-3 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-1.5 transition-all cursor-pointer ${
+                                                        isReorderMode
+                                                            ? 'bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 shadow-md'
+                                                            : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100'
+                                                    }`}
+                                                >
+                                                    {isReorderMode ? (
+                                                        <>
+                                                            <Check className="w-3 h-3" />
+                                                            {tw('doneReordering')}
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <GripVertical className="w-3 h-3" />
+                                                            {tw('reorderItems')}
+                                                        </>
+                                                    )}
+                                                </button>
                                             )}
+                                        </div>
+
+                                        {/* Lista de Exercícios do Treino com Reordenação, Inserção e Animação Suave */}
+                                        <div className="space-y-1 max-h-[320px] overflow-y-auto pr-1 custom-scrollbar">
+                                            <DndContext
+                                                sensors={sensors}
+                                                collisionDetection={closestCenter}
+                                                onDragStart={handleDragStart}
+                                                onDragOver={handleDragOver}
+                                                onDragEnd={handleDragEnd}
+                                            >
+                                                <SortableContext
+                                                    items={currentWorkout.exercises.map((g, gIdx) => g.id || `gen-group-${gIdx}`)}
+                                                    strategy={verticalListSortingStrategy}
+                                                >
+                                                    <AnimatePresence>
+                                                        {currentWorkout.exercises.map((group, gIdx) => {
+                                                            const primaryEx = group.exercises[0];
+                                                            const foundEx = availableExercises.find(a => a.id === primaryEx?.exerciseId);
+                                                            return (
+                                                                <div key={group.id || `gen-group-${gIdx}`} className={isReorderMode ? 'mb-2' : ''}>
+                                                                    {gIdx === 0 && (
+                                                                        <InsertionPoint
+                                                                            isVisible={!isReorderMode && !activeId}
+                                                                            onClick={() => openSelectorForInsertion(0)}
+                                                                        />
+                                                                    )}
+
+                                                                    <SortablePreviewExerciseItem
+                                                                        group={group}
+                                                                        index={gIdx}
+                                                                        exerciseDetails={foundEx}
+                                                                        isReorderMode={isReorderMode}
+                                                                        onEdit={() => handleOpenConfigModal(activePreviewTab, gIdx)}
+                                                                        onReplace={() => handleOpenSubstitute(activePreviewTab, gIdx, 0)}
+                                                                        onRemove={() => handleRemoveGroup(activePreviewTab, gIdx)}
+                                                                    />
+
+                                                                    <InsertionPoint
+                                                                        isVisible={!isReorderMode && !activeId}
+                                                                        onClick={() => openSelectorForInsertion(gIdx + 1)}
+                                                                    />
+                                                                </div>
+                                                            );
+                                                        })}
+                                                    </AnimatePresence>
+                                                </SortableContext>
+
+                                                <DragOverlay dropAnimation={{
+                                                    sideEffects: defaultDropAnimationSideEffects({
+                                                        styles: {
+                                                            active: {
+                                                                opacity: '0.5',
+                                                            },
+                                                        },
+                                                    }),
+                                                }}>
+                                                    {activeId ? (
+                                                        <div className="w-full">
+                                                            {(() => {
+                                                                const activeItem = currentWorkout.exercises.find(g => (g.id || '') === activeId);
+                                                                if (!activeItem) return null;
+                                                                const primaryEx = activeItem.exercises[0];
+                                                                const foundEx = availableExercises.find(a => a.id === primaryEx?.exerciseId);
+                                                                return (
+                                                                    <SortablePreviewExerciseItem
+                                                                        group={activeItem}
+                                                                        index={currentWorkout.exercises.findIndex(g => (g.id || '') === activeId)}
+                                                                        exerciseDetails={foundEx}
+                                                                        isReorderMode={true}
+                                                                        isOverlay
+                                                                        onEdit={() => { }}
+                                                                        onReplace={() => { }}
+                                                                        onRemove={() => { }}
+                                                                    />
+                                                                );
+                                                            })()}
+                                                        </div>
+                                                    ) : null}
+                                                </DragOverlay>
+                                            </DndContext>
                                         </div>
                                     </div>
                                 )}
@@ -1155,6 +1385,16 @@ export function WorkoutGeneratorModal({
                 exerciseId={substituteState.exerciseId}
                 exerciseName={substituteState.exerciseName}
                 onSelectSubstitute={handleSelectSubstitute}
+            />
+
+            {/* SELETOR DE EXERCÍCIOS PARA INSERTION POINT */}
+            <ExerciseSelector
+                isOpen={isSelectorOpen}
+                onClose={() => {
+                    setIsSelectorOpen(false);
+                    setInsertionIndex(null);
+                }}
+                onSelect={handleExerciseSelected}
             />
         </>
     );
