@@ -14,6 +14,7 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '@/config/db';
 import { stopTopLoader } from '@/utils/topLoader';
 import { WorkoutGeneratorModal } from '@/components/workouts/WorkoutGeneratorModal';
+import { MuscleRecoveryWidget } from '@/components/home/MuscleRecoveryWidget';
 import { Sparkles } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
@@ -101,6 +102,9 @@ export function HomePageClient() {
             ) : (
                 <>
                     <HomeUIWorkoutBanner todayWorkout={todayWorkout} todayHistory={todayHistory} />
+
+                    {/* Widget Minimalista: Recuperação & Descanso Muscular */}
+                    <MuscleRecoveryWidget userId={activeUser?.id} />
 
                     {/* Quick Action: Montador Automático de Treino */}
                     <div className="mb-8">

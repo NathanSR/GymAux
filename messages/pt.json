@@ -1216,5 +1216,38 @@
       "routineSavedSuccess": "Rotina semanal salva com sucesso!",
       "close": "Fechar"
     }
+  },
+  "MuscleRecovery": {
+    "title": "Recuperação Muscular",
+    "subtitle": "Descanso biológico por grupo muscular",
+    "readiness": "Prontidão Geral",
+    "readyToTrain": "Pronto para treinar",
+    "partiallyRecovered": "Recuperação ativa",
+    "needsRest": "Repouso recomendado",
+    "recoveredCount": "{count} descansados",
+    "needsRestCount": "{count} em repouso",
+    "allRestored": "100% Recuperado",
+    "allMusclesReady": "Todos os músculos estão descansados e prontos.",
+    "viewDetails": "Ver detalhes",
+    "drawerTitle": "Descanso & Prontidão Muscular",
+    "drawerSubtitle": "Estimativa fisiológica baseada no seu histórico recente",
+    "filterAll": "Todos",
+    "filterNeedsRest": "Em Repouso",
+    "filterRecovered": "Recuperados",
+    "stateRecovered": "Descansado",
+    "stateRecovering": "Em Recuperação",
+    "stateFatigued": "Fadiga / Repouso",
+    "readyForHeavy": "Pronto para treinar pesado e quebrar recordes.",
+    "readyForModerate": "Adequado para estímulos moderados ou sinergia.",
+    "avoidHeavyToday": "Em reconstrução miofibrilar. Evite treino pesado hoje.",
+    "timeRemaining": "~{hours}h para 100%",
+    "fullyRecovered": "Totalmente recuperado",
+    "lastTrained": "Treinado há {hours}h",
+    "noRecentTraining": "Sem treino recente (> 7 dias)",
+    "effectiveVolume": "Volume recente: {sets} séries",
+    "triggerExercises": "Exercícios recentes:",
+    "suggestionTitle": "Diagnóstico do Dia",
+    "suggestionReadyDesc": "Grupos no ápice de recuperação prontos para intensidade:",
+    "suggestionRestDesc": "Grupos ainda em processo inflamatório ou reparo tecidual:"
   }
 }

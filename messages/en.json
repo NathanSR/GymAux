@@ -1216,5 +1216,38 @@
       "routineSavedSuccess": "Weekly routine saved successfully!",
       "close": "Close"
     }
+  },
+  "MuscleRecovery": {
+    "title": "Muscle Recovery",
+    "subtitle": "Biological rest by muscle group",
+    "readiness": "Overall Readiness",
+    "readyToTrain": "Ready to train",
+    "partiallyRecovered": "Active recovery",
+    "needsRest": "Rest recommended",
+    "recoveredCount": "{count} rested",
+    "needsRestCount": "{count} resting",
+    "allRestored": "100% Recovered",
+    "allMusclesReady": "All muscles are rested and primed to train.",
+    "viewDetails": "View details",
+    "drawerTitle": "Muscle Rest & Readiness",
+    "drawerSubtitle": "Physiological estimation based on your recent training history",
+    "filterAll": "All",
+    "filterNeedsRest": "Resting",
+    "filterRecovered": "Recovered",
+    "stateRecovered": "Rested",
+    "stateRecovering": "Recovering",
+    "stateFatigued": "Fatigued / Rest",
+    "readyForHeavy": "Ready to lift heavy and hit new PRs.",
+    "readyForModerate": "Suitable for moderate intensity or synergist work.",
+    "avoidHeavyToday": "Myofibrillar repair in progress. Avoid heavy loads today.",
+    "timeRemaining": "~{hours}h to 100%",
+    "fullyRecovered": "Fully recovered",
+    "lastTrained": "Trained {hours}h ago",
+    "noRecentTraining": "No recent workouts (> 7 days)",
+    "effectiveVolume": "Recent volume: {sets} sets",
+    "triggerExercises": "Recent exercises:",
+    "suggestionTitle": "Daily Readiness Summary",
+    "suggestionReadyDesc": "Muscles at peak recovery ready for intensity:",
+    "suggestionRestDesc": "Muscles still undergoing tissue repair or fatigue:"
   }
 }
