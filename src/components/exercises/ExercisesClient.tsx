@@ -1,19 +1,18 @@
 "use client";
 
 import { useEffect, useMemo, useState, useCallback } from 'react';
-import { Search, Dumbbell, Info, PlayCircle, Plus, Edit, Eye, Loader2 } from 'lucide-react';
+import { Search, Info, Plus, Loader2 } from 'lucide-react';
 import { useTranslations, useLocale } from 'next-intl';
 import { Link } from '@/i18n/routing';
 import { ExerciseService } from '@/services/exerciseService';
 import { useDebounce } from '@/hooks/useDebounce';
-import { CATEGORIES, CATEGORY_METADATA } from '@/config/constants';
 import { Exercise } from '@/config/types';
 import { useSession } from '@/hooks/useSession';
 import PageHeader from '@/components/ui/PageHeader';
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
 import { ExerciseFilterPanel } from './ExerciseFilterPanel';
 import { ExerciseListSkeleton } from '@/components/ui/Skeleton';
-import { getExerciseLocalized } from '@/utils/exerciseLocalization';
+import { ExerciseCard } from './ExerciseCard';
 
 interface ExercisesClientProps {
     initialExercises: Exercise[];
@@ -182,71 +181,12 @@ export default function ExercisesClient({ initialExercises, initialTotalCount, i
                         <ExerciseListSkeleton count={5} />
                     ) : visibleData.length > 0 ? (
                         visibleData.map((exercise, index) => (
-                            <div
+                            <ExerciseCard
                                 key={exercise.id}
                                 ref={index === visibleData.length - 1 ? lastItemRef : null}
-                                className="group bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 rounded-[32px] p-5 shadow-sm transition-all overflow-hidden"
-                            >
-                                <div className="flex gap-4">
-                                    {/* Thumbnail */}
-                                    <div className="w-16 h-16 rounded-2xl bg-zinc-50 dark:bg-zinc-950 border border-zinc-100 dark:border-zinc-900 flex items-center justify-center shrink-0 overflow-hidden relative p-1">
-                                        {exercise.category && CATEGORY_METADATA[exercise.category] ? (
-                                            <>
-                                                <img
-                                                    src={CATEGORY_METADATA[exercise.category].imagePath}
-                                                    alt={tc(exercise.category)}
-                                                    className="w-full h-full object-contain"
-                                                    onError={(e) => {
-                                                        e.currentTarget.style.display = 'none';
-                                                        const icon = e.currentTarget.nextElementSibling;
-                                                        if (icon) icon.classList.remove('hidden');
-                                                    }}
-                                                />
-                                                <Dumbbell size={24} className="text-zinc-300 dark:text-zinc-800 hidden" />
-                                            </>
-                                        ) : (
-                                            <Dumbbell size={24} className="text-zinc-300 dark:text-zinc-800" />
-                                        )}
-                                        {(exercise.imageUrl || exercise.videoUrl) && (
-                                            <div className="absolute right-1 bottom-1 w-5 h-5 bg-lime-400 text-zinc-950 rounded-full flex items-center justify-center shadow-md">
-                                                <PlayCircle size={12} className="fill-current text-zinc-950" />
-                                            </div>
-                                        )}
-                                    </div>
-
-                                    <div className="flex-1 min-w-0">
-                                        <span className="text-[10px] font-black uppercase text-lime-600 dark:text-lime-400 tracking-widest mb-0.5 block">
-                                            {tc(exercise.category)}
-                                        </span>
-                                        <h3 className="font-black text-base truncate">
-                                            {getExerciseLocalized(exercise, locale).name || (te.has(exercise.name) ? te(exercise.name) : exercise.name)}
-                                        </h3>
-                                        <p className="text-xs text-zinc-500 dark:text-zinc-400 line-clamp-1">
-                                            {getExerciseLocalized(exercise, locale).description || (te.has(exercise.description as string) ? te(exercise.description as string) : exercise.description)}
-                                        </p>
-                                    </div>
-                                </div>
-
-                                <div className="flex gap-2 mt-5">
-                                    <Link
-                                        href={`/exercises/${exercise.id}`}
-                                        className="flex-1 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-900 dark:text-white py-3 rounded-2xl text-[11px] font-black uppercase tracking-wider flex items-center justify-center gap-2 transition-colors"
-                                    >
-                                        <Eye size={14} />
-                                        {t('viewDetails')}
-                                    </Link>
-
-                                    {(exercise.created_by_type !== 'system' && (exercise.id ? exercise.id >= 1000 : false) && !!activeUser?.id && exercise.created_by === activeUser.id) && (
-                                        <Link
-                                            href={`/exercises/${exercise.id}/edit`}
-                                            className="bg-lime-400 hover:bg-lime-500 text-zinc-950 px-4 py-3 rounded-2xl transition-colors flex items-center justify-center"
-                                            title={t('edit')}
-                                        >
-                                            <Edit size={16} />
-                                        </Link>
-                                    )}
-                                </div>
-                            </div>
+                                exercise={exercise}
+                                activeUserId={activeUser?.id}
+                            />
                         ))
                     ) : (
                         <div className="flex flex-col items-center justify-center py-20 text-zinc-400">

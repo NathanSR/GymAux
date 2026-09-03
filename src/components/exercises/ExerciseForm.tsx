@@ -1,38 +1,32 @@
 "use client";
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import {
     Save,
     Dumbbell,
     Video,
     Tag as TagIcon,
-    AlertCircle,
     Type,
     AlignLeft,
     ListOrdered,
-    UploadCloud,
     Trash2,
     Check,
-    ChevronDown,
-    Search,
     User as UserIcon,
     Layers,
     Image as ImageIcon,
     Plus,
-    Link as LinkIcon
+    Globe,
+    Sparkles
 } from 'lucide-react';
 import { useTranslations, useLocale } from 'next-intl';
-import { CATEGORIES, EQUIPMENT } from '@/config/constants';
 import { DEFAULT_EXERCISES } from '@/config/seeds';
 import { createClient } from '@/lib/supabase/client';
 import { toast } from '@/utils/toast';
 import { User, GalleryItem, Exercise, ExerciseTranslations, ExerciseCategory, ExerciseEquipment } from '@/config/types';
-import { motion, AnimatePresence } from 'framer-motion';
 import { useSession } from '@/hooks/useSession';
 import { connectionService } from '@/services/connectionService';
 import { taxonomyService } from '@/services/taxonomyService';
-import { Globe } from 'lucide-react';
 import { getExerciseLocalized } from '@/utils/exerciseLocalization';
 
 const SUPPORTED_LOCALES = [
@@ -51,13 +45,13 @@ interface ExerciseFormProps {
         description?: string;
         howTo?: string;
         imageUrl?: string;
-        mediaUrl?: string; // Legacy fallback
+        mediaUrl?: string;
         videoUrl?: string;
         tags?: string[] | string;
         level?: 'beginner' | 'intermediate' | 'advanced';
         isPublic?: boolean;
         equipment?: any;
-        executionMode?: 'unilateral' | 'bilateral';
+        executionMode?: 'unilateral' | 'bilateral' | 'alternating';
         mechanics?: 'compound' | 'isolation';
         parentId?: number | null;
         created_by?: string;
@@ -75,9 +69,9 @@ interface ExerciseFormProps {
     existingExercises?: Exercise[];
 }
 
-export default function ExerciseForm({ 
-    initialData, 
-    onSubmit, 
+export default function ExerciseForm({
+    initialData,
+    onSubmit,
     isLoading = false,
     showAdminFields = false,
     users = [],
@@ -87,20 +81,18 @@ export default function ExerciseForm({
     const t = useTranslations('ExerciseForm');
     const tc = useTranslations('Categories');
     const teq = useTranslations('Equipment');
-    const tw = useTranslations('WorkoutForm');
 
-    // Mídia principal (Imagem & Vídeo)
+    // Mídia principal
     const initialImg = initialData?.imageUrl || initialData?.mediaUrl || '';
     const initialVid = initialData?.videoUrl || '';
-    
-    const [mediaType, setMediaType] = useState<'upload' | 'url'>(
+
+    const [mediaType] = useState<'upload' | 'url'>(
         initialImg && !initialImg.includes('supabase.co/storage') ? 'url' : 'upload'
     );
-    const [selectedFile, setSelectedFile] = useState<File | null>(null);
-    const [previewUrl, setPreviewUrl] = useState<string | null>(initialImg || null);
+    const [selectedFile] = useState<File | null>(null);
     const [isUploading, setIsUploading] = useState(false);
 
-    // Estados de Tradução Multilíngue
+    // Idioma ativo nas abas de tradução
     const [activeLang, setActiveLang] = useState<LocaleCode>('pt');
 
     const parseInitialTags = (tagsVal: any): string => {
@@ -134,7 +126,6 @@ export default function ExerciseForm({
         }
     });
 
-    // Atualiza estado de traduções quando initialData carrega
     useEffect(() => {
         if (initialData) {
             setTranslationsState({
@@ -174,7 +165,7 @@ export default function ExerciseForm({
         }
     };
 
-    // Novos Estados: SecondaryMuscles & Gallery
+    // Músculos Secundários & Galeria
     const [selectedSecondaryMuscles, setSelectedSecondaryMuscles] = useState<string[]>(
         initialData?.secondaryMuscles || []
     );
@@ -183,7 +174,7 @@ export default function ExerciseForm({
     const [newGalleryType, setNewGalleryType] = useState<'image' | 'video'>('image');
     const [newGalleryTitle, setNewGalleryTitle] = useState('');
 
-    // Estado Exercício Pai
+    // Exercício Pai
     const [parentId, setParentId] = useState<number | null>(
         initialData?.parentId !== undefined ? initialData.parentId : null
     );
@@ -195,17 +186,15 @@ export default function ExerciseForm({
     const [selectedUser, setSelectedUser] = useState<User | null>(
         initialData?.created_by ? (users.find(u => u.id === initialData.created_by) || null) : null
     );
-    const [userSelectOpen, setUserSelectOpen] = useState(false);
-    const [userSearch, setUserSearch] = useState('');
 
     const { activeUser } = useSession();
-    const [connections, setConnections] = useState<{ id: string; name: string; avatar: string | null; type: 'student' | 'trainer' }[]>([]);
-    const [loadingConnections, setLoadingConnections] = useState(false);
+    const [, setConnections] = useState<{ id: string; name: string; avatar: string | null; type: 'student' | 'trainer' }[]>([]);
+    const [, setLoadingConnections] = useState(false);
 
     const [visibility, setVisibility] = useState<'public' | 'private' | 'students' | 'restricted'>(
         initialData?.visibility || (initialData?.isPublic ? 'public' : 'private')
     );
-    const [sharedWith, setSharedWith] = useState<string[]>(initialData?.shared_with || []);
+    const [sharedWith] = useState<string[]>(initialData?.shared_with || []);
 
     useEffect(() => {
         async function fetchConnections() {
@@ -229,7 +218,6 @@ export default function ExerciseForm({
         handleSubmit,
         setValue,
         watch,
-        formState: { errors }
     } = useForm({
         defaultValues: {
             name: initialData?.translations?.pt?.name || initialData?.name || '',
@@ -272,7 +260,6 @@ export default function ExerciseForm({
         return () => { isMounted = false; };
     }, [activeLocale]);
 
-    // Toggle de músculo secundário
     const toggleSecondaryMuscle = (muscleKey: string) => {
         if (muscleKey === selectedCategory) return;
         if (selectedSecondaryMuscles.includes(muscleKey as any)) {
@@ -282,10 +269,9 @@ export default function ExerciseForm({
         }
     };
 
-    // Adiciona item na Galeria
     const handleAddGalleryItem = () => {
         if (!newGalleryUrl.trim()) {
-            toast.error('Informe a URL do item da galeria.');
+            toast.error(t('galleryUrlRequired'));
             return;
         }
         const item: GalleryItem = {
@@ -298,14 +284,13 @@ export default function ExerciseForm({
         setNewGalleryTitle('');
     };
 
-    // Remove item da Galeria
     const handleRemoveGalleryItem = (index: number) => {
         setGallery(gallery.filter((_, i) => i !== index));
     };
 
     const handleFormSubmit = async (data: any) => {
         if (showAdminFields && createdByOption === 'user' && !selectedUser) {
-            toast.error('Por favor, selecione um aluno para vincular este exercício.');
+            toast.error(t('selectUserRequired'));
             return;
         }
 
@@ -316,7 +301,7 @@ export default function ExerciseForm({
         const baseName = ptName || enName || esName || data.name?.trim();
 
         if (!baseName || baseName.length < 2) {
-            toast.error('O nome do exercício precisa ter no mínimo 2 caracteres.');
+            toast.error(t('nameMinLength'));
             return;
         }
 
@@ -349,7 +334,6 @@ export default function ExerciseForm({
         try {
             if (mediaType === 'upload' && selectedFile) {
                 if (typeof window !== 'undefined' && !navigator.onLine) {
-                    // Modo offline: usa URL local do Blob para visualização imediata
                     finalImageUrl = URL.createObjectURL(selectedFile);
                 } else {
                     const supabase = createClient();
@@ -397,29 +381,37 @@ export default function ExerciseForm({
             });
         } catch (err: any) {
             console.error('[ExerciseForm] Submission error:', err);
-            toast.error('Erro ao salvar o exercício. Tente novamente.');
+            toast.error(t('saveError'));
         } finally {
             setIsUploading(false);
         }
     };
 
+    const inputClass = "w-full h-12 bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl px-4 text-sm text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-lime-400 focus:border-transparent transition-all shadow-xs";
+    const selectClass = "w-full h-12 bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl px-4 text-sm text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-lime-400 focus:border-transparent transition-all shadow-xs cursor-pointer";
+    const textareaClass = "w-full bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-3.5 text-sm text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-lime-400 focus:border-transparent transition-all resize-none shadow-xs";
+
     return (
         <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6">
-            {/* --- SEÇÃO MULTILÍNGUE (Nome, Descrição, Instruções e Tags por Idioma) --- */}
-            <div className="bg-zinc-900/50 border border-zinc-800/80 rounded-3xl p-5 space-y-5 shadow-lg">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-zinc-800/80 pb-4">
-                    <div className="flex items-center gap-2.5">
-                        <div className="w-8 h-8 rounded-xl bg-lime-400/10 border border-lime-400/20 flex items-center justify-center text-lime-400">
+            {/* 1. SEÇÃO MULTILÍNGUE (Nome, Descrição, Instruções e Tags por Idioma) */}
+            <div className="bg-white dark:bg-zinc-900/60 border border-zinc-200/80 dark:border-zinc-800/80 rounded-3xl p-4 sm:p-6 space-y-5 shadow-xs">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-zinc-200/60 dark:border-zinc-800/80 pb-4">
+                    <div className="flex items-center gap-2.5 min-w-0">
+                        <div className="w-8 h-8 rounded-xl bg-lime-400/20 text-lime-600 dark:text-lime-400 flex items-center justify-center shrink-0">
                             <Globe size={18} />
                         </div>
-                        <div>
-                            <h3 className="text-sm font-black uppercase tracking-wider text-white">Conteúdo do Exercício</h3>
-                            <p className="text-[11px] font-semibold text-zinc-400">Cadastre e traduza as informações em múltiplos idiomas</p>
+                        <div className="min-w-0">
+                            <h3 className="text-xs sm:text-sm font-black uppercase tracking-widest text-zinc-900 dark:text-zinc-100 truncate">
+                                {t('contentTitle')}
+                            </h3>
+                            <p className="text-[11px] text-zinc-500 dark:text-zinc-400 font-medium truncate mt-0.5">
+                                {t('contentSubtitle')}
+                            </p>
                         </div>
                     </div>
 
                     {/* Tabs de Seleção de Idioma */}
-                    <div className="flex items-center gap-1.5 p-1 bg-zinc-950 rounded-2xl border border-zinc-800/80">
+                    <div className="flex items-center gap-1 p-1 bg-zinc-100 dark:bg-zinc-950 rounded-2xl border border-zinc-200/80 dark:border-zinc-800/80 shrink-0">
                         {SUPPORTED_LOCALES.map((loc) => {
                             const isCurrent = activeLang === loc.code;
                             const hasContent = Boolean(translationsState[loc.code]?.name?.trim());
@@ -428,16 +420,16 @@ export default function ExerciseForm({
                                     type="button"
                                     key={loc.code}
                                     onClick={() => setActiveLang(loc.code)}
-                                    className={`px-3.5 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer ${
+                                    className={`px-3 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer ${
                                         isCurrent
-                                            ? 'bg-lime-400 text-zinc-950 shadow-md shadow-lime-400/10 scale-[1.02]'
-                                            : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900'
+                                            ? 'bg-lime-400 text-zinc-950 shadow-sm shadow-lime-400/20 scale-[1.02]'
+                                            : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200'
                                     }`}
                                 >
                                     <span className="text-sm leading-none">{loc.flag}</span>
                                     <span>{loc.label}</span>
                                     {hasContent && (
-                                        <span className={`w-1.5 h-1.5 rounded-full ${isCurrent ? 'bg-zinc-950' : 'bg-lime-400'}`} />
+                                        <span className={`w-1.5 h-1.5 rounded-full ${isCurrent ? 'bg-zinc-950' : 'bg-lime-500'}`} />
                                     )}
                                 </button>
                             );
@@ -447,15 +439,19 @@ export default function ExerciseForm({
 
                 {/* Campos do Idioma Ativo */}
                 <div className="space-y-4 pt-1">
-                    {/* Nome do Exercício no Idioma */}
+                    {/* Nome do Exercício */}
                     <div className="space-y-2">
-                        <label className="text-xs font-bold text-zinc-300 uppercase tracking-wider flex items-center justify-between">
+                        <label className="text-xs font-black uppercase tracking-wider text-zinc-700 dark:text-zinc-300 flex items-center justify-between">
                             <span className="flex items-center gap-2">
-                                <Type size={14} className="text-lime-400" />
-                                Nome do Exercício ({SUPPORTED_LOCALES.find(l => l.code === activeLang)?.label})
-                                {activeLang === 'pt' && <span className="text-lime-400 text-[10px] lowercase font-semibold">(obrigatório)</span>}
+                                <Type size={14} className="text-lime-500" />
+                                {t('nameLanguageLabel', { lang: SUPPORTED_LOCALES.find(l => l.code === activeLang)?.label || '' })}
+                                {activeLang === 'pt' && (
+                                    <span className="text-lime-600 dark:text-lime-400 text-[10px] lowercase font-semibold">
+                                        {t('required')}
+                                    </span>
+                                )}
                             </span>
-                            <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">
+                            <span className="text-[10px] text-zinc-400 dark:text-zinc-500 font-bold uppercase tracking-widest">
                                 {activeLang.toUpperCase()}
                             </span>
                         </label>
@@ -463,353 +459,376 @@ export default function ExerciseForm({
                             type="text"
                             value={translationsState[activeLang].name}
                             onChange={(e) => handleTranslationChange('name', e.target.value)}
-                            placeholder={`Ex: ${activeLang === 'pt' ? 'Supino Reto com Barra' : activeLang === 'en' ? 'Barbell Bench Press' : 'Press de Banca con Barra'}`}
-                            className="w-full bg-zinc-950 border border-zinc-800 rounded-2xl px-4 py-3.5 text-sm text-white placeholder-zinc-600 focus:outline-none focus:border-lime-400 transition-colors shadow-inner"
+                            placeholder={activeLang === 'pt' ? 'Ex: Supino Reto com Barra' : activeLang === 'en' ? 'Ex: Barbell Bench Press' : 'Ej: Press de Banca con Barra'}
+                            className={inputClass}
                         />
                     </div>
 
-                    {/* Descrição no Idioma */}
+                    {/* Descrição */}
                     <div className="space-y-2">
-                        <label className="text-xs font-bold text-zinc-300 uppercase tracking-wider flex items-center gap-2">
-                            <AlignLeft size={14} className="text-lime-400" />
-                            Descrição ({SUPPORTED_LOCALES.find(l => l.code === activeLang)?.label})
+                        <label className="text-xs font-black uppercase tracking-wider text-zinc-700 dark:text-zinc-300 flex items-center gap-2">
+                            <AlignLeft size={14} className="text-lime-500" />
+                            {t('descriptionLanguageLabel', { lang: SUPPORTED_LOCALES.find(l => l.code === activeLang)?.label || '' })}
                         </label>
                         <textarea
                             value={translationsState[activeLang].description}
                             onChange={(e) => handleTranslationChange('description', e.target.value)}
                             rows={2}
-                            placeholder={`Resumo ou benefícios do exercício em ${SUPPORTED_LOCALES.find(l => l.code === activeLang)?.label}...`}
-                            className="w-full bg-zinc-950 border border-zinc-800 rounded-2xl px-4 py-3 text-sm text-white placeholder-zinc-600 focus:outline-none focus:border-lime-400 transition-colors resize-none shadow-inner"
+                            placeholder={t('descriptionLanguagePlaceholder', { lang: SUPPORTED_LOCALES.find(l => l.code === activeLang)?.label || '' })}
+                            className={textareaClass}
                         />
                     </div>
 
-                    {/* Instruções de Execução no Idioma */}
+                    {/* Instruções de Execução */}
                     <div className="space-y-2">
-                        <label className="text-xs font-bold text-zinc-300 uppercase tracking-wider flex items-center gap-2">
-                            <ListOrdered size={14} className="text-lime-400" />
-                            Instruções / Modo de Fazer ({SUPPORTED_LOCALES.find(l => l.code === activeLang)?.label})
+                        <label className="text-xs font-black uppercase tracking-wider text-zinc-700 dark:text-zinc-300 flex items-center gap-2">
+                            <ListOrdered size={14} className="text-lime-500" />
+                            {t('howToLanguageLabel', { lang: SUPPORTED_LOCALES.find(l => l.code === activeLang)?.label || '' })}
                         </label>
                         <textarea
                             value={translationsState[activeLang].howTo}
                             onChange={(e) => handleTranslationChange('howTo', e.target.value)}
                             rows={3}
-                            placeholder={"1. Passo um...\n2. Passo dois...\n3. Passo três..."}
-                            className="w-full bg-zinc-950 border border-zinc-800 rounded-2xl px-4 py-3 text-sm text-white placeholder-zinc-600 focus:outline-none focus:border-lime-400 transition-colors resize-none shadow-inner font-mono text-xs"
+                            placeholder={t('howToLanguagePlaceholder')}
+                            className={`${textareaClass} font-mono text-xs`}
                         />
                     </div>
 
-                    {/* Tags no Idioma */}
+                    {/* Tags */}
                     <div className="space-y-2">
-                        <label className="text-xs font-bold text-zinc-300 uppercase tracking-wider flex items-center gap-2">
-                            <TagIcon size={14} className="text-lime-400" />
-                            Tags ({SUPPORTED_LOCALES.find(l => l.code === activeLang)?.label} - separadas por vírgula)
+                        <label className="text-xs font-black uppercase tracking-wider text-zinc-700 dark:text-zinc-300 flex items-center gap-2">
+                            <TagIcon size={14} className="text-lime-500" />
+                            {t('tagsLanguageLabel', { lang: SUPPORTED_LOCALES.find(l => l.code === activeLang)?.label || '' })}
                         </label>
                         <input
                             type="text"
                             value={translationsState[activeLang].tags}
                             onChange={(e) => handleTranslationChange('tags', e.target.value)}
-                            placeholder="peito, supino, composto, hipertrofia"
-                            className="w-full bg-zinc-950 border border-zinc-800 rounded-2xl px-4 py-3 text-sm text-white placeholder-zinc-600 focus:outline-none focus:border-lime-400 transition-colors shadow-inner"
+                            placeholder={t('tagsLanguagePlaceholder')}
+                            className={inputClass}
                         />
                     </div>
                 </div>
             </div>
 
-            {/* Categoria Principal & Exercício Pai */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                    <label className="text-sm font-semibold text-zinc-300 flex items-center gap-2">
-                        <Dumbbell size={16} className="text-lime-400" />
-                        {t('category')}
+            {/* 2. SEÇÃO DE CLASSIFICAÇÃO & BIOMECÂNICA */}
+            <div className="bg-white dark:bg-zinc-900/60 border border-zinc-200/80 dark:border-zinc-800/80 rounded-3xl p-4 sm:p-6 space-y-4 shadow-xs">
+                <div className="flex items-center gap-2 mb-1 px-0.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-lime-500" />
+                    <h3 className="text-xs sm:text-sm font-black uppercase tracking-widest text-zinc-900 dark:text-zinc-100">
+                        {t('classificationTitle')}
+                    </h3>
+                </div>
+
+                {/* Categoria Principal & Exercício Pai */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                        <label className="text-xs font-black uppercase tracking-wider text-zinc-700 dark:text-zinc-300 flex items-center gap-2">
+                            <Dumbbell size={14} className="text-lime-500" />
+                            {t('mainCategory')}
+                        </label>
+                        <select
+                            {...register('category')}
+                            className={selectClass}
+                        >
+                            {categoriesList.map(cat => (
+                                <option key={cat.slug} value={cat.slug}>
+                                    {taxonomyService.getCategoryLocalizedName(cat, activeLocale) || (tc.has(cat.slug) ? tc(cat.slug) : cat.name)}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+
+                    <div className="space-y-2">
+                        <label className="text-xs font-black uppercase tracking-wider text-zinc-700 dark:text-zinc-300 flex items-center gap-2">
+                            <Layers size={14} className="text-lime-500" />
+                            {t('parentExercise')}
+                        </label>
+                        <select
+                            value={parentId !== null ? parentId : ''}
+                            onChange={(e) => setParentId(e.target.value ? Number(e.target.value) : null)}
+                            className={selectClass}
+                        >
+                            <option value="">{t('parentNone')}</option>
+                            {existingExercises.map(ex => (
+                                <option key={ex.id} value={ex.id}>
+                                    {getExerciseLocalized(ex, activeLocale).name || ex.name} ({ex.category})
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+                </div>
+
+                {/* Músculos Secundários / Sinergistas */}
+                <div className="space-y-2 pt-2">
+                    <label className="text-xs font-black uppercase tracking-wider text-zinc-700 dark:text-zinc-300 flex items-center gap-2">
+                        <Dumbbell size={14} className="text-lime-500" />
+                        {t('secondaryMuscles')}
                     </label>
-                    <select
-                        {...register('category')}
-                        className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-lime-500 transition-colors capitalize"
-                    >
-                        {categoriesList.map(cat => (
-                            <option key={cat.slug} value={cat.slug}>
-                                {taxonomyService.getCategoryLocalizedName(cat, activeLocale) || (tc.has(cat.slug) ? tc(cat.slug) : cat.name)}
-                            </option>
-                        ))}
-                    </select>
-                </div>
+                    <div className="flex flex-wrap gap-2 p-3 bg-zinc-100/80 dark:bg-zinc-950/60 border border-zinc-200 dark:border-zinc-800 rounded-2xl max-h-36 overflow-y-auto">
+                        {categoriesList.map(cat => {
+                            const isMainCategory = cat.slug === selectedCategory;
+                            const isSelected = selectedSecondaryMuscles.includes(cat.slug as any);
 
-                <div className="space-y-2">
-                    <label className="text-sm font-semibold text-zinc-300 flex items-center gap-2">
-                        <Layers size={16} className="text-lime-400" />
-                        {tw.has('parentIdLabel') ? tw('parentIdLabel') : 'Exercício Pai (Variante)'}
-                    </label>
-                    <select
-                        value={parentId !== null ? parentId : ''}
-                        onChange={(e) => setParentId(e.target.value ? Number(e.target.value) : null)}
-                        className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-lime-500 transition-colors"
-                    >
-                        <option value="">{tw.has('parentIdNone') ? tw('parentIdNone') : 'Exercício Principal (Sem Pai)'}</option>
-                        {existingExercises.map(ex => (
-                            <option key={ex.id} value={ex.id}>
-                                {getExerciseLocalized(ex, activeLocale).name || ex.name} ({ex.category})
-                            </option>
-                        ))}
-                    </select>
-                </div>
-            </div>
+                            if (isMainCategory) return null;
 
-            {/* Músculos Secundários / Sinergistas (Multiselect Chips) */}
-            <div className="space-y-2">
-                <label className="text-sm font-semibold text-zinc-300 flex items-center gap-2">
-                    <Dumbbell size={16} className="text-lime-400" />
-                    {tw.has('secondaryMusclesLabel') ? tw('secondaryMusclesLabel') : 'Músculos Secundários / Sinergistas'}
-                </label>
-                <div className="flex flex-wrap gap-2 p-3 bg-zinc-900/60 border border-zinc-800 rounded-xl max-h-36 overflow-y-auto">
-                    {categoriesList.map(cat => {
-                        const isMainCategory = cat.slug === selectedCategory;
-                        const isSelected = selectedSecondaryMuscles.includes(cat.slug as any);
-
-                        if (isMainCategory) return null;
-
-                        return (
-                            <button
-                                type="button"
-                                key={cat.slug}
-                                onClick={() => toggleSecondaryMuscle(cat.slug)}
-                                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all border flex items-center gap-1.5 ${
-                                    isSelected
-                                        ? 'bg-lime-500/20 text-lime-400 border-lime-500/40'
-                                        : 'bg-zinc-800/50 text-zinc-400 border-zinc-700/50 hover:bg-zinc-800 hover:text-white'
-                                }`}
-                            >
-                                {isSelected && <Check size={12} />}
-                                {taxonomyService.getCategoryLocalizedName(cat, activeLocale) || (tc.has(cat.slug) ? tc(cat.slug) : cat.name)}
-                            </button>
-                        );
-                    })}
-                </div>
-            </div>
-
-            {/* Equipamento, Modo e Mecânica */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="space-y-2">
-                    <label className="text-sm font-semibold text-zinc-300 flex items-center gap-2">
-                        <Dumbbell size={16} className="text-lime-400" />
-                        {tw.has('equipmentLabel') ? tw('equipmentLabel') : 'Equipamento'}
-                    </label>
-                    <select
-                        {...register('equipment')}
-                        className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-lime-500 transition-colors capitalize"
-                    >
-                        {equipmentList.map(eq => (
-                            <option key={eq.slug} value={eq.slug}>
-                                {taxonomyService.getEquipmentLocalizedName(eq, activeLocale) || (teq.has(eq.slug) ? teq(eq.slug) : eq.name)}
-                            </option>
-                        ))}
-                    </select>
-                </div>
-
-                <div className="space-y-2">
-                    <label className="text-sm font-semibold text-zinc-300 flex items-center gap-2">
-                        <AlignLeft size={16} className="text-lime-400" />
-                        {tw.has('executionModeLabel') ? tw('executionModeLabel') : 'Modo de Execução'}
-                    </label>
-                    <select
-                        {...register('executionMode')}
-                        className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-lime-500 transition-colors"
-                    >
-                        <option value="bilateral">Bilateral</option>
-                        <option value="unilateral">Unilateral</option>
-                        <option value="alternating">Alternado</option>
-                    </select>
-                </div>
-
-                <div className="space-y-2">
-                    <label className="text-sm font-semibold text-zinc-300 flex items-center gap-2">
-                        <Layers size={16} className="text-lime-400" />
-                        {tw.has('mechanicsLabel') ? tw('mechanicsLabel') : 'Mecânica'}
-                    </label>
-                    <select
-                        {...register('mechanics')}
-                        className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-lime-500 transition-colors"
-                    >
-                        <option value="compound">Multiarticular (Composto)</option>
-                        <option value="isolation">Monoarticular (Isolado)</option>
-                    </select>
-                </div>
-            </div>
-
-            {/* Mídia Principal: Imagem & Vídeo URLs */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                    <label className="text-sm font-semibold text-zinc-300 flex items-center gap-2">
-                        <ImageIcon size={16} className="text-lime-400" />
-                        {tw.has('imageUrlLabel') ? tw('imageUrlLabel') : 'URL da Imagem'}
-                    </label>
-                    <input
-                        {...register('imageUrl')}
-                        placeholder="https://.../imagem.jpg"
-                        className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-white placeholder-zinc-500 focus:outline-none focus:border-lime-500 transition-colors"
-                    />
-                </div>
-
-                <div className="space-y-2">
-                    <label className="text-sm font-semibold text-zinc-300 flex items-center gap-2">
-                        <Video size={16} className="text-lime-400" />
-                        {tw.has('videoUrlLabel') ? tw('videoUrlLabel') : 'URL do Vídeo'}
-                    </label>
-                    <input
-                        {...register('videoUrl')}
-                        placeholder="https://youtube.com/... ou .mp4"
-                        className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-white placeholder-zinc-500 focus:outline-none focus:border-lime-500 transition-colors"
-                    />
-                </div>
-            </div>
-
-            {/* Galeria de Mídia Builder */}
-            <div className="space-y-3 bg-zinc-900/40 p-4 border border-zinc-800/80 rounded-xl">
-                <label className="text-sm font-semibold text-zinc-300 flex items-center gap-2">
-                    <ImageIcon size={16} className="text-lime-400" />
-                    {tw.has('galleryLabel') ? tw('galleryLabel') : 'Galeria de Mídia (Imagens/Vídeos)'}
-                </label>
-
-                <div className="flex flex-col md:flex-row gap-2">
-                    <input
-                        type="text"
-                        value={newGalleryUrl}
-                        onChange={(e) => setNewGalleryUrl(e.target.value)}
-                        placeholder="https://.../midia.png"
-                        className="flex-1 bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-lime-500"
-                    />
-                    <select
-                        value={newGalleryType}
-                        onChange={(e) => setNewGalleryType(e.target.value as any)}
-                        className="bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-xs text-white"
-                    >
-                        <option value="image">Imagem</option>
-                        <option value="video">Vídeo</option>
-                    </select>
-                    <button
-                        type="button"
-                        onClick={handleAddGalleryItem}
-                        className="bg-lime-500 hover:bg-lime-600 text-zinc-950 px-4 py-2 rounded-lg text-xs font-semibold flex items-center justify-center gap-1 transition-colors cursor-pointer"
-                    >
-                        <Plus size={14} /> Adicionar
-                    </button>
-                </div>
-
-                {/* Render da Lista da Galeria */}
-                {gallery.length > 0 && (
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-2">
-                        {gallery.map((item, idx) => (
-                            <div key={idx} className="relative group bg-zinc-950 border border-zinc-800 rounded-lg p-2 flex flex-col items-center justify-between text-xs">
-                                <div className="flex items-center gap-1.5 text-zinc-300 truncate w-full">
-                                    {item.type === 'image' ? <ImageIcon size={12} className="text-lime-400" /> : <Video size={12} className="text-blue-400" />}
-                                    <span className="truncate">{item.title || item.url}</span>
-                                </div>
+                            return (
                                 <button
                                     type="button"
-                                    onClick={() => handleRemoveGalleryItem(idx)}
-                                    className="absolute top-1 right-1 p-1 bg-red-500/20 text-red-400 hover:bg-red-500 hover:text-white rounded transition-colors cursor-pointer"
+                                    key={cat.slug}
+                                    onClick={() => toggleSecondaryMuscle(cat.slug)}
+                                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all border flex items-center gap-1.5 active:scale-95 cursor-pointer ${
+                                        isSelected
+                                            ? 'bg-lime-500/20 text-lime-600 dark:text-lime-400 border-lime-500/40 shadow-xs'
+                                            : 'bg-white dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400 border-zinc-200 dark:border-zinc-800 hover:text-zinc-900 dark:hover:text-white'
+                                    }`}
                                 >
-                                    <Trash2 size={12} />
+                                    {isSelected && <Check size={12} />}
+                                    {taxonomyService.getCategoryLocalizedName(cat, activeLocale) || (tc.has(cat.slug) ? tc(cat.slug) : cat.name)}
                                 </button>
-                            </div>
-                        ))}
-                    </div>
-                )}
-            </div>
-
-            {/* Nível de Dificuldade */}
-            <div className="space-y-2">
-                <label className="text-sm font-semibold text-zinc-300 flex items-center gap-2">
-                    <Layers size={16} className="text-lime-400" />
-                    {tw.has('levelLabel') ? tw('levelLabel') : 'Nível de Dificuldade'}
-                </label>
-                <select
-                    {...register('level')}
-                    className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-lime-500 transition-colors"
-                >
-                    <option value="beginner">Iniciante</option>
-                    <option value="intermediate">Intermediário</option>
-                    <option value="advanced">Avançado</option>
-                </select>
-            </div>
-
-            {/* Visibilidade & Associação de Usuário (Apenas Admin/Moderador ou Usuário com Alunos) */}
-            <div className="space-y-4 pt-2 border-t border-zinc-800/80">
-                <div className="space-y-2">
-                    <label className="text-xs font-bold text-zinc-300 uppercase tracking-wider flex items-center gap-2">
-                        <Layers size={14} className="text-lime-400" />
-                        Visibilidade do Exercício
-                    </label>
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                        {[
-                            { id: 'public', label: 'Público', desc: 'Todos os usuários' },
-                            { id: 'private', label: 'Privado', desc: 'Apenas eu' },
-                            { id: 'students', label: 'Alunos', desc: 'Meus alunos' },
-                            { id: 'restricted', label: 'Restrito', desc: 'Selecionados' }
-                        ].map(opt => (
-                            <button
-                                type="button"
-                                key={opt.id}
-                                onClick={() => setVisibility(opt.id as any)}
-                                className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
-                                    visibility === opt.id
-                                        ? 'bg-lime-500/10 border-lime-400 text-white shadow-md shadow-lime-400/5'
-                                        : 'bg-zinc-950 border-zinc-800 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900'
-                                }`}
-                            >
-                                <p className="text-xs font-black uppercase tracking-wider">{opt.label}</p>
-                                <p className="text-[10px] text-zinc-500 font-medium">{opt.desc}</p>
-                            </button>
-                        ))}
+                            );
+                        })}
                     </div>
                 </div>
 
-                {/* Se for Admin e tiver showAdminFields */}
-                {showAdminFields && (
-                    <div className="space-y-3 bg-zinc-900/40 p-4 border border-zinc-800/80 rounded-2xl">
-                        <label className="text-xs font-bold text-zinc-300 uppercase tracking-wider flex items-center gap-2">
-                            <UserIcon size={14} className="text-lime-400" />
-                            Propriedade do Exercício (Admin)
+                {/* Equipamento, Modo e Mecânica */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
+                    <div className="space-y-2">
+                        <label className="text-xs font-black uppercase tracking-wider text-zinc-700 dark:text-zinc-300 flex items-center gap-2">
+                            <Dumbbell size={14} className="text-lime-500" />
+                            {t('equipment')}
                         </label>
-                        <div className="flex gap-2">
+                        <select
+                            {...register('equipment')}
+                            className={selectClass}
+                        >
+                            {equipmentList.map(eq => (
+                                <option key={eq.slug} value={eq.slug}>
+                                    {taxonomyService.getEquipmentLocalizedName(eq, activeLocale) || (teq.has(eq.slug) ? teq(eq.slug) : eq.name)}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+
+                    <div className="space-y-2">
+                        <label className="text-xs font-black uppercase tracking-wider text-zinc-700 dark:text-zinc-300 flex items-center gap-2">
+                            <AlignLeft size={14} className="text-lime-500" />
+                            {t('executionMode')}
+                        </label>
+                        <select
+                            {...register('executionMode')}
+                            className={selectClass}
+                        >
+                            <option value="bilateral">{t('executionModeOptions.bilateral')}</option>
+                            <option value="unilateral">{t('executionModeOptions.unilateral')}</option>
+                            <option value="alternating">{t('executionModeOptions.alternating')}</option>
+                        </select>
+                    </div>
+
+                    <div className="space-y-2">
+                        <label className="text-xs font-black uppercase tracking-wider text-zinc-700 dark:text-zinc-300 flex items-center gap-2">
+                            <Layers size={14} className="text-lime-500" />
+                            {t('mechanics')}
+                        </label>
+                        <select
+                            {...register('mechanics')}
+                            className={selectClass}
+                        >
+                            <option value="compound">{t('mechanicsOptions.compound')}</option>
+                            <option value="isolation">{t('mechanicsOptions.isolation')}</option>
+                        </select>
+                    </div>
+                </div>
+
+                {/* Nível de Dificuldade */}
+                <div className="space-y-2 pt-2">
+                    <label className="text-xs font-black uppercase tracking-wider text-zinc-700 dark:text-zinc-300 flex items-center gap-2">
+                        <Sparkles size={14} className="text-lime-500" />
+                        {t('difficultyLevel')}
+                    </label>
+                    <select
+                        {...register('level')}
+                        className={selectClass}
+                    >
+                        <option value="beginner">{t('levels.beginner')}</option>
+                        <option value="intermediate">{t('levels.intermediate')}</option>
+                        <option value="advanced">{t('levels.advanced')}</option>
+                    </select>
+                </div>
+            </div>
+
+            {/* 3. SEÇÃO DE MÍDIA DEMONSTRATIVA */}
+            <div className="bg-white dark:bg-zinc-900/60 border border-zinc-200/80 dark:border-zinc-800/80 rounded-3xl p-4 sm:p-6 space-y-4 shadow-xs">
+                <div className="flex items-center gap-2 mb-1 px-0.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-lime-500" />
+                    <h3 className="text-xs sm:text-sm font-black uppercase tracking-widest text-zinc-900 dark:text-zinc-100">
+                        {t('mediaTitle')}
+                    </h3>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                        <label className="text-xs font-black uppercase tracking-wider text-zinc-700 dark:text-zinc-300 flex items-center gap-2">
+                            <ImageIcon size={14} className="text-lime-500" />
+                            {t('imageUrl')}
+                        </label>
+                        <input
+                            {...register('imageUrl')}
+                            placeholder={t('imageUrlPlaceholder')}
+                            className={inputClass}
+                        />
+                    </div>
+
+                    <div className="space-y-2">
+                        <label className="text-xs font-black uppercase tracking-wider text-zinc-700 dark:text-zinc-300 flex items-center gap-2">
+                            <Video size={14} className="text-lime-500" />
+                            {t('videoUrl')}
+                        </label>
+                        <input
+                            {...register('videoUrl')}
+                            placeholder={t('videoUrlPlaceholder')}
+                            className={inputClass}
+                        />
+                    </div>
+                </div>
+
+                {/* Galeria de Mídia Builder */}
+                <div className="space-y-3 bg-zinc-100/80 dark:bg-zinc-950/60 p-4 border border-zinc-200 dark:border-zinc-800 rounded-2xl mt-2">
+                    <label className="text-xs font-black uppercase tracking-wider text-zinc-700 dark:text-zinc-300 flex items-center gap-2">
+                        <ImageIcon size={14} className="text-lime-500" />
+                        {t('galleryTitle')}
+                    </label>
+
+                    <div className="flex flex-col sm:flex-row gap-2">
+                        <input
+                            type="text"
+                            value={newGalleryUrl}
+                            onChange={(e) => setNewGalleryUrl(e.target.value)}
+                            placeholder={t('galleryUrlPlaceholder')}
+                            className={`${inputClass} flex-1`}
+                        />
+                        <select
+                            value={newGalleryType}
+                            onChange={(e) => setNewGalleryType(e.target.value as any)}
+                            className="h-12 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl px-3 text-xs text-zinc-900 dark:text-white font-bold"
+                        >
+                            <option value="image">{t('galleryImage')}</option>
+                            <option value="video">{t('galleryVideo')}</option>
+                        </select>
+                        <button
+                            type="button"
+                            onClick={handleAddGalleryItem}
+                            className="h-12 bg-lime-400 hover:bg-lime-300 text-zinc-950 px-5 rounded-2xl text-xs font-black uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all cursor-pointer shrink-0 active:scale-95 shadow-sm shadow-lime-400/20"
+                        >
+                            <Plus size={15} />
+                            <span>{t('galleryAdd')}</span>
+                        </button>
+                    </div>
+
+                    {/* Itens da Galeria */}
+                    {gallery.length > 0 && (
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2">
+                            {gallery.map((item, idx) => (
+                                <div key={idx} className="relative group bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-2.5 flex items-center justify-between text-xs">
+                                    <div className="flex items-center gap-2 text-zinc-700 dark:text-zinc-300 truncate pr-6">
+                                        {item.type === 'image' ? <ImageIcon size={14} className="text-lime-500 shrink-0" /> : <Video size={14} className="text-blue-500 shrink-0" />}
+                                        <span className="truncate text-[11px] font-medium">{item.title || item.url}</span>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={() => handleRemoveGalleryItem(idx)}
+                                        className="p-1 rounded-lg text-zinc-400 hover:text-red-500 hover:bg-red-500/10 transition-colors cursor-pointer shrink-0"
+                                    >
+                                        <Trash2 size={14} />
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            </div>
+
+            {/* 4. SEÇÃO DE VISIBILIDADE & PROPRIEDADE */}
+            <div className="bg-white dark:bg-zinc-900/60 border border-zinc-200/80 dark:border-zinc-800/80 rounded-3xl p-4 sm:p-6 space-y-4 shadow-xs">
+                <div className="flex items-center gap-2 mb-1 px-0.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-lime-500" />
+                    <h3 className="text-xs sm:text-sm font-black uppercase tracking-widest text-zinc-900 dark:text-zinc-100">
+                        {t('visibilityTitle')}
+                    </h3>
+                </div>
+
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    {[
+                        { id: 'public', label: t('visibility.public'), desc: t('visibility.publicDesc') },
+                        { id: 'private', label: t('visibility.private'), desc: t('visibility.privateDesc') },
+                        { id: 'students', label: t('visibility.students'), desc: t('visibility.studentsDesc') },
+                        { id: 'restricted', label: t('visibility.restricted'), desc: t('visibility.restrictedDesc') }
+                    ].map(opt => (
+                        <button
+                            type="button"
+                            key={opt.id}
+                            onClick={() => setVisibility(opt.id as any)}
+                            className={`p-3 sm:p-3.5 rounded-2xl border text-left transition-all cursor-pointer active:scale-95 ${
+                                visibility === opt.id
+                                    ? 'bg-lime-500/10 border-lime-500/50 text-zinc-950 dark:text-white shadow-sm'
+                                    : 'bg-zinc-50 dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-900'
+                            }`}
+                        >
+                            <p className="text-xs font-black uppercase tracking-wider">{opt.label}</p>
+                            <p className="text-[10px] text-zinc-400 dark:text-zinc-500 font-medium mt-0.5">{opt.desc}</p>
+                        </button>
+                    ))}
+                </div>
+
+                {/* Seção Admin */}
+                {showAdminFields && (
+                    <div className="space-y-3 bg-zinc-100/80 dark:bg-zinc-950/60 p-4 border border-zinc-200 dark:border-zinc-800 rounded-2xl mt-4">
+                        <label className="text-xs font-black uppercase tracking-wider text-zinc-700 dark:text-zinc-300 flex items-center gap-2">
+                            <UserIcon size={14} className="text-lime-500" />
+                            {t('adminOwnershipTitle')}
+                        </label>
+                        <div className="flex flex-col sm:flex-row gap-2">
                             <button
                                 type="button"
                                 onClick={() => {
                                     setCreatedByOption('system');
                                     setSelectedUser(null);
                                 }}
-                                className={`flex-1 py-2.5 px-3 rounded-xl text-xs font-black uppercase tracking-wider border transition-all cursor-pointer ${
+                                className={`flex-1 py-3 px-4 rounded-xl text-xs font-black uppercase tracking-wider border transition-all cursor-pointer ${
                                     createdByOption === 'system'
-                                        ? 'bg-amber-500/10 border-amber-400 text-amber-400 shadow-md'
-                                        : 'bg-zinc-950 border-zinc-800 text-zinc-400 hover:text-zinc-200'
+                                        ? 'bg-amber-500/15 border-amber-400 text-amber-600 dark:text-amber-400 shadow-sm'
+                                        : 'bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400'
                                 }`}
                             >
-                                Exercício do Sistema (Oficial)
+                                {t('systemExercise')}
                             </button>
                             <button
                                 type="button"
                                 onClick={() => setCreatedByOption('user')}
-                                className={`flex-1 py-2.5 px-3 rounded-xl text-xs font-black uppercase tracking-wider border transition-all cursor-pointer ${
+                                className={`flex-1 py-3 px-4 rounded-xl text-xs font-black uppercase tracking-wider border transition-all cursor-pointer ${
                                     createdByOption === 'user'
-                                        ? 'bg-blue-500/10 border-blue-400 text-blue-400 shadow-md'
-                                        : 'bg-zinc-950 border-zinc-800 text-zinc-400 hover:text-zinc-200'
+                                        ? 'bg-blue-500/15 border-blue-400 text-blue-600 dark:text-blue-400 shadow-sm'
+                                        : 'bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400'
                                 }`}
                             >
-                                Vincular a Usuário
+                                {t('userLink')}
                             </button>
                         </div>
 
                         {createdByOption === 'user' && (
                             <div className="space-y-2 pt-2">
-                                <label className="text-xs font-bold text-zinc-400">Selecione o Usuário:</label>
+                                <label className="text-xs font-bold text-zinc-600 dark:text-zinc-400">
+                                    {t('selectUserLabel')}
+                                </label>
                                 <select
                                     value={selectedUser?.id || ''}
                                     onChange={(e) => {
                                         const u = users.find(usr => usr.id === e.target.value);
                                         setSelectedUser(u || null);
                                     }}
-                                    className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-lime-400"
+                                    className={selectClass}
                                 >
-                                    <option value="">Selecione um usuário...</option>
+                                    <option value="">{t('selectUserPlaceholder')}</option>
                                     {users.map(u => (
                                         <option key={u.id} value={u.id}>
                                             {u.name} ({u.email || u.role})
@@ -822,15 +841,15 @@ export default function ExerciseForm({
                 )}
             </div>
 
-            {/* Botão de Envio */}
-            <div className="pt-4">
+            {/* 5. BOTÃO DE ENVIO */}
+            <div className="pt-2">
                 <button
                     type="submit"
                     disabled={isLoading || isUploading}
-                    className="w-full bg-lime-500 hover:bg-lime-600 text-zinc-950 font-bold py-3.5 px-6 rounded-2xl flex items-center justify-center gap-2 transition-all disabled:opacity-50 shadow-lg shadow-lime-500/20 cursor-pointer active:scale-[0.99]"
+                    className="w-full h-12 bg-lime-400 hover:bg-lime-300 text-zinc-950 font-black uppercase text-xs tracking-wider rounded-2xl flex items-center justify-center gap-2 transition-all disabled:opacity-50 shadow-lg shadow-lime-400/20 cursor-pointer active:scale-95"
                 >
                     <Save size={18} />
-                    {isLoading || isUploading ? 'Salvando...' : t('save')}
+                    <span>{isLoading || isUploading ? t('saving') : t('save')}</span>
                 </button>
             </div>
         </form>
