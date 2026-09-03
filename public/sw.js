@@ -5,7 +5,7 @@
  * 100% Offline-First.
  */
 
-const CACHE_VERSION = 'gymaux-v5.3.0';
+const CACHE_VERSION = 'gymaux-v5.4.0';
 const CORE_CACHE = `gymaux-core-${CACHE_VERSION}`;
 const HTML_CACHE = `gymaux-html-${CACHE_VERSION}`;
 const RSC_CACHE = `gymaux-rsc-${CACHE_VERSION}`;
@@ -102,10 +102,12 @@ self.addEventListener('fetch', (event) => {
         return;
     }
 
-    // SEGURANÇA 2: Bypass TOTAL para APIs do Supabase e Auth
-    const isSupabase = url.hostname.includes('supabase.co') || url.hostname.includes('supabase.in');
+    // SEGURANÇA 2: Bypass para APIs do Supabase e Auth
+    // Imagens públicas estáticas do Storage (/storage/v1/object/public/) são permitidas para cache offline
+    const isSupabaseStorage = (url.hostname.includes('supabase.co') || url.hostname.includes('supabase.in')) && url.pathname.includes('/storage/v1/object/public/');
+    const isSupabaseApi = (url.hostname.includes('supabase.co') || url.hostname.includes('supabase.in')) && !isSupabaseStorage;
     const isAuthOrApi = url.pathname.startsWith('/api/') || url.pathname.startsWith('/auth/');
-    if (isSupabase || isAuthOrApi) {
+    if (isSupabaseApi || isAuthOrApi) {
         return;
     }
 
@@ -254,31 +256,11 @@ self.addEventListener('fetch', (event) => {
         return;
     }
 
-                    // Edição de exercício: /exercises/[id]/edit -> shell de edição de exercício
-                    if (url.pathname.includes('/exercises/') && url.pathname.endsWith('/edit')) {
-                        const editHtml = await findCachedByPattern(htmlCache, /\/exercises\/[^/]+\/edit$/);
-                        if (editHtml) return editHtml;
-                    }
-
-                    // Detalhe de exercício: /exercises/[id] -> shell de detalhes
-                    if (url.pathname.includes('/exercises/') && !url.pathname.endsWith('/new')) {
-                        const exHtml = (await findCachedByPattern(htmlCache, /\/exercises\/[^/]+$/)) || (await htmlCache.match('/pt/exercises'));
-                        if (exHtml) return exHtml;
-                    }
-
-                    // 4. Fallback final para tela offline
-                    const coreCache = await caches.open(CORE_CACHE);
-                    const offlinePage = await coreCache.match('/offline.html');
-                    return offlinePage || new Response('Offline', { status: 503, statusText: 'Offline' });
-                })
-        );
-        return;
-    }
-
     // =========================================================================
     // ESTRATÉGIA 3: Arquivos Estáticos (JS Chunks, CSS Tailwind, Fontes, Imagens, Áudios)
     // =========================================================================
     const isStaticAsset =
+        isSupabaseStorage ||
         url.pathname.startsWith('/_next/static/') ||
         url.pathname.startsWith('/sounds/') ||
         url.pathname.startsWith('/ios/') ||
@@ -294,7 +276,7 @@ self.addEventListener('fetch', (event) => {
                     fetch(request).then(async (networkResponse) => {
                         if (networkResponse && networkResponse.status === 200) {
                             const cache = await caches.open(STATIC_CACHE);
-                            cache.put(request, networkResponse);
+                            cache.put(request, networkResponse.clone());
                         }
                     }).catch(() => {});
                     return cachedResponse;
@@ -308,7 +290,7 @@ self.addEventListener('fetch', (event) => {
                         cache.put(request, clone);
                     }
                     return networkResponse;
-                }).catch(() => cachedResponse);
+                }).catch(() => cachedResponse || new Response('', { status: 408, statusText: 'Offline asset not cached' }));
             })
         );
         return;
