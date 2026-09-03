@@ -1171,7 +1171,11 @@
       "bodyweight_onlyDesc": "Apenas exercícios livres sem aparelhos"
     },
     "focusAreas": {
-      "title": "Grupo Muscular para Hoje",
+      "title": "Grupos Musculares para Hoje",
+      "quickPresets": "Atalhos Rápidos",
+      "selectMuscles": "Toque nos músculos que deseja focar",
+      "minOneMuscle": "Selecione pelo menos 1 grupo muscular",
+      "customSelection": "Treino Personalizado",
       "chest_triceps": "Peito & Tríceps",
       "back_biceps": "Costas & Bíceps",
       "legs": "Pernas & Glúteos",
@@ -1199,6 +1203,7 @@
     "preview": {
       "workoutsGenerated": "{count} treino gerado | {count} treinos gerados",
       "replaceExercise": "Substituir",
+      "editExercise": "Ajustar",
       "sets": "{count} séries",
       "reps": "{count} reps",
       "rest": "{count}s descanso",

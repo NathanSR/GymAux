@@ -37,6 +37,8 @@ import {
     GeneratorDuration,
 } from '@/utils/workoutGenerator';
 import { ExerciseSubstituteModal } from '@/components/exercises/ExerciseSubstituteModal';
+import { ExerciseConfigModal } from './ExerciseConfigModal';
+import { CATEGORY_METADATA, CategoryType, CATEGORIES } from '@/config/constants';
 import { WorkoutService } from '@/services/workoutService';
 import { ScheduleService } from '@/services/scheduleService';
 import { useSessionActions } from '@/hooks/useSessionActions';
@@ -74,6 +76,7 @@ export function WorkoutGeneratorModal({
     const [level, setLevel] = useState<GeneratorLevel>('intermediate');
     const [equipmentAccess, setEquipmentAccess] = useState<GeneratorEquipmentAccess>('full_gym');
     const [todayFocus, setTodayFocus] = useState<GeneratorTodayFocus>('chest_triceps');
+    const [selectedCategories, setSelectedCategories] = useState<CategoryType[]>(['chest', 'triceps']);
     const [duration, setDuration] = useState<GeneratorDuration>('min45');
     const [weeklyDays, setWeeklyDays] = useState<number>(4);
     const [syncSchedule, setSyncSchedule] = useState<boolean>(true);
@@ -102,6 +105,19 @@ export function WorkoutGeneratorModal({
         exerciseIndex: 0,
     });
 
+    // Exercise Config Modal State
+    const [configModalState, setConfigModalState] = useState<{
+        isOpen: boolean;
+        groupData: ExerciseGroup | null;
+        workoutIndex: number;
+        groupIndex: number;
+    }>({
+        isOpen: false,
+        groupData: null,
+        workoutIndex: 0,
+        groupIndex: 0,
+    });
+
     // Reset when modal opens
     useEffect(() => {
         if (isOpen) {
@@ -125,8 +141,27 @@ export function WorkoutGeneratorModal({
         setStep(newStep);
     };
 
+    // Alternar seleção de categoria
+    const toggleCategory = (cat: CategoryType) => {
+        setSelectedCategories((prev) => {
+            if (prev.includes(cat)) {
+                if (prev.length === 1) {
+                    toast.info(t('focusAreas.minOneMuscle'));
+                    return prev;
+                }
+                return prev.filter((c) => c !== cat);
+            }
+            return [...prev, cat];
+        });
+    };
+
     // Executa o algoritmo gerador
     const handleGenerate = () => {
+        if (scope === 'today' && selectedCategories.length === 0) {
+            toast.warn(t('focusAreas.minOneMuscle'));
+            return;
+        }
+
         setIsGenerating(true);
         try {
             const workouts = WorkoutGenerator.generate({
@@ -136,6 +171,7 @@ export function WorkoutGeneratorModal({
                 level,
                 equipmentAccess,
                 todayFocus,
+                selectedCategories,
                 duration,
                 weeklyDays,
                 availableExercises,
@@ -150,6 +186,38 @@ export function WorkoutGeneratorModal({
         } finally {
             setIsGenerating(false);
         }
+    };
+
+    // Abrir modal de configuração profissional de exercício
+    const handleOpenConfigModal = (workoutIndex: number, groupIndex: number) => {
+        const targetWorkout = generatedWorkouts[workoutIndex];
+        const group = targetWorkout?.exercises[groupIndex];
+        if (!group) return;
+
+        setConfigModalState({
+            isOpen: true,
+            groupData: group,
+            workoutIndex,
+            groupIndex,
+        });
+    };
+
+    // Salvar alterações do ExerciseConfigModal
+    const handleSaveConfigGroup = (updatedGroup: ExerciseGroup) => {
+        const { workoutIndex, groupIndex } = configModalState;
+
+        setGeneratedWorkouts((prev) => {
+            const copy = [...prev];
+            const workout = { ...copy[workoutIndex] };
+            const groups = [...workout.exercises];
+            groups[groupIndex] = updatedGroup;
+            workout.exercises = groups;
+            copy[workoutIndex] = workout;
+            return copy;
+        });
+
+        setConfigModalState((s) => ({ ...s, isOpen: false }));
+        toast.success('Exercício configurado com sucesso!');
     };
 
     // Abrir modal de substituição para um exercício específico
@@ -660,39 +728,120 @@ export function WorkoutGeneratorModal({
 
                                 {scope === 'today' ? (
                                     <div className="space-y-4 pt-1">
+                                        {/* Presets Rápidos */}
                                         <div>
-                                            <label className="text-[11px] font-black uppercase tracking-wider text-zinc-400 block mb-2">
-                                                {t('focusAreas.title')}
+                                            <label className="text-[10px] font-black uppercase tracking-wider text-zinc-400 block mb-2">
+                                                {t('focusAreas.quickPresets')}
                                             </label>
-                                            <div className="grid grid-cols-2 gap-2">
-                                                {([
-                                                    'chest_triceps',
-                                                    'back_biceps',
-                                                    'legs',
-                                                    'shoulders_arms',
-                                                    'upper_body',
-                                                    'lower_body',
-                                                    'full_body',
-                                                    'core_cardio',
-                                                ] as GeneratorTodayFocus[]).map((f) => (
-                                                    <button
-                                                        key={f}
-                                                        type="button"
-                                                        onClick={() => setTodayFocus(f)}
-                                                        className={`p-3 rounded-xl border text-xs font-black uppercase text-left transition-all ${
-                                                            todayFocus === f
-                                                                ? 'bg-lime-500 text-zinc-950 border-lime-500 shadow-sm'
-                                                                : 'bg-zinc-50 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-zinc-700 dark:text-zinc-300'
-                                                        }`}
-                                                    >
-                                                        {t(`focusAreas.${f}`)}
-                                                    </button>
-                                                ))}
+                                            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                                                {[
+                                                    { key: 'push', label: 'Push', cats: ['chest', 'shoulders', 'triceps'] },
+                                                    { key: 'pull', label: 'Pull', cats: ['back', 'biceps', 'forearms'] },
+                                                    { key: 'lower', label: 'Inferiores (Pernas)', cats: ['quadriceps', 'hamstrings', 'glutes', 'calves', 'adductors', 'abductors'] },
+                                                    { key: 'upper', label: 'Superiores', cats: ['chest', 'back', 'shoulders', 'biceps', 'triceps', 'forearms', 'core'] },
+                                                    { key: 'arms', label: 'Braços', cats: ['biceps', 'triceps', 'forearms'] },
+                                                    { key: 'full_body', label: 'Full Body', cats: ['full_body'] },
+                                                    { key: 'core_cardio', label: 'Abdômen & Cardio', cats: ['core', 'cardio'] },
+                                                    { key: 'stretching', label: 'Alongamento', cats: ['stretching'] },
+                                                ].map((preset) => {
+                                                    const isSelected = preset.cats.length === selectedCategories.length &&
+                                                        preset.cats.every(c => selectedCategories.includes(c as CategoryType));
+                                                    return (
+                                                        <button
+                                                            key={preset.key}
+                                                            type="button"
+                                                            onClick={() => setSelectedCategories(preset.cats as CategoryType[])}
+                                                            className={`px-3 py-1.5 rounded-xl text-[11px] font-black uppercase whitespace-nowrap transition-all shrink-0 cursor-pointer ${
+                                                                isSelected
+                                                                    ? 'bg-lime-500 text-zinc-950 shadow-sm shadow-lime-500/20'
+                                                                    : 'bg-zinc-100 dark:bg-zinc-900/80 text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-800 hover:border-zinc-400'
+                                                            }`}
+                                                        >
+                                                            {preset.label}
+                                                        </button>
+                                                    );
+                                                })}
                                             </div>
                                         </div>
 
-                                        <div className="pt-2">
-                                            <label className="text-[11px] font-black uppercase tracking-wider text-zinc-400 block mb-2">
+                                        {/* Grid de Músculos Selecionáveis com Imagem e Check */}
+                                        <div>
+                                            <div className="flex items-center justify-between mb-2">
+                                                <label className="text-[10px] font-black uppercase tracking-wider text-zinc-400">
+                                                    {t('focusAreas.selectMuscles')}
+                                                </label>
+                                                <span className="text-[10px] font-black uppercase text-lime-600 dark:text-lime-400">
+                                                    {selectedCategories.length} selecionado(s)
+                                                </span>
+                                            </div>
+                                            <div className="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-4 gap-2 max-h-[250px] overflow-y-auto pr-1 custom-scrollbar">
+                                                {([
+                                                    'chest',
+                                                    'back',
+                                                    'shoulders',
+                                                    'biceps',
+                                                    'triceps',
+                                                    'forearms',
+                                                    'quadriceps',
+                                                    'hamstrings',
+                                                    'glutes',
+                                                    'calves',
+                                                    'adductors',
+                                                    'abductors',
+                                                    'core',
+                                                    'cardio',
+                                                    'full_body',
+                                                    'stretching',
+                                                ] as CategoryType[]).map((cat) => {
+                                                    const meta = CATEGORY_METADATA[cat];
+                                                    const isChecked = selectedCategories.includes(cat);
+
+                                                    return (
+                                                        <button
+                                                            key={cat}
+                                                            type="button"
+                                                            onClick={() => toggleCategory(cat)}
+                                                            className={`group relative p-2.5 rounded-2xl border text-left transition-all active:scale-95 cursor-pointer flex flex-col justify-between overflow-hidden ${
+                                                                isChecked
+                                                                    ? 'bg-lime-500/15 border-lime-500 shadow-sm shadow-lime-500/10'
+                                                                    : 'bg-zinc-50 dark:bg-zinc-900/50 border-zinc-200 dark:border-zinc-800 hover:border-zinc-400'
+                                                            }`}
+                                                        >
+                                                            <div className="flex items-start justify-between gap-1 mb-2">
+                                                                <div className="w-9 h-9 rounded-xl bg-zinc-200 dark:bg-zinc-800 overflow-hidden shrink-0 flex items-center justify-center">
+                                                                    {meta?.imagePath ? (
+                                                                        <img
+                                                                            src={meta.imagePath}
+                                                                            alt={tc(cat)}
+                                                                            className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                                                                            onError={(e) => {
+                                                                                e.currentTarget.style.display = 'none';
+                                                                            }}
+                                                                        />
+                                                                    ) : (
+                                                                        <Dumbbell size={16} className="text-zinc-400" />
+                                                                    )}
+                                                                </div>
+                                                                <div className={`w-5 h-5 rounded-full flex items-center justify-center transition-all ${
+                                                                    isChecked
+                                                                        ? 'bg-lime-500 text-zinc-950 shadow-xs'
+                                                                        : 'border border-zinc-300 dark:border-zinc-700 text-transparent'
+                                                                }`}>
+                                                                    <Check size={12} strokeWidth={3} />
+                                                                </div>
+                                                            </div>
+                                                            <span className="text-[11px] font-black uppercase tracking-tight text-zinc-900 dark:text-white truncate">
+                                                                {tc(cat)}
+                                                            </span>
+                                                        </button>
+                                                    );
+                                                })}
+                                            </div>
+                                        </div>
+
+                                        {/* Duração da Sessão */}
+                                        <div className="pt-1">
+                                            <label className="text-[10px] font-black uppercase tracking-wider text-zinc-400 block mb-2">
                                                 {t('duration.title')}
                                             </label>
                                             <div className="grid grid-cols-3 gap-2">
@@ -701,9 +850,9 @@ export function WorkoutGeneratorModal({
                                                         key={d}
                                                         type="button"
                                                         onClick={() => setDuration(d)}
-                                                        className={`p-3 rounded-xl border text-[11px] font-black uppercase text-center transition-all ${
+                                                        className={`p-3 rounded-xl border text-[11px] font-black uppercase text-center transition-all cursor-pointer ${
                                                             duration === d
-                                                                ? 'bg-lime-500 text-zinc-950 border-lime-500'
+                                                                ? 'bg-lime-500 text-zinc-950 border-lime-500 shadow-sm shadow-lime-500/20'
                                                                 : 'bg-zinc-50 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400'
                                                         }`}
                                                     >
@@ -818,10 +967,14 @@ export function WorkoutGeneratorModal({
                                             </div>
                                         </div>
 
-                                        {/* Lista de Exercícios do Treino */}
-                                        <div className="space-y-2 max-h-[220px] overflow-y-auto pr-1 custom-scrollbar">
+                                        {/* Lista de Exercícios do Treino com Imagem e Ações Responsivas */}
+                                        <div className="space-y-2.5 max-h-[260px] overflow-y-auto pr-1 custom-scrollbar">
                                             {currentWorkout.exercises.flatMap((group, gIdx) =>
                                                 group.exercises.map((ex, eIdx) => {
+                                                    const foundEx = availableExercises.find(a => a.id === ex.exerciseId);
+                                                    const categoryMeta = foundEx?.category ? CATEGORY_METADATA[foundEx.category] : null;
+                                                    const exerciseImage = foundEx?.imageUrl || categoryMeta?.imagePath;
+
                                                     const setsCount = ex.sets.length;
                                                     const reps = ex.sets[0]?.reps || 10;
                                                     const rest = ex.sets[0]?.restTime || 60;
@@ -832,18 +985,31 @@ export function WorkoutGeneratorModal({
                                                             key={`${gIdx}-${eIdx}-${ex.exerciseId}`}
                                                             className="p-3 rounded-2xl bg-zinc-50 dark:bg-zinc-950/50 border border-zinc-200 dark:border-zinc-800/80 flex items-center justify-between gap-3 group hover:border-lime-500/30 transition-all"
                                                         >
+                                                            {/* Imagem + Detalhes do Exercício */}
                                                             <div className="flex items-center gap-3 min-w-0">
-                                                                <div className="w-8 h-8 rounded-lg bg-zinc-200 dark:bg-zinc-800 flex items-center justify-center text-zinc-600 dark:text-zinc-400 font-black text-xs shrink-0">
-                                                                    {gIdx + 1}
+                                                                <div className="w-12 h-12 rounded-xl bg-zinc-200 dark:bg-zinc-800 overflow-hidden shrink-0 border border-zinc-200 dark:border-zinc-700/60 relative flex items-center justify-center">
+                                                                    {exerciseImage ? (
+                                                                        <img
+                                                                            src={exerciseImage}
+                                                                            alt={ex.exerciseName}
+                                                                            className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                                                                            onError={(e) => {
+                                                                                e.currentTarget.style.display = 'none';
+                                                                            }}
+                                                                        />
+                                                                    ) : (
+                                                                        <Dumbbell size={20} className="text-zinc-400" />
+                                                                    )}
                                                                 </div>
+
                                                                 <div className="min-w-0">
                                                                     <p className="text-xs font-black uppercase text-zinc-900 dark:text-white truncate">
                                                                         {getLocalizedName(ex.exerciseId, ex.exerciseName)}
                                                                     </p>
-                                                                    <div className="flex items-center gap-2 mt-0.5 text-[10px] text-zinc-500 font-bold">
+                                                                    <div className="flex flex-wrap items-center gap-1.5 mt-0.5 text-[10px] text-zinc-500 font-bold">
                                                                         <span>{setsCount}x{reps} reps</span>
                                                                         <span>•</span>
-                                                                        <span>{rest}s descanso</span>
+                                                                        <span>{rest}s</span>
                                                                         <span className={`px-1.5 py-0.2 rounded text-[8px] uppercase tracking-wider font-black ${
                                                                             isCompound
                                                                                 ? 'bg-blue-500/10 text-blue-600 dark:text-blue-400'
@@ -855,15 +1021,28 @@ export function WorkoutGeneratorModal({
                                                                 </div>
                                                             </div>
 
-                                                            <button
-                                                                type="button"
-                                                                onClick={() => handleOpenSubstitute(activePreviewTab, gIdx, eIdx)}
-                                                                className="px-2.5 py-1.5 rounded-xl bg-zinc-200 dark:bg-zinc-800 hover:bg-lime-500 hover:text-zinc-950 text-zinc-700 dark:text-zinc-300 text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5 transition-all shrink-0 cursor-pointer active:scale-95"
-                                                                title={t('preview.replaceExercise')}
-                                                            >
-                                                                <RefreshCw size={12} />
-                                                                <span>{t('preview.replaceExercise')}</span>
-                                                            </button>
+                                                            {/* Ações: Ajustar (ConfigModal) e Substituir (SubstituteModal) */}
+                                                            <div className="flex items-center gap-1.5 shrink-0">
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => handleOpenConfigModal(activePreviewTab, gIdx)}
+                                                                    className="p-2 sm:px-2.5 sm:py-1.5 rounded-xl bg-zinc-200/80 dark:bg-zinc-800 hover:bg-zinc-300 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200 text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5 transition-all cursor-pointer active:scale-95"
+                                                                    title={t('preview.editExercise')}
+                                                                >
+                                                                    <SlidersHorizontal size={13} />
+                                                                    <span className="hidden sm:inline">{t('preview.editExercise')}</span>
+                                                                </button>
+
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => handleOpenSubstitute(activePreviewTab, gIdx, eIdx)}
+                                                                    className="p-2 sm:px-2.5 sm:py-1.5 rounded-xl bg-zinc-200/80 dark:bg-zinc-800 hover:bg-lime-500 hover:text-zinc-950 text-zinc-700 dark:text-zinc-200 text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5 transition-all cursor-pointer active:scale-95"
+                                                                    title={t('preview.replaceExercise')}
+                                                                >
+                                                                    <RefreshCw size={13} />
+                                                                    <span className="hidden sm:inline">{t('preview.replaceExercise')}</span>
+                                                                </button>
+                                                            </div>
                                                         </div>
                                                     );
                                                 })
@@ -960,6 +1139,14 @@ export function WorkoutGeneratorModal({
                     )}
                 </div>
             </Drawer>
+
+            {/* MODAL DE CONFIGURAÇÃO PROFISSIONAL DO EXERCÍCIO */}
+            <ExerciseConfigModal
+                isOpen={configModalState.isOpen}
+                onClose={() => setConfigModalState((s) => ({ ...s, isOpen: false }))}
+                groupData={configModalState.groupData}
+                onSave={handleSaveConfigGroup}
+            />
 
             {/* MODAL DE SUBSTITUIÇÃO REUTILIZÁVEL */}
             <ExerciseSubstituteModal

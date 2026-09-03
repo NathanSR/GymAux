@@ -23,6 +23,7 @@ export interface WorkoutGeneratorParams {
     level: GeneratorLevel;
     equipmentAccess: GeneratorEquipmentAccess;
     todayFocus?: GeneratorTodayFocus;
+    selectedCategories?: CategoryType[];
     duration?: GeneratorDuration;
     weeklyDays?: number; // 2, 3, 4, 5, 6
     availableExercises: Exercise[];
@@ -181,6 +182,174 @@ const createExerciseGroup = (
             },
         ],
     };
+};
+
+const CATEGORY_PRIORITY: Record<CategoryType, number> = {
+    quadriceps: 1,
+    hamstrings: 2,
+    glutes: 3,
+    chest: 4,
+    back: 5,
+    shoulders: 6,
+    triceps: 7,
+    biceps: 8,
+    adductors: 9,
+    abductors: 10,
+    calves: 11,
+    forearms: 12,
+    core: 13,
+    cardio: 14,
+    full_body: 15,
+    stretching: 16,
+};
+
+const CATEGORY_SLOT_BLUEPRINTS: Record<CategoryType, MuscleSlot[]> = {
+    chest: [
+        { category: 'chest', mechanics: 'compound', preferredTags: ['reto', 'barbell', 'halter', 'press'], priority: 1 },
+        { category: 'chest', mechanics: 'compound', preferredTags: ['inclinado', 'incline'], priority: 2 },
+        { category: 'chest', mechanics: 'isolation', preferredTags: ['crucifixo', 'voador', 'crossover'], priority: 3 },
+    ],
+    back: [
+        { category: 'back', mechanics: 'compound', preferredTags: ['puxada', 'barra fixa', 'vertical'], priority: 1 },
+        { category: 'back', mechanics: 'compound', preferredTags: ['remada', 'row', 'horizontal'], priority: 2 },
+        { category: 'back', mechanics: 'isolation', preferredTags: ['pullover', 'crucifixo invertido'], priority: 3 },
+    ],
+    quadriceps: [
+        { category: 'quadriceps', mechanics: 'compound', preferredTags: ['agachamento', 'squat', 'leg press'], priority: 1 },
+        { category: 'quadriceps', mechanics: 'isolation', preferredTags: ['extensora', 'leg extension'], priority: 2 },
+        { category: 'quadriceps', mechanics: 'compound', preferredTags: ['afundo', 'bulgaro', 'lunge'], priority: 3 },
+    ],
+    hamstrings: [
+        { category: 'hamstrings', mechanics: 'compound', preferredTags: ['stiff', 'rdl', 'terra'], priority: 1 },
+        { category: 'hamstrings', mechanics: 'isolation', preferredTags: ['flexora', 'leg curl'], priority: 2 },
+    ],
+    glutes: [
+        { category: 'glutes', mechanics: 'compound', preferredTags: ['elevacao pelvica', 'hip thrust'], priority: 1 },
+        { category: 'glutes', mechanics: 'isolation', preferredTags: ['coice', 'gluteo cabo'], priority: 2 },
+    ],
+    shoulders: [
+        { category: 'shoulders', mechanics: 'compound', preferredTags: ['desenvolvimento', 'press'], priority: 1 },
+        { category: 'shoulders', mechanics: 'isolation', preferredTags: ['elevação lateral', 'lateral raise'], priority: 2 },
+        { category: 'shoulders', mechanics: 'isolation', preferredTags: ['posterior', 'crucifixo inverso'], priority: 3 },
+    ],
+    biceps: [
+        { category: 'biceps', mechanics: 'isolation', preferredTags: ['rosca direta', 'curl'], priority: 1 },
+        { category: 'biceps', mechanics: 'isolation', preferredTags: ['martelo', 'inclinado', 'scott'], priority: 2 },
+    ],
+    triceps: [
+        { category: 'triceps', mechanics: 'isolation', preferredTags: ['corda', 'polia', 'pulley'], priority: 1 },
+        { category: 'triceps', mechanics: 'isolation', preferredTags: ['testa', 'frances'], priority: 2 },
+    ],
+    calves: [
+        { category: 'calves', mechanics: 'isolation', preferredTags: ['panturrilha', 'calf'], priority: 1 },
+    ],
+    forearms: [
+        { category: 'forearms', mechanics: 'isolation', preferredTags: ['punho', 'wrist'], priority: 1 },
+    ],
+    adductors: [
+        { category: 'adductors', mechanics: 'isolation', preferredTags: ['adutora'], priority: 1 },
+    ],
+    abductors: [
+        { category: 'abductors', mechanics: 'isolation', preferredTags: ['abdutora'], priority: 1 },
+    ],
+    core: [
+        { category: 'core', mechanics: 'compound', preferredTags: ['prancha', 'plank'], priority: 1 },
+        { category: 'core', mechanics: 'isolation', preferredTags: ['crunch', 'abdominal'], priority: 2 },
+    ],
+    cardio: [
+        { category: 'cardio', mechanics: 'compound', priority: 1 },
+        { category: 'cardio', mechanics: 'isolation', priority: 2 },
+    ],
+    full_body: [
+        { category: 'full_body', mechanics: 'compound', priority: 1 },
+        { category: 'full_body', mechanics: 'compound', preferredTags: ['burpee', 'kettlebell', 'clean', 'thruster'], priority: 2 },
+        { category: 'full_body', mechanics: 'compound', preferredTags: ['agachamento', 'squat'], priority: 3 },
+        { category: 'full_body', mechanics: 'compound', preferredTags: ['press', 'desenvolvimento'], priority: 4 },
+        { category: 'full_body', mechanics: 'isolation', priority: 5 },
+    ],
+    stretching: [
+        { category: 'stretching', mechanics: 'isolation', preferredTags: ['pernas', 'isquiotibiais', 'hamstrings'], priority: 1 },
+        { category: 'stretching', mechanics: 'isolation', preferredTags: ['quadriceps', 'quadril', 'flexor'], priority: 2 },
+        { category: 'stretching', mechanics: 'isolation', preferredTags: ['costas', 'lombar', 'coluna'], priority: 3 },
+        { category: 'stretching', mechanics: 'isolation', preferredTags: ['peito', 'ombros', 'torax'], priority: 4 },
+        { category: 'stretching', mechanics: 'isolation', preferredTags: ['gluteos', 'piriforme'], priority: 5 },
+        { category: 'stretching', mechanics: 'isolation', preferredTags: ['panturrilha', 'tornozelo'], priority: 6 },
+        { category: 'stretching', mechanics: 'isolation', preferredTags: ['pescoço', 'trapezio'], priority: 7 },
+        { category: 'stretching', mechanics: 'isolation', priority: 8 },
+    ],
+};
+
+/**
+ * Gera slots balanceados para qualquer seleção customizada de músculos
+ */
+export const getSlotsForCategories = (
+    categories: CategoryType[],
+    duration: GeneratorDuration
+): MuscleSlot[] => {
+    if (!categories || categories.length === 0) {
+        return getTodaySlots('chest_triceps', duration);
+    }
+
+    const limit = duration === 'min30' ? 4 : duration === 'min45' ? 6 : 8;
+
+    // Se o usuário selecionou exclusivamente full_body, mescla full_body nativo com compostos de corpo inteiro
+    if (categories.length === 1 && categories[0] === 'full_body') {
+        const fullBodySlots: MuscleSlot[] = [
+            { category: 'full_body', mechanics: 'compound', priority: 1 },
+            { category: 'quadriceps', mechanics: 'compound', preferredTags: ['agachamento', 'leg press'], priority: 2 },
+            { category: 'chest', mechanics: 'compound', preferredTags: ['supino', 'press'], priority: 3 },
+            { category: 'back', mechanics: 'compound', preferredTags: ['puxada', 'remada'], priority: 4 },
+            { category: 'hamstrings', mechanics: 'compound', preferredTags: ['stiff', 'flexora'], priority: 5 },
+            { category: 'shoulders', mechanics: 'isolation', preferredTags: ['elevação lateral', 'desenvolvimento'], priority: 6 },
+            { category: 'core', mechanics: 'compound', preferredTags: ['prancha', 'plank'], priority: 7 },
+            { category: 'cardio', mechanics: 'compound', priority: 8 },
+        ];
+        return fullBodySlots.slice(0, limit);
+    }
+
+    // Ordena as categorias selecionadas por hierarquia fisiológica
+    const sortedCategories = [...categories].sort(
+        (a, b) => (CATEGORY_PRIORITY[a] ?? 99) - (CATEGORY_PRIORITY[b] ?? 99)
+    );
+
+    const resultSlots: MuscleSlot[] = [];
+    let round = 0;
+
+    while (resultSlots.length < limit && round < 4) {
+        let addedInThisRound = false;
+        for (const cat of sortedCategories) {
+            if (resultSlots.length >= limit) break;
+            const blueprint = CATEGORY_SLOT_BLUEPRINTS[cat] || [];
+            if (blueprint[round]) {
+                resultSlots.push({
+                    ...blueprint[round],
+                    priority: (CATEGORY_PRIORITY[cat] ?? 50) * 10 + round,
+                });
+                addedInThisRound = true;
+            }
+        }
+        if (!addedInThisRound) break;
+        round++;
+    }
+
+    // Se ainda houver slots vazios, complementa com slots adicionais dos grupos maiores selecionados
+    if (resultSlots.length < limit && sortedCategories.length > 0) {
+        for (const cat of sortedCategories) {
+            if (resultSlots.length >= limit) break;
+            const blueprint = CATEGORY_SLOT_BLUEPRINTS[cat] || [];
+            for (const b of blueprint) {
+                if (resultSlots.length >= limit) break;
+                if (!resultSlots.some(s => s.category === b.category && s.mechanics === b.mechanics && s.preferredTags?.[0] === b.preferredTags?.[0])) {
+                    resultSlots.push({
+                        ...b,
+                        priority: (CATEGORY_PRIORITY[cat] ?? 50) * 10 + 5,
+                    });
+                }
+            }
+        }
+    }
+
+    return resultSlots;
 };
 
 /**
@@ -477,6 +646,7 @@ export const WorkoutGenerator = {
             level,
             equipmentAccess,
             todayFocus = 'chest_triceps',
+            selectedCategories,
             duration = 'min45',
             weeklyDays = 3,
             availableExercises,
@@ -492,7 +662,11 @@ export const WorkoutGenerator = {
 
         // Caso 1: Treino de Hoje
         if (scope === 'today') {
-            const slots = getTodaySlots(todayFocus, duration);
+            const hasSelectedCategories = selectedCategories && selectedCategories.length > 0;
+            const slots = hasSelectedCategories
+                ? getSlotsForCategories(selectedCategories, duration)
+                : getTodaySlots(todayFocus, duration);
+
             // Ordena slots estritamente: compostos primeiro, prioridade crescente
             slots.sort((a, b) => {
                 if (a.mechanics !== b.mechanics) {
@@ -512,18 +686,49 @@ export const WorkoutGenerator = {
                 }
             }
 
-            const focusNames: Record<GeneratorTodayFocus, string> = {
-                chest_triceps: 'Peito & Tríceps',
-                back_biceps: 'Costas & Bíceps',
-                legs: 'Pernas & Glúteos',
-                shoulders_arms: 'Ombros & Braços',
-                upper_body: 'Superiores Completo',
-                lower_body: 'Inferiores Completo',
+            const categoryLabels: Record<CategoryType, string> = {
+                chest: 'Peito',
+                back: 'Costas',
+                shoulders: 'Ombros',
+                biceps: 'Bíceps',
+                triceps: 'Tríceps',
+                forearms: 'Antebraço',
+                quadriceps: 'Quadríceps',
+                hamstrings: 'Posterior',
+                glutes: 'Glúteos',
+                calves: 'Panturrilha',
+                adductors: 'Adutores',
+                abductors: 'Abdutores',
+                core: 'Abdômen',
+                cardio: 'Cardio',
                 full_body: 'Full Body',
-                core_cardio: 'Abdômen & Cardio',
+                stretching: 'Alongamento',
             };
 
-            const workoutName = `${focusNames[todayFocus] || 'Treino'} (${duration.replace('min', '')}min)`;
+            let workoutName = '';
+            let workoutDesc = '';
+
+            if (hasSelectedCategories) {
+                if (selectedCategories.length <= 3) {
+                    workoutName = `${selectedCategories.map(c => categoryLabels[c] || c).join(' & ')} (${duration.replace('min', '')}min)`;
+                } else {
+                    workoutName = `Treino Personalizado (${duration.replace('min', '')}min)`;
+                }
+                workoutDesc = `Treino personalizado gerado automaticamente (${goal}) com foco em: ${selectedCategories.map(c => categoryLabels[c] || c).join(', ')}.`;
+            } else {
+                const focusNames: Record<GeneratorTodayFocus, string> = {
+                    chest_triceps: 'Peito & Tríceps',
+                    back_biceps: 'Costas & Bíceps',
+                    legs: 'Pernas & Glúteos',
+                    shoulders_arms: 'Ombros & Braços',
+                    upper_body: 'Superiores Completo',
+                    lower_body: 'Inferiores Completo',
+                    full_body: 'Full Body',
+                    core_cardio: 'Abdômen & Cardio',
+                };
+                workoutName = `${focusNames[todayFocus] || 'Treino'} (${duration.replace('min', '')}min)`;
+                workoutDesc = `Treino gerado automaticamente com foco em ${focusNames[todayFocus]} (${goal}).`;
+            }
 
             return [
                 {
@@ -532,7 +737,7 @@ export const WorkoutGenerator = {
                     createdBy: userId,
                     createdByType: 'user',
                     name: workoutName,
-                    description: `Treino gerado automaticamente com foco em ${focusNames[todayFocus]} (${goal}).`,
+                    description: workoutDesc,
                     createdAt: new Date(),
                     updatedAt: new Date(),
                     exercises: groups,

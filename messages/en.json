@@ -1171,7 +1171,11 @@
       "bodyweight_onlyDesc": "Pure bodyweight exercises with no equipment"
     },
     "focusAreas": {
-      "title": "Muscle Group for Today",
+      "title": "Muscle Groups for Today",
+      "quickPresets": "Quick Presets",
+      "selectMuscles": "Tap the muscles you want to focus on",
+      "minOneMuscle": "Select at least 1 muscle group",
+      "customSelection": "Custom Workout",
       "chest_triceps": "Chest & Triceps",
       "back_biceps": "Back & Biceps",
       "legs": "Legs & Glutes",
@@ -1199,6 +1203,7 @@
     "preview": {
       "workoutsGenerated": "{count} workout generated | {count} workouts generated",
       "replaceExercise": "Swap",
+      "editExercise": "Adjust",
       "sets": "{count} sets",
       "reps": "{count} reps",
       "rest": "{count}s rest",

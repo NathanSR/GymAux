@@ -1171,7 +1171,11 @@
       "bodyweight_onlyDesc": "Solo ejercicios libres sin equipamiento"
     },
     "focusAreas": {
-      "title": "Grupo Muscular para Hoy",
+      "title": "Grupos Musculares para Hoy",
+      "quickPresets": "Atajos Rápidos",
+      "selectMuscles": "Toca los músculos que deseas enfocar",
+      "minOneMuscle": "Selecciona al menos 1 grupo muscular",
+      "customSelection": "Entrenamiento Personalizado",
       "chest_triceps": "Pecho & Tríceps",
       "back_biceps": "Espalda & Bíceps",
       "legs": "Piernas & Glúteos",
@@ -1191,7 +1195,7 @@
       "daysTitle": "¿Cuántos días a la semana vas a entrenar?",
       "days2": "2 días a la semana (Full Body A/B)",
       "days3": "3 días a la semana (ABC o Full Body)",
-      "days4": "4 días a la semana (Upper / Lower AB x2)",
+      "days4": "4 dias a la semana (Upper / Lower AB x2)",
       "days5": "5 días a la semana (Push / Pull / Legs / Upper / Lower)",
       "days6": "6 días a la semana (PPL x2)",
       "scheduleSync": "Vincular y activar automáticamente en mi Cronograma Semanal"
@@ -1199,6 +1203,7 @@
     "preview": {
       "workoutsGenerated": "{count} entrenamiento generado | {count} entrenamientos generados",
       "replaceExercise": "Cambiar",
+      "editExercise": "Ajustar",
       "sets": "{count} series",
       "reps": "{count} reps",
       "rest": "{count}s descanso",
