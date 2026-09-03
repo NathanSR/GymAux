@@ -21,15 +21,21 @@ export function MuscleRecoveryWidget({ userId }: MuscleRecoveryWidgetProps) {
 
     if (isLoading && !summary) {
         return (
-            <div className="mb-6 p-4 rounded-3xl bg-zinc-100 dark:bg-zinc-900/60 border border-zinc-200/80 dark:border-zinc-800/80 space-y-3">
-                <div className="flex items-center justify-between">
-                    <Skeleton className="h-4 w-32" />
-                    <Skeleton className="h-4 w-16 rounded-full" />
+            <div className="mb-6">
+                <div className="flex items-center gap-2 mb-3 px-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-lime-500" />
+                    <Skeleton className="h-4 w-36 rounded-md" />
                 </div>
-                <div className="flex gap-2.5 overflow-hidden">
-                    {[1, 2, 3, 4, 5].map(i => (
-                        <Skeleton key={i} className="w-16 h-20 rounded-2xl shrink-0" />
-                    ))}
+                <div className="p-4 rounded-3xl bg-zinc-100 dark:bg-zinc-900/60 border border-zinc-200/80 dark:border-zinc-800/80 space-y-3">
+                    <div className="flex items-center justify-between">
+                        <Skeleton className="h-4 w-32" />
+                        <Skeleton className="h-4 w-16 rounded-full" />
+                    </div>
+                    <div className="flex gap-2.5 overflow-hidden">
+                        {[1, 2, 3, 4, 5].map(i => (
+                            <Skeleton key={i} className="w-16 h-20 rounded-2xl shrink-0" />
+                        ))}
+                    </div>
                 </div>
             </div>
         );
@@ -42,8 +48,27 @@ export function MuscleRecoveryWidget({ userId }: MuscleRecoveryWidgetProps) {
 
     return (
         <>
-            <div className="mb-6 p-4 rounded-3xl bg-zinc-100/90 dark:bg-zinc-900/60 backdrop-blur-md border border-zinc-200/90 dark:border-zinc-800/80 shadow-xs">
-                {/* Header com Leitura Rápida e Botão para Abrir Drawer */}
+            <section className="mb-6">
+            <div className="flex items-center justify-between mb-3 px-1">
+                <div className="flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-lime-500" />
+                    <h2 className="text-xs sm:text-sm font-black uppercase tracking-widest text-zinc-900 dark:text-zinc-100">
+                        {t('title')}
+                    </h2>
+                </div>
+
+                <button
+                    type="button"
+                    onClick={() => setIsDrawerOpen(true)}
+                    className="text-[10px] font-black uppercase tracking-wider text-zinc-500 dark:text-zinc-400 hover:text-lime-600 dark:hover:text-lime-400 flex items-center gap-1 transition-colors group/btn py-1 px-2 -mr-2 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800/60 cursor-pointer"
+                >
+                    <span>{t('viewDetails')}</span>
+                    <ChevronRight size={13} className="group-hover/btn:translate-x-0.5 transition-transform" />
+                </button>
+            </div>
+
+            <div className="p-4 rounded-3xl bg-zinc-100/90 dark:bg-zinc-900/60 backdrop-blur-md border border-zinc-200/90 dark:border-zinc-800/80 shadow-xs">
+                {/* Header interno com Leitura Rápida */}
                 <div
                     onClick={() => setIsDrawerOpen(true)}
                     className="flex items-center justify-between gap-3 mb-3 cursor-pointer group"
@@ -62,9 +87,9 @@ export function MuscleRecoveryWidget({ userId }: MuscleRecoveryWidgetProps) {
 
                         <div className="min-w-0">
                             <div className="flex items-center gap-2">
-                                <h3 className="text-xs font-black uppercase tracking-tight text-zinc-900 dark:text-white">
-                                    {t('title')}
-                                </h3>
+                                <span className="text-xs font-black uppercase tracking-tight text-zinc-900 dark:text-white">
+                                    {isFullReady ? t('allMusclesReady') : t('readyToTrain')}
+                                </span>
                                 <span className={cn(
                                     "px-1.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider",
                                     isFullReady
@@ -77,26 +102,12 @@ export function MuscleRecoveryWidget({ userId }: MuscleRecoveryWidgetProps) {
                                 </span>
                             </div>
                             <p className="text-[10px] text-zinc-500 dark:text-zinc-400 font-medium truncate">
-                                {isFullReady
-                                    ? t('allMusclesReady')
-                                    : needsRestTotal > 0
-                                        ? `${t('needsRestCount', { count: needsRestTotal })} · ${t('recoveredCount', { count: summary.recoveredCount })}`
-                                        : t('readyToTrain')}
+                                {needsRestTotal > 0
+                                    ? `${t('needsRestCount', { count: needsRestTotal })} · ${t('recoveredCount', { count: summary.recoveredCount })}`
+                                    : t('readyToTrain')}
                             </p>
                         </div>
                     </div>
-
-                    <button
-                        type="button"
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            setIsDrawerOpen(true);
-                        }}
-                        className="flex items-center gap-1 text-[11px] font-bold text-zinc-500 hover:text-zinc-900 dark:hover:text-white transition-colors cursor-pointer shrink-0"
-                    >
-                        <span>{t('viewDetails')}</span>
-                        <ChevronRight size={14} className="group-hover:translate-x-0.5 transition-transform" />
-                    </button>
                 </div>
 
                 {/* Lista Horizontal de Músculos com Imagem e Percentual Sobreposto */}
@@ -173,13 +184,14 @@ export function MuscleRecoveryWidget({ userId }: MuscleRecoveryWidgetProps) {
                     })}
                 </div>
             </div>
+        </section>
 
-            {/* Drawer Detalhado (Reutiliza o Drawer nativo da aplicação) */}
-            <MuscleRecoveryDrawer
-                isOpen={isDrawerOpen}
-                onClose={() => setIsDrawerOpen(false)}
-                summary={summary}
-            />
+        {/* Drawer Detalhado (Reutiliza o Drawer nativo da aplicação) */}
+        <MuscleRecoveryDrawer
+            isOpen={isDrawerOpen}
+            onClose={() => setIsDrawerOpen(false)}
+            summary={summary}
+        />
         </>
     );
 }

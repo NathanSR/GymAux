@@ -111,18 +111,20 @@ export const HeaderSkeleton = () => (
 );
 
 export const BannerSkeleton = () => (
-  <div className="relative rounded-[32px] p-8 bg-zinc-100 dark:bg-zinc-900 border border-zinc-200/50 dark:border-zinc-800 overflow-hidden shadow-none mb-8">
-    <div className="space-y-6">
-      <div className="flex justify-between items-start">
-        <Skeleton className="h-6 w-20 rounded-full" />
-        <Skeleton className="w-6 h-6 rounded-full" />
+  <div className="relative rounded-3xl p-4 sm:p-5 bg-zinc-100 dark:bg-zinc-900 border border-zinc-200/50 dark:border-zinc-800 overflow-hidden shadow-none mb-5 sm:mb-6">
+    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="space-y-2.5 flex-1">
+        <div className="flex gap-2 items-center">
+          <Skeleton className="h-4 w-24 rounded-full" />
+          <Skeleton className="h-4 w-16 rounded-full" />
+        </div>
+        <Skeleton className="h-6 w-3/5 rounded-xl" />
+        <div className="flex gap-2">
+          <Skeleton className="h-5 w-20 rounded-lg" />
+          <Skeleton className="h-5 w-20 rounded-lg" />
+        </div>
       </div>
-      <Skeleton className="h-12 w-2/3" />
-      <div className="flex gap-4">
-        <Skeleton className="h-4 w-24" />
-        <Skeleton className="h-4 w-24" />
-      </div>
-      <Skeleton className="h-14 w-full rounded-2xl" />
+      <Skeleton className="h-11 sm:h-12 w-full sm:w-36 rounded-2xl shrink-0" />
     </div>
   </div>
 );

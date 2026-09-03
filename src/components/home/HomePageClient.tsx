@@ -5,7 +5,7 @@ import { useDexieActiveSchedule, useDexieHistory, useDexieWorkouts } from '@/hoo
 import { useDataPreloader } from '@/hooks/useDataPreloader';
 import { HomeHeader as HomeUIHeader } from '@/components/home/HomeHeader';
 import { HomeWorkoutBanner as HomeUIWorkoutBanner } from '@/components/home/HomeWorkoutBanner';
-import { HomeLists } from '@/components/home/HomeLists';
+import { HomeOpenSessions, HomeHistoryList } from '@/components/home/HomeLists';
 import { BannerSkeleton, ListSkeleton, Skeleton } from '@/components/ui/Skeleton';
 import { getBrazilToday, getBrazilDayRange } from '@/utils/dateUtil';
 import { useEffect, useState } from 'react';
@@ -88,7 +88,8 @@ export function HomePageClient() {
     const isInitialLoading = (sessionLoading && !activeUser) || (!!activeUser && activeSchedule === undefined);
 
     return (
-        <div className="min-h-dvh bg-white dark:bg-zinc-950 text-zinc-900 dark:text-white p-6 pb-28 transition-colors duration-300 font-sans">
+        <div className="min-h-dvh bg-white dark:bg-zinc-950 text-zinc-900 dark:text-white p-4 sm:p-6 pb-28 transition-colors duration-300 font-sans">
+            {/* 1. Header */}
             <HomeUIHeader activeUser={activeUser} formattedDate={formattedDate} />
             
             {isInitialLoading ? (
@@ -101,17 +102,32 @@ export function HomePageClient() {
                 </div>
             ) : (
                 <>
+                    {/* 2. Treino do Dia */}
                     <HomeUIWorkoutBanner todayWorkout={todayWorkout} todayHistory={todayHistory} />
 
-                    {/* Widget Minimalista: Recuperação & Descanso Muscular */}
+                    {/* 3. Sessões em Aberto */}
+                    <HomeOpenSessions
+                        sessionList={activeSessions || []}
+                        historyList={historyList}
+                        activeUserId={activeUser?.id || ''}
+                    />
+
+                    {/* 4. Recuperação Muscular */}
                     <MuscleRecoveryWidget userId={activeUser?.id} />
 
-                    {/* Quick Action: Montador Automático de Treino */}
-                    <div className="mb-8">
+                    {/* 5. Montar Treino */}
+                    <section className="mb-6 sm:mb-8">
+                        <div className="flex items-center gap-2 mb-3 px-1">
+                            <span className="w-1.5 h-1.5 rounded-full bg-lime-500" />
+                            <h2 className="text-xs sm:text-sm font-black uppercase tracking-widest text-zinc-900 dark:text-zinc-100">
+                                {tg('title')}
+                            </h2>
+                        </div>
+
                         <button
                             type="button"
                             onClick={() => setIsGeneratorOpen(true)}
-                            className="w-full p-4 rounded-3xl bg-gradient-to-r from-lime-500/15 via-emerald-500/10 to-transparent border border-lime-500/30 hover:border-lime-500/60 dark:hover:border-lime-400/50 flex items-center justify-between gap-4 text-left transition-all active:scale-[0.99] group shadow-xs cursor-pointer"
+                            className="w-full p-3.5 sm:p-4 rounded-2xl sm:rounded-3xl bg-gradient-to-r from-lime-500/15 via-emerald-500/10 to-transparent border border-lime-500/30 hover:border-lime-500/60 dark:hover:border-lime-400/50 flex items-center justify-between gap-4 text-left transition-all active:scale-[0.99] group shadow-xs cursor-pointer"
                         >
                             <div className="flex items-center gap-3.5">
                                 <div className="w-12 h-12 rounded-2xl bg-lime-400 text-zinc-950 flex items-center justify-center font-black shadow-md shadow-lime-500/20 group-hover:scale-105 transition-transform shrink-0">
@@ -135,11 +151,11 @@ export function HomePageClient() {
                                 <Sparkles size={14} />
                             </div>
                         </button>
-                    </div>
+                    </section>
 
-                    <HomeLists
+                    {/* 6. Histórico */}
+                    <HomeHistoryList
                         historyList={historyList}
-                        sessionList={activeSessions || []}
                         activeUserId={activeUser?.id || ''}
                     />
                 </>
