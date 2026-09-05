@@ -17,9 +17,26 @@ export default function ExerciseDetailsPage({ params }: PageProps) {
     const pathname = usePathname();
     const router = useRouter();
 
-    const rawId = (resolvedParams?.id && resolvedParams.id !== 'template' && resolvedParams.id !== 'shell')
-        ? resolvedParams.id
-        : (pathname.match(/\/exercises\/([^/]+)/)?.[1] || resolvedParams?.id);
+    // Prioridade máxima: ID real da URL ativa (navegação SPA / fallback de shell offline)
+    const resolveExerciseId = (): string => {
+        if (typeof window !== 'undefined' && window.location.pathname) {
+            const winMatch = window.location.pathname.match(/\/exercises\/([^/?#]+)/);
+            if (winMatch && winMatch[1] && winMatch[1] !== 'template' && winMatch[1] !== 'shell' && winMatch[1] !== 'new') {
+                return winMatch[1];
+            }
+        }
+        if (pathname) {
+            const pathMatch = pathname.match(/\/exercises\/([^/?#]+)/);
+            if (pathMatch && pathMatch[1] && pathMatch[1] !== 'template' && pathMatch[1] !== 'shell' && pathMatch[1] !== 'new') {
+                return pathMatch[1];
+            }
+        }
+        return (resolvedParams?.id && resolvedParams.id !== 'template' && resolvedParams.id !== 'shell')
+            ? resolvedParams.id
+            : (resolvedParams?.id || '');
+    };
+
+    const rawId = resolveExerciseId();
 
     const [exercise, setExercise] = useState<Exercise | null>(null);
     const [loading, setLoading] = useState(true);
@@ -33,6 +50,7 @@ export default function ExerciseDetailsPage({ params }: PageProps) {
             return;
         }
 
+        setExercise(null);
         setLoading(true);
         ExerciseService.getExerciseById(exId)
             .then((data) => {

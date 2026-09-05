@@ -16,9 +16,26 @@ export default function EditExercisePage({ params }: EditExercisePageProps) {
     const router = useRouter();
     const { activeUser, loading: sessionLoading } = useSession();
 
-    const rawId = (resolvedParams?.id && resolvedParams.id !== 'template' && resolvedParams.id !== 'shell')
-        ? resolvedParams.id
-        : (pathname.match(/\/exercises\/([^/]+)\/edit/)?.[1] || resolvedParams?.id);
+    // Prioridade máxima: ID real da URL ativa (navegação SPA / fallback de shell offline)
+    const resolveExerciseId = (): string => {
+        if (typeof window !== 'undefined' && window.location.pathname) {
+            const winMatch = window.location.pathname.match(/\/exercises\/([^/?#]+)\/edit/);
+            if (winMatch && winMatch[1] && winMatch[1] !== 'template' && winMatch[1] !== 'shell') {
+                return winMatch[1];
+            }
+        }
+        if (pathname) {
+            const pathMatch = pathname.match(/\/exercises\/([^/?#]+)\/edit/);
+            if (pathMatch && pathMatch[1] && pathMatch[1] !== 'template' && pathMatch[1] !== 'shell') {
+                return pathMatch[1];
+            }
+        }
+        return (resolvedParams?.id && resolvedParams.id !== 'template' && resolvedParams.id !== 'shell')
+            ? resolvedParams.id
+            : (resolvedParams?.id || '');
+    };
+
+    const rawId = resolveExerciseId();
 
     const [exercise, setExercise] = useState<any>(null);
     const [fetching, setFetching] = useState(true);

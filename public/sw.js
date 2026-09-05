@@ -5,7 +5,7 @@
  * 100% Offline-First.
  */
 
-const CACHE_VERSION = 'gymaux-v5.4.1';
+const CACHE_VERSION = 'gymaux-v5.4.2';
 const CORE_CACHE = `gymaux-core-${CACHE_VERSION}`;
 const HTML_CACHE = `gymaux-html-${CACHE_VERSION}`;
 const RSC_CACHE = `gymaux-rsc-${CACHE_VERSION}`;
@@ -120,26 +120,11 @@ self.addEventListener('fetch', (event) => {
             (async () => {
                 const rscCache = await caches.open(RSC_CACHE);
 
-                // 1. Tenta recuperar do cache imediatamente (0ms)
-                let cachedRsc =
+                // 1. Tenta recuperar do cache exato imediatamente (0ms)
+                const cachedRsc =
                     (await rscCache.match(url.pathname + url.search)) ||
                     (await rscCache.match(url.pathname)) ||
                     (await rscCache.match(url.pathname, { ignoreSearch: true }));
-
-                // 2. Fallbacks dinâmicos por padrão se não houver exato
-                if (!cachedRsc) {
-                    if (url.pathname.includes('/session/')) {
-                        cachedRsc = await findCachedByPattern(rscCache, /\/session\/[^/]+$/);
-                    } else if (url.pathname.includes('/workouts/') && url.pathname.endsWith('/edit')) {
-                        cachedRsc = await findCachedByPattern(rscCache, /\/workouts\/[^/]+\/edit$/);
-                    } else if (url.pathname.includes('/schedules/') && url.pathname.endsWith('/edit')) {
-                        cachedRsc = await findCachedByPattern(rscCache, /\/schedules\/[^/]+\/edit$/);
-                    } else if (url.pathname.includes('/exercises/') && url.pathname.endsWith('/edit')) {
-                        cachedRsc = await findCachedByPattern(rscCache, /\/exercises\/[^/]+\/edit$/);
-                    } else if (url.pathname.includes('/exercises/') && !url.pathname.endsWith('/new')) {
-                        cachedRsc = await findCachedByPattern(rscCache, /\/exercises\/[^/]+$/);
-                    }
-                }
 
                 // Função auxiliar para revalidar na rede em background
                 const revalidateRsc = async () => {
@@ -156,15 +141,33 @@ self.addEventListener('fetch', (event) => {
                     }
                 };
 
-                // Se houver em cache, devolve em 0ms e revalida em segundo plano
+                // Se houver cache EXATO, devolve em 0ms e revalida em segundo plano (SWR)
                 if (cachedRsc) {
                     event.waitUntil(revalidateRsc());
                     return cachedRsc;
                 }
 
-                // Se não estiver em cache, aguarda a rede
+                // Se não estiver em cache exato, tenta a rede primeiro
                 const fresh = await revalidateRsc();
                 if (fresh) return fresh;
+
+                // 2. MODO OFFLINE: A rede falhou. Busca shell dinâmico genérico por padrão
+                let fallbackRsc = null;
+                if (url.pathname.includes('/session/')) {
+                    fallbackRsc = await findCachedByPattern(rscCache, /\/session\/[^/]+$/);
+                } else if (url.pathname.includes('/workouts/') && url.pathname.endsWith('/edit')) {
+                    fallbackRsc = await findCachedByPattern(rscCache, /\/workouts\/[^/]+\/edit$/);
+                } else if (url.pathname.includes('/schedules/') && url.pathname.endsWith('/edit')) {
+                    fallbackRsc = await findCachedByPattern(rscCache, /\/schedules\/[^/]+\/edit$/);
+                } else if (url.pathname.includes('/exercises/') && url.pathname.endsWith('/edit')) {
+                    fallbackRsc = await findCachedByPattern(rscCache, /\/exercises\/[^/]+\/edit$/);
+                } else if (url.pathname.includes('/exercises/') && !url.pathname.endsWith('/new')) {
+                    fallbackRsc = await findCachedByPattern(rscCache, /\/exercises\/[^/]+$/);
+                }
+
+                if (fallbackRsc) {
+                    return fallbackRsc;
+                }
 
                 // Resposta RSC vazia válida para o Next.js cliente assumir sem crash
                 return new Response('', {
@@ -195,26 +198,11 @@ self.addEventListener('fetch', (event) => {
                     if (homeHtml) return homeHtml;
                 }
 
-                // 1. Tenta recuperar página do cache (0ms)
-                let cachedHtml =
+                // 1. Tenta recuperar página do cache exato (0ms)
+                const cachedHtml =
                     (await htmlCache.match(url.pathname)) ||
                     (await htmlCache.match(request)) ||
                     (await htmlCache.match(url.pathname, { ignoreSearch: true }));
-
-                // 2. Fallbacks dinâmicos se não houver exato
-                if (!cachedHtml) {
-                    if (url.pathname.includes('/session/')) {
-                        cachedHtml = await findCachedByPattern(htmlCache, /\/session\/[^/]+$/);
-                    } else if (url.pathname.includes('/workouts/') && url.pathname.endsWith('/edit')) {
-                        cachedHtml = await findCachedByPattern(htmlCache, /\/workouts\/[^/]+\/edit$/);
-                    } else if (url.pathname.includes('/schedules/') && url.pathname.endsWith('/edit')) {
-                        cachedHtml = await findCachedByPattern(htmlCache, /\/schedules\/[^/]+\/edit$/);
-                    } else if (url.pathname.includes('/exercises/') && url.pathname.endsWith('/edit')) {
-                        cachedHtml = await findCachedByPattern(htmlCache, /\/exercises\/[^/]+\/edit$/);
-                    } else if (url.pathname.includes('/exercises/') && !url.pathname.endsWith('/new')) {
-                        cachedHtml = (await findCachedByPattern(htmlCache, /\/exercises\/[^/]+$/)) || (await htmlCache.match('/pt/exercises'));
-                    }
-                }
 
                 // Função auxiliar para revalidar documento na rede em background
                 const revalidateHtml = async () => {
@@ -237,17 +225,35 @@ self.addEventListener('fetch', (event) => {
                     }
                 };
 
-                // Se houver em cache, devolve em 0ms e revalida em segundo plano
+                // Se houver cache EXATO, devolve em 0ms e revalida em segundo plano (SWR)
                 if (cachedHtml) {
                     event.waitUntil(revalidateHtml());
                     return cachedHtml;
                 }
 
-                // Se não estiver em cache, aguarda a rede
+                // Se não estiver em cache exato, tenta a rede primeiro
                 const freshHtml = await revalidateHtml();
                 if (freshHtml) return freshHtml;
 
-                // Fallback final para tela offline se rede falhar
+                // 2. MODO OFFLINE: A rede falhou. Busca shell HTML dinâmico genérico
+                let fallbackHtml = null;
+                if (url.pathname.includes('/session/')) {
+                    fallbackHtml = await findCachedByPattern(htmlCache, /\/session\/[^/]+$/);
+                } else if (url.pathname.includes('/workouts/') && url.pathname.endsWith('/edit')) {
+                    fallbackHtml = await findCachedByPattern(htmlCache, /\/workouts\/[^/]+\/edit$/);
+                } else if (url.pathname.includes('/schedules/') && url.pathname.endsWith('/edit')) {
+                    fallbackHtml = await findCachedByPattern(htmlCache, /\/schedules\/[^/]+\/edit$/);
+                } else if (url.pathname.includes('/exercises/') && url.pathname.endsWith('/edit')) {
+                    fallbackHtml = await findCachedByPattern(htmlCache, /\/exercises\/[^/]+\/edit$/);
+                } else if (url.pathname.includes('/exercises/') && !url.pathname.endsWith('/new')) {
+                    fallbackHtml = (await findCachedByPattern(htmlCache, /\/exercises\/[^/]+$/)) || (await htmlCache.match('/pt/exercises'));
+                }
+
+                if (fallbackHtml) {
+                    return fallbackHtml;
+                }
+
+                // Fallback final para tela offline se rede falhar e não houver shell
                 const coreCache = await caches.open(CORE_CACHE);
                 const offlinePage = await coreCache.match('/offline.html');
                 return offlinePage || new Response('Offline', { status: 503, statusText: 'Offline' });
