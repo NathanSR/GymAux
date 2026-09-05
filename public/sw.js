@@ -5,7 +5,7 @@
  * 100% Offline-First.
  */
 
-const CACHE_VERSION = 'gymaux-v5.4.0';
+const CACHE_VERSION = 'gymaux-v5.4.1';
 const CORE_CACHE = `gymaux-core-${CACHE_VERSION}`;
 const HTML_CACHE = `gymaux-html-${CACHE_VERSION}`;
 const RSC_CACHE = `gymaux-rsc-${CACHE_VERSION}`;
@@ -272,13 +272,18 @@ self.addEventListener('fetch', (event) => {
         event.respondWith(
             caches.match(request).then((cachedResponse) => {
                 if (cachedResponse) {
-                    // Revalida em segundo plano
-                    fetch(request).then(async (networkResponse) => {
-                        if (networkResponse && networkResponse.status === 200) {
-                            const cache = await caches.open(STATIC_CACHE);
-                            cache.put(request, networkResponse.clone());
-                        }
-                    }).catch(() => {});
+                    // Chunks do Next.js e mídias compiladas contêm hash no nome e são 100% imutáveis.
+                    // Cache-First puro: retorna imediatamente sem poluir o Network do DevTools.
+                    const isImmutable = url.pathname.startsWith('/_next/static/chunks/') || url.pathname.startsWith('/_next/static/media/');
+                    if (!isImmutable) {
+                        // Revalida em segundo plano apenas ativos estáticos mutáveis (ex: sons, ícones gerais)
+                        fetch(request).then(async (networkResponse) => {
+                            if (networkResponse && networkResponse.status === 200) {
+                                const cache = await caches.open(STATIC_CACHE);
+                                cache.put(request, networkResponse.clone());
+                            }
+                        }).catch(() => {});
+                    }
                     return cachedResponse;
                 }
 

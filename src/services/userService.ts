@@ -103,14 +103,31 @@ export const userService = {
                 3000
             );
 
-            if (error) throw error;
-
-            if (data) {
+            if (!error && data) {
                 const user = mapProfileToUser(data);
                 if (typeof window !== 'undefined') {
                     await db.users.put(user).catch(() => {});
                 }
                 return user;
+            }
+
+            // Fallback para RPC pública e segura (caso ainda não sejam conectados pelo RLS)
+            const { data: rpcData, error: rpcError } = await supabase.rpc('search_profiles_public', {
+                search_term: gymauxId
+            });
+
+            if (!rpcError && rpcData && rpcData.length > 0) {
+                const p = rpcData[0];
+                return {
+                    id: p.id,
+                    name: p.name,
+                    avatar: p.avatar || undefined,
+                    gymauxId: p.gymaux_id || undefined,
+                    role: 'user',
+                    weight: 0,
+                    height: 0,
+                    createdAt: new Date(),
+                } as User;
             }
 
             // Try local by scanning (gymauxId not indexed, but small table)
@@ -143,14 +160,31 @@ export const userService = {
                 3000
             );
 
-            if (error) throw error;
-
-            if (data) {
+            if (!error && data) {
                 const user = mapProfileToUser(data);
                 if (typeof window !== 'undefined') {
                     await db.users.put(user).catch(() => {});
                 }
                 return user;
+            }
+
+            // Fallback para RPC pública e segura (caso ainda não sejam conectados pelo RLS)
+            const { data: rpcData, error: rpcError } = await supabase.rpc('search_profiles_public', {
+                search_term: normalizedEmail
+            });
+
+            if (!rpcError && rpcData && rpcData.length > 0) {
+                const p = rpcData[0];
+                return {
+                    id: p.id,
+                    name: p.name,
+                    avatar: p.avatar || undefined,
+                    gymauxId: p.gymaux_id || undefined,
+                    role: 'user',
+                    weight: 0,
+                    height: 0,
+                    createdAt: new Date(),
+                } as User;
             }
 
             if (typeof window !== 'undefined') {

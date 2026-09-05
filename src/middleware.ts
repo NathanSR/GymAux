@@ -34,24 +34,30 @@ export default async function middleware(request: NextRequest) {
         }
     );
 
-    // 4. Verificamos a sessão do usuário com resiliência offline
+    // 4. Verificação de sessão ultra-rápida e resiliente
+    // Em navegações internas de SPA (RSC), valida a sessão local dos cookies em 0ms sem bloquear na rede.
+    // Em cargas iniciais de documento (F5 / entrada direta), faz o refresh completo com getUser().
     let user = null;
-    try {
-        const { data } = await supabase.auth.getUser();
-        user = data?.user || null;
-    } catch {
-        // Operação de rede falhou (offline): tentar obter a sessão cacheada dos cookies
+    const isRsc = request.headers.get('RSC') === '1' || request.nextUrl.searchParams.has('_rsc');
+
+    if (isRsc) {
         try {
             const { data: { session } } = await supabase.auth.getSession();
             user = session?.user || null;
         } catch {
-            // Sessão também falhou offline — verifica se há cookie de autenticação do Supabase
-            const hasAuthCookie = request.cookies.getAll().some(c =>
-                c.name.startsWith('sb-') && c.name.endsWith('-auth-token')
-            );
-            if (hasAuthCookie) {
-                // Permite a passagem se houver cookie de sessão; a validação e hidratação serão feitas via Dexie no client
-                user = { offlineAllowed: true } as any;
+            user = null;
+        }
+    } else {
+        try {
+            const { data } = await supabase.auth.getUser();
+            user = data?.user || null;
+        } catch {
+            // Operação de rede com Supabase falhou (offline): tenta obter a sessão do token nos cookies
+            try {
+                const { data: { session } } = await supabase.auth.getSession();
+                user = session?.user || null;
+            } catch {
+                user = null;
             }
         }
     }

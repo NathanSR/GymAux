@@ -343,7 +343,7 @@ export default function ExerciseForm({
 
                     try {
                         const { error: uploadError } = await supabase.storage
-                            .from('exercise-media')
+                            .from('exercises')
                             .upload(filePath, selectedFile, {
                                 cacheControl: '3600',
                                 upsert: false
@@ -351,7 +351,7 @@ export default function ExerciseForm({
 
                         if (!uploadError) {
                             const { data: { publicUrl } } = supabase.storage
-                                .from('exercise-media')
+                                .from('exercises')
                                 .getPublicUrl(filePath);
                             finalImageUrl = publicUrl;
                         }
