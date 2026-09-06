@@ -30,9 +30,17 @@ interface WorkoutsClientProps {
     userId: string;
     baseUrl?: string;
     isSessionLoading?: boolean;
+    callerId?: string;
 }
 
-export default function WorkoutsClient({ initialWorkouts, initialTotalCount, userId, baseUrl = '/workouts', isSessionLoading = false }: WorkoutsClientProps) {
+export default function WorkoutsClient({
+    initialWorkouts,
+    initialTotalCount,
+    userId,
+    baseUrl = '/workouts',
+    isSessionLoading = false,
+    callerId
+}: WorkoutsClientProps) {
     const { startWorkout } = useSessionActions();
     const locale = useLocale();
 
@@ -120,8 +128,10 @@ export default function WorkoutsClient({ initialWorkouts, initialTotalCount, use
         setInitialData(prev => sortByNewest([...newWorkouts, ...prev]));
     };
 
+    const isTrainerMode = Boolean(baseUrl?.startsWith('/trainer'));
+
     return (
-        <div className="min-h-dvh bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white pb-32 transition-colors">
+        <div className={isTrainerMode ? "flex-1 flex flex-col bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white pb-12 transition-colors" : "min-h-dvh bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white pb-32 transition-colors"}>
             {/* Header */}
             <PageHeader
                 title={t('title')}
@@ -247,6 +257,8 @@ export default function WorkoutsClient({ initialWorkouts, initialTotalCount, use
                     isOpen={isGeneratorOpen}
                     onClose={() => setIsGeneratorOpen(false)}
                     userId={userId}
+                    callerId={callerId}
+                    studentMode={isTrainerMode}
                     onWorkoutCreated={handleWorkoutCreated}
                 />
             )}

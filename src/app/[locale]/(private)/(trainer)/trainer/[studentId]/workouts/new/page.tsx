@@ -16,13 +16,18 @@ export default async function TrainerStudentNewWorkoutPage({
         redirect('/');
     }
 
-    const availableExercises = await ExerciseService.getAllExercises({ supabase });
+    const availableExercises = await ExerciseService.getAllExercises({
+        supabase,
+        studentMode: true,
+        trainerId: user.id
+    });
 
     return (
         <NewWorkoutClient 
             availableExercises={availableExercises.exercises} 
             userId={studentId} 
             callerId={user.id}
+            studentMode={true}
             baseUrl={`/trainer/${studentId}/workouts`}
         />
     );

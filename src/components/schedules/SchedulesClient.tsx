@@ -114,8 +114,10 @@ export default function SchedulesClient({ initialSchedules, initialTotalCount, u
         keyExtractor: (item) => item.id as string
     });
 
+    const isTrainerMode = Boolean(baseUrl?.startsWith('/trainer'));
+
     return (
-        <div className="min-h-dvh bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white pb-32 transition-colors">
+        <div className={isTrainerMode ? "flex-1 flex flex-col bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white pb-12 transition-colors" : "min-h-dvh bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white pb-32 transition-colors"}>
             {/* Header */}
             <PageHeader
                 title={t('title')}

@@ -25,9 +25,18 @@ interface WorkoutFormProps {
     availableExercises: Exercise[];
     onSubmit: (data: any) => void;
     isLoading?: boolean;
+    studentMode?: boolean;
+    trainerId?: string;
 }
 
-export default function WorkoutForm({ initialData, availableExercises = [], onSubmit, isLoading }: WorkoutFormProps) {
+export default function WorkoutForm({
+    initialData,
+    availableExercises = [],
+    onSubmit,
+    isLoading,
+    studentMode = false,
+    trainerId,
+}: WorkoutFormProps) {
     const locale = useLocale();
     const t = useTranslations('WorkoutForm');
 
@@ -357,6 +366,8 @@ export default function WorkoutForm({ initialData, availableExercises = [], onSu
                 isOpen={isSelectorOpen}
                 onClose={() => setIsSelectorOpen(false)}
                 onSelect={handleExerciseSelected}
+                studentMode={studentMode}
+                trainerId={trainerId}
             />
 
             <ExerciseConfigModal

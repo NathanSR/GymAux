@@ -26,6 +26,8 @@ export default async function TrainerStudentPage({
         notFound();
     }
 
+    const { data: { user } } = await supabase.auth.getUser();
+
     // Since we didn't pass pagination to getWorkoutsByUserId, it returns the array directly
     const workouts = Array.isArray(workoutsResult) ? workoutsResult : (workoutsResult as any).workouts;
     const activeSession = sessions.length > 0 ? sessions[0] : null;
@@ -35,8 +37,10 @@ export default async function TrainerStudentPage({
             studentId={studentId}
             student={student}
             activeSession={activeSession}
+            allSessions={sessions}
             recentHistory={history}
             workouts={workouts}
+            trainerId={user?.id}
         />
     );
 }

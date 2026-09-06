@@ -27,6 +27,7 @@ export interface WorkoutGeneratorParams {
     duration?: GeneratorDuration;
     weeklyDays?: number; // 2, 3, 4, 5, 6
     availableExercises: Exercise[];
+    callerId?: string;
 }
 
 interface MuscleSlot {
@@ -730,12 +731,15 @@ export const WorkoutGenerator = {
                 workoutDesc = `Treino gerado automaticamente com foco em ${focusNames[todayFocus]} (${goal}).`;
             }
 
+            const effectiveCreatedBy = params.callerId || userId;
+            const effectiveCreatedByType = params.callerId && params.callerId !== userId ? 'trainer' : 'user';
+
             return [
                 {
                     id: crypto.randomUUID(),
                     userId,
-                    createdBy: userId,
-                    createdByType: 'user',
+                    createdBy: effectiveCreatedBy,
+                    createdByType: effectiveCreatedByType,
                     name: workoutName,
                     description: workoutDesc,
                     createdAt: new Date(),
@@ -748,6 +752,8 @@ export const WorkoutGenerator = {
         // Caso 2: Rotina Semanal Completa
         const splitDefs = getWeeklySplitDefinitions(weeklyDays);
         const workouts: Workout[] = [];
+        const effectiveCreatedBy = params.callerId || userId;
+        const effectiveCreatedByType = params.callerId && params.callerId !== userId ? 'trainer' : 'user';
 
         for (const def of splitDefs) {
             const selectedIds = new Set<number>();
@@ -772,8 +778,8 @@ export const WorkoutGenerator = {
             workouts.push({
                 id: crypto.randomUUID(),
                 userId,
-                createdBy: userId,
-                createdByType: 'user',
+                createdBy: effectiveCreatedBy,
+                createdByType: effectiveCreatedByType,
                 name: def.name,
                 description: `${def.description} — Objetivo: ${goal}`,
                 createdAt: new Date(),

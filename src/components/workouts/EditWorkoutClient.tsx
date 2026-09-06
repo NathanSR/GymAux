@@ -21,9 +21,18 @@ interface EditWorkoutClientProps {
     callerId: string;
     baseUrl?: string;
     isFetching?: boolean;
+    studentMode?: boolean;
 }
 
-export default function EditWorkoutClient({ initialWorkout, availableExercises, workoutId, callerId, baseUrl = '/workouts', isFetching = false }: EditWorkoutClientProps) {
+export default function EditWorkoutClient({
+    initialWorkout,
+    availableExercises,
+    workoutId,
+    callerId,
+    baseUrl = '/workouts',
+    isFetching = false,
+    studentMode
+}: EditWorkoutClientProps) {
     const { isDark } = useTheme();
     const { navigateAfterAction } = useSmartNavigation({ fallbackUrl: baseUrl });
     const t = useTranslations('WorkoutEdit');
@@ -92,6 +101,8 @@ export default function EditWorkoutClient({ initialWorkout, availableExercises, 
                         availableExercises={availableExercises}
                         onSubmit={handleUpdate}
                         isLoading={isSaving}
+                        studentMode={studentMode ?? baseUrl.startsWith('/trainer')}
+                        trainerId={callerId}
                     />
                 )}
             </main>

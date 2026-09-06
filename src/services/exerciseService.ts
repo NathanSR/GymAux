@@ -83,7 +83,9 @@ export const ExerciseService = {
             pagination?: { page: number; limit: number },
             translations?: { te: any, tt: any },
             locale?: string,
-            supabase?: any
+            supabase?: any,
+            studentMode?: boolean,
+            trainerId?: string,
         }
     ) {
         const {
@@ -94,7 +96,9 @@ export const ExerciseService = {
             pagination = { page: 1, limit: 20 },
             translations,
             locale = 'pt',
-            supabase: supabaseInput
+            supabase: supabaseInput,
+            studentMode = false,
+            trainerId,
         } = params;
 
         let exercises: Exercise[] = [];
@@ -148,6 +152,17 @@ export const ExerciseService = {
         // Filtro por Nível
         if (level !== 'all') {
             exercises = exercises.filter(ex => ex.level === level);
+        }
+
+        // Filtro de Segurança para Aluno: Apenas exercícios do sistema ou do próprio treinador que sejam públicos/para alunos
+        if (studentMode) {
+            exercises = exercises.filter(ex => {
+                const isSystem = ex.created_by_type === 'system' || (ex.id !== undefined && ex.id < 1000);
+                if (isSystem) return true;
+                const isTrainer = trainerId ? ex.created_by === trainerId : true;
+                const isAccessible = ex.visibility === 'public' || ex.visibility === 'students';
+                return isTrainer && isAccessible;
+            });
         }
 
         // 2. Filtro de Texto (Nome ou Tag) - Suporte dinâmico e fallback
@@ -400,11 +415,26 @@ export const ExerciseService = {
     },
 
     // Buscar exercicios semelhantes (substitutos dinâmicos)
-    async getAlternativeExercises(exercise: Exercise, supabaseInput?: any): Promise<Exercise[]> {
+    async getAlternativeExercises(
+        exercise: Exercise,
+        supabaseInput?: any,
+        options?: { studentMode?: boolean; trainerId?: string }
+    ): Promise<Exercise[]> {
         if (!exercise.category || !exercise.id) return [];
         const category = exercise.category;
         const mechanics = exercise.mechanics || 'compound';
         const id = exercise.id;
+
+        const filterAccessible = (list: Exercise[]) => {
+            if (!options?.studentMode) return list;
+            return list.filter(ex => {
+                const isSystem = ex.created_by_type === 'system' || (ex.id !== undefined && ex.id < 1000);
+                if (isSystem) return true;
+                const isTrainer = options.trainerId ? ex.created_by === options.trainerId : true;
+                const isAccessible = ex.visibility === 'public' || ex.visibility === 'students';
+                return isTrainer && isAccessible;
+            });
+        };
 
         // Local-first
         if (typeof window !== 'undefined') {
@@ -413,7 +443,8 @@ export const ExerciseService = {
                 .equals(category)
                 .toArray();
             const mapped = localMatches.map(mapExerciseFromSupabase);
-            return mapped.filter(ex => ex.id !== id && ex.mechanics === mechanics).slice(0, 5);
+            const filtered = mapped.filter(ex => ex.id !== id && ex.mechanics === mechanics);
+            return filterAccessible(filtered).slice(0, 5);
         }
 
         // Server path
@@ -426,11 +457,12 @@ export const ExerciseService = {
                     .eq('category', category)
                     .eq('mechanics', mechanics)
                     .neq('id', id)
-                    .limit(5),
+                    .limit(10),
                 3000
             );
             if (error) throw error;
-            return (data || []).map(mapExerciseFromSupabase);
+            const mapped = (data || []).map(mapExerciseFromSupabase);
+            return filterAccessible(mapped).slice(0, 5);
         } catch (error) {
             console.error('[ExerciseService] Failed to fetch alternative exercises:', error);
             return [];

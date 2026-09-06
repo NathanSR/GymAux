@@ -43,10 +43,18 @@ const getEquipmentBadge = (equipment?: string, teq?: any) => {
     );
 };
 
-export const ExerciseSelector = ({ isOpen, onClose, onSelect }: {
-    isOpen: boolean,
-    onClose: () => void,
-    onSelect: (exercise: Exercise) => void
+export const ExerciseSelector = ({
+    isOpen,
+    onClose,
+    onSelect,
+    studentMode = false,
+    trainerId
+}: {
+    isOpen: boolean;
+    onClose: () => void;
+    onSelect: (exercise: Exercise) => void;
+    studentMode?: boolean;
+    trainerId?: string;
 }) => {
     const locale = useLocale();
     const t = useTranslations('ExerciseSelector');
@@ -75,14 +83,16 @@ export const ExerciseSelector = ({ isOpen, onClose, onSelect }: {
                 level: selectedLevel,
                 pagination: { page, limit: pageSize },
                 translations: { te, tt: te },
-                locale
+                locale,
+                studentMode,
+                trainerId,
             });
             return res.exercises;
         } catch (error) {
             console.error('Error fetching more exercises:', error);
             return [];
         }
-    }, [debouncedSearchTerm, selectedCategory, selectedEquipment, selectedLevel, te, locale]);
+    }, [debouncedSearchTerm, selectedCategory, selectedEquipment, selectedLevel, te, locale, studentMode, trainerId]);
 
     const fetchFirstPage = useCallback(async () => {
         setIsLoading(true);
@@ -94,7 +104,9 @@ export const ExerciseSelector = ({ isOpen, onClose, onSelect }: {
                 level: selectedLevel,
                 pagination: { page: 1, limit: 10 },
                 translations: { te, tt: te },
-                locale
+                locale,
+                studentMode,
+                trainerId,
             });
             setInitialData(res.exercises);
         } catch (error: any) {
@@ -102,13 +114,13 @@ export const ExerciseSelector = ({ isOpen, onClose, onSelect }: {
         } finally {
             setIsLoading(false);
         }
-    }, [debouncedSearchTerm, selectedCategory, selectedEquipment, selectedLevel, te, locale]);
+    }, [debouncedSearchTerm, selectedCategory, selectedEquipment, selectedLevel, te, locale, studentMode, trainerId]);
 
     useEffect(() => {
         if (isOpen) {
             fetchFirstPage();
         }
-    }, [isOpen, debouncedSearchTerm, selectedCategory, selectedEquipment, selectedLevel]);
+    }, [isOpen, debouncedSearchTerm, selectedCategory, selectedEquipment, selectedLevel, fetchFirstPage]);
 
     useEffect(() => {
         if (!isOpen) return;
@@ -172,13 +184,15 @@ export const ExerciseSelector = ({ isOpen, onClose, onSelect }: {
                                     onChange={(e) => setSearchTerm(e.target.value)}
                                 />
                             </div>
-                            <button
-                                onClick={() => setIsQuickAddOpen(true)}
-                                className="aspect-square w-[52px] flex items-center justify-center bg-lime-400 hover:bg-lime-500 text-zinc-950 rounded-2xl shadow-lg shadow-lime-500/20 active:scale-95 transition-all group"
-                                title={tf('quickAdd')}
-                            >
-                                <Plus size={24} className="group-hover:rotate-90 transition-transform duration-300" />
-                            </button>
+                            {!studentMode && (
+                                <button
+                                    onClick={() => setIsQuickAddOpen(true)}
+                                    className="aspect-square w-[52px] flex items-center justify-center bg-lime-400 hover:bg-lime-500 text-zinc-950 rounded-2xl shadow-lg shadow-lime-500/20 active:scale-95 transition-all group"
+                                    title={tf('quickAdd')}
+                                >
+                                    <Plus size={24} className="group-hover:rotate-90 transition-transform duration-300" />
+                                </button>
+                            )}
                         </div>
 
                         <ExerciseFilterPanel 

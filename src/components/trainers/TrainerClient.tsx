@@ -110,7 +110,7 @@ export default function TrainerClient({ trainerId, initialStudents }: TrainerCli
     };
 
     return (
-        <div className="min-h-screen bg-white dark:bg-zinc-950 text-zinc-900 dark:text-white p-6 lg:p-10 pb-32 transition-colors duration-300 font-sans max-w-4xl mx-auto space-y-12 overflow-x-hidden">
+        <div className="min-h-screen bg-white dark:bg-zinc-950 text-zinc-900 dark:text-white p-4 sm:p-6 lg:p-8 pb-16 transition-colors duration-300 font-sans max-w-4xl mx-auto space-y-10 overflow-x-hidden">
             <TrainerHeader t={t} />
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

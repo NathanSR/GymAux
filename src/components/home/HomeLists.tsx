@@ -11,6 +11,7 @@ import {
     Dumbbell,
     Layers,
     RotateCcw,
+    Activity,
 } from "lucide-react";
 import { useTranslations, useLocale } from 'next-intl';
 import { useSessionActions } from '@/hooks/useSessionActions';
@@ -29,10 +30,14 @@ export function HomeOpenSessions({
     sessionList: initialSessionList,
     historyList: initialHistoryList = [],
     activeUserId,
+    readOnly = false,
+    baseSessionUrl,
 }: {
     sessionList: Session[];
     historyList?: History[];
     activeUserId: string;
+    readOnly?: boolean;
+    baseSessionUrl?: string;
 }) {
     const t = useTranslations('Home');
     const tw = useTranslations('WorkoutForm');
@@ -145,22 +150,31 @@ export function HomeOpenSessions({
                                     </div>
                                 </div>
 
-                                <div className="flex items-center gap-1.5 shrink-0">
-                                    <button
-                                        onClick={() => cancelSession(session.id!)}
-                                        className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-xl bg-zinc-200/70 dark:bg-zinc-800/80 text-zinc-500 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-500/10 transition-colors cursor-pointer"
-                                        title={t('cancelCancel')}
-                                    >
-                                        <Trash2 size={16} />
-                                    </button>
-                                    <button
-                                        onClick={() => resumeWorkout(session.id!)}
-                                        className="h-9 sm:h-10 px-3 sm:px-4 flex items-center justify-center gap-1.5 rounded-xl bg-lime-400 hover:bg-lime-300 text-zinc-950 font-black text-xs uppercase tracking-wider shadow-sm transition-all active:scale-95 cursor-pointer"
-                                    >
-                                        <Play size={14} fill="currentColor" />
-                                        <span className="hidden sm:inline">{t('resume')}</span>
-                                    </button>
-                                </div>
+                                {readOnly ? (
+                                    <div className="flex items-center gap-1.5 shrink-0">
+                                        <span className="px-3 py-1.5 rounded-xl bg-lime-500/10 text-lime-600 dark:text-lime-400 border border-lime-500/20 text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5 shadow-xs">
+                                            <span className="w-1.5 h-1.5 rounded-full bg-lime-500 animate-pulse" />
+                                            <span>{t('active') || 'Ativo'}</span>
+                                        </span>
+                                    </div>
+                                ) : (
+                                    <div className="flex items-center gap-1.5 shrink-0">
+                                        <button
+                                            onClick={() => cancelSession(session.id!)}
+                                            className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-xl bg-zinc-200/70 dark:bg-zinc-800/80 text-zinc-500 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-500/10 transition-colors cursor-pointer"
+                                            title={t('cancelCancel')}
+                                        >
+                                            <Trash2 size={16} />
+                                        </button>
+                                        <button
+                                            onClick={() => resumeWorkout(session.id!)}
+                                            className="h-9 sm:h-10 px-3 sm:px-4 flex items-center justify-center gap-1.5 rounded-xl bg-lime-400 hover:bg-lime-300 text-zinc-950 font-black text-xs uppercase tracking-wider shadow-sm transition-all active:scale-95 cursor-pointer"
+                                        >
+                                            <Play size={14} fill="currentColor" />
+                                            <span className="hidden sm:inline">{t('resume')}</span>
+                                        </button>
+                                    </div>
+                                )}
                             </div>
 
                             <div className="flex items-center justify-between pt-2.5 mt-2.5 border-t border-zinc-200/60 dark:border-zinc-800/60 text-[10px]">
@@ -215,9 +229,11 @@ export function HomeOpenSessions({
 export function HomeHistoryList({
     historyList: initialHistoryList,
     activeUserId,
+    baseHistoryUrl = '/history',
 }: {
     historyList: History[];
-    activeUserId: string;
+    activeUserId?: string;
+    baseHistoryUrl?: string;
 }) {
     const t = useTranslations('Home');
     const locale = useLocale();
@@ -259,7 +275,7 @@ export function HomeHistoryList({
                 </div>
 
                 <Link
-                    href="/history"
+                    href={baseHistoryUrl}
                     className="text-[10px] font-black uppercase tracking-wider text-zinc-500 dark:text-zinc-400 hover:text-lime-600 dark:hover:text-lime-400 flex items-center gap-1 transition-colors group/btn py-1 px-2 -mr-2 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800/60"
                 >
                     <span>{t('viewAll')}</span>
@@ -297,7 +313,7 @@ export function HomeHistoryList({
                         return (
                             <Link
                                 key={item.id}
-                                href={`/history?date=${itemDate.toISOString()}&workoutId=${item.workoutId}`}
+                                href={`${baseHistoryUrl}?date=${itemDate.toISOString()}&workoutId=${item.workoutId}`}
                                 className="group relative flex items-center gap-3 sm:gap-4 p-3 sm:p-3.5 rounded-2xl sm:rounded-3xl bg-zinc-100/90 dark:bg-zinc-900/70 hover:bg-white dark:hover:bg-zinc-900 border border-zinc-200/90 dark:border-zinc-800/80 hover:border-lime-500/40 shadow-xs hover:shadow-md transition-all duration-200 cursor-pointer active:scale-[0.99]"
                             >
                                 {/* Ícone de Treino Concluído */}

@@ -14,12 +14,14 @@ interface NewWorkoutClientProps {
     userId: string;
     callerId?: string;
     baseUrl?: string;
+    studentMode?: boolean;
 }
 
-export default function NewWorkoutClient({ availableExercises, userId, callerId, baseUrl = '/workouts' }: NewWorkoutClientProps) {
+export default function NewWorkoutClient({ availableExercises, userId, callerId, baseUrl = '/workouts', studentMode }: NewWorkoutClientProps) {
     const { navigateAfterAction } = useSmartNavigation({ fallbackUrl: baseUrl });
     const t = useTranslations('WorkoutRegister');
     const [isLoading, setIsLoading] = useState(false);
+    const isStudentMode = studentMode ?? Boolean(callerId && callerId !== userId);
 
     const handleCreate = async (data: any) => {
         setIsLoading(true);
@@ -56,6 +58,8 @@ export default function NewWorkoutClient({ availableExercises, userId, callerId,
                     availableExercises={availableExercises}
                     onSubmit={handleCreate}
                     isLoading={isLoading}
+                    studentMode={isStudentMode}
+                    trainerId={callerId}
                 />
             </main>
         </div>

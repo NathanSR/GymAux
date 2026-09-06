@@ -146,6 +146,8 @@ interface WorkoutGeneratorModalProps {
     isOpen: boolean;
     onClose: () => void;
     userId: string;
+    callerId?: string;
+    studentMode?: boolean;
     onWorkoutCreated?: (workouts: Workout[]) => void;
 }
 
@@ -153,6 +155,8 @@ export function WorkoutGeneratorModal({
     isOpen,
     onClose,
     userId,
+    callerId,
+    studentMode,
     onWorkoutCreated,
 }: WorkoutGeneratorModalProps) {
     const locale = useLocale();
@@ -163,6 +167,8 @@ export function WorkoutGeneratorModal({
     const tw = useTranslations('WorkoutForm');
     const { getLocalizedName } = useExerciseLocalization();
     const { startWorkout } = useSessionActions();
+
+    const isStudentMode = studentMode || (Boolean(callerId) && callerId !== userId);
 
     // Wizard Step State
     const [step, setStep] = useState<number>(1);
@@ -235,12 +241,22 @@ export function WorkoutGeneratorModal({
 
             // Carrega todos os exercícios da base local Dexie
             db.exercises.toArray().then((exList) => {
-                setAvailableExercises(exList as Exercise[]);
+                let list = exList as Exercise[];
+                if (isStudentMode) {
+                    list = list.filter(ex => {
+                        const isSystem = ex.created_by_type === 'system' || (ex.id !== undefined && ex.id < 1000);
+                        if (isSystem) return true;
+                        const isTrainer = callerId ? ex.created_by === callerId : true;
+                        const isAccessible = ex.visibility === 'public' || ex.visibility === 'students';
+                        return isTrainer && isAccessible;
+                    });
+                }
+                setAvailableExercises(list);
             }).catch((err) => {
                 console.error('[WorkoutGeneratorModal] Erro ao carregar exercicios:', err);
             });
         }
-    }, [isOpen]);
+    }, [isOpen, isStudentMode, callerId]);
 
     // Navegação entre passos com efeito direcional
     const goToStep = (newStep: number) => {
@@ -360,6 +376,7 @@ export function WorkoutGeneratorModal({
         try {
             const workouts = WorkoutGenerator.generate({
                 userId,
+                callerId: callerId || userId,
                 scope,
                 goal,
                 level,
@@ -477,11 +494,12 @@ export function WorkoutGeneratorModal({
 
         try {
             const savedList: Workout[] = [];
+            const effectiveCallerId = callerId || userId;
 
             for (const workout of generatedWorkouts) {
                 const saved = await WorkoutService.createWorkout({
                     userId,
-                    callerId: userId,
+                    callerId: effectiveCallerId,
                     name: workout.name,
                     description: workout.description,
                     exercises: workout.exercises,
@@ -531,7 +549,7 @@ export function WorkoutGeneratorModal({
                             startDate: new Date(),
                             active: true,
                         },
-                        userId
+                        effectiveCallerId
                     );
                 } catch (schedErr) {
                     console.warn('[WorkoutGeneratorModal] Falha ao criar schedule:', schedErr);
@@ -546,7 +564,7 @@ export function WorkoutGeneratorModal({
                 scope === 'today' ? t('actions.savedSuccess') : t('actions.routineSavedSuccess')
             );
 
-            if (startImmediately && savedList[0]) {
+            if (startImmediately && savedList[0] && !isStudentMode) {
                 onClose();
                 startWorkout(savedList[0]);
             } else {
@@ -1332,7 +1350,17 @@ export function WorkoutGeneratorModal({
                                 <ArrowLeft size={18} />
                             </button>
 
-                            {scope === 'today' ? (
+                            {isStudentMode ? (
+                                <button
+                                    type="button"
+                                    onClick={() => handleSaveWorkouts(false)}
+                                    disabled={isSaving}
+                                    className="flex-1 py-3.5 px-5 bg-lime-500 hover:bg-lime-400 text-zinc-950 font-black text-xs uppercase tracking-wider rounded-2xl flex items-center justify-center gap-2 transition-all active:scale-98 shadow-md shadow-lime-500/20"
+                                >
+                                    <Save size={16} />
+                                    <span>{isSaving ? 'Salvando...' : (scope === 'today' ? 'Salvar Treino para o Aluno' : 'Salvar Rotina para o Aluno')}</span>
+                                </button>
+                            ) : scope === 'today' ? (
                                 <>
                                     <button
                                         type="button"
@@ -1395,6 +1423,8 @@ export function WorkoutGeneratorModal({
                     setInsertionIndex(null);
                 }}
                 onSelect={handleExerciseSelected}
+                studentMode={isStudentMode}
+                trainerId={callerId}
             />
         </>
     );

@@ -163,9 +163,10 @@ export default function HistoryClient({
     };
 
     const dayLabels = (t.raw('dayLabels') as string[]) || ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'];
+    const isTrainerMode = Boolean(baseUrl?.startsWith('/trainer'));
 
     return (
-        <div className="min-h-dvh bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white pb-10 transition-colors duration-300">
+        <div className={isTrainerMode ? "flex-1 flex flex-col bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white pb-10 transition-colors duration-300" : "min-h-dvh bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white pb-10 transition-colors duration-300"}>
             <PageHeader
                 title={t('title')}
                 variant="minimal"

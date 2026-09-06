@@ -9,6 +9,7 @@ export default async function TrainerStudentWorkoutsPage({
 }) {
     const { studentId } = await params;
     const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
     
     const result = await WorkoutService.getWorkoutsByUserId(
         studentId,
@@ -25,6 +26,7 @@ export default async function TrainerStudentWorkoutsPage({
             initialWorkouts={initialWorkouts} 
             initialTotalCount={initialTotalCount}
             userId={studentId}
+            callerId={user?.id}
             baseUrl={`/trainer/${studentId}/workouts`}
         />
     );

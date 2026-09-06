@@ -17,7 +17,11 @@ export default async function TrainerStudentEditWorkoutPage({
 
     const [workout, availableExercises] = await Promise.all([
         WorkoutService.getWorkoutById(workoutId, supabase),
-        ExerciseService.getAllExercises({ supabase })
+        ExerciseService.getAllExercises({
+            supabase,
+            studentMode: true,
+            trainerId: user.id
+        })
     ]);
 
     if (!workout) {
@@ -30,6 +34,7 @@ export default async function TrainerStudentEditWorkoutPage({
             availableExercises={availableExercises.exercises}
             workoutId={workoutId}
             callerId={user.id}
+            studentMode={true}
             baseUrl={`/trainer/${studentId}/workouts`}
         />
     );
