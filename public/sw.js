@@ -5,7 +5,7 @@
  * 100% Offline-First.
  */
 
-const CACHE_VERSION = 'gymaux-v5.7.0';
+const CACHE_VERSION = 'gymaux-v5.7.1';
 const CORE_CACHE = `gymaux-core-${CACHE_VERSION}`;
 const HTML_CACHE = `gymaux-html-${CACHE_VERSION}`;
 const RSC_CACHE = `gymaux-rsc-${CACHE_VERSION}`;
@@ -118,6 +118,22 @@ self.addEventListener('fetch', (event) => {
                     const htmlCache = await caches.open(HTML_CACHE);
                     const cachedRoot = (await htmlCache.match('/pt')) || (await htmlCache.match('/pt/home'));
                     if (cachedRoot) return cachedRoot;
+                    const coreCache = await caches.open(CORE_CACHE);
+                    const offlinePage = await coreCache.match('/offline.html');
+                    return offlinePage || new Response('Offline', { status: 503, statusText: 'Offline' });
+                })()
+            );
+        }
+        return; // Bypass quando online!
+    }
+
+    // SEGURANÇA 3.1: As rotas de autenticação (/login e /register) recebem redirecionamento HTTP (307) para /home quando o usuário está logado.
+    // Quando online, damos bypass para o navegador executar o redirecionamento nativamente sem interferência do Service Worker.
+    const isAuthRoute = /^\/(pt|en|es)?\/(login|register)(\/|$)/.test(url.pathname);
+    if (isAuthRoute) {
+        if (typeof navigator !== 'undefined' && !navigator.onLine) {
+            event.respondWith(
+                (async () => {
                     const coreCache = await caches.open(CORE_CACHE);
                     const offlinePage = await coreCache.match('/offline.html');
                     return offlinePage || new Response('Offline', { status: 503, statusText: 'Offline' });

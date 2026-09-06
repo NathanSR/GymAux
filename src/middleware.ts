@@ -34,10 +34,34 @@ export default async function middleware(request: NextRequest) {
         }
     );
 
-    // 4. Identificação rápida de rotas públicas
+    // 4. Identificação de rotas exclusivas de autenticação (usuário logado deve ser redirecionado para /home)
     const pathname = request.nextUrl.pathname;
-    const publicPages = ['/', '/login', '/register', '/update-password', '/admin/login', '/privacy', '/terms', '/cookies'];
     const locales = routing.locales.join('|');
+    const authOnlyPages = ['/login', '/register'];
+    const isAuthOnlyPage = authOnlyPages.some((page) => {
+        const regex = new RegExp(`^(/(${locales}))?${page}/?$`, 'i');
+        return regex.test(pathname);
+    });
+
+    if (isAuthOnlyPage) {
+        let user = null;
+        try {
+            const { data: { session } } = await supabase.auth.getSession();
+            user = session?.user || null;
+        } catch {
+            user = null;
+        }
+
+        if (user) {
+            const locale = pathname.split('/')[1] || routing.defaultLocale;
+            const homeUrl = new URL(`/${locale}/home`, request.url);
+            return NextResponse.redirect(homeUrl);
+        }
+        return response;
+    }
+
+    // 4.1 Identificação rápida das demais rotas públicas gerais
+    const publicPages = ['/', '/update-password', '/admin/login', '/privacy', '/terms', '/cookies'];
     const isPublicPage = publicPages.some((page) => {
         const path = page === '/' ? '/?' : `${page}/?`;
         const regex = new RegExp(`^(/(${locales}))?${path}$`, 'i');

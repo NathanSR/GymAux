@@ -88,10 +88,16 @@ export default function RegisterPage() {
             }
 
             setMigrated(true)
-            setTimeout(() => router.push('/home'), 500)
+            if (typeof window !== 'undefined') {
+              sessionStorage.setItem('gymaux_spa_history', JSON.stringify(['/home']));
+            }
+            setTimeout(() => router.replace('/home'), 500)
           } catch (err) {
             console.error("Erro na sincronização de dados:", err)
-            router.push('/home')
+            if (typeof window !== 'undefined') {
+              sessionStorage.setItem('gymaux_spa_history', JSON.stringify(['/home']));
+            }
+            router.replace('/home')
           }
         } else {
           alert(t('confirmEmail'))
