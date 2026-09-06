@@ -27,6 +27,9 @@ import { LANGUAGES } from '@/config/constants';
 import { User as AppUser } from '@/config/types';
 import { createClient } from '@/lib/supabase/client';
 import { authService } from '@/services/authService';
+import { db } from '@/config/db';
+import { SignOutOverlay, SignOutStep } from '@/components/auth/SignOutOverlay';
+import { OfflineSignOutModal } from '@/components/auth/OfflineSignOutModal';
 import { motion, AnimatePresence } from 'framer-motion';
 
 import { Popover } from '@/components/ui/Popover';
@@ -58,6 +61,12 @@ const ProfileMenu: React.FC<ProfileMenuProps> = ({
     const { toggleTheme, resolvedTheme } = useTheme();
     const { openModal } = useCookieConsent();
     const { openSyncModal, pendingCount } = useOfflineSync();
+
+    // --- Sign Out State & Guards ---
+    const [isSigningOut, setIsSigningOut] = useState(false);
+    const [signOutStep, setSignOutStep] = useState<SignOutStep>('syncing');
+    const [offlineModalOpen, setOfflineModalOpen] = useState(false);
+    const [offlinePendingCount, setOfflinePendingCount] = useState(0);
 
     // --- PWA Installation Logic ---
     const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
@@ -116,18 +125,45 @@ const ProfileMenu: React.FC<ProfileMenuProps> = ({
         router.push(targetPath);
     };
 
-    const handleLogOut = async () => {
-        if (typeof window !== 'undefined' && !navigator.onLine) {
-            toast.info("O encerramento de sessão requer conexão com a internet.", {
-                position: "bottom-center",
-                autoClose: 3500,
+    const handleLogOut = async (forceParam?: boolean | React.MouseEvent) => {
+        const force = typeof forceParam === 'boolean' ? forceParam : false;
+        try {
+            const isOnline = typeof window !== 'undefined' ? navigator.onLine : true;
+            const currentPending = typeof window !== 'undefined' ? await db.syncQueue.count() : 0;
+
+            if (!isOnline && currentPending > 0 && !force) {
+                setOfflinePendingCount(currentPending);
+                setOfflineModalOpen(true);
+                setShowProfileMenu(false);
+                return;
+            }
+
+            setShowProfileMenu(false);
+            setOfflineModalOpen(false);
+            setIsSigningOut(true);
+            setSignOutStep(currentPending > 0 && isOnline ? 'syncing' : 'clearing');
+
+            const result = await authService.signOut({
+                force,
+                onProgress: (step) => {
+                    setSignOutStep(step);
+                }
             });
-            return;
+
+            if (!result.success && result.reason === 'PENDING_OFFLINE_DATA') {
+                setIsSigningOut(false);
+                setOfflinePendingCount(result.pendingCount || currentPending);
+                setOfflineModalOpen(true);
+                return;
+            }
+
+            // Redirecionamento completo para a página inicial de apresentação, descartando estado em memória
+            window.location.href = `/${locale}`;
+        } catch (err) {
+            console.error('[ProfileMenu] Erro no encerramento de sessão:', err);
+            setIsSigningOut(false);
+            toast.error("Ocorreu um erro ao encerrar a sessão. Tente novamente.");
         }
-        setShowProfileMenu(false);
-        await authService.signOut();
-        // Redirecionamento completo para a página inicial de apresentação, descartando estado em memória
-        window.location.href = `/${locale}`;
     };
 
     const getRoleLabel = (role: string | undefined) => {
@@ -147,8 +183,9 @@ const ProfileMenu: React.FC<ProfileMenuProps> = ({
     };
 
     return (
-        <Popover
-            isOpen={showProfileMenu}
+        <>
+            <Popover
+                isOpen={showProfileMenu}
             onClose={handleClose}
             triggerRef={triggerRef}
             side="bottom"
@@ -315,7 +352,7 @@ const ProfileMenu: React.FC<ProfileMenuProps> = ({
                                         <div className="my-2 h-px bg-zinc-100 dark:bg-zinc-800 mx-2" />
 
                                         <button
-                                            onClick={handleLogOut}
+                                            onClick={() => handleLogOut(false)}
                                             className="w-full flex items-center gap-3 px-4 py-3 text-sm font-black text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-[18px] transition-all active:scale-[0.98]"
                                         >
                                             <LogOut size={18} />
@@ -371,6 +408,24 @@ const ProfileMenu: React.FC<ProfileMenuProps> = ({
                             </AnimatePresence>
                         </div>
         </Popover>
+
+        {/* Overlay de Bloqueio com Design Premium durante Logout */}
+        <SignOutOverlay
+            isOpen={isSigningOut}
+            step={signOutStep}
+            pendingCount={offlinePendingCount}
+        />
+
+        {/* Modal de Proteção contra Perda de Dados Offline */}
+        <OfflineSignOutModal
+            isOpen={offlineModalOpen}
+            pendingCount={offlinePendingCount}
+            onCancel={() => setOfflineModalOpen(false)}
+            onConfirmDiscard={() => handleLogOut(true)}
+            onRetrySync={() => handleLogOut(false)}
+            isOnline={typeof window !== 'undefined' && navigator.onLine}
+        />
+        </>
     );
 };
 

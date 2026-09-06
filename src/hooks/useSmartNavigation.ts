@@ -51,12 +51,18 @@ export function getParentHierarchyRoute(pathname: string): string {
         return cleanPath === '/workouts' ? '/home' : '/workouts';
     }
     if (cleanPath.startsWith('/exercises/') || cleanPath === '/exercises') {
+        if (cleanPath.endsWith('/edit')) {
+            return cleanPath.replace(/\/edit$/, '');
+        }
         return cleanPath === '/exercises' ? '/home' : '/exercises';
     }
     if (cleanPath.startsWith('/schedules/') || cleanPath === '/schedules') {
         return cleanPath === '/schedules' ? '/home' : '/schedules';
     }
-    if (cleanPath.startsWith('/profile/')) {
+    if (cleanPath.startsWith('/history')) {
+        return '/home';
+    }
+    if (cleanPath.startsWith('/profile')) {
         return '/home';
     }
     if (cleanPath.startsWith('/trainer/') || cleanPath === '/trainer') {
@@ -132,9 +138,7 @@ export function useSmartNavigation(options: UseSmartNavigationOptions = {}) {
             stack.pop();
             saveSpaHistory(stack);
         } else {
-            // O usuário navegou para uma nova rota.
-            // Se a rota já existir no histórico anterior (ex: retorno para rota pai),
-            // truncamos a pilha até ela para evitar loops circulares (A -> B -> C -> A)
+            // Nova rota: evita duplicidades consecutivas e limita a pilha
             const existingIdx = stack.lastIndexOf(normalizedCurrentPath);
             if (existingIdx !== -1) {
                 saveSpaHistory(stack.slice(0, existingIdx + 1));
@@ -151,7 +155,10 @@ export function useSmartNavigation(options: UseSmartNavigationOptions = {}) {
     }, [fallbackUrl, pathname]);
 
     /**
-     * Navegação de voltar inteligente baseada no histórico SPA e hierarquia
+     * Navegação de voltar resiliente e segura
+     * 1. Se a rota anterior bater com o fallback, tenta router.back() (preservando scroll).
+     * 2. Inclui timeout protetor: se a rota não mudar em 150ms (histórico nativo vazio/F5), força router.push().
+     * 3. Nunca utiliza window.history.go(-delta) com deltas cegos do sessionStorage.
      */
     const goBack = useCallback(async (customFallback?: string) => {
         if (isDirty && onConfirmLeave) {
@@ -175,35 +182,30 @@ export function useSmartNavigation(options: UseSmartNavigationOptions = {}) {
 
         if (typeof window !== 'undefined') {
             const stack = getSpaHistory();
-            const hasInternalHistory = stack.length >= 2;
             const prevRoute = stack.length >= 2 ? stack[stack.length - 2] : null;
 
-            // 1. Se a rota anterior no histórico é exatamente o target desejado, router.back() volta limpo
+            // Se o usuário veio diretamente da rota pai esperada, volta com router.back()
             if (prevRoute && prevRoute === normalizedTarget) {
+                const initialPath = window.location.pathname;
+                stack.pop();
+                saveSpaHistory(stack);
                 router.back();
+
+                // Fallback automático de segurança para evitar que o botão fique travado sem voltar
+                setTimeout(() => {
+                    if (window.location.pathname === initialPath) {
+                        router.push(target);
+                    }
+                }, 150);
                 return;
             }
 
-            // 2. Se a rota alvo existe em uma posição anterior da pilha SPA, salta diretamente até ela
+            // Atualiza a pilha de forma limpa antes de navegar para a rota alvo
             const targetIdx = stack.lastIndexOf(normalizedTarget);
-            if (targetIdx !== -1 && targetIdx < stack.length - 1) {
-                const delta = (stack.length - 1) - targetIdx;
+            if (targetIdx !== -1) {
                 saveSpaHistory(stack.slice(0, targetIdx + 1));
-                window.history.go(-delta);
-                return;
-            }
-
-            // 3. Se o histórico do navegador for válido e a rota anterior NÃO for um formulário (/new, /edit) ou sub-rota
-            const isPrevUnwanted = prevRoute && (
-                prevRoute === cleanPath ||
-                prevRoute.startsWith(cleanPath + '/') ||
-                prevRoute.endsWith('/new') ||
-                prevRoute.endsWith('/edit')
-            );
-
-            if (hasInternalHistory && !isPrevUnwanted && !customFallback) {
-                router.back();
-                return;
+            } else {
+                saveSpaHistory([...stack.slice(0, -1), normalizedTarget]);
             }
         }
 
@@ -211,9 +213,7 @@ export function useSmartNavigation(options: UseSmartNavigationOptions = {}) {
     }, [isDirty, onConfirmLeave, onBack, resolveFallbackUrl, pathname, router]);
 
     /**
-     * Volta no histórico desempilhando todas as rotas intermediárias até encontrar uma rota específica (ex: sair de um contexto de aluno e voltar para /trainer).
-     * Se a rota alvo estiver no histórico SPA, executa window.history.go(-delta).
-     * Se não estiver na pilha, redefine a pilha e utiliza router.replace(targetUrl) para não empilhar histórico duplicado.
+     * Volta diretamente para uma rota específica sem usar window.history.go(-delta)
      */
     const goBackTo = useCallback(async (targetUrl: string) => {
         if (isDirty && onConfirmLeave) {
@@ -230,15 +230,11 @@ export function useSmartNavigation(options: UseSmartNavigationOptions = {}) {
             const stack = getSpaHistory();
             const targetIndex = stack.lastIndexOf(normalizedTarget);
 
-            if (targetIndex !== -1 && targetIndex < stack.length - 1) {
-                const delta = (stack.length - 1) - targetIndex;
+            if (targetIndex !== -1) {
                 saveSpaHistory(stack.slice(0, targetIndex + 1));
-                window.history.go(-delta);
-                return;
+            } else {
+                saveSpaHistory([normalizedTarget]);
             }
-
-            // Se a rota alvo não estiver na pilha anterior, redefine a pilha e substitui a rota atual
-            saveSpaHistory([normalizedTarget]);
         }
 
         router.replace(targetUrl);
@@ -256,25 +252,21 @@ export function useSmartNavigation(options: UseSmartNavigationOptions = {}) {
             const stack = getSpaHistory();
             const prevRoute = stack.length >= 2 ? stack[stack.length - 2] : null;
 
-            // Se o usuário veio da lista para o formulário, voltar desempilha a rota de edição/criação limpidamente
             if (prevRoute && (prevRoute === normalizedTarget || normalizedTarget.startsWith(prevRoute))) {
+                stack.pop();
+                saveSpaHistory(stack);
                 router.back();
                 return;
             }
-        }
 
-        const normalizedCurrent = normalizePath(pathname);
-        if (normalizedCurrent === normalizedTarget) {
-            router.refresh();
-        } else {
-            const stack = getSpaHistory();
             if (stack.length > 0) {
                 stack[stack.length - 1] = normalizedTarget;
                 saveSpaHistory(stack);
             }
-            router.replace(target);
         }
-    }, [resolveFallbackUrl, router, pathname]);
+
+        router.replace(target);
+    }, [resolveFallbackUrl, router]);
 
     /**
      * Handler da tecla ESC inteligente

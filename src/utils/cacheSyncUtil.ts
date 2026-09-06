@@ -26,11 +26,22 @@ export async function safeBulkPut<T extends { id?: string | number; updatedAt?: 
 
         const pendingEntityIds = new Set(pendingOps.map(op => String(op.entityId)));
 
+        // Batch fetch existing local records in a single Dexie transaction using bulkGet
+        const validItems = remoteItems.filter(item => item && item.id !== undefined && item.id !== null);
+        const validIds = validItems.map(item => item.id as any);
+        const localRecordsList = await table.bulkGet(validIds);
+
+        const localRecordMap = new Map<string, T>();
+        validIds.forEach((id, idx) => {
+            const rec = localRecordsList[idx];
+            if (rec) {
+                localRecordMap.set(String(id), rec);
+            }
+        });
+
         const itemsToPut: T[] = [];
 
-        for (const item of remoteItems) {
-            if (!item || item.id === undefined || item.id === null) continue;
-
+        for (const item of validItems) {
             const itemIdStr = String(item.id);
 
             // Skip remote item if local item has pending sync queue operations
@@ -38,8 +49,8 @@ export async function safeBulkPut<T extends { id?: string | number; updatedAt?: 
                 continue;
             }
 
-            // Check existing local record for timestamp comparison
-            const localRecord = await table.get(item.id as any);
+            // Retrieve existing local record from memory map (0ms)
+            const localRecord = localRecordMap.get(itemIdStr);
 
             // Defensive protection for HISTORY: Do not overwrite a richer local history record with a remote one that has fewer completed sets
             if (entityType === 'HISTORY' && localRecord) {

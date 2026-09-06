@@ -71,7 +71,7 @@ export const HistoryService = {
                     .eq('user_id', userId)
                     .order('date', { ascending: false })
                     .range(from, to),
-                3000
+                12000
             );
 
             if (error) throw error;

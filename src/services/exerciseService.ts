@@ -229,7 +229,7 @@ export const ExerciseService = {
                     .from('exercises')
                     .select('*')
                     .eq('created_by', userId),
-                3500
+                12000
             );
 
             if (!error && data && data.length > 0) {

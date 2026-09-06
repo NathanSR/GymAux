@@ -23,7 +23,7 @@ interface EditScheduleClientProps {
 
 export default function EditScheduleClient({ initialData, scheduleId, callerId, baseUrl = '/schedules', isFetching = false }: EditScheduleClientProps) {
     const { isDark } = useTheme();
-    const { navigateAfterAction } = useSmartNavigation({ fallbackUrl: baseUrl });
+    const { navigateAfterAction } = useSmartNavigation({ fallbackUrl: baseUrl, enableEsc: false });
     const t = useTranslations('ScheduleEdit');
     const alerts = useAlerts();
 

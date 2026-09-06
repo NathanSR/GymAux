@@ -160,7 +160,18 @@
     "syncStatus": "Status de Sincronização",
     "athlete": "Atleta",
     "trainer": "Treinador",
-    "admin": "Administrador"
+    "admin": "Administrador",
+    "signingOutTitle": "Encerrando Sessão",
+    "signingOutSubtitle": "Por favor, aguarde enquanto finalizamos com segurança.",
+    "signoutSyncing": "Sincronizando dados pendentes com a nuvem...",
+    "signoutClearing": "Limpando sessão local com segurança...",
+    "signoutDisconnecting": "Finalizando conexão...",
+    "signoutRedirecting": "Redirecionando...",
+    "offlineWarningTitle": "Alterações Offline Pendentes",
+    "offlineWarningDesc": "Você possui {count} registros salvos offline (treinos, sessões ou histórico) que ainda não foram sincronizados com a nuvem. Se sair agora, esses dados serão perdidos permanentemente.",
+    "stayLoggedIn": "Permanecer Conectado",
+    "discardAndSignOut": "Descartar e Sair Mesmo Assim",
+    "retrySync": "Tentar Sincronizar Novamente"
   },
   "MyID": {
     "title": "Meu ID GymAux",

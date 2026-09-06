@@ -4,6 +4,8 @@ import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { migrateLocalData } from '@/lib/migration/migrateLocalData'
 import { preloadUserData } from '@/hooks/useDataPreloader'
+import { db } from '@/config/db'
+import { userService } from '@/services/userService'
 import { Link, useRouter } from '@/i18n/routing'
 import { LogIn, ArrowRight, Loader2, CheckCircle2, Mail, Lock, AlertCircle } from 'lucide-react'
 import { useForm } from 'react-hook-form'
@@ -55,6 +57,17 @@ export default function LoginPage() {
           })
           // Carregamento síncrono mandatório da nuvem para o Dexie
           await preloadUserData(authData.user.id, { force: true })
+
+          // Confirmação explícita de integridade no Dexie antes de redirecionar
+          let readyUser = await db.users.get(authData.user.id);
+          if (!readyUser) {
+            const fetched = await userService.getUserById(authData.user.id);
+            if (fetched) {
+              await db.users.put(fetched);
+              readyUser = fetched;
+            }
+          }
+
           setMigrated(true)
           setTimeout(() => router.push('/home'), 500)
         } catch (err) {

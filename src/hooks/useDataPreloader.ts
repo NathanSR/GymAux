@@ -14,8 +14,10 @@ import { authService } from '@/services/authService';
  * Função para pré-carregar e salvar no Dexie todos os dados do usuário
  * a partir da nuvem para uso offline-first imediato.
  */
-export async function preloadUserData(userId: string, options: { force?: boolean } = {}): Promise<void> {
-    if (!userId || typeof window === 'undefined' || !navigator.onLine) return;
+export async function preloadUserData(userId: string, options: { force?: boolean } = {}): Promise<{ success: boolean; hasUser: boolean }> {
+    if (!userId || typeof window === 'undefined' || !navigator.onLine) {
+        return { success: false, hasUser: false };
+    }
 
     // 1. Garante isolamento estrito antes de qualquer escrita no Dexie
     await authService.ensureUserIsolation(userId, options.force);
@@ -24,15 +26,16 @@ export async function preloadUserData(userId: string, options: { force?: boolean
     const lastPreload = localStorage.getItem(preloadKey);
     const hoursAgo = lastPreload ? (Date.now() - parseInt(lastPreload, 10)) / 3600000 : Infinity;
 
-    // Se não for forçado e já foi pré-carregado há menos de 1 hora,
-    // verifica se o banco local realmente possui os treinos do usuário.
-    // Se o banco estiver vazio, força a sincronização mesmo que a flag exista.
+    // Se não for forçado e já foi pré-carregado recentemente,
+    // verifica se o banco local possui TANTO usuário QUANTO treinos/cronogramas.
+    // Se faltar algum ou se o banco estiver vazio, força a sincronização.
     if (!options.force && hoursAgo < 1) {
         try {
-            const hasWorkouts = (await db.workouts.where('userId').equals(userId).count()) > 0;
-            const hasSchedules = (await db.schedules.where('userId').equals(userId).count()) > 0;
-            if (hasWorkouts || hasSchedules) {
-                return;
+            const hasUserLocal = (await db.users.where('id').equals(userId).count()) > 0;
+            const workoutCount = await db.workouts.where('userId').equals(userId).count();
+            const scheduleCount = await db.schedules.where('userId').equals(userId).count();
+            if (hasUserLocal && (workoutCount > 0 || scheduleCount > 0)) {
+                return { success: true, hasUser: true };
             }
         } catch {
             // Em caso de falha de leitura do Dexie, continua o preload
@@ -40,29 +43,62 @@ export async function preloadUserData(userId: string, options: { force?: boolean
     }
 
     try {
-        // 2. Garante o perfil no banco local
-        await userService.getUserById(userId);
-
-        // 3. Carrega em paralelo todos os dados essenciais da nuvem para o Dexie
-        const results = await Promise.allSettled([
+        // Estágio 1: Dados Vitais Imediatos (Perfil + Treinos + Cronogramas)
+        // Carregados primeiro para alimentar a Home, Lista de Treinos e Cronogramas
+        const [profileResult, workoutsResult, activeScheduleResult, schedulesResult] = await Promise.allSettled([
+            userService.getUserById(userId, undefined, { throwOnError: options.force }),
             WorkoutService.getWorkoutsByUserId(userId, '', { page: 1, limit: 100 }),
             ScheduleService.getActiveSchedule(userId),
             ScheduleService.getSchedulesByUserId(userId, '', { page: 1, limit: 100 }),
+        ]);
+
+        let userInDexie = await db.users.get(userId);
+        if (!userInDexie && profileResult.status === 'fulfilled' && profileResult.value) {
+            await db.users.put(profileResult.value);
+            userInDexie = profileResult.value;
+        }
+
+        // Retry preventivo caso o perfil tenha falhado na primeira tentativa (ex: rede oscilando)
+        if (!userInDexie) {
+            console.warn('[DataPreloader] Usuário não encontrado no Dexie após Estágio 1. Tentando re-fetch direto...');
+            try {
+                const retryUser = await userService.getUserById(userId);
+                if (retryUser) {
+                    await db.users.put(retryUser);
+                    userInDexie = retryUser;
+                }
+            } catch (rErr) {
+                console.warn('[DataPreloader] Falha no retry de busca de usuário:', rErr);
+            }
+        }
+
+        const hasUser = Boolean(userInDexie);
+        console.log(`[DataPreloader] Estágio 1 concluído. Perfil presente no Dexie: ${hasUser ? 'SIM' : 'NÃO'}`);
+
+        // Estágio 2: Dados Complementares (Histórico + Exercícios Customizados + Sessões)
+        const stage2Results = await Promise.allSettled([
             HistoryService.getUserHistory(userId, 1, 50),
             ExerciseService.preloadUserExercises(userId),
             SessionService.getActiveSessionByUserId(userId),
         ]);
 
-        const failedCount = results.filter(r => r.status === 'rejected').length;
-        if (failedCount > 0) {
-            console.warn(`[DataPreloader] Preload concluído com ${failedCount} avisos.`);
-        } else {
-            console.log('[DataPreloader] Todos os dados sincronizados com sucesso no Dexie (Local-First).');
+        const stage2Rejections = stage2Results.filter(r => r.status === 'rejected');
+        if (stage2Rejections.length > 0) {
+            console.warn(`[DataPreloader] Estágio 2 teve ${stage2Rejections.length} rejeição(ões).`);
         }
 
-        localStorage.setItem(preloadKey, Date.now().toString());
+        // Apenas registra o timestamp no localStorage se o usuário foi de fato salvo no Dexie
+        if (hasUser) {
+            localStorage.setItem(preloadKey, Date.now().toString());
+            return { success: true, hasUser: true };
+        } else {
+            console.error('[DataPreloader] Sincronização incompleta: perfil do usuário não pôde ser gravado localmente.');
+            return { success: false, hasUser: false };
+        }
     } catch (err) {
-        console.warn('[DataPreloader] Erro transitório durante preload:', err);
+        console.warn('[DataPreloader] Erro durante preload:', err);
+        const hasUser = Boolean(await db.users.get(userId).catch(() => null));
+        return { success: false, hasUser };
     }
 }
 
@@ -76,5 +112,3 @@ export function useDataPreloader(userId?: string | null) {
         preloadUserData(userId);
     }, [userId]);
 }
-
-

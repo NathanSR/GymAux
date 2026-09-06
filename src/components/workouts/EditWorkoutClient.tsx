@@ -34,7 +34,7 @@ export default function EditWorkoutClient({
     studentMode
 }: EditWorkoutClientProps) {
     const { isDark } = useTheme();
-    const { navigateAfterAction } = useSmartNavigation({ fallbackUrl: baseUrl });
+    const { navigateAfterAction } = useSmartNavigation({ fallbackUrl: baseUrl, enableEsc: false });
     const t = useTranslations('WorkoutEdit');
     const alerts = useAlerts();
 

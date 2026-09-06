@@ -23,7 +23,7 @@ interface EditExerciseClientProps {
 
 export default function EditExerciseClient({ initialExercise, exerciseId, isFetching = false }: EditExerciseClientProps) {
     const { isDark } = useTheme();
-    const { navigateAfterAction } = useSmartNavigation({ fallbackUrl: '/exercises' });
+    const { navigateAfterAction } = useSmartNavigation({ fallbackUrl: '/exercises', enableEsc: false });
     const t = useTranslations('ExerciseEdit');
     const { activeUser } = useSession();
     const alerts = useAlerts();

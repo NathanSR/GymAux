@@ -160,7 +160,18 @@
     "syncStatus": "Sync Status",
     "athlete": "Athlete",
     "trainer": "Trainer",
-    "admin": "Admin"
+    "admin": "Admin",
+    "signingOutTitle": "Signing Out",
+    "signingOutSubtitle": "Please wait while we safely finish your session.",
+    "signoutSyncing": "Syncing pending data to the cloud...",
+    "signoutClearing": "Safely clearing local session...",
+    "signoutDisconnecting": "Terminating connection...",
+    "signoutRedirecting": "Redirecting...",
+    "offlineWarningTitle": "Pending Offline Changes",
+    "offlineWarningDesc": "You have {count} offline records (workouts, sessions, or history) that have not been synced to the cloud. If you sign out now, these records will be permanently lost.",
+    "stayLoggedIn": "Stay Signed In",
+    "discardAndSignOut": "Discard and Sign Out Anyway",
+    "retrySync": "Retry Sync"
   },
   "MyID": {
     "title": "My GymAux ID",

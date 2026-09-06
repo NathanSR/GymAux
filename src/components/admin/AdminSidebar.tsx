@@ -21,6 +21,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 import { useLocale } from 'next-intl';
 
+import { SignOutOverlay, SignOutStep } from '@/components/auth/SignOutOverlay';
+
 export default function AdminSidebar() {
   const router = useRouter();
   const locale = useLocale();
@@ -29,6 +31,8 @@ export default function AdminSidebar() {
   
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [isSigningOut, setIsSigningOut] = useState(false);
+  const [signOutStep, setSignOutStep] = useState<SignOutStep>('clearing');
 
   const menuItems = [
     { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
@@ -38,7 +42,10 @@ export default function AdminSidebar() {
   ];
 
   const handleLogout = async () => {
-    await authService.signOut();
+    setIsSigningOut(true);
+    await authService.signOut({
+      onProgress: (step) => setSignOutStep(step)
+    });
     window.location.href = `/${locale}/admin/login`;
   };
 
@@ -180,6 +187,9 @@ export default function AdminSidebar() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Overlay de Bloqueio durante Logout */}
+      <SignOutOverlay isOpen={isSigningOut} step={signOutStep} />
     </>
   );
 }

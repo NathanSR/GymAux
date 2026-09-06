@@ -106,7 +106,7 @@ export const WorkoutService = {
             const supabase = supabaseInput || createClient();
             const { data, error } = await withTimeout(
                 supabase.from('workouts').select('*'),
-                3500
+                10000
             );
             if (!error && data && data.length > 0) {
                 const workouts: Workout[] = sortByNewest<Workout>((data || []).map(mapWorkoutFromSupabase));
@@ -138,7 +138,7 @@ export const WorkoutService = {
                 supabase
                     .from('workouts')
                     .select('*'),
-                3500
+                12000
             );
 
             if (error) throw error;
@@ -181,7 +181,7 @@ export const WorkoutService = {
                 query = query.range(from, to);
             }
 
-            const { data, count, error } = await withTimeout(query, 3000);
+            const { data, count, error } = await withTimeout(query, 12000);
 
             if (error) throw error;
 
@@ -250,7 +250,7 @@ export const WorkoutService = {
                     .select('*')
                     .eq('id', id)
                     .maybeSingle(),
-                3000
+                10000
             );
 
             if (error) throw error;
@@ -366,7 +366,7 @@ export const WorkoutService = {
                 const supabase = supabaseInput || createClient();
                 const { data: fetchedData } = await withTimeout(
                     supabase.from('workouts').select('*').eq('id', id).maybeSingle(),
-                    3000
+                    8000
                 );
                 if (fetchedData) {
                     const workout = mapWorkoutFromSupabase(fetchedData);

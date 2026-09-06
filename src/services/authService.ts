@@ -3,6 +3,19 @@ import { db } from '@/config/db';
 import { SyncManager } from './syncManager';
 import { withTimeout } from '@/lib/utils/timeout';
 
+export type SignOutProgressStep = 'syncing' | 'clearing' | 'signing_out' | 'redirecting';
+
+export interface SignOutOptions {
+    force?: boolean;
+    onProgress?: (step: SignOutProgressStep) => void;
+}
+
+export interface SignOutResult {
+    success: boolean;
+    reason?: 'PENDING_OFFLINE_DATA';
+    pendingCount?: number;
+}
+
 /**
  * Serviço de autenticação e isolamento multiusuário seguro para Dexie / Supabase.
  */
@@ -47,34 +60,68 @@ export const authService = {
     },
 
     /**
-     * Limpeza segura, instantânea e completa da sessão local no logout.
+     * Limpeza segura e garantida da sessão no logout com proteção contra perda de dados offline.
      */
-    async signOut(): Promise<void> {
-        // 1. Limpa imediatamente dados locais (Dexie e localStorage) para isolamento instantâneo
-        const localCleanPromise = this.clearUserData();
+    async signOut(options?: SignOutOptions): Promise<SignOutResult> {
+        if (typeof window === 'undefined') {
+            return { success: true };
+        }
 
-        // 2. Se houver pendências na fila de sync e houver conexão, tenta flush rápido (máx 300ms)
-        if (typeof window !== 'undefined' && navigator.onLine) {
-            try {
-                const pendingCount = await db.syncQueue.count();
-                if (pendingCount > 0) {
-                    await withTimeout(SyncManager.processQueue(), 300).catch(() => {});
+        const isOnline = navigator.onLine;
+        let pendingCount = 0;
+
+        try {
+            pendingCount = await db.syncQueue.count();
+        } catch {
+            pendingCount = 0;
+        }
+
+        // 1. Se houver pendências na fila de sync
+        if (pendingCount > 0) {
+            if (isOnline) {
+                // Tenta sincronizar a fila dando tempo real (até 15s)
+                options?.onProgress?.('syncing');
+                try {
+                    await withTimeout(SyncManager.processQueue(), 15000);
+                } catch (syncErr) {
+                    console.warn('[authService] Falha ou timeout ao sincronizar fila antes do logout:', syncErr);
                 }
-            } catch {
-                // Ignora falhas de sync antes do logout
+
+                // Reavalia a fila após tentativa de sync
+                try {
+                    pendingCount = await db.syncQueue.count();
+                } catch {
+                    pendingCount = 0;
+                }
+
+                if (pendingCount > 0 && !options?.force) {
+                    console.warn(`[authService] Logout abortado: ${pendingCount} operações ainda pendentes de sync.`);
+                    return { success: false, reason: 'PENDING_OFFLINE_DATA', pendingCount };
+                }
+            } else if (!options?.force) {
+                // Offline e com pendências: NUNCA apaga dados sem confirmação explícita (force: true)
+                console.warn(`[authService] Logout abortado (offline): ${pendingCount} operações salvas offline.`);
+                return { success: false, reason: 'PENDING_OFFLINE_DATA', pendingCount };
             }
         }
 
-        // 3. Notifica o Supabase para invalidar a sessão nos cookies com fail-fast de 1s
+        // 2. Limpa dados locais com segurança
+        options?.onProgress?.('clearing');
+        await this.clearUserData();
+
+        // 3. Notifica o Supabase para invalidar a sessão nos cookies com fail-fast de 2.5s
+        options?.onProgress?.('signing_out');
         try {
             const supabase = createClient();
-            await withTimeout(supabase.auth.signOut(), 1000).catch(() => {});
+            await withTimeout(supabase.auth.signOut(), 2500).catch(() => {});
         } catch (err) {
             console.warn('[authService] Erro ao deslogar do Supabase:', err);
         }
 
-        // Garante conclusão da limpeza local antes de finalizar
-        await localCleanPromise;
+        // 4. Notifica redirecionamento
+        options?.onProgress?.('redirecting');
+
+        return { success: true };
     },
 
     /**
@@ -95,4 +142,3 @@ export const authService = {
         }
     }
 };
-

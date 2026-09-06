@@ -34,46 +34,40 @@ export default async function middleware(request: NextRequest) {
         }
     );
 
-    // 4. Verificação de sessão ultra-rápida e resiliente
-    // Em navegações internas de SPA (RSC), valida a sessão local dos cookies em 0ms sem bloquear na rede.
-    // Em cargas iniciais de documento (F5 / entrada direta), faz o refresh completo com getUser().
-    let user = null;
-    const isRsc = request.headers.get('RSC') === '1' || request.nextUrl.searchParams.has('_rsc');
-
-    if (isRsc) {
-        try {
-            const { data: { session } } = await supabase.auth.getSession();
-            user = session?.user || null;
-        } catch {
-            user = null;
-        }
-    } else {
-        try {
-            const { data } = await supabase.auth.getUser();
-            user = data?.user || null;
-        } catch {
-            // Operação de rede com Supabase falhou (offline): tenta obter a sessão do token nos cookies
-            try {
-                const { data: { session } } = await supabase.auth.getSession();
-                user = session?.user || null;
-            } catch {
-                user = null;
-            }
-        }
-    }
-
-    // 5. Lógica de Proteção de Rotas
+    // 4. Identificação rápida de rotas públicas
     const pathname = request.nextUrl.pathname;
-
-    // Páginas que não requerem autenticação
     const publicPages = ['/', '/login', '/register', '/update-password', '/admin/login', '/privacy', '/terms', '/cookies'];
-
+    const locales = routing.locales.join('|');
     const isPublicPage = publicPages.some((page) => {
-        const locales = routing.locales.join('|');
         const path = page === '/' ? '/?' : `${page}/?`;
         const regex = new RegExp(`^(/(${locales}))?${path}$`, 'i');
         return regex.test(pathname);
     });
+
+    // Se for rota pública e não for área administrativa restrita, libera a resposta imediatamente sem bloquear
+    if (isPublicPage && !pathname.includes('/admin/')) {
+        return response;
+    }
+
+    // 5. Verificação de sessão ultra-rápida (0ms local-first nos cookies)
+    // getSession() decodifica e valida o JWT localmente sem fazer requisições HTTP externas ao Supabase.
+    // Se o token de acesso estiver expirado em rota privada, tenta refresh via getUser() com timeout estrito de 1.5s.
+    let user = null;
+    try {
+        const { data: { session } } = await supabase.auth.getSession();
+        user = session?.user || null;
+
+        if (!user && !isPublicPage) {
+            const timeoutPromise = new Promise<{ data: { user: null } }>((resolve) =>
+                setTimeout(() => resolve({ data: { user: null } }), 1500)
+            );
+            const getUserPromise = supabase.auth.getUser();
+            const { data } = await Promise.race([getUserPromise, timeoutPromise]);
+            user = data?.user || null;
+        }
+    } catch {
+        user = null;
+    }
 
     // 6. Redirecionamento se não estiver autenticado em rota privada
     if (!user && !isPublicPage) {
@@ -84,15 +78,28 @@ export default async function middleware(request: NextRequest) {
         return NextResponse.redirect(loginUrl);
     }
 
-    // 7. Se autenticado, garante que apenas admins acessam rotas do painel admin
+    // 7. Se autenticado, garante que apenas admins acessam rotas do painel admin (com timeout estrito de 2s)
     if (user && pathname.includes('/admin') && !pathname.includes('/admin/login')) {
-        const { data: profile } = await supabase
-            .from('profiles')
-            .select('role')
-            .eq('id', user.id)
-            .maybeSingle();
+        try {
+            const adminCheckPromise = supabase
+                .from('profiles')
+                .select('role')
+                .eq('id', user.id)
+                .maybeSingle();
 
-        if (!profile || profile.role !== 'admin') {
+            const timeoutPromise = new Promise<{ data: any }>((_, reject) =>
+                setTimeout(() => reject(new Error('Admin check timeout')), 2000)
+            );
+
+            const { data: profile } = await Promise.race([adminCheckPromise, timeoutPromise]);
+
+            if (!profile || profile.role !== 'admin') {
+                const locale = pathname.split('/')[1] || routing.defaultLocale;
+                const homeUrl = new URL(`/${locale}/home`, request.url);
+                return NextResponse.redirect(homeUrl);
+            }
+        } catch {
+            // Em caso de falha ou timeout na checagem de admin, redireciona com segurança para a home
             const locale = pathname.split('/')[1] || routing.defaultLocale;
             const homeUrl = new URL(`/${locale}/home`, request.url);
             return NextResponse.redirect(homeUrl);

@@ -31,7 +31,7 @@ export const userService = {
                     .select('*')
                     .eq('id', id)
                     .maybeSingle(),
-                3500
+                10000
             );
 
             if (!error && data) {
@@ -44,7 +44,7 @@ export const userService = {
     },
 
     // Buscar por ID — Stale-While-Revalidate (0ms Local-First)
-    async getUserById(id: string, supabaseInput?: any): Promise<User | null> {
+    async getUserById(id: string, supabaseInput?: any, options?: { throwOnError?: boolean }): Promise<User | null> {
         // 1. Tenta recuperar do Dexie local imediatamente (0ms)
         if (typeof window !== 'undefined') {
             const local = await db.users.get(id);
@@ -64,7 +64,7 @@ export const userService = {
                     .select('*')
                     .eq('id', id)
                     .maybeSingle(),
-                3500
+                15000
             );
 
             if (error) throw error;
@@ -72,7 +72,7 @@ export const userService = {
             if (data) {
                 const user = mapProfileToUser(data);
                 if (typeof window !== 'undefined') {
-                    await db.users.put(user).catch(() => {});
+                    await db.users.put(user);
                 }
                 return user;
             }
@@ -80,6 +80,9 @@ export const userService = {
             return null;
         } catch (error) {
             console.warn('[userService] getUserById cloud fetch failed, checking local DB:', error);
+            if (options?.throwOnError) {
+                throw error;
+            }
             if (typeof window !== 'undefined') {
                 const local = await db.users.get(id);
                 if (local) return local;
@@ -274,7 +277,7 @@ export const userService = {
         if (typeof window !== 'undefined' && navigator.onLine) {
             try {
                 const supabase = createClient();
-                const { data } = await withTimeout(supabase.auth.getUser(), 3500);
+                const { data } = await withTimeout(supabase.auth.getUser(), 5000);
                 if (data?.user?.id) return data.user.id;
             } catch {
                 // Auth call failed or timed out

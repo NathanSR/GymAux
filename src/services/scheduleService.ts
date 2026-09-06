@@ -61,7 +61,7 @@ export const ScheduleService = {
             const from = (pagination.page - 1) * pagination.limit;
             const to = from + pagination.limit - 1;
 
-            const { data, count, error } = await withTimeout(query.range(from, to), 3000);
+            const { data, count, error } = await withTimeout(query.range(from, to), 12000);
 
             if (error) throw error;
 
@@ -114,7 +114,7 @@ export const ScheduleService = {
                     .eq('active', true)
                     .order('created_at', { ascending: false })
                     .limit(1),
-                3500
+                10000
             );
 
             if (!error && data && data.length > 0) {
@@ -155,7 +155,7 @@ export const ScheduleService = {
                     .eq('active', true)
                     .order('created_at', { ascending: false })
                     .limit(1),
-                3500
+                12000
             );
 
             if (error) throw error;

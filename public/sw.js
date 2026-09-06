@@ -5,7 +5,7 @@
  * 100% Offline-First.
  */
 
-const CACHE_VERSION = 'gymaux-v5.4.3';
+const CACHE_VERSION = 'gymaux-v5.7.0';
 const CORE_CACHE = `gymaux-core-${CACHE_VERSION}`;
 const HTML_CACHE = `gymaux-html-${CACHE_VERSION}`;
 const RSC_CACHE = `gymaux-rsc-${CACHE_VERSION}`;
@@ -109,6 +109,24 @@ self.addEventListener('fetch', (event) => {
         return;
     }
 
+    // SEGURANÇA 3: A rota raiz '/' é sempre um redirecionamento HTTP (307) para o locale padrão (/pt) gerenciado pelo Next.js middleware.
+    // Quando online, damos bypass para o navegador executar o redirecionamento nativamente sem interferência do Service Worker.
+    if (url.pathname === '/' || url.pathname === '') {
+        if (typeof navigator !== 'undefined' && !navigator.onLine) {
+            event.respondWith(
+                (async () => {
+                    const htmlCache = await caches.open(HTML_CACHE);
+                    const cachedRoot = (await htmlCache.match('/pt')) || (await htmlCache.match('/pt/home'));
+                    if (cachedRoot) return cachedRoot;
+                    const coreCache = await caches.open(CORE_CACHE);
+                    const offlinePage = await coreCache.match('/offline.html');
+                    return offlinePage || new Response('Offline', { status: 503, statusText: 'Offline' });
+                })()
+            );
+        }
+        return; // Bypass quando online!
+    }
+
     // =========================================================================
     // ESTRATÉGIA 1: Next.js App Router RSC (Stale-While-Revalidate em 0ms)
     // =========================================================================
@@ -124,16 +142,31 @@ self.addEventListener('fetch', (event) => {
                     (await rscCache.match(url.pathname)) ||
                     (await rscCache.match(url.pathname, { ignoreSearch: true }));
 
-                // Função auxiliar para revalidar na rede em background
+                // Função auxiliar com timeout de 3.5s para não prender a navegação SPA
                 const revalidateRsc = async () => {
                     try {
-                        const networkResponse = await fetch(request);
-                        if (networkResponse && networkResponse.status === 200) {
-                            const clone = networkResponse.clone();
-                            await rscCache.put(url.pathname, clone.clone());
-                            await rscCache.put(url.pathname + url.search, clone);
+                        const controller = new AbortController();
+                        const timeoutId = setTimeout(() => controller.abort(), 3500);
+                        const networkResponse = await fetch(request, { signal: controller.signal });
+                        clearTimeout(timeoutId);
+
+                        if (networkResponse) {
+                            if (
+                                networkResponse.type === 'opaqueredirect' ||
+                                (networkResponse.status >= 300 && networkResponse.status < 400)
+                            ) {
+                                return networkResponse;
+                            }
+
+                            if (networkResponse.status === 200) {
+                                const clone = networkResponse.clone();
+                                await rscCache.put(url.pathname, clone.clone());
+                                await rscCache.put(url.pathname + url.search, clone);
+                                return networkResponse;
+                            }
                         }
-                        return networkResponse;
+                        // Ignora respostas com erro da Vercel (ex: 504 GATEWAY_TIMEOUT)
+                        return null;
                     } catch {
                         return null;
                     }
@@ -145,11 +178,11 @@ self.addEventListener('fetch', (event) => {
                     return cachedRsc;
                 }
 
-                // Se não estiver em cache exato, tenta a rede primeiro
+                // Se não estiver em cache exato, tenta a rede com proteção de timeout
                 const fresh = await revalidateRsc();
                 if (fresh) return fresh;
 
-                // 2. MODO OFFLINE: A rede falhou. Busca shell dinâmico genérico por padrão
+                // 2. MODO OFFLINE / RESILIÊNCIA: Busca shell dinâmico genérico por padrão
                 let fallbackRsc = null;
                 if (url.pathname.includes('/session/')) {
                     fallbackRsc = await findCachedByPattern(rscCache, /\/session\/[^/]+$/);
@@ -160,17 +193,22 @@ self.addEventListener('fetch', (event) => {
                 } else if (url.pathname.includes('/exercises/') && url.pathname.endsWith('/edit')) {
                     fallbackRsc = await findCachedByPattern(rscCache, /\/exercises\/[^/]+\/edit$/);
                 } else if (url.pathname.includes('/exercises/') && !url.pathname.endsWith('/new')) {
-                    fallbackRsc = await findCachedByPattern(rscCache, /\/exercises\/[^/]+$/);
+                    // CORREÇÃO CRÍTICA: O regex EXCLUI /new explicitamente para nunca abrir a tela de criar exercício
+                    fallbackRsc = (await findCachedByPattern(rscCache, /\/exercises\/(?!new($|[?#]))[^/]+$/)) ||
+                                  (await rscCache.match('/pt/exercises'));
                 }
 
                 if (fallbackRsc) {
                     return fallbackRsc;
                 }
 
-                // Resposta RSC vazia válida para o Next.js cliente assumir sem crash
-                return new Response('', {
-                    status: 200,
-                    headers: { 'Content-Type': 'text/x-component' }
+                // Tenta qualquer shell disponível de rota pai para evitar crash
+                const parentShell = (await rscCache.match('/pt/home')) || (await rscCache.match('/pt/workouts'));
+                if (parentShell) return parentShell;
+
+                return new Response('Offline', {
+                    status: 503,
+                    statusText: 'Offline'
                 });
             })()
         );
@@ -196,19 +234,41 @@ self.addEventListener('fetch', (event) => {
                     (await htmlCache.match(request)) ||
                     (await htmlCache.match(url.pathname, { ignoreSearch: true }));
 
-                // Função auxiliar para revalidar documento na rede em background
+                // Função auxiliar com timeout de 3.5s para revalidar documento na rede
                 const revalidateHtml = async () => {
                     try {
-                        const networkResponse = await fetch(request);
-                        if (networkResponse && networkResponse.status === 200) {
-                            const contentType = networkResponse.headers.get('content-type') || '';
-                            if (contentType.includes('text/html')) {
-                                const clone = networkResponse.clone();
-                                await htmlCache.put(url.pathname, clone.clone());
-                                await htmlCache.put(request, clone.clone());
+                        const controller = new AbortController();
+                        const timeoutId = setTimeout(() => controller.abort(), 3500);
+                        const networkResponse = await fetch(request.url, {
+                            headers: request.headers,
+                            credentials: request.credentials,
+                            signal: controller.signal
+                        });
+                        clearTimeout(timeoutId);
+
+                        if (networkResponse) {
+                            // CORREÇÃO CRÍTICA: Se a resposta for redirecionamento (301, 302, 307, 308) ou opaqueredirect,
+                            // devolve IMEDIATAMENTE para o navegador seguir para o locale correto (ex: de '/' para '/pt')!
+                            if (
+                                networkResponse.type === 'opaqueredirect' ||
+                                (networkResponse.status >= 300 && networkResponse.status < 400)
+                            ) {
+                                return networkResponse;
+                            }
+
+                            if (networkResponse.status === 200) {
+                                const contentType = networkResponse.headers.get('content-type') || '';
+                                if (contentType.includes('text/html')) {
+                                    const clone = networkResponse.clone();
+                                    await htmlCache.put(url.pathname, clone.clone());
+                                    await htmlCache.put(request, clone.clone());
+                                    return networkResponse;
+                                }
+                                return networkResponse;
                             }
                         }
-                        return networkResponse;
+                        // Ignora respostas com erro 5xx da Vercel
+                        return null;
                     } catch {
                         return null;
                     }
@@ -220,11 +280,23 @@ self.addEventListener('fetch', (event) => {
                     return cachedHtml;
                 }
 
-                // Se não estiver em cache exato, tenta a rede primeiro
+                // Se não estiver em cache exato, tenta a rede com proteção de timeout
                 const freshHtml = await revalidateHtml();
                 if (freshHtml) return freshHtml;
 
-                // 2. MODO OFFLINE: A rede falhou. Busca shell HTML dinâmico genérico
+                // 2. MODO OFFLINE / RESILIÊNCIA:
+                // Se for a raiz ('/' ou ''), redireciona para a página padrão em cache (ex: /pt ou /pt/home)
+                if (url.pathname === '/' || url.pathname === '') {
+                    const cachedHome = (await htmlCache.match('/pt')) || 
+                                       (await htmlCache.match('/pt/home')) || 
+                                       (await htmlCache.match('/en')) || 
+                                       (await htmlCache.match('/es'));
+                    if (cachedHome) {
+                        return cachedHome;
+                    }
+                }
+
+                // Busca shell HTML dinâmico genérico
                 let fallbackHtml = null;
                 if (url.pathname.includes('/session/')) {
                     fallbackHtml = await findCachedByPattern(htmlCache, /\/session\/[^/]+$/);
@@ -235,7 +307,9 @@ self.addEventListener('fetch', (event) => {
                 } else if (url.pathname.includes('/exercises/') && url.pathname.endsWith('/edit')) {
                     fallbackHtml = await findCachedByPattern(htmlCache, /\/exercises\/[^/]+\/edit$/);
                 } else if (url.pathname.includes('/exercises/') && !url.pathname.endsWith('/new')) {
-                    fallbackHtml = (await findCachedByPattern(htmlCache, /\/exercises\/[^/]+$/)) || (await htmlCache.match('/pt/exercises'));
+                    // CORREÇÃO CRÍTICA: Rejeita /new para nunca servir a página de criação no lugar de detalhes
+                    fallbackHtml = (await findCachedByPattern(htmlCache, /\/exercises\/(?!new($|[?#]))[^/]+$/)) ||
+                                   (await htmlCache.match('/pt/exercises'));
                 }
 
                 if (fallbackHtml) {

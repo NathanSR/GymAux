@@ -255,7 +255,7 @@ export const SessionService = {
                     .select('*')
                     .eq('user_id', userId)
                     .maybeSingle(),
-                3000
+                10000
             );
 
             if (error) throw error;
