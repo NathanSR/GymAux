@@ -124,9 +124,10 @@ const ProfileMenu: React.FC<ProfileMenuProps> = ({
             });
             return;
         }
-        await authService.signOut();
         setShowProfileMenu(false);
-        router.push('/');
+        await authService.signOut();
+        // Redirecionamento completo para a página inicial de apresentação, descartando estado em memória
+        window.location.href = `/${locale}`;
     };
 
     const getRoleLabel = (role: string | undefined) => {

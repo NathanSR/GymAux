@@ -2,55 +2,57 @@ import { db as dexie } from "../../config/db";
 import { createClient } from "../supabase/client";
 
 export async function migrateLocalData() {
-  const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  try {
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
 
-  if (!user) throw new Error("No user found in Supabase Auth.");
+    if (!user) return;
 
-  // Check if already migrated
-  if (localStorage.getItem("gymaux_migrated") === "true") return;
+    // Check if already migrated
+    if (localStorage.getItem("gymaux_migrated") === "true") return;
 
-  // 1. Migrate Profile
-  const localUser = await dexie.users.toCollection().first();
-  if (localUser) {
-    await supabase.from("profiles").update({
-      name: localUser.name,
-      avatar: localUser.avatar,
-      weight: localUser.weight,
-      height: localUser.height,
-      goal: localUser.goal,
-    }).eq("id", user.id);
-  }
+    // 1. Migrate Profile
+    const localUser = await dexie.users.toCollection().first();
+    if (localUser && localUser.id !== user.id) {
+      await supabase.from("profiles").update({
+        name: localUser.name,
+        avatar: localUser.avatar,
+        weight: localUser.weight,
+        height: localUser.height,
+        goal: localUser.goal,
+      }).eq("id", user.id);
+    }
 
-  // 2. Migrate Exercises (Only those with id >= 1000)
-  const userExercises = await dexie.exercises.where("id").aboveOrEqual(1000).toArray();
-  if (userExercises.length > 0) {
-    const exercisesForSupabase = userExercises.map((e) => ({
-      id: e.id, // Explicitly preserve numeric ID
-      name: e.name,
-      description: e.description,
-      category: e.category,
-      secondary_muscles: e.secondaryMuscles || [],
-      tags: e.tags,
-      how_to: e.howTo,
-      image_url: e.imageUrl || null,
-      video_url: e.videoUrl || null,
-      gallery: e.gallery || [],
-      level: e.level,
-      equipment: e.equipment || 'none',
-      execution_mode: e.executionMode || 'bilateral',
-      mechanics: e.mechanics || 'compound',
-      parent_id: e.parentId || null,
-      created_by: user.id,
-      created_by_type: 'user',
-      visibility: e.visibility || 'private'
-    }));
-    await supabase.from("exercises").insert(exercisesForSupabase as any);
-  }
+    // 2. Migrate Exercises (Ignora SYSTEM_RESERVED)
+    const rawExercises = await dexie.exercises.where("id").aboveOrEqual(1000).toArray();
+    const userExercises = rawExercises.filter(e => e.name !== 'SYSTEM_RESERVED' && e.created_by_type !== 'system');
+    if (userExercises.length > 0) {
+      const exercisesForSupabase = userExercises.map((e) => ({
+        id: e.id, // Explicitly preserve numeric ID
+        name: e.name,
+        description: e.description,
+        category: e.category,
+        secondary_muscles: e.secondaryMuscles || [],
+        tags: e.tags,
+        how_to: e.howTo,
+        image_url: e.imageUrl || null,
+        video_url: e.videoUrl || null,
+        gallery: e.gallery || [],
+        level: e.level,
+        equipment: e.equipment || 'none',
+        execution_mode: e.executionMode || 'bilateral',
+        mechanics: e.mechanics || 'compound',
+        parent_id: e.parentId || null,
+        created_by: user.id,
+        created_by_type: 'user',
+        visibility: e.visibility || 'private'
+      }));
+      await supabase.from("exercises").insert(exercisesForSupabase as any);
+    }
 
-  // 3. Migrate Workouts (and collect ID mapping)
-  const localWorkouts = await dexie.workouts.toArray();
-  const workoutIdMap = new Map<string, string>();
+    // 3. Migrate Workouts (and collect ID mapping)
+    const localWorkouts = await dexie.workouts.toArray();
+    const workoutIdMap = new Map<string, string>();
 
   if (localWorkouts.length > 0) {
     for (const w of localWorkouts) {
@@ -122,6 +124,10 @@ export async function migrateLocalData() {
     await supabase.from("sessions").insert(sessionsForSupabase);
   }
 
-  // Mark as migrated
-  localStorage.setItem("gymaux_migrated", "true");
+    // Mark as migrated
+    localStorage.setItem("gymaux_migrated", "true");
+  } catch (err) {
+    console.warn('[migrateLocalData] Erro não-fatal na migração:', err);
+  }
 }
+

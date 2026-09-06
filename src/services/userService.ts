@@ -36,7 +36,6 @@ export const userService = {
 
             if (!error && data) {
                 const user = mapProfileToUser(data);
-                await authService.ensureUserIsolation(user.id);
                 await db.users.put(user).catch(() => {});
             }
         } catch {
@@ -73,7 +72,6 @@ export const userService = {
             if (data) {
                 const user = mapProfileToUser(data);
                 if (typeof window !== 'undefined') {
-                    await authService.ensureUserIsolation(user.id);
                     await db.users.put(user).catch(() => {});
                 }
                 return user;
@@ -253,46 +251,34 @@ export const userService = {
      * This is the SINGLE SOURCE OF TRUTH for "who is the current user".
      */
     async resolveCurrentUserId(): Promise<string | null> {
-        // 1. Se estiver offline no navegador, consulta Dexie e storage local
-        if (typeof window !== 'undefined' && !navigator.onLine) {
+        // 1. Tenta recuperar do Dexie local imediatamente (0ms)
+        if (typeof window !== 'undefined') {
             try {
                 const cached = await db.users.toCollection().first();
                 if (cached?.id) return cached.id;
             } catch {
                 // Ignore Dexie errors
             }
-
-            try {
-                const supabase = createClient();
-                const { data } = await supabase.auth.getSession();
-                if (data?.session?.user?.id) return data.session.user.id;
-            } catch {
-                // Ignore
-            }
         }
 
-        // 2. Se online, tenta Supabase com fail-fast de 800ms
+        // 2. Consulta a sessão ativa do Supabase (instantânea dos cookies/storage local)
         try {
             const supabase = createClient();
-            const { data } = await withTimeout(supabase.auth.getUser(), 800);
-            if (data?.user?.id) return data.user.id;
-        } catch {
-            // Auth call failed or timed out
-        }
-
-        // 3. Fallback: check Supabase session (instantânea a partir de cookies/storage)
-        try {
-            const supabase = createClient();
-            const { data } = await withTimeout(supabase.auth.getSession(), 500);
+            const { data } = await supabase.auth.getSession();
             if (data?.session?.user?.id) return data.session.user.id;
         } catch {
-            // Session call also failed
+            // Ignore
         }
 
-        // 4. Último recurso: Dexie
-        if (typeof window !== 'undefined') {
-            const cached = await db.users.toCollection().first();
-            if (cached?.id) return cached.id;
+        // 3. Se online e ainda não resolveu, valida com auth.getUser() do servidor com timeout resiliente
+        if (typeof window !== 'undefined' && navigator.onLine) {
+            try {
+                const supabase = createClient();
+                const { data } = await withTimeout(supabase.auth.getUser(), 3500);
+                if (data?.user?.id) return data.user.id;
+            } catch {
+                // Auth call failed or timed out
+            }
         }
 
         return null;

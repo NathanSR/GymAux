@@ -5,13 +5,11 @@
  * 100% Offline-First.
  */
 
-const CACHE_VERSION = 'gymaux-v5.4.2';
+const CACHE_VERSION = 'gymaux-v5.4.3';
 const CORE_CACHE = `gymaux-core-${CACHE_VERSION}`;
 const HTML_CACHE = `gymaux-html-${CACHE_VERSION}`;
 const RSC_CACHE = `gymaux-rsc-${CACHE_VERSION}`;
 const STATIC_CACHE = `gymaux-static-${CACHE_VERSION}`;
-
-const APP_SHELL_PATH = '/pt/home';
 
 // Arquivos vitais pré-carregados na instalação
 const PRECACHE_ASSETS = [
@@ -192,12 +190,6 @@ self.addEventListener('fetch', (event) => {
             (async () => {
                 const htmlCache = await caches.open(HTML_CACHE);
 
-                // Redirecionamento amigável da raiz '/' para o App Shell
-                if (url.pathname === '/' || url.pathname === '') {
-                    const homeHtml = await htmlCache.match(APP_SHELL_PATH);
-                    if (homeHtml) return homeHtml;
-                }
-
                 // 1. Tenta recuperar página do cache exato (0ms)
                 const cachedHtml =
                     (await htmlCache.match(url.pathname)) ||
@@ -214,9 +206,6 @@ self.addEventListener('fetch', (event) => {
                                 const clone = networkResponse.clone();
                                 await htmlCache.put(url.pathname, clone.clone());
                                 await htmlCache.put(request, clone.clone());
-                                if (url.pathname.endsWith('/home')) {
-                                    await htmlCache.put(APP_SHELL_PATH, clone);
-                                }
                             }
                         }
                         return networkResponse;

@@ -56,12 +56,15 @@ export function HomeOpenSessions({
     // Live query for local history
     const recentLocalHistory = useLiveQuery(async () => {
         if (!activeUserId) return [];
-        return await db.history
+        const items = await db.history
             .where('userId')
             .equals(activeUserId)
-            .reverse()
-            .limit(10)
             .toArray();
+        return items.sort((a, b) => {
+            const dateA = a.endDate ? new Date(a.endDate).getTime() : new Date(a.date).getTime();
+            const dateB = b.endDate ? new Date(b.endDate).getTime() : new Date(b.date).getTime();
+            return dateB - dateA;
+        }).slice(0, 10);
     }, [activeUserId]);
 
     const combinedHistory = [...(recentLocalHistory || [])];
@@ -241,12 +244,15 @@ export function HomeHistoryList({
     // Live query for local history
     const recentLocalHistory = useLiveQuery(async () => {
         if (!activeUserId) return [];
-        return await db.history
+        const items = await db.history
             .where('userId')
             .equals(activeUserId)
-            .reverse()
-            .limit(10)
             .toArray();
+        return items.sort((a, b) => {
+            const dateA = a.endDate ? new Date(a.endDate).getTime() : new Date(a.date).getTime();
+            const dateB = b.endDate ? new Date(b.endDate).getTime() : new Date(b.date).getTime();
+            return dateB - dateA;
+        }).slice(0, 10);
     }, [activeUserId]);
 
     const combinedHistory = [...(recentLocalHistory || [])];

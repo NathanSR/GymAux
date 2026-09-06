@@ -6,6 +6,8 @@ import { userService } from '@/services/userService';
 import { createClient } from '@/lib/supabase/client';
 import { db } from '@/config/db';
 
+import { authService } from '@/services/authService';
+
 const supabase = createClient();
 
 export function useSession() {
@@ -65,11 +67,13 @@ export function useSession() {
             if (event === 'SIGNED_OUT') {
                 setActiveUser(null);
                 setLoading(false);
+                await authService.clearUserData().catch(() => {});
                 return;
             }
 
             if (session?.user) {
                 try {
+                    await authService.ensureUserIsolation(session.user.id);
                     const user = await userService.getUserById(session.user.id);
                     if (isMounted && user) {
                         setActiveUser(user);

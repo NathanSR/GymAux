@@ -68,12 +68,16 @@ export default function RegisterPage() {
         if (authData.session) {
           setMigrating(true)
           try {
-            await migrateLocalData()
+            // Migração não-bloqueante de dados anônimos (se existirem)
+            await migrateLocalData().catch((mErr) => {
+              console.warn("[register] migrateLocalData aviso:", mErr)
+            })
+            // Carregamento síncrono mandatório da nuvem para o Dexie
             await preloadUserData(authData.user.id, { force: true })
             setMigrated(true)
-            setTimeout(() => router.push('/home'), 800)
+            setTimeout(() => router.push('/home'), 500)
           } catch (err) {
-            console.error("Erro na migração/sincronização:", err)
+            console.error("Erro na sincronização de dados:", err)
             router.push('/home')
           }
         } else {

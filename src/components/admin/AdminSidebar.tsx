@@ -19,8 +19,11 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
+import { useLocale } from 'next-intl';
+
 export default function AdminSidebar() {
   const router = useRouter();
+  const locale = useLocale();
   const pathname = usePathname();
   const supabase = createClient();
   
@@ -36,7 +39,7 @@ export default function AdminSidebar() {
 
   const handleLogout = async () => {
     await authService.signOut();
-    router.push('/admin/login');
+    window.location.href = `/${locale}/admin/login`;
   };
 
   const SidebarContent = () => (

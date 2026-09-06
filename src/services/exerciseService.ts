@@ -219,6 +219,31 @@ export const ExerciseService = {
         };
     },
 
+    // Pré-carregar exercícios customizados do usuário para o Dexie
+    async preloadUserExercises(userId: string, supabaseInput?: any): Promise<Exercise[]> {
+        if (typeof window === 'undefined' || !navigator.onLine) return [];
+        try {
+            const supabase = supabaseInput || createClient();
+            const { data, error } = await withTimeout(
+                supabase
+                    .from('exercises')
+                    .select('*')
+                    .eq('created_by', userId),
+                3500
+            );
+
+            if (!error && data && data.length > 0) {
+                const mapped = data.map(mapExerciseFromSupabase);
+                await safeBulkPut(db.exercises, mapped, 'EXERCISE');
+                return mapped;
+            }
+            return [];
+        } catch (err) {
+            console.warn('[ExerciseService] preloadUserExercises error:', err);
+            return [];
+        }
+    },
+
     // Buscar por ID
     async getExerciseById(id: number, supabaseInput?: any) {
         // Local-first
