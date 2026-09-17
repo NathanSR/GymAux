@@ -16,9 +16,11 @@ import {
     ShieldCheck,
     Globe,
     Cookie,
-    RefreshCw
+    RefreshCw,
+    Loader2
 } from "lucide-react";
 import { useRouter, usePathname } from '@/i18n/routing';
+import { startTopLoader } from '@/utils/topLoader';
 import { useTheme } from '@/context/ThemeContext';
 import { useCookieConsent } from '@/context/CookieConsentContext';
 import { useOfflineSync } from '@/context/OfflineSyncProvider';
@@ -94,6 +96,8 @@ const ProfileMenu: React.FC<ProfileMenuProps> = ({
 
     // --- View State ---
     const [view, setView] = useState<'main' | 'language'>('main');
+    const [isChangingLanguage, setIsChangingLanguage] = useState<Language | null>(null);
+    const [navigatingPath, setNavigatingPath] = useState<string | null>(null);
 
     const handleClose = () => {
         setShowProfileMenu(false);
@@ -108,9 +112,22 @@ const ProfileMenu: React.FC<ProfileMenuProps> = ({
             });
             return;
         }
+
+        if (newLocale === locale) {
+            setShowProfileMenu(false);
+            setView('main');
+            return;
+        }
+
+        setIsChangingLanguage(newLocale);
+        startTopLoader();
         router.push(pathname, { locale: newLocale });
-        setShowProfileMenu(false);
-        setView('main');
+
+        setTimeout(() => {
+            setShowProfileMenu(false);
+            setView('main');
+            setIsChangingLanguage(null);
+        }, 300);
     };
 
     const handleOnlineOnlyNavigation = (targetPath: string, label: string) => {
@@ -121,8 +138,15 @@ const ProfileMenu: React.FC<ProfileMenuProps> = ({
             });
             return;
         }
-        setShowProfileMenu(false);
+
+        setNavigatingPath(targetPath);
+        startTopLoader();
         router.push(targetPath);
+
+        setTimeout(() => {
+            setShowProfileMenu(false);
+            setNavigatingPath(null);
+        }, 250);
     };
 
     const handleLogOut = async (forceParam?: boolean | React.MouseEvent) => {
@@ -335,6 +359,7 @@ const ProfileMenu: React.FC<ProfileMenuProps> = ({
                                             icon={<Users size={18} className="text-lime-600 dark:text-lime-400" />}
                                             label={t('trainerPanel')}
                                             onClick={() => handleOnlineOnlyNavigation('/trainer', t('trainerPanel'))}
+                                            isLoading={navigatingPath === '/trainer'}
                                             variant="premium"
                                             showChevron
                                         />
@@ -344,6 +369,7 @@ const ProfileMenu: React.FC<ProfileMenuProps> = ({
                                                 icon={<ShieldCheck size={18} className="text-amber-500" />}
                                                 label="Painel Admin"
                                                 onClick={() => handleOnlineOnlyNavigation('/admin', 'Painel Admin')}
+                                                isLoading={navigatingPath === '/admin'}
                                                 variant="premium"
                                                 showChevron
                                             />
@@ -386,21 +412,24 @@ const ProfileMenu: React.FC<ProfileMenuProps> = ({
                                         ].map((lang) => (
                                             <button
                                                 key={lang.id}
+                                                disabled={!!isChangingLanguage}
                                                 onClick={() => handleLanguageChange(lang.id as Language)}
                                                 className={`w-full flex items-center justify-between px-4 py-3 text-sm font-black rounded-[18px] transition-all mb-0.5 active:scale-[0.98] ${locale === lang.id
                                                     ? 'bg-lime-400/10 text-lime-600 dark:text-lime-400'
                                                     : 'hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300'
-                                                    }`}
+                                                    } ${isChangingLanguage && isChangingLanguage !== lang.id ? 'opacity-50 cursor-not-allowed' : ''}`}
                                             >
                                                 <div className="flex items-center gap-3">
                                                     <span className="text-lg">{lang.flag}</span>
                                                     <span>{lang.label}</span>
                                                 </div>
-                                                {locale === lang.id && (
+                                                {isChangingLanguage === lang.id ? (
+                                                    <Loader2 size={16} className="animate-spin text-lime-500" />
+                                                ) : locale === lang.id ? (
                                                     <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }}>
                                                         <Check size={18} strokeWidth={3} />
                                                     </motion.div>
-                                                )}
+                                                ) : null}
                                             </button>
                                         ))}
                                     </motion.div>

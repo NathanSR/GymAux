@@ -11,7 +11,7 @@ export default async function TrainerDashboardPage() {
         redirect('/');
     }
 
-    const activeStudents = await connectionService.getActiveStudents(user.id, supabase);
+    const activeStudents = await connectionService.getActiveStudents(user.id, supabase, { page: 1, limit: 10 });
 
     return (
         <TrainerClient

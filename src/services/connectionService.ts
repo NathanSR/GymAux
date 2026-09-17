@@ -101,7 +101,7 @@ export const connectionService = {
                         name,
                         avatar
                     )
-                `, { count: 'exact' })
+                `)
                 .eq('trainer_id', trainerId)
                 .eq('status', 'active');
 

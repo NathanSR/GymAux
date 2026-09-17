@@ -1,5 +1,5 @@
 import React from 'react';
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, Loader2 } from 'lucide-react';
 import { Link } from '@/i18n/routing';
 
 export interface ProfileMenuButtonProps {
@@ -10,6 +10,7 @@ export interface ProfileMenuButtonProps {
     href?: string;
     showChevron?: boolean;
     variant?: 'default' | 'premium';
+    isLoading?: boolean;
 }
 
 export const ProfileMenuButton = ({
@@ -19,7 +20,8 @@ export const ProfileMenuButton = ({
     onClick,
     href,
     showChevron,
-    variant = 'default'
+    variant = 'default',
+    isLoading = false
 }: ProfileMenuButtonProps) => {
     const content = (
         <>
@@ -32,7 +34,12 @@ export const ProfileMenuButton = ({
                     {value}
                 </span>
             )}
-            {showChevron && (
+            {isLoading ? (
+                <Loader2
+                    size={15}
+                    className="animate-spin text-lime-500 flex-shrink-0"
+                />
+            ) : showChevron && (
                 <ChevronRight
                     size={14}
                     className={`opacity-20 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all ${
