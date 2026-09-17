@@ -5,7 +5,7 @@
  * 100% Offline-First.
  */
 
-const CACHE_VERSION = 'gymaux-v5.7.1';
+const CACHE_VERSION = 'gymaux-v5.8.0';
 const CORE_CACHE = `gymaux-core-${CACHE_VERSION}`;
 const HTML_CACHE = `gymaux-html-${CACHE_VERSION}`;
 const RSC_CACHE = `gymaux-rsc-${CACHE_VERSION}`;
@@ -151,6 +151,7 @@ self.addEventListener('fetch', (event) => {
         event.respondWith(
             (async () => {
                 const rscCache = await caches.open(RSC_CACHE);
+                const isOnline = typeof navigator !== 'undefined' ? navigator.onLine : true;
 
                 // 1. Tenta recuperar do cache exato imediatamente (0ms)
                 const cachedRsc =
@@ -158,11 +159,39 @@ self.addEventListener('fetch', (event) => {
                     (await rscCache.match(url.pathname)) ||
                     (await rscCache.match(url.pathname, { ignoreSearch: true }));
 
-                // Função auxiliar com timeout de 3.5s para não prender a navegação SPA
-                const revalidateRsc = async () => {
+                // Helper para buscar shell dinâmico genérico por padrão
+                const getFallbackRsc = async () => {
+                    if (url.pathname.includes('/session/')) {
+                        return await findCachedByPattern(rscCache, /\/session\/[^/]+$/);
+                    } else if (url.pathname.includes('/workouts/') && url.pathname.endsWith('/edit')) {
+                        return await findCachedByPattern(rscCache, /\/workouts\/[^/]+\/edit$/);
+                    } else if (url.pathname.includes('/schedules/') && url.pathname.endsWith('/edit')) {
+                        return await findCachedByPattern(rscCache, /\/schedules\/[^/]+\/edit$/);
+                    } else if (url.pathname.includes('/exercises/') && url.pathname.endsWith('/edit')) {
+                        return await findCachedByPattern(rscCache, /\/exercises\/[^/]+\/edit$/);
+                    } else if (url.pathname.includes('/exercises/') && !url.pathname.endsWith('/new')) {
+                        // O regex exclui /new explicitamente para nunca abrir a tela de criação no lugar de detalhes
+                        return (await findCachedByPattern(rscCache, /\/exercises\/(?!new($|[?#]))[^/]+$/)) ||
+                               (await rscCache.match('/pt/exercises'));
+                    }
+                    return null;
+                };
+
+                // CENÁRIO A: DISPOSITIVO OFFLINE
+                if (!isOnline) {
+                    if (cachedRsc) return cachedRsc;
+                    const fallback = await getFallbackRsc();
+                    if (fallback) return fallback;
+                    // Retorna 503 controlado para que o roteador do Next.js faça fallback para navegação HTML (que entrega offline.html)
+                    return new Response('Offline', { status: 503, statusText: 'Offline' });
+                }
+
+                // CENÁRIO B: DISPOSITIVO ONLINE
+                // Função auxiliar para revalidar/buscar da rede com timeout de proteção generoso (15s) contra sockets travados
+                const fetchFromNetwork = async () => {
                     try {
                         const controller = new AbortController();
-                        const timeoutId = setTimeout(() => controller.abort(), 3500);
+                        const timeoutId = setTimeout(() => controller.abort(), 15000);
                         const networkResponse = await fetch(request, { signal: controller.signal });
                         clearTimeout(timeoutId);
 
@@ -180,47 +209,29 @@ self.addEventListener('fetch', (event) => {
                                 await rscCache.put(url.pathname + url.search, clone);
                                 return networkResponse;
                             }
+
+                            // Erros de servidor (4xx / 5xx): devolve diretamente para o Next.js gerenciar na UI
+                            return networkResponse;
                         }
-                        // Ignora respostas com erro da Vercel (ex: 504 GATEWAY_TIMEOUT)
                         return null;
                     } catch {
                         return null;
                     }
                 };
 
-                // Se houver cache EXATO, devolve em 0ms e revalida em segundo plano (SWR)
+                // B1. Se houver cache EXATO, devolve em 0ms e revalida em segundo plano (SWR silencioso)
                 if (cachedRsc) {
-                    event.waitUntil(revalidateRsc());
+                    event.waitUntil(fetchFromNetwork());
                     return cachedRsc;
                 }
 
-                // Se não estiver em cache exato, tenta a rede com proteção de timeout
-                const fresh = await revalidateRsc();
+                // B2. Cache Miss: aguarda a resposta da rede em tempo hábil
+                const fresh = await fetchFromNetwork();
                 if (fresh) return fresh;
 
-                // 2. MODO OFFLINE / RESILIÊNCIA: Busca shell dinâmico genérico por padrão
-                let fallbackRsc = null;
-                if (url.pathname.includes('/session/')) {
-                    fallbackRsc = await findCachedByPattern(rscCache, /\/session\/[^/]+$/);
-                } else if (url.pathname.includes('/workouts/') && url.pathname.endsWith('/edit')) {
-                    fallbackRsc = await findCachedByPattern(rscCache, /\/workouts\/[^/]+\/edit$/);
-                } else if (url.pathname.includes('/schedules/') && url.pathname.endsWith('/edit')) {
-                    fallbackRsc = await findCachedByPattern(rscCache, /\/schedules\/[^/]+\/edit$/);
-                } else if (url.pathname.includes('/exercises/') && url.pathname.endsWith('/edit')) {
-                    fallbackRsc = await findCachedByPattern(rscCache, /\/exercises\/[^/]+\/edit$/);
-                } else if (url.pathname.includes('/exercises/') && !url.pathname.endsWith('/new')) {
-                    // CORREÇÃO CRÍTICA: O regex EXCLUI /new explicitamente para nunca abrir a tela de criar exercício
-                    fallbackRsc = (await findCachedByPattern(rscCache, /\/exercises\/(?!new($|[?#]))[^/]+$/)) ||
-                                  (await rscCache.match('/pt/exercises'));
-                }
-
-                if (fallbackRsc) {
-                    return fallbackRsc;
-                }
-
-                // Tenta qualquer shell disponível de rota pai para evitar crash
-                const parentShell = (await rscCache.match('/pt/home')) || (await rscCache.match('/pt/workouts'));
-                if (parentShell) return parentShell;
+                // B3. Falha real de rede (queda de conexão / timeout de 15s): tenta fallback de shell dinâmico
+                const fallbackRsc = await getFallbackRsc();
+                if (fallbackRsc) return fallbackRsc;
 
                 return new Response('Offline', {
                     status: 503,
@@ -243,6 +254,7 @@ self.addEventListener('fetch', (event) => {
         event.respondWith(
             (async () => {
                 const htmlCache = await caches.open(HTML_CACHE);
+                const isOnline = typeof navigator !== 'undefined' ? navigator.onLine : true;
 
                 // 1. Tenta recuperar página do cache exato (0ms)
                 const cachedHtml =
@@ -250,11 +262,47 @@ self.addEventListener('fetch', (event) => {
                     (await htmlCache.match(request)) ||
                     (await htmlCache.match(url.pathname, { ignoreSearch: true }));
 
-                // Função auxiliar com timeout de 3.5s para revalidar documento na rede
-                const revalidateHtml = async () => {
+                // Helper para buscar shell HTML dinâmico genérico
+                const getFallbackHtml = async () => {
+                    if (url.pathname === '/' || url.pathname === '') {
+                        const cachedHome = (await htmlCache.match('/pt')) || 
+                                           (await htmlCache.match('/pt/home')) || 
+                                           (await htmlCache.match('/en')) || 
+                                           (await htmlCache.match('/es'));
+                        if (cachedHome) return cachedHome;
+                    }
+
+                    if (url.pathname.includes('/session/')) {
+                        return await findCachedByPattern(htmlCache, /\/session\/[^/]+$/);
+                    } else if (url.pathname.includes('/workouts/') && url.pathname.endsWith('/edit')) {
+                        return await findCachedByPattern(htmlCache, /\/workouts\/[^/]+\/edit$/);
+                    } else if (url.pathname.includes('/schedules/') && url.pathname.endsWith('/edit')) {
+                        return await findCachedByPattern(htmlCache, /\/schedules\/[^/]+\/edit$/);
+                    } else if (url.pathname.includes('/exercises/') && url.pathname.endsWith('/edit')) {
+                        return await findCachedByPattern(htmlCache, /\/exercises\/[^/]+\/edit$/);
+                    } else if (url.pathname.includes('/exercises/') && !url.pathname.endsWith('/new')) {
+                        return (await findCachedByPattern(htmlCache, /\/exercises\/(?!new($|[?#]))[^/]+$/)) ||
+                               (await htmlCache.match('/pt/exercises'));
+                    }
+                    return null;
+                };
+
+                // CENÁRIO A: DISPOSITIVO OFFLINE
+                if (!isOnline) {
+                    if (cachedHtml) return cachedHtml;
+                    const fallback = await getFallbackHtml();
+                    if (fallback) return fallback;
+                    const coreCache = await caches.open(CORE_CACHE);
+                    const offlinePage = await coreCache.match('/offline.html');
+                    return offlinePage || new Response('Offline', { status: 503, statusText: 'Offline' });
+                }
+
+                // CENÁRIO B: DISPOSITIVO ONLINE
+                // Função auxiliar para revalidar/buscar documento na rede com proteção de 15s
+                const fetchHtmlFromNetwork = async () => {
                     try {
                         const controller = new AbortController();
-                        const timeoutId = setTimeout(() => controller.abort(), 3500);
+                        const timeoutId = setTimeout(() => controller.abort(), 15000);
                         const networkResponse = await fetch(request.url, {
                             headers: request.headers,
                             credentials: request.credentials,
@@ -263,8 +311,7 @@ self.addEventListener('fetch', (event) => {
                         clearTimeout(timeoutId);
 
                         if (networkResponse) {
-                            // CORREÇÃO CRÍTICA: Se a resposta for redirecionamento (301, 302, 307, 308) ou opaqueredirect,
-                            // devolve IMEDIATAMENTE para o navegador seguir para o locale correto (ex: de '/' para '/pt')!
+                            // Se a resposta for redirecionamento (301, 302, 307, 308) ou opaqueredirect, devolve imediatamente
                             if (
                                 networkResponse.type === 'opaqueredirect' ||
                                 (networkResponse.status >= 300 && networkResponse.status < 400)
@@ -282,57 +329,31 @@ self.addEventListener('fetch', (event) => {
                                 }
                                 return networkResponse;
                             }
+
+                            // Erros de servidor (4xx / 5xx): devolve para o Next.js renderizar sua própria UI de erro (error.tsx/not-found)
+                            return networkResponse;
                         }
-                        // Ignora respostas com erro 5xx da Vercel
                         return null;
                     } catch {
                         return null;
                     }
                 };
 
-                // Se houver cache EXATO, devolve em 0ms e revalida em segundo plano (SWR)
+                // B1. Se houver cache EXATO, devolve em 0ms e revalida em segundo plano (SWR silencioso)
                 if (cachedHtml) {
-                    event.waitUntil(revalidateHtml());
+                    event.waitUntil(fetchHtmlFromNetwork());
                     return cachedHtml;
                 }
 
-                // Se não estiver em cache exato, tenta a rede com proteção de timeout
-                const freshHtml = await revalidateHtml();
+                // B2. Cache Miss: busca documento na rede com tempo hábil sem abortos prematuros
+                const freshHtml = await fetchHtmlFromNetwork();
                 if (freshHtml) return freshHtml;
 
-                // 2. MODO OFFLINE / RESILIÊNCIA:
-                // Se for a raiz ('/' ou ''), redireciona para a página padrão em cache (ex: /pt ou /pt/home)
-                if (url.pathname === '/' || url.pathname === '') {
-                    const cachedHome = (await htmlCache.match('/pt')) || 
-                                       (await htmlCache.match('/pt/home')) || 
-                                       (await htmlCache.match('/en')) || 
-                                       (await htmlCache.match('/es'));
-                    if (cachedHome) {
-                        return cachedHome;
-                    }
-                }
+                // B3. Falha real de rede (queda de conexão / timeout de 15s): tenta fallback de shell
+                const fallbackHtml = await getFallbackHtml();
+                if (fallbackHtml) return fallbackHtml;
 
-                // Busca shell HTML dinâmico genérico
-                let fallbackHtml = null;
-                if (url.pathname.includes('/session/')) {
-                    fallbackHtml = await findCachedByPattern(htmlCache, /\/session\/[^/]+$/);
-                } else if (url.pathname.includes('/workouts/') && url.pathname.endsWith('/edit')) {
-                    fallbackHtml = await findCachedByPattern(htmlCache, /\/workouts\/[^/]+\/edit$/);
-                } else if (url.pathname.includes('/schedules/') && url.pathname.endsWith('/edit')) {
-                    fallbackHtml = await findCachedByPattern(htmlCache, /\/schedules\/[^/]+\/edit$/);
-                } else if (url.pathname.includes('/exercises/') && url.pathname.endsWith('/edit')) {
-                    fallbackHtml = await findCachedByPattern(htmlCache, /\/exercises\/[^/]+\/edit$/);
-                } else if (url.pathname.includes('/exercises/') && !url.pathname.endsWith('/new')) {
-                    // CORREÇÃO CRÍTICA: Rejeita /new para nunca servir a página de criação no lugar de detalhes
-                    fallbackHtml = (await findCachedByPattern(htmlCache, /\/exercises\/(?!new($|[?#]))[^/]+$/)) ||
-                                   (await htmlCache.match('/pt/exercises'));
-                }
-
-                if (fallbackHtml) {
-                    return fallbackHtml;
-                }
-
-                // Fallback final para tela offline se rede falhar e não houver shell
+                // Fallback final para tela offline se a rede falhar de fato e não houver shell
                 const coreCache = await caches.open(CORE_CACHE);
                 const offlinePage = await coreCache.match('/offline.html');
                 return offlinePage || new Response('Offline', { status: 503, statusText: 'Offline' });

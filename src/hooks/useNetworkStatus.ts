@@ -17,6 +17,8 @@ export function useNetworkStatus() {
         }
 
         let isMounted = true;
+        let consecutiveFailures = 0;
+
         const checkConnectivity = async () => {
             try {
                 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -26,13 +28,24 @@ export function useNetworkStatus() {
                 }
                 const res = await fetch(`${supabaseUrl}/rest/v1/`, {
                     method: 'HEAD',
-                    signal: AbortSignal.timeout(3000)
+                    signal: AbortSignal.timeout(7000)
                 });
                 if (isMounted) {
-                    setIsOnline(res.ok || res.status === 401 || res.status === 404);
+                    const isReachable = res.ok || res.status === 401 || res.status === 404;
+                    if (isReachable) {
+                        consecutiveFailures = 0;
+                        setIsOnline(true);
+                    } else {
+                        consecutiveFailures++;
+                        if (consecutiveFailures >= 2) setIsOnline(false);
+                    }
                 }
             } catch {
-                if (isMounted) setIsOnline(false);
+                consecutiveFailures++;
+                // Apenas marca como offline se falhar consecutivamente ou se o navegador já estiver offline
+                if (isMounted && (consecutiveFailures >= 2 || !navigator.onLine)) {
+                    setIsOnline(false);
+                }
             }
         };
 
