@@ -34,6 +34,13 @@ export function clearStoredActiveAuthUserId(): void {
     }
 }
 
+export const SHELL_SENTINELS = ['template', 'shell', '__gymaux_shell__', '__gymaux_student__'] as const;
+
+export function isShellSentinel(val?: string | null): boolean {
+    if (!val) return false;
+    return (SHELL_SENTINELS as readonly string[]).includes(val);
+}
+
 /**
  * Resolve o ID real de uma rota dinâmica priorizando `window.location.pathname`
  * (essencial quando o Service Worker serve um shell HTML/RSC genérico offline).
@@ -42,7 +49,7 @@ export function resolveDynamicRouteId(
     pattern: RegExp,
     pathname: string | null | undefined,
     paramId: string | undefined,
-    excluded: string[] = ['template', 'shell']
+    excluded: readonly string[] = SHELL_SENTINELS
 ): string {
     const isValid = (val?: string | null): val is string =>
         Boolean(val && !excluded.includes(val));

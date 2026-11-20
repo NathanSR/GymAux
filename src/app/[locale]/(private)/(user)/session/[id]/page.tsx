@@ -9,7 +9,7 @@ import { Session } from '@/config/types';
 import { stopTopLoader } from '@/utils/topLoader';
 import { useNavigationLoading } from '@/context/NavigationLoadingContext';
 import { SessionSkeleton } from '@/components/ui/Skeleton';
-import { resolveDynamicRouteId } from '@/utils/activeAuthUser';
+import { resolveDynamicRouteId, isShellSentinel } from '@/utils/activeAuthUser';
 
 export default function SessionPage({ params }: { params: Promise<{ id: string; locale: string }> }) {
     const resolvedParams = use(params);
@@ -29,7 +29,7 @@ export default function SessionPage({ params }: { params: Promise<{ id: string; 
 
     useEffect(() => {
         let isMounted = true;
-        if (!rawId || rawId === 'template' || rawId === 'shell') {
+        if (!rawId || isShellSentinel(rawId)) {
             return;
         }
 

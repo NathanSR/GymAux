@@ -5,7 +5,7 @@ import EditExerciseClient from '@/components/exercises/EditExerciseClient';
 import { ExerciseService } from '@/services/exerciseService';
 import { useSession } from '@/hooks/useSession';
 import { useRouter, usePathname } from '@/i18n/routing';
-import { resolveDynamicRouteId } from '@/utils/activeAuthUser';
+import { resolveDynamicRouteId, isShellSentinel } from '@/utils/activeAuthUser';
 
 interface EditExercisePageProps {
     params: Promise<{ id: string }>;
@@ -24,6 +24,9 @@ export default function EditExercisePage({ params }: EditExercisePageProps) {
 
     useEffect(() => {
         let isMounted = true;
+        if (!rawId || isShellSentinel(rawId)) {
+            return;
+        }
         const exId = Number(rawId);
 
         if (isNaN(exId) || exId < 1000) {

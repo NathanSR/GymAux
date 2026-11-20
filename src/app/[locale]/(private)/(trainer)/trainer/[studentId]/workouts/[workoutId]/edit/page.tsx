@@ -7,7 +7,7 @@ import { useSession } from '@/hooks/useSession';
 import { useDexieExercises } from '@/hooks/useDexieData';
 import { Workout } from '@/config/types';
 import { useRouter, usePathname } from '@/i18n/routing';
-import { resolveDynamicRouteId } from '@/utils/activeAuthUser';
+import { resolveDynamicRouteId, isShellSentinel } from '@/utils/activeAuthUser';
 
 export default function TrainerStudentEditWorkoutPage({
     params
@@ -38,7 +38,7 @@ export default function TrainerStudentEditWorkoutPage({
 
     useEffect(() => {
         let isMounted = true;
-        if (!workoutId || workoutId === 'template' || workoutId === 'shell') return;
+        if (!workoutId || isShellSentinel(workoutId)) return;
 
         setFetching(true);
         WorkoutService.getWorkoutById(workoutId)

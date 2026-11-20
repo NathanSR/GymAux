@@ -5,7 +5,7 @@ import EditScheduleClient from '@/components/schedules/EditScheduleClient';
 import { ScheduleService } from '@/services/scheduleService';
 import { useSession } from '@/hooks/useSession';
 import { useRouter, usePathname } from '@/i18n/routing';
-import { resolveDynamicRouteId } from '@/utils/activeAuthUser';
+import { resolveDynamicRouteId, isShellSentinel } from '@/utils/activeAuthUser';
 
 interface EditSchedulePageProps {
     params: Promise<{ id: string }>;
@@ -24,7 +24,7 @@ export default function EditSchedulePage({ params }: EditSchedulePageProps) {
 
     useEffect(() => {
         let isMounted = true;
-        if (!rawId || rawId === 'template' || rawId === 'shell') {
+        if (!rawId || isShellSentinel(rawId)) {
             return;
         }
 

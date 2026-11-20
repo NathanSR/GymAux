@@ -8,7 +8,7 @@ import { userService } from '@/services/userService';
 import { TrainerHeaderExitButton } from '@/components/trainers/TrainerHeaderExitButton';
 import { ShieldCheck, User } from 'lucide-react';
 import { usePathname } from '@/i18n/routing';
-import { resolveDynamicRouteId } from '@/utils/activeAuthUser';
+import { resolveDynamicRouteId, isShellSentinel } from '@/utils/activeAuthUser';
 
 export default function TrainerLayout({
     children,
@@ -24,14 +24,14 @@ export default function TrainerLayout({
 
     const student = useLiveQuery(
         async () => {
-            if (!studentId) return null;
+            if (!studentId || isShellSentinel(studentId)) return null;
             return (await db.users.get(studentId)) || null;
         },
         [studentId]
     );
 
     useEffect(() => {
-        if (!studentId || typeof window === 'undefined' || !navigator.onLine) return;
+        if (!studentId || isShellSentinel(studentId) || typeof window === 'undefined' || !navigator.onLine) return;
         userService.getUserById(studentId).catch(() => {});
     }, [studentId]);
 

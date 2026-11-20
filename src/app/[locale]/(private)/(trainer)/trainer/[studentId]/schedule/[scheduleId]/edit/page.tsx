@@ -5,7 +5,7 @@ import EditScheduleClient from '@/components/schedules/EditScheduleClient';
 import { ScheduleService } from '@/services/scheduleService';
 import { useSession } from '@/hooks/useSession';
 import { useRouter, usePathname } from '@/i18n/routing';
-import { resolveDynamicRouteId } from '@/utils/activeAuthUser';
+import { resolveDynamicRouteId, isShellSentinel } from '@/utils/activeAuthUser';
 
 export default function TrainerStudentEditSchedulePage({
     params
@@ -25,7 +25,7 @@ export default function TrainerStudentEditSchedulePage({
 
     useEffect(() => {
         let isMounted = true;
-        if (!scheduleId || scheduleId === 'template' || scheduleId === 'shell') return;
+        if (!scheduleId || isShellSentinel(scheduleId)) return;
 
         setFetching(true);
         ScheduleService.getScheduleById(scheduleId)

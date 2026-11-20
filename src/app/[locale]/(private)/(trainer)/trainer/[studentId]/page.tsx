@@ -8,7 +8,7 @@ import { useSession } from '@/hooks/useSession';
 import { useDexieWorkouts, useDexieHistory, useDexieSessions } from '@/hooks/useDexieData';
 import TrainerStudentDashboard from '@/components/trainers/TrainerStudentDashboard';
 import { usePathname } from '@/i18n/routing';
-import { resolveDynamicRouteId } from '@/utils/activeAuthUser';
+import { resolveDynamicRouteId, isShellSentinel } from '@/utils/activeAuthUser';
 import { User } from '@/config/types';
 import { ListSkeleton } from '@/components/ui/Skeleton';
 
@@ -24,14 +24,14 @@ export default function TrainerStudentPage({
 
     const student = useLiveQuery(
         async () => {
-            if (!studentId) return null;
+            if (!studentId || isShellSentinel(studentId)) return null;
             return (await db.users.get(studentId)) || null;
         },
         [studentId]
     );
 
     useEffect(() => {
-        if (!studentId || typeof window === 'undefined' || !navigator.onLine) return;
+        if (!studentId || isShellSentinel(studentId) || typeof window === 'undefined' || !navigator.onLine) return;
         userService.getUserById(studentId).catch(() => {});
     }, [studentId]);
 

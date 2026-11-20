@@ -7,7 +7,7 @@ import { useSession } from '@/hooks/useSession';
 import { useDexieExercises } from '@/hooks/useDexieData';
 import { Workout } from '@/config/types';
 import { useRouter, usePathname } from '@/i18n/routing';
-import { resolveDynamicRouteId } from '@/utils/activeAuthUser';
+import { resolveDynamicRouteId, isShellSentinel } from '@/utils/activeAuthUser';
 
 interface EditWorkoutPageProps {
     params: Promise<{ id: string }>;
@@ -27,7 +27,7 @@ export default function EditWorkoutPage({ params }: EditWorkoutPageProps) {
 
     useEffect(() => {
         let isMounted = true;
-        if (!rawId || rawId === 'template' || rawId === 'shell') {
+        if (!rawId || isShellSentinel(rawId)) {
             return;
         }
 

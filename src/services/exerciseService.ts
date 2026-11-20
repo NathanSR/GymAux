@@ -344,7 +344,7 @@ export const ExerciseService = {
 
         if (typeof window !== 'undefined') {
             const id = Date.now(); // Temporary numeric ID (> 100,000) for local use
-            const localExercise = { id, ...apiPayload } as Exercise;
+            const localExercise = mapExerciseFromSupabase({ id, ...apiPayload });
             await db.exercises.add(localExercise);
             await SyncManager.enqueue('CREATE', 'EXERCISE', id, apiPayload, userId);
             return localExercise;

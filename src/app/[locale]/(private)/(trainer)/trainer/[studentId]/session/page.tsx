@@ -4,7 +4,7 @@ import { use, useEffect } from 'react';
 import { useRouter, usePathname } from '@/i18n/routing';
 import SessionClient from '@/components/session/SessionClient';
 import { useDexieActiveSession } from '@/hooks/useDexieData';
-import { resolveDynamicRouteId } from '@/utils/activeAuthUser';
+import { resolveDynamicRouteId, isShellSentinel } from '@/utils/activeAuthUser';
 import { SessionSkeleton } from '@/components/ui/Skeleton';
 
 export default function TrainerStudentSessionPage({
@@ -19,7 +19,7 @@ export default function TrainerStudentSessionPage({
     const activeSession = useDexieActiveSession(studentId);
 
     useEffect(() => {
-        if (activeSession === null && studentId) {
+        if (activeSession === null && studentId && !isShellSentinel(studentId)) {
             router.replace(`/trainer/${studentId}`);
         }
     }, [activeSession, studentId, router]);
