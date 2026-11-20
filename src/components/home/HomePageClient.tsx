@@ -16,12 +16,13 @@ import { stopTopLoader } from '@/utils/topLoader';
 import { WorkoutGeneratorModal } from '@/components/workouts/WorkoutGeneratorModal';
 import { MuscleRecoveryWidget } from '@/components/home/MuscleRecoveryWidget';
 import { Sparkles } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 
 export function HomePageClient() {
     const { activeUser, loading: sessionLoading } = useSession();
     useDataPreloader(activeUser?.id);
     const tg = useTranslations('WorkoutGenerator');
+    const locale = useLocale();
     const [isGeneratorOpen, setIsGeneratorOpen] = useState(false);
 
     useEffect(() => {
@@ -76,7 +77,6 @@ export function HomePageClient() {
         }
     }, [activeUser?.id, activeSchedule, userWorkouts, historyList]);
 
-    const locale = 'pt';
     const today = new Date();
     const formattedDate = new Intl.DateTimeFormat(locale, {
         weekday: 'long',
@@ -91,7 +91,7 @@ export function HomePageClient() {
         <div className="min-h-dvh bg-white dark:bg-zinc-950 text-zinc-900 dark:text-white p-4 sm:p-6 pb-28 transition-colors duration-300 font-sans">
             {/* 1. Header */}
             <HomeUIHeader activeUser={activeUser} formattedDate={formattedDate} />
-            
+
             {isInitialLoading ? (
                 <div className="space-y-6">
                     <BannerSkeleton />

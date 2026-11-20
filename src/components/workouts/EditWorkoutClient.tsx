@@ -41,20 +41,22 @@ export default function EditWorkoutClient({
     const [isSaving, setIsSaving] = useState(false);
 
     const handleUpdate = async (data: any) => {
+        if (isSaving) return;
         setIsSaving(true);
         try {
             await WorkoutService.updateWorkout(workoutId, {
                 ...data,
+                userId: initialWorkout?.userId,
                 callerId,
                 updatedAt: new Date()
             });
             toast.success(t('updatedWorkout'));
             navigateAfterAction(baseUrl);
+            setTimeout(() => setIsSaving(false), 1500);
         } catch (error: any) {
             console.error("Erro ao atualizar treino:", error?.message || error);
-            toast.error("Error updating workout");
+            toast.error(error?.message || "Error updating workout");
             setIsSaving(false);
-        } finally {
         }
     };
 

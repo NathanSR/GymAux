@@ -180,9 +180,9 @@ export const HistoryService = {
 
             if (data) {
                 const history = mapHistoryFromSupabase(data);
-                // Cache for offline
+                // Cache safely for offline (never overwrites richer local history)
                 if (typeof window !== 'undefined') {
-                    await db.history.put(history).catch(() => {});
+                    await safeBulkPut(db.history, [history], 'HISTORY');
                 }
                 return history;
             }

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { Session, ExecutedSet, Exercise } from '@/config/types';
 import { useSessionNavigation } from '@/hooks/useSessionNavigation';
 import { useSessionActions } from '@/hooks/useSessionActions';
@@ -7,12 +7,32 @@ import { OverlayStackManager } from './useOverlayStack';
 import { useTranslations } from 'next-intl';
 import { SessionService } from '@/services/sessionService';
 import { ExerciseService } from '@/services/exerciseService';
-import { UseFormWatch } from 'react-hook-form';
 
 interface UseSessionClientProps {
     initialSession: Session;
     isReadOnly?: boolean;
     watchValues?: () => { weight: number; reps: number; rpe: number; dropset?: { reps: number; weight: number }[] };
+}
+
+function cloneSession(s: Session): Session {
+    try {
+        return structuredClone(s);
+    } catch {
+        return JSON.parse(JSON.stringify(s));
+    }
+}
+
+function getInitialRestDuration(initialSession: Session): number {
+    if (initialSession.current?.step === 'resting' && initialSession.current?.restEndsAt) {
+        const remaining = Math.ceil((initialSession.current.restEndsAt - Date.now()) / 1000);
+        return Math.max(1, remaining);
+    }
+    const gIdx = initialSession.current?.groupIndex || 0;
+    const eIdx = initialSession.current?.exerciseIndex || 0;
+    const sIdx = initialSession.current?.setIndex || 0;
+    const group = initialSession.exercisesToDo?.[gIdx];
+    const ex = group?.exercises?.[eIdx];
+    return ex?.sets?.[sIdx]?.restTime || group?.restAfterGroup || 60;
 }
 
 export function useSessionClient({ initialSession, isReadOnly = false, watchValues }: UseSessionClientProps) {
@@ -23,8 +43,9 @@ export function useSessionClient({ initialSession, isReadOnly = false, watchValu
     const [session, setSession] = useState<Session>(initialSession);
     const [showPreview, setShowPreview] = useState(false);
     const [showInstructions, setShowInstructions] = useState(false);
-    const [restDuration, setRestDuration] = useState<number>(60);
+    const [restDuration, setRestDuration] = useState<number>(() => getInitialRestDuration(initialSession));
     const [currentExerciseDetails, setCurrentExerciseDetails] = useState<Exercise | null>(null);
+    const inFlightWritesRef = useRef(0);
 
     const { getNextState } = useSessionNavigation(session);
 
@@ -37,6 +58,19 @@ export function useSessionClient({ initialSession, isReadOnly = false, watchValu
     const currentPlannedSet = currentExercise?.sets?.[currentSetIndex];
 
     const isGroupAlternating = currentGroup?.groupType !== 'straight';
+
+    // Protege contra perda de escrita caso o usuário acione reload durante uma transação IndexedDB ativa
+    useEffect(() => {
+        if (typeof window === 'undefined' || isReadOnly) return;
+        const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+            if (inFlightWritesRef.current > 0) {
+                e.preventDefault();
+                e.returnValue = '';
+            }
+        };
+        window.addEventListener('beforeunload', handleBeforeUnload);
+        return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+    }, [isReadOnly]);
 
     useEffect(() => {
         let isMounted = true;
@@ -82,9 +116,16 @@ export function useSessionClient({ initialSession, isReadOnly = false, watchValu
     }, [session.id, exitSession, showPreview, isReadOnly]);
 
     const synchronizeProgress = useCallback(async (newSession: Session) => {
-        if (!newSession.id) return;
-        await SessionService.syncSessionProgress(newSession.id, { ...newSession });
-    }, []);
+        if (!newSession.id || isReadOnly) return;
+        inFlightWritesRef.current += 1;
+        try {
+            await SessionService.syncSessionProgress(newSession.id, { ...newSession });
+        } catch (err) {
+            console.error('[useSessionClient] Failed to persist session progress:', err);
+        } finally {
+            inFlightWritesRef.current = Math.max(0, inFlightWritesRef.current - 1);
+        }
+    }, [isReadOnly]);
 
     const handleSetCompletion = useCallback((formData: any, skipped: boolean = false) => {
         if (!session || !currentExercise || !currentGroup) return;
@@ -99,17 +140,20 @@ export function useSessionClient({ initialSession, isReadOnly = false, watchValu
             dropset: isDropSet ? formData.dropset : undefined
         };
 
-        const newSession = { ...session };
-        let updatedExecutions = [...newSession.exercisesDone];
+        // Cópia profunda imutável: nunca mutar o estado React in-place!
+        const newSession = cloneSession(session);
+        if (!Array.isArray(newSession.exercisesDone)) {
+            newSession.exercisesDone = [];
+        }
 
-        if (!updatedExecutions[currentGroupIndex]) {
-            updatedExecutions[currentGroupIndex] = {
+        if (!newSession.exercisesDone[currentGroupIndex]) {
+            newSession.exercisesDone[currentGroupIndex] = {
                 groupType: currentGroup.groupType,
                 exercises: []
             };
         }
 
-        const executedGroup = updatedExecutions[currentGroupIndex];
+        const executedGroup = newSession.exercisesDone[currentGroupIndex];
 
         let exIdx = executedGroup.exercises.findIndex(e => e.exerciseId === currentExercise.exerciseId);
         if (exIdx === -1) {
@@ -122,15 +166,15 @@ export function useSessionClient({ initialSession, isReadOnly = false, watchValu
         }
 
         executedGroup.exercises[exIdx].sets.push(newSet);
-        newSession.exercisesDone = updatedExecutions;
 
         const { nextGroupIndex, nextExerciseIndex, nextSetIndex, isLastActionInWorkout } = getNextState();
 
         if (isLastActionInWorkout) {
             newSession.current.step = 'completion';
+            newSession.current.restEndsAt = null;
             if (!session.pausedAt && session.resumedAt) {
                 const finalSegment = new Date().getTime() - new Date(session.resumedAt).getTime();
-                newSession.duration += finalSegment;
+                newSession.duration += Math.max(0, finalSegment);
             }
         } else {
             let shouldRest = true;
@@ -162,17 +206,19 @@ export function useSessionClient({ initialSession, isReadOnly = false, watchValu
             newSession.current.groupIndex = nextGroupIndex;
             newSession.current.exerciseIndex = nextExerciseIndex;
             newSession.current.setIndex = nextSetIndex;
+            newSession.current.restEndsAt = shouldRest ? Date.now() + calculatedRestTime * 1000 : null;
         }
 
         setSession(newSession);
         if (!isReadOnly) {
             synchronizeProgress(newSession);
         }
-    }, [session, currentExercise, currentGroup, currentPlannedSet, currentGroupIndex, getNextState, isReadOnly, synchronizeProgress]);
+    }, [session, currentExercise, currentGroup, currentPlannedSet, currentGroupIndex, currentSetIndex, getNextState, isReadOnly, synchronizeProgress]);
 
     const moveToNextStep = useCallback(() => {
-        const newSession = { ...session };
+        const newSession = cloneSession(session);
         newSession.current.step = 'executing';
+        newSession.current.restEndsAt = null;
         setSession(newSession);
         if (!isReadOnly) {
             synchronizeProgress(newSession);
@@ -203,7 +249,7 @@ export function useSessionClient({ initialSession, isReadOnly = false, watchValu
             danger: true
         });
         if (result.isConfirmed) {
-            const newSession: Session = JSON.parse(JSON.stringify(session));
+            const newSession = cloneSession(session);
             const nextGroupIndex = currentGroupIndex + 1;
 
             if (nextGroupIndex < session.exercisesToDo.length) {
@@ -211,8 +257,10 @@ export function useSessionClient({ initialSession, isReadOnly = false, watchValu
                 newSession.current.exerciseIndex = 0;
                 newSession.current.setIndex = 0;
                 newSession.current.step = 'executing';
+                newSession.current.restEndsAt = null;
             } else {
                 newSession.current.step = 'completion';
+                newSession.current.restEndsAt = null;
             }
             setSession(newSession);
             synchronizeProgress(newSession);
@@ -220,11 +268,15 @@ export function useSessionClient({ initialSession, isReadOnly = false, watchValu
     }, [confirm, t, session, currentGroupIndex, synchronizeProgress]);
 
     const handleForceFinishWorkout = useCallback(() => {
-        forceFinishWorkout(session, (s) => setSession(s as Session), () => synchronizeProgress(session));
+        forceFinishWorkout(
+            session,
+            (updated) => setSession(updated),
+            (updated) => synchronizeProgress(updated)
+        );
     }, [forceFinishWorkout, session, synchronizeProgress]);
 
     const handleAddSet = useCallback(() => {
-        const newSession: Session = JSON.parse(JSON.stringify(session));
+        const newSession = cloneSession(session);
         const group = newSession.exercisesToDo[currentGroupIndex];
         if (!group) return;
 
@@ -249,9 +301,8 @@ export function useSessionClient({ initialSession, isReadOnly = false, watchValu
     const handleSubstituteExercise = useCallback((newEx: Exercise) => {
         if (!session || !currentExercise || !currentGroup) return;
 
-        const newSession: Session = JSON.parse(JSON.stringify(session));
-        
-        // 1. Atualizar o exercício em exercisesToDo (planejados)
+        const newSession = cloneSession(session);
+
         if (newSession.exercisesToDo?.[currentGroupIndex]?.exercises?.[currentExerciseIndex]) {
             newSession.exercisesToDo[currentGroupIndex].exercises[currentExerciseIndex] = {
                 ...currentExercise,
@@ -262,7 +313,6 @@ export function useSessionClient({ initialSession, isReadOnly = false, watchValu
             };
         }
 
-        // 2. Se já tiver feito alguma execução desse exercício na sessão atual, atualiza também em exercisesDone
         if (newSession.exercisesDone?.[currentGroupIndex]) {
             const executedGroup = newSession.exercisesDone[currentGroupIndex];
             const exIdx = executedGroup.exercises.findIndex(e => e.exerciseId === currentExercise.exerciseId);
@@ -280,7 +330,7 @@ export function useSessionClient({ initialSession, isReadOnly = false, watchValu
         setRestDuration(seconds);
         if (!session || !currentExercise || !currentGroup) return;
 
-        const newSession: Session = JSON.parse(JSON.stringify(session));
+        const newSession = cloneSession(session);
         const group = newSession.exercisesToDo[currentGroupIndex];
         if (group) {
             if (group.groupType === 'straight') {
@@ -293,6 +343,10 @@ export function useSessionClient({ initialSession, isReadOnly = false, watchValu
             } else {
                 group.restAfterGroup = seconds;
             }
+        }
+
+        if (newSession.current.step === 'resting') {
+            newSession.current.restEndsAt = Date.now() + seconds * 1000;
         }
 
         setSession(newSession);
@@ -351,14 +405,12 @@ export function useSessionClient({ initialSession, isReadOnly = false, watchValu
         const info = getLastExecutedSetInfo();
         if (!info) return;
 
-        const updatedSession = { ...session };
-        const updatedExecutions = [...updatedSession.exercisesDone];
-        const group = updatedExecutions[info.groupIndex];
+        const updatedSession = cloneSession(session);
+        const group = updatedSession.exercisesDone[info.groupIndex];
         if (group && group.exercises[info.exerciseIndex]) {
             const ex = group.exercises[info.exerciseIndex];
             if (ex.sets[info.setIndex]) {
                 ex.sets[info.setIndex] = { ...ex.sets[info.setIndex], rpe: newRpe };
-                updatedSession.exercisesDone = updatedExecutions;
                 setSession(updatedSession);
                 await synchronizeProgress(updatedSession);
             }

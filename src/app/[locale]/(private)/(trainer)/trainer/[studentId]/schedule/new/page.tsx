@@ -1,24 +1,25 @@
-import CreateScheduleClient from '@/components/schedules/CreateScheduleClient';
-import { createClient } from '@/lib/supabase/server';
-import { redirect } from 'next/navigation';
+'use client';
 
-export default async function TrainerStudentNewSchedulePage({
+import { use } from 'react';
+import CreateScheduleClient from '@/components/schedules/CreateScheduleClient';
+import { useSession } from '@/hooks/useSession';
+import { usePathname } from '@/i18n/routing';
+import { resolveDynamicRouteId } from '@/utils/activeAuthUser';
+
+export default function TrainerStudentNewSchedulePage({
     params
 }: {
-    params: Promise<{ studentId: string }>
+    params: Promise<{ studentId: string }>;
 }) {
-    const { studentId } = await params;
-    const supabase = await createClient();
-    
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-        redirect('/');
-    }
+    const resolvedParams = use(params);
+    const pathname = usePathname();
+    const studentId = resolveDynamicRouteId(/\/trainer\/([^/?#]+)\/schedule/, pathname, resolvedParams?.studentId);
+    const { activeUser } = useSession();
 
     return (
-        <CreateScheduleClient 
+        <CreateScheduleClient
             userId={studentId}
-            callerId={user!.id}
+            callerId={activeUser?.id}
             baseUrl={`/trainer/${studentId}/schedule`}
         />
     );

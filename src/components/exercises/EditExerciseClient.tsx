@@ -31,6 +31,7 @@ export default function EditExerciseClient({ initialExercise, exerciseId, isFetc
     const [isLoading, setIsLoading] = useState(false);
 
     const handleUpdate = async (data: any) => {
+        if (isLoading) return;
         setIsLoading(true);
         try {
             const formattedData = {
@@ -43,11 +44,11 @@ export default function EditExerciseClient({ initialExercise, exerciseId, isFetc
             await ExerciseService.updateExercise(exerciseId, { ...formattedData, userId: activeUser!.id as string });
             toast.success(t('updatedExercise'));
             navigateAfterAction('/exercises');
+            setTimeout(() => setIsLoading(false), 1500);
         } catch (error: any) {
             console.error("Erro ao atualizar:", error?.message || error);
-            toast.error("Error updating exercise");
+            toast.error(error?.message || "Error updating exercise");
             setIsLoading(false);
-        } finally {
         }
     };
 
@@ -72,7 +73,7 @@ export default function EditExerciseClient({ initialExercise, exerciseId, isFetc
 
     return (
         <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white transition-colors duration-300">
-            <PageHeader 
+            <PageHeader
                 title={t('editExercise')}
                 backHref="/exercises"
                 rightAction={

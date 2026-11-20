@@ -1,46 +1,74 @@
-import { userService } from '@/services/userService';
-import { HistoryService } from '@/services/historyService';
-import { WorkoutService } from '@/services/workoutService';
-import { SessionService } from '@/services/sessionService';
-import { createClient } from '@/lib/supabase/server';
-import TrainerStudentDashboard from '@/components/trainers/TrainerStudentDashboard';
-import { notFound } from 'next/navigation';
+'use client';
 
-export default async function TrainerStudentPage({
+import { use, useEffect } from 'react';
+import { useLiveQuery } from 'dexie-react-hooks';
+import { db } from '@/config/db';
+import { userService } from '@/services/userService';
+import { useSession } from '@/hooks/useSession';
+import { useDexieWorkouts, useDexieHistory, useDexieSessions } from '@/hooks/useDexieData';
+import TrainerStudentDashboard from '@/components/trainers/TrainerStudentDashboard';
+import { usePathname } from '@/i18n/routing';
+import { resolveDynamicRouteId } from '@/utils/activeAuthUser';
+import { User } from '@/config/types';
+import { ListSkeleton } from '@/components/ui/Skeleton';
+
+export default function TrainerStudentPage({
     params
 }: {
-    params: Promise<{ studentId: string }>
+    params: Promise<{ studentId: string }>;
 }) {
-    const { studentId } = await params;
-    const supabase = await createClient();
+    const resolvedParams = use(params);
+    const pathname = usePathname();
+    const studentId = resolveDynamicRouteId(/\/trainer\/([^/?#]+)/, pathname, resolvedParams?.studentId);
+    const { activeUser } = useSession();
 
-    // Fetch student data, history, and workouts in parallel
-    const [student, history, workoutsResult, sessions] = await Promise.all([
-        userService.getUserById(studentId, supabase),
-        HistoryService.getUserHistory(studentId, 1, 10, supabase),
-        WorkoutService.getWorkoutsByUserId(studentId, '', undefined, supabase),
-        SessionService.getSessionsByUserId(studentId, supabase)
-    ]);
+    const student = useLiveQuery(
+        async () => {
+            if (!studentId) return null;
+            return (await db.users.get(studentId)) || null;
+        },
+        [studentId]
+    );
 
-    if (!student) {
-        notFound();
+    useEffect(() => {
+        if (!studentId || typeof window === 'undefined' || !navigator.onLine) return;
+        userService.getUserById(studentId).catch(() => {});
+    }, [studentId]);
+
+    const workouts = useDexieWorkouts(studentId);
+    const recentHistory = useDexieHistory(studentId, 10);
+    const sessions = useDexieSessions(studentId);
+
+    const isInitialLoading = student === undefined && workouts === undefined;
+
+    if (isInitialLoading) {
+        return (
+            <div className="flex-1 w-full max-w-5xl mx-auto p-6">
+                <ListSkeleton count={4} />
+            </div>
+        );
     }
 
-    const { data: { user } } = await supabase.auth.getUser();
+    const fallbackStudent: User = student || {
+        id: studentId,
+        name: 'Aluno',
+        weight: 0,
+        height: 0,
+        role: 'user',
+        createdAt: new Date(),
+    };
 
-    // Since we didn't pass pagination to getWorkoutsByUserId, it returns the array directly
-    const workouts = Array.isArray(workoutsResult) ? workoutsResult : (workoutsResult as any).workouts;
-    const activeSession = sessions.length > 0 ? sessions[0] : null;
+    const activeSession = sessions && sessions.length > 0 ? sessions[0] : null;
 
     return (
-        <TrainerStudentDashboard 
+        <TrainerStudentDashboard
             studentId={studentId}
-            student={student}
+            student={fallbackStudent}
             activeSession={activeSession}
-            allSessions={sessions}
-            recentHistory={history}
-            workouts={workouts}
-            trainerId={user?.id}
+            allSessions={sessions || []}
+            recentHistory={recentHistory || []}
+            workouts={workouts || []}
+            trainerId={activeUser?.id}
         />
     );
 }

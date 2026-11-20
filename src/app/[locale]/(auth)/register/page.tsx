@@ -6,6 +6,7 @@ import { migrateLocalData } from '@/lib/migration/migrateLocalData'
 import { preloadUserData } from '@/hooks/useDataPreloader'
 import { db } from '@/config/db'
 import { userService } from '@/services/userService'
+import { setStoredActiveAuthUserId } from '@/utils/activeAuthUser'
 import { Link, useRouter } from '@/i18n/routing'
 import { UserPlus, ArrowRight, Loader2, CheckCircle2, Mail, Lock, User, ShieldCheck, AlertCircle } from 'lucide-react'
 import { useForm } from 'react-hook-form'
@@ -68,6 +69,7 @@ export default function RegisterPage() {
         localStorage.setItem('gymaux_has_account', 'true')
         
         if (authData.session) {
+          setStoredActiveAuthUserId(authData.user.id)
           setMigrating(true)
           try {
             // Migração não-bloqueante de dados anônimos (se existirem)

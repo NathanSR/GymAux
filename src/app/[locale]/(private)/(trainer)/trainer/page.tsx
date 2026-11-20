@@ -1,27 +1,26 @@
-import { createClient } from '@/lib/supabase/server';
-import { connectionService } from '@/services/connectionService';
+'use client';
+
 import TrainerClient from '@/components/trainers/TrainerClient';
-import { redirect } from 'next/navigation';
+import { useSession } from '@/hooks/useSession';
+import { useDexieActiveStudents } from '@/hooks/useDexieData';
+import { ListSkeleton } from '@/components/ui/Skeleton';
 
-export default async function TrainerDashboardPage() {
-    const supabase = await createClient();
+export default function TrainerDashboardPage() {
+    const { activeUser, loading } = useSession();
+    const students = useDexieActiveStudents(activeUser?.id);
 
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-        redirect('/');
+    if (loading && !activeUser) {
+        return (
+            <div className="min-h-screen bg-white dark:bg-zinc-950 p-6 max-w-4xl mx-auto">
+                <ListSkeleton count={4} />
+            </div>
+        );
     }
-
-    const activeStudents = await connectionService.getActiveStudents(user.id, supabase, { page: 1, limit: 10 });
 
     return (
         <TrainerClient
-            trainerId={user.id}
-            initialStudents={activeStudents.students.map(c => ({
-                id: c.id,
-                name: c.name,
-                avatar: c.avatar
-            }))}
+            trainerId={activeUser?.id || ''}
+            initialStudents={students || []}
         />
     );
 }
-

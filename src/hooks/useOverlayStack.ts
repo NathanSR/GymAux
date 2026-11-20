@@ -42,9 +42,18 @@ class Manager {
         this.updateBodyLock();
 
         if (item.pushHistory && typeof window !== 'undefined') {
-            const newState = { ...window.history.state, __overlayId: item.id };
-            window.history.pushState(newState, '');
-            this.pushedIds.push(item.id);
+            // Reutiliza a entrada de histórico se já estivermos em um estado de overlay (evita entradas fantasma em transições modal -> modal)
+            const currentState = window.history.state;
+            if (currentState && currentState.__overlayId) {
+                const newState = { ...currentState, __overlayId: item.id };
+                window.history.replaceState(newState, '');
+            } else {
+                const newState = { ...currentState, __overlayId: item.id };
+                window.history.pushState(newState, '');
+            }
+            if (!this.pushedIds.includes(item.id)) {
+                this.pushedIds.push(item.id);
+            }
         }
     }
 
@@ -62,17 +71,16 @@ class Manager {
                 this.pushedIds.splice(pushedIdx, 1);
             }
 
-            // Se o overlay foi fechado pela UI (não pelo back button),
-            // precisamos limpar a entrada correspondente no histórico.
-            if (!isPopState && window.history.state && window.history.state.__overlayId === id) {
+            // Só executa history.back() se não houver outro overlay com pushHistory ainda aberto
+            const hasRemainingHistoryOverlay = this.stack.some(o => o.pushHistory);
+            if (!isPopState && !hasRemainingHistoryOverlay && window.history.state && window.history.state.__overlayId === id) {
                 this.isCleaningUp = true;
                 this.ignoreNextPopState = true;
                 window.history.back();
-                
-                // Reseta a flag de cleanup logo após o popstate ser processado
+
                 setTimeout(() => {
                     this.isCleaningUp = false;
-                }, 50);
+                }, 60);
             }
         }
     }

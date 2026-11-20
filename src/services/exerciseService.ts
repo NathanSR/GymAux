@@ -25,7 +25,7 @@ const inferMechanicsFromTags = (tags: string[], name: string): 'compound' | 'iso
     const t = tags.map(tag => tag.toLowerCase());
     const n = name.toLowerCase();
     const isolationKeywords = [
-        'rosca', 'extensora', 'flexora', 'elevação lateral', 'crucifixo', 
+        'rosca', 'extensora', 'flexora', 'elevação lateral', 'crucifixo',
         'voador', 'pec deck', 'triceps testa', 'coice', 'panturrilha',
         'isolation', 'isolated'
     ];
@@ -117,10 +117,12 @@ export const ExerciseService = {
             return [];
         };
 
-        const isOffline = typeof window !== 'undefined' && !navigator.onLine;
-
-        if (isOffline) {
+        // 100% Local-First no cliente (0ms): lê Dexie imediatamente e revalida em segundo plano com throttle
+        if (typeof window !== 'undefined') {
             exercises = await fetchFromLocalDB();
+            if (navigator.onLine) {
+                this.revalidateExercisesInBackground(supabaseInput);
+            }
         } else {
             try {
                 const supabase = supabaseInput || createClient();
@@ -133,14 +135,14 @@ export const ExerciseService = {
                     query = query.eq('level', level);
                 }
 
-                const { data, error } = await withTimeout(query, 1800);
+                const { data, error } = await withTimeout(query, 5000);
 
                 if (error) throw error;
 
                 exercises = (data || []).map(mapExerciseFromSupabase);
             } catch (error) {
-                console.warn('[ExerciseService] Fetch failed, falling back to local DB:', error);
-                exercises = await fetchFromLocalDB();
+                console.warn('[ExerciseService] Server fetch failed:', error);
+                exercises = [];
             }
         }
 
@@ -219,6 +221,30 @@ export const ExerciseService = {
         };
     },
 
+    _lastBackgroundSyncAt: 0 as number,
+
+    // Revalidação silenciosa de exercícios em background com throttle (5 min) salvando no Dexie
+    async revalidateExercisesInBackground(supabaseInput?: any, force = false): Promise<void> {
+        if (typeof window === 'undefined' || !navigator.onLine) return;
+        const now = Date.now();
+        if (!force && now - this._lastBackgroundSyncAt < 5 * 60 * 1000) return;
+        this._lastBackgroundSyncAt = now;
+
+        try {
+            const supabase = supabaseInput || createClient();
+            const { data, error } = await withTimeout(
+                supabase.from('exercises').select('*'),
+                12000
+            );
+            if (!error && data && data.length > 0) {
+                const mapped = data.map(mapExerciseFromSupabase);
+                await safeBulkPut(db.exercises, mapped, 'EXERCISE');
+            }
+        } catch {
+            // Silencioso em background
+        }
+    },
+
     // Pré-carregar exercícios customizados do usuário para o Dexie
     async preloadUserExercises(userId: string, supabaseInput?: any): Promise<Exercise[]> {
         if (typeof window === 'undefined' || !navigator.onLine) return [];
@@ -267,9 +293,9 @@ export const ExerciseService = {
 
             if (data) {
                 const exercise = mapExerciseFromSupabase(data);
-                // Cache for offline
+                // Cache safely for offline
                 if (typeof window !== 'undefined') {
-                    await db.exercises.put(exercise).catch(() => {});
+                    await safeBulkPut(db.exercises, [exercise], 'EXERCISE');
                 }
                 return exercise;
             }

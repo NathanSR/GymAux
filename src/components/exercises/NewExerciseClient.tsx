@@ -16,6 +16,7 @@ export default function NewExerciseClient() {
     const [isLoading, setIsLoading] = useState(false);
 
     const handleCreate = async (data: any) => {
+        if (isLoading) return;
         setIsLoading(true);
         try {
             const rawTags = data.tags;
@@ -35,11 +36,11 @@ export default function NewExerciseClient() {
             await ExerciseService.createExercise(formattedData);
             toast.success(t('createdExercise'));
             navigateAfterAction('/exercises');
+            setTimeout(() => setIsLoading(false), 1500);
         } catch (error: any) {
             console.error("Erro ao criar exercício:", error?.message || error);
-            toast.error(t('errorCreating'));
+            toast.error(error?.message || t('errorCreating'));
             setIsLoading(false);
-        } finally {
         }
     };
 

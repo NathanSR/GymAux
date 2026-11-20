@@ -30,20 +30,23 @@ export default function EditScheduleClient({ initialData, scheduleId, callerId, 
     const [loading, setLoading] = useState(false);
 
     const handleUpdate = async (data: any) => {
+        if (loading) return;
         setLoading(true);
         try {
             await ScheduleService.updateSchedule(scheduleId, {
                 ...data,
+                userId: initialData?.userId,
                 startDate: new Date(data.startDate),
                 endDate: data.endDate ? new Date(data.endDate) : undefined,
                 updatedAt: new Date()
             }, callerId);
             toast.success(t('editSuccess'));
             navigateAfterAction(baseUrl);
+            setTimeout(() => setLoading(false), 1500);
         } catch (error: any) {
             console.error("Error updating schedule:", error?.message || error);
+            toast.error(error?.message || "Erro ao atualizar cronograma");
             setLoading(false);
-        } finally {
         }
     };
 

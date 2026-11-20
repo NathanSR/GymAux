@@ -140,7 +140,7 @@ function SortablePreviewExerciseItem({
     );
 }
 import { useExerciseLocalization, getExerciseLocalized } from '@/utils/exerciseLocalization';
-import { toast } from 'react-toastify';
+import { toast } from '@/utils/toast';
 
 interface WorkoutGeneratorModalProps {
     isOpen: boolean;
@@ -356,7 +356,7 @@ export function WorkoutGeneratorModal({
             const copy = [...prev];
             const workout = { ...copy[workoutIndex] };
             if (workout.exercises.length <= 1) {
-                toast.warn('O treino precisa ter pelo menos um exercício.');
+                toast.warning('O treino precisa ter pelo menos um exercício.');
                 return prev;
             }
             workout.exercises = workout.exercises.filter((_, idx) => idx !== groupIndex);
@@ -368,7 +368,7 @@ export function WorkoutGeneratorModal({
     // Executa o algoritmo gerador
     const handleGenerate = () => {
         if (scope === 'today' && selectedCategories.length === 0) {
-            toast.warn(t('focusAreas.minOneMuscle'));
+            toast.warning(t('focusAreas.minOneMuscle'));
             return;
         }
 
@@ -649,13 +649,12 @@ export function WorkoutGeneratorModal({
                         {Array.from({ length: 6 }).map((_, i) => (
                             <div
                                 key={i}
-                                className={`h-1.5 rounded-full transition-all duration-300 ${
-                                    step === i + 1
-                                        ? 'w-7 bg-lime-500'
-                                        : step > i + 1
+                                className={`h-1.5 rounded-full transition-all duration-300 ${step === i + 1
+                                    ? 'w-7 bg-lime-500'
+                                    : step > i + 1
                                         ? 'w-3.5 bg-lime-500/40'
                                         : 'w-3.5 bg-zinc-200 dark:bg-zinc-800'
-                                }`}
+                                    }`}
                             />
                         ))}
                         <span className="text-[9px] font-black uppercase tracking-widest text-zinc-400 ml-2">
@@ -693,17 +692,15 @@ export function WorkoutGeneratorModal({
                                     <button
                                         type="button"
                                         onClick={() => setScope('today')}
-                                        className={`p-5 rounded-2xl border text-left transition-all relative overflow-hidden flex items-start gap-4 ${
-                                            scope === 'today'
-                                                ? 'bg-lime-500/10 border-lime-500 shadow-sm shadow-lime-500/10'
-                                                : 'bg-zinc-50 dark:bg-zinc-900/50 border-zinc-200 dark:border-zinc-800 hover:border-zinc-400'
-                                        }`}
+                                        className={`p-5 rounded-2xl border text-left transition-all relative overflow-hidden flex items-start gap-4 ${scope === 'today'
+                                            ? 'bg-lime-500/10 border-lime-500 shadow-sm shadow-lime-500/10'
+                                            : 'bg-zinc-50 dark:bg-zinc-900/50 border-zinc-200 dark:border-zinc-800 hover:border-zinc-400'
+                                            }`}
                                     >
-                                        <div className={`p-3 rounded-xl shrink-0 ${
-                                            scope === 'today'
-                                                ? 'bg-lime-500 text-zinc-950 shadow-md shadow-lime-500/20'
-                                                : 'bg-zinc-200 dark:bg-zinc-800 text-zinc-500'
-                                        }`}>
+                                        <div className={`p-3 rounded-xl shrink-0 ${scope === 'today'
+                                            ? 'bg-lime-500 text-zinc-950 shadow-md shadow-lime-500/20'
+                                            : 'bg-zinc-200 dark:bg-zinc-800 text-zinc-500'
+                                            }`}>
                                             <Zap size={24} />
                                         </div>
                                         <div className="flex-1 min-w-0">
@@ -722,17 +719,15 @@ export function WorkoutGeneratorModal({
                                     <button
                                         type="button"
                                         onClick={() => setScope('weekly')}
-                                        className={`p-5 rounded-2xl border text-left transition-all relative overflow-hidden flex items-start gap-4 ${
-                                            scope === 'weekly'
-                                                ? 'bg-lime-500/10 border-lime-500 shadow-sm shadow-lime-500/10'
-                                                : 'bg-zinc-50 dark:bg-zinc-900/50 border-zinc-200 dark:border-zinc-800 hover:border-zinc-400'
-                                        }`}
+                                        className={`p-5 rounded-2xl border text-left transition-all relative overflow-hidden flex items-start gap-4 ${scope === 'weekly'
+                                            ? 'bg-lime-500/10 border-lime-500 shadow-sm shadow-lime-500/10'
+                                            : 'bg-zinc-50 dark:bg-zinc-900/50 border-zinc-200 dark:border-zinc-800 hover:border-zinc-400'
+                                            }`}
                                     >
-                                        <div className={`p-3 rounded-xl shrink-0 ${
-                                            scope === 'weekly'
-                                                ? 'bg-lime-500 text-zinc-950 shadow-md shadow-lime-500/20'
-                                                : 'bg-zinc-200 dark:bg-zinc-800 text-zinc-500'
-                                        }`}>
+                                        <div className={`p-3 rounded-xl shrink-0 ${scope === 'weekly'
+                                            ? 'bg-lime-500 text-zinc-950 shadow-md shadow-lime-500/20'
+                                            : 'bg-zinc-200 dark:bg-zinc-800 text-zinc-500'
+                                            }`}>
                                             <CalendarDays size={24} />
                                         </div>
                                         <div className="flex-1 min-w-0">
@@ -778,18 +773,16 @@ export function WorkoutGeneratorModal({
                                             key={g}
                                             type="button"
                                             onClick={() => setGoal(g)}
-                                            className={`w-full p-4 rounded-2xl border text-left transition-all flex items-center justify-between gap-3 ${
-                                                goal === g
-                                                    ? 'bg-lime-500/10 border-lime-500 shadow-sm shadow-lime-500/10'
-                                                    : 'bg-zinc-50 dark:bg-zinc-900/50 border-zinc-200 dark:border-zinc-800 hover:border-zinc-400'
-                                            }`}
+                                            className={`w-full p-4 rounded-2xl border text-left transition-all flex items-center justify-between gap-3 ${goal === g
+                                                ? 'bg-lime-500/10 border-lime-500 shadow-sm shadow-lime-500/10'
+                                                : 'bg-zinc-50 dark:bg-zinc-900/50 border-zinc-200 dark:border-zinc-800 hover:border-zinc-400'
+                                                }`}
                                         >
                                             <div className="flex items-center gap-3">
-                                                <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
-                                                    goal === g
-                                                        ? 'bg-lime-500 text-zinc-950 font-black'
-                                                        : 'bg-zinc-200 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400'
-                                                }`}>
+                                                <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${goal === g
+                                                    ? 'bg-lime-500 text-zinc-950 font-black'
+                                                    : 'bg-zinc-200 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400'
+                                                    }`}>
                                                     {g === 'hypertrophy' && <Dumbbell size={18} />}
                                                     {g === 'strength' && <Flame size={18} />}
                                                     {g === 'endurance' && <Activity size={18} />}
@@ -837,18 +830,16 @@ export function WorkoutGeneratorModal({
                                             key={lvl}
                                             type="button"
                                             onClick={() => setLevel(lvl)}
-                                            className={`w-full p-4 rounded-2xl border text-left transition-all flex items-center justify-between gap-3 ${
-                                                level === lvl
-                                                    ? 'bg-lime-500/10 border-lime-500 shadow-sm shadow-lime-500/10'
-                                                    : 'bg-zinc-50 dark:bg-zinc-900/50 border-zinc-200 dark:border-zinc-800 hover:border-zinc-400'
-                                            }`}
+                                            className={`w-full p-4 rounded-2xl border text-left transition-all flex items-center justify-between gap-3 ${level === lvl
+                                                ? 'bg-lime-500/10 border-lime-500 shadow-sm shadow-lime-500/10'
+                                                : 'bg-zinc-50 dark:bg-zinc-900/50 border-zinc-200 dark:border-zinc-800 hover:border-zinc-400'
+                                                }`}
                                         >
                                             <div className="flex items-center gap-3">
-                                                <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
-                                                    level === lvl
-                                                        ? 'bg-lime-500 text-zinc-950 font-black'
-                                                        : 'bg-zinc-200 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400'
-                                                }`}>
+                                                <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${level === lvl
+                                                    ? 'bg-lime-500 text-zinc-950 font-black'
+                                                    : 'bg-zinc-200 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400'
+                                                    }`}>
                                                     <ShieldCheck size={18} />
                                                 </div>
                                                 <div>
@@ -894,18 +885,16 @@ export function WorkoutGeneratorModal({
                                             key={eq}
                                             type="button"
                                             onClick={() => setEquipmentAccess(eq)}
-                                            className={`w-full p-4 rounded-2xl border text-left transition-all flex items-center justify-between gap-3 ${
-                                                equipmentAccess === eq
-                                                    ? 'bg-lime-500/10 border-lime-500 shadow-sm shadow-lime-500/10'
-                                                    : 'bg-zinc-50 dark:bg-zinc-900/50 border-zinc-200 dark:border-zinc-800 hover:border-zinc-400'
-                                            }`}
+                                            className={`w-full p-4 rounded-2xl border text-left transition-all flex items-center justify-between gap-3 ${equipmentAccess === eq
+                                                ? 'bg-lime-500/10 border-lime-500 shadow-sm shadow-lime-500/10'
+                                                : 'bg-zinc-50 dark:bg-zinc-900/50 border-zinc-200 dark:border-zinc-800 hover:border-zinc-400'
+                                                }`}
                                         >
                                             <div className="flex items-center gap-3">
-                                                <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
-                                                    equipmentAccess === eq
-                                                        ? 'bg-lime-500 text-zinc-950 font-black'
-                                                        : 'bg-zinc-200 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400'
-                                                }`}>
+                                                <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${equipmentAccess === eq
+                                                    ? 'bg-lime-500 text-zinc-950 font-black'
+                                                    : 'bg-zinc-200 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400'
+                                                    }`}>
                                                     <Layers size={18} />
                                                 </div>
                                                 <div>
@@ -970,11 +959,10 @@ export function WorkoutGeneratorModal({
                                                             key={preset.key}
                                                             type="button"
                                                             onClick={() => setSelectedCategories(preset.cats as CategoryType[])}
-                                                            className={`px-3 py-1.5 rounded-xl text-[11px] font-black uppercase whitespace-nowrap transition-all shrink-0 cursor-pointer ${
-                                                                isSelected
-                                                                    ? 'bg-lime-500 text-zinc-950 shadow-sm shadow-lime-500/20'
-                                                                    : 'bg-zinc-100 dark:bg-zinc-900/80 text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-800 hover:border-zinc-400'
-                                                            }`}
+                                                            className={`px-3 py-1.5 rounded-xl text-[11px] font-black uppercase whitespace-nowrap transition-all shrink-0 cursor-pointer ${isSelected
+                                                                ? 'bg-lime-500 text-zinc-950 shadow-sm shadow-lime-500/20'
+                                                                : 'bg-zinc-100 dark:bg-zinc-900/80 text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-800 hover:border-zinc-400'
+                                                                }`}
                                                         >
                                                             {preset.label}
                                                         </button>
@@ -1020,11 +1008,10 @@ export function WorkoutGeneratorModal({
                                                             key={cat}
                                                             type="button"
                                                             onClick={() => toggleCategory(cat)}
-                                                            className={`group relative p-2.5 rounded-2xl border text-left transition-all active:scale-95 cursor-pointer flex flex-col justify-between overflow-hidden ${
-                                                                isChecked
-                                                                    ? 'bg-lime-500/15 border-lime-500 shadow-sm shadow-lime-500/10'
-                                                                    : 'bg-zinc-50 dark:bg-zinc-900/50 border-zinc-200 dark:border-zinc-800 hover:border-zinc-400'
-                                                            }`}
+                                                            className={`group relative p-2.5 rounded-2xl border text-left transition-all active:scale-95 cursor-pointer flex flex-col justify-between overflow-hidden ${isChecked
+                                                                ? 'bg-lime-500/15 border-lime-500 shadow-sm shadow-lime-500/10'
+                                                                : 'bg-zinc-50 dark:bg-zinc-900/50 border-zinc-200 dark:border-zinc-800 hover:border-zinc-400'
+                                                                }`}
                                                         >
                                                             <div className="flex items-start justify-between gap-1 mb-2">
                                                                 <div className="w-9 h-9 rounded-xl bg-zinc-200 dark:bg-zinc-800 overflow-hidden shrink-0 flex items-center justify-center">
@@ -1041,11 +1028,10 @@ export function WorkoutGeneratorModal({
                                                                         <Dumbbell size={16} className="text-zinc-400" />
                                                                     )}
                                                                 </div>
-                                                                <div className={`w-5 h-5 rounded-full flex items-center justify-center transition-all ${
-                                                                    isChecked
-                                                                        ? 'bg-lime-500 text-zinc-950 shadow-xs'
-                                                                        : 'border border-zinc-300 dark:border-zinc-700 text-transparent'
-                                                                }`}>
+                                                                <div className={`w-5 h-5 rounded-full flex items-center justify-center transition-all ${isChecked
+                                                                    ? 'bg-lime-500 text-zinc-950 shadow-xs'
+                                                                    : 'border border-zinc-300 dark:border-zinc-700 text-transparent'
+                                                                    }`}>
                                                                     <Check size={12} strokeWidth={3} />
                                                                 </div>
                                                             </div>
@@ -1069,11 +1055,10 @@ export function WorkoutGeneratorModal({
                                                         key={d}
                                                         type="button"
                                                         onClick={() => setDuration(d)}
-                                                        className={`p-3 rounded-xl border text-[11px] font-black uppercase text-center transition-all cursor-pointer ${
-                                                            duration === d
-                                                                ? 'bg-lime-500 text-zinc-950 border-lime-500 shadow-sm shadow-lime-500/20'
-                                                                : 'bg-zinc-50 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400'
-                                                        }`}
+                                                        className={`p-3 rounded-xl border text-[11px] font-black uppercase text-center transition-all cursor-pointer ${duration === d
+                                                            ? 'bg-lime-500 text-zinc-950 border-lime-500 shadow-sm shadow-lime-500/20'
+                                                            : 'bg-zinc-50 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400'
+                                                            }`}
                                                     >
                                                         {t(`duration.${d}`)}
                                                     </button>
@@ -1093,11 +1078,10 @@ export function WorkoutGeneratorModal({
                                                         key={days}
                                                         type="button"
                                                         onClick={() => setWeeklyDays(days)}
-                                                        className={`w-full p-3.5 rounded-xl border text-left text-xs font-black uppercase transition-all flex items-center justify-between ${
-                                                            weeklyDays === days
-                                                                ? 'bg-lime-500/10 border-lime-500 text-lime-600 dark:text-lime-400'
-                                                                : 'bg-zinc-50 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-zinc-700 dark:text-zinc-300'
-                                                        }`}
+                                                        className={`w-full p-3.5 rounded-xl border text-left text-xs font-black uppercase transition-all flex items-center justify-between ${weeklyDays === days
+                                                            ? 'bg-lime-500/10 border-lime-500 text-lime-600 dark:text-lime-400'
+                                                            : 'bg-zinc-50 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-zinc-700 dark:text-zinc-300'
+                                                            }`}
                                                     >
                                                         <span>{t(`weekly.days${days}`)}</span>
                                                         {weeklyDays === days && <Check size={16} />}
@@ -1157,11 +1141,10 @@ export function WorkoutGeneratorModal({
                                                 key={w.id || idx}
                                                 type="button"
                                                 onClick={() => setActivePreviewTab(idx)}
-                                                className={`px-3 py-1.5 rounded-xl text-xs font-black uppercase whitespace-nowrap transition-all ${
-                                                    activePreviewTab === idx
-                                                        ? 'bg-lime-500 text-zinc-950 shadow-xs'
-                                                        : 'bg-zinc-100 dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-800'
-                                                }`}
+                                                className={`px-3 py-1.5 rounded-xl text-xs font-black uppercase whitespace-nowrap transition-all ${activePreviewTab === idx
+                                                    ? 'bg-lime-500 text-zinc-950 shadow-xs'
+                                                    : 'bg-zinc-100 dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-800'
+                                                    }`}
                                             >
                                                 {w.name.split(' - ')[0] || `Treino ${idx + 1}`}
                                             </button>
@@ -1195,11 +1178,10 @@ export function WorkoutGeneratorModal({
                                                 <button
                                                     type="button"
                                                     onClick={() => setIsReorderMode(!isReorderMode)}
-                                                    className={`px-3 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-1.5 transition-all cursor-pointer ${
-                                                        isReorderMode
-                                                            ? 'bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 shadow-md'
-                                                            : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100'
-                                                    }`}
+                                                    className={`px-3 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-1.5 transition-all cursor-pointer ${isReorderMode
+                                                        ? 'bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 shadow-md'
+                                                        : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100'
+                                                        }`}
                                                 >
                                                     {isReorderMode ? (
                                                         <>

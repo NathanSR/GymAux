@@ -4,13 +4,30 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Dumbbell, Sparkles } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { usePathname } from '@/i18n/routing';
+
+const SPLASH_SESSION_KEY = 'gymaux_splash_shown';
 
 export function AppSplashScreen({ onFinish }: { onFinish?: () => void }) {
     const t = useTranslations('SplashScreen');
+    const pathname = usePathname();
     const [quote, setQuote] = useState('');
-    const [isVisible, setIsVisible] = useState(true);
+    const [isVisible, setIsVisible] = useState(false);
 
     useEffect(() => {
+        if (typeof window === 'undefined') return;
+
+        // Nunca bloqueia uma sessão de treino ativa nem repete o splash em reloads/navegações
+        const isSessionRoute = pathname?.includes('/session/');
+        const alreadyShown = sessionStorage.getItem(SPLASH_SESSION_KEY) === '1';
+
+        if (isSessionRoute || alreadyShown) {
+            if (onFinish) onFinish();
+            return;
+        }
+
+        sessionStorage.setItem(SPLASH_SESSION_KEY, '1');
+
         let quotesArray: string[] = [];
         try {
             const rawQuotes = t.raw('quotes');
@@ -19,32 +36,32 @@ export function AppSplashScreen({ onFinish }: { onFinish?: () => void }) {
             }
         } catch {
             quotesArray = [
-                "Sem atalhos, apenas constância.",
-                "Sua única competição é quem você foi ontem."
+                'Sem atalhos, apenas constância.',
+                'Sua única competição é quem você foi ontem.',
             ];
         }
 
         const randomQuote = quotesArray[Math.floor(Math.random() * quotesArray.length)];
         setQuote(randomQuote);
+        setIsVisible(true);
 
-        // Hide splash screen after 1.8s
+        // Rápido e fluido (350ms) apenas na primeira abertura da sessão
         const timer = setTimeout(() => {
             setIsVisible(false);
             if (onFinish) onFinish();
-        }, 1800);
+        }, 350);
 
         return () => clearTimeout(timer);
-    }, [onFinish, t]);
+    }, [onFinish, t, pathname]);
 
     return (
         <AnimatePresence>
             {isVisible && (
                 <motion.div
                     initial={{ opacity: 1 }}
-                    exit={{ opacity: 0, scale: 0.98, transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1] } }}
+                    exit={{ opacity: 0, scale: 0.98, transition: { duration: 0.2, ease: [0.16, 1, 0.3, 1] } }}
                     className="fixed inset-0 z-[9999] bg-zinc-950 flex flex-col items-center justify-between p-8 text-white select-none overflow-hidden"
                 >
-                    {/* Background Neon Glows */}
                     <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-lime-500/10 rounded-full blur-3xl pointer-events-none" />
                     <div className="absolute bottom-1/4 left-1/2 -translate-x-1/2 w-80 h-80 bg-emerald-500/5 rounded-full blur-3xl pointer-events-none" />
 
@@ -54,52 +71,31 @@ export function AppSplashScreen({ onFinish }: { onFinish?: () => void }) {
                         </span>
                     </div>
 
-                    {/* Central Brand & Animation */}
                     <div className="flex flex-col items-center justify-center text-center my-auto">
-                        <motion.div
-                            initial={{ scale: 0.8, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            transition={{ duration: 0.5, ease: "easeOut" }}
-                            className="relative mb-6"
-                        >
+                        <div className="relative mb-6">
                             <div className="w-24 h-24 rounded-3xl bg-zinc-900 border border-zinc-800/80 flex items-center justify-center shadow-2xl relative z-10">
-                                <motion.div
-                                    animate={{ rotate: [0, -10, 10, 0] }}
-                                    transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
-                                >
-                                    <Dumbbell className="w-12 h-12 text-lime-400 stroke-[2.2]" />
-                                </motion.div>
+                                <Dumbbell className="w-12 h-12 text-lime-400 stroke-[2.2]" />
                             </div>
                             <div className="absolute -inset-3 bg-gradient-to-tr from-lime-500/20 to-emerald-500/20 rounded-[32px] blur-xl -z-10" />
-                        </motion.div>
+                        </div>
 
-                        <motion.h1
-                            initial={{ y: 10, opacity: 0 }}
-                            animate={{ y: 0, opacity: 1 }}
-                            transition={{ delay: 0.2, duration: 0.4 }}
-                            className="text-3xl font-extrabold tracking-tight text-white mb-2"
-                        >
+                        <h1 className="text-3xl font-extrabold tracking-tight text-white mb-2">
                             Gym<span className="text-lime-400">Aux</span>
-                        </motion.h1>
+                        </h1>
 
-                        {/* Motivational Quote */}
-                        <motion.p
-                            initial={{ y: 10, opacity: 0 }}
-                            animate={{ y: 0, opacity: 1 }}
-                            transition={{ delay: 0.35, duration: 0.4 }}
-                            className="text-zinc-400 text-xs sm:text-sm font-medium italic max-w-xs px-4"
-                        >
-                            "{quote}"
-                        </motion.p>
+                        {quote && (
+                            <p className="text-zinc-400 text-xs sm:text-sm font-medium italic max-w-xs px-4">
+                                &ldquo;{quote}&rdquo;
+                            </p>
+                        )}
                     </div>
 
-                    {/* Progress Bar & Footer */}
                     <div className="w-full max-w-xs flex flex-col items-center gap-3">
                         <div className="w-full h-1 bg-zinc-900 rounded-full overflow-hidden relative border border-zinc-800/50">
                             <motion.div
-                                initial={{ width: "0%" }}
-                                animate={{ width: "100%" }}
-                                transition={{ duration: 1.6, ease: "easeInOut" }}
+                                initial={{ width: '25%' }}
+                                animate={{ width: '100%' }}
+                                transition={{ duration: 0.3, ease: 'easeOut' }}
                                 className="h-full bg-gradient-to-r from-lime-500 to-emerald-400 shadow-[0_0_12px_rgba(163,230,53,0.5)]"
                             />
                         </div>

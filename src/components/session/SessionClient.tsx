@@ -158,6 +158,7 @@ export default function SessionClient({ initialSession, isReadOnly = false }: Se
                                     >
                                         <RestTimer
                                             seconds={restDuration}
+                                            restEndsAt={session.current.restEndsAt}
                                             onFinish={moveToNextStep}
                                             onAdjustTime={(delta) => handleUpdateRestDuration(Math.max(1, restDuration + delta))}
                                             currentRpe={lastExecutedSetRpe}

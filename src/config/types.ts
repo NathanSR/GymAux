@@ -246,6 +246,7 @@ export interface Session {
         exerciseIndex: number;  // Índice do exercício dentro do grupo
         setIndex: number;       // Índice da série
         roundIndex: number;     // Round atual (para circuits)
+        restEndsAt?: number | null; // Timestamp (ms) do fim do descanso para sobreviver a reloads
     };
     duration: number;
     pausedAt: Date | string | null;

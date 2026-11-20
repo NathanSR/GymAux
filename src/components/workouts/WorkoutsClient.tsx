@@ -88,12 +88,17 @@ export default function WorkoutsClient({
     }, [userId, debouncedSearch]);
 
     useEffect(() => {
-        if (!debouncedSearch.trim()) {
+        const q = debouncedSearch.trim().toLowerCase();
+        if (!q) {
             setInitialData(sortByNewest(initialWorkouts));
         } else {
-            fetchFirstPage();
+            // Filtragem 0ms Local-First nos dados já reativos do Dexie
+            const localFiltered = initialWorkouts.filter(w =>
+                w.name?.toLowerCase().includes(q) || w.description?.toLowerCase().includes(q)
+            );
+            setInitialData(sortByNewest(localFiltered));
         }
-    }, [initialWorkouts, debouncedSearch, fetchFirstPage]);
+    }, [initialWorkouts, debouncedSearch]);
 
     // Handle online/visibility recovery (somente se houver busca ativa)
     useEffect(() => {

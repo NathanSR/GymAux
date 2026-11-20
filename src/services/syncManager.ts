@@ -2,6 +2,7 @@ import { db } from '../config/db';
 import { SyncOperation } from '../config/types';
 import { createClient } from '../lib/supabase/client';
 import { withTimeout } from '@/lib/utils/timeout';
+import { getStoredActiveAuthUserId } from '@/utils/activeAuthUser';
 
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -12,15 +13,33 @@ function toValidUUIDOrNull(val: any): string | null {
     return null;
 }
 
+function countSetsInGroups(groups: any): number {
+    if (!Array.isArray(groups)) return 0;
+    return groups.reduce((acc, g) => {
+        if (!g || !Array.isArray(g.exercises)) return acc;
+        return acc + g.exercises.reduce((eAcc: number, ex: any) => {
+            return eAcc + (Array.isArray(ex?.sets) ? ex.sets.length : 0);
+        }, 0);
+    }, 0);
+}
+
+function notifyQueueChanged() {
+    if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('gymaux-sync-queue-changed'));
+    }
+}
+
 export class SyncManager {
     private static isSyncing = false;
-    /** Holds the active processing promise so simultaneous callers await the same completion */
     private static activeSyncPromise: Promise<void> | null = null;
-    /** True when at least one enqueue happened while a sync was already running. */
     private static pendingAfterSync = false;
+
+    private static readonly CHUNK_SIZE = 3;
+    private static readonly OP_TIMEOUT_MS = 12_000; // Resiliente para 3G/4G de academia
 
     /**
      * Deep merge objects for safe payload updates.
+     * Preserves richer execution/set progress for `exercises_done` / `executions`.
      */
     private static mergePayloads(target: any, source: any): any {
         if (!target) return source;
@@ -35,9 +54,14 @@ export class SyncManager {
                 !(source[key] instanceof Date)
             ) {
                 merged[key] = this.mergePayloads(target[key], source[key]);
-            } else if (Array.isArray(source[key]) && Array.isArray(target[key])) {
-                // Preserve richer execution/set array if target has more items
-                merged[key] = source[key].length >= target[key].length ? source[key] : target[key];
+            } else if (
+                (key === 'exercises_done' || key === 'executions') &&
+                Array.isArray(source[key]) &&
+                Array.isArray(target[key])
+            ) {
+                const sourceSets = countSetsInGroups(source[key]);
+                const targetSets = countSetsInGroups(target[key]);
+                merged[key] = sourceSets >= targetSets ? source[key] : target[key];
             } else {
                 merged[key] = source[key];
             }
@@ -56,46 +80,55 @@ export class SyncManager {
         payload: any,
         userIdInput?: string
     ): Promise<number> {
-        const userId = userIdInput || (typeof window !== 'undefined' ? (await db.users.toCollection().first())?.id : undefined);
+        const userId = userIdInput || getStoredActiveAuthUserId() || undefined;
 
-        // Queue Collapsing: find existing pending operations for the same entity
         const existingOps = await db.syncQueue
             .where('entityType')
             .equals(entityType)
-            .and(op => op.entityId === entityId && (op.status === 'PENDING' || op.status === 'FAILED'))
+            .and(op => String(op.entityId) === String(entityId) && (op.status === 'PENDING' || op.status === 'FAILED'))
             .toArray();
 
         const pendingCreate = existingOps.find(op => op.action === 'CREATE');
         const pendingUpdates = existingOps.filter(op => op.action === 'UPDATE');
 
+        let resultId: number;
+
         if (action === 'DELETE') {
             if (pendingCreate) {
-                // Was created locally and never sent to server -> purge local CREATE and don't send DELETE
+                // Created locally and never synced to server -> drop local CREATE & UPDATEs
                 await db.syncQueue.delete(pendingCreate.id!);
                 for (const u of pendingUpdates) {
                     await db.syncQueue.delete(u.id!);
                 }
+                notifyQueueChanged();
                 return 0;
             } else if (pendingUpdates.length > 0) {
-                // Drop prior updates and replace with single DELETE
                 for (const u of pendingUpdates) {
                     await db.syncQueue.delete(u.id!);
                 }
             }
+            resultId = (await db.syncQueue.add({
+                action,
+                entityType,
+                entityId,
+                payload,
+                userId,
+                status: 'PENDING',
+                createdAt: new Date(),
+                retryCount: 0
+            })) as number;
         } else if (action === 'UPDATE') {
             if (pendingCreate) {
-                // Merge updates into original CREATE payload
                 const mergedPayload = this.mergePayloads(pendingCreate.payload, payload);
                 await db.syncQueue.update(pendingCreate.id!, {
                     payload: mergedPayload,
                     status: 'PENDING',
                     retryCount: 0,
                     errorMessage: undefined,
-                    createdAt: new Date()
+                    createdAt: pendingCreate.createdAt || new Date()
                 });
-                return pendingCreate.id!;
+                resultId = pendingCreate.id!;
             } else if (pendingUpdates.length > 0) {
-                // Merge into most recent UPDATE
                 const lastUpdate = pendingUpdates[pendingUpdates.length - 1];
                 const mergedPayload = this.mergePayloads(lastUpdate.payload, payload);
                 await db.syncQueue.update(lastUpdate.id!, {
@@ -105,20 +138,33 @@ export class SyncManager {
                     errorMessage: undefined,
                     createdAt: new Date()
                 });
-                return lastUpdate.id!;
+                resultId = lastUpdate.id!;
+            } else {
+                resultId = (await db.syncQueue.add({
+                    action,
+                    entityType,
+                    entityId,
+                    payload,
+                    userId,
+                    status: 'PENDING',
+                    createdAt: new Date(),
+                    retryCount: 0
+                })) as number;
             }
+        } else {
+            resultId = (await db.syncQueue.add({
+                action,
+                entityType,
+                entityId,
+                payload,
+                userId,
+                status: 'PENDING',
+                createdAt: new Date(),
+                retryCount: 0
+            })) as number;
         }
 
-        const id = await db.syncQueue.add({
-            action,
-            entityType,
-            entityId,
-            payload,
-            userId,
-            status: 'PENDING',
-            createdAt: new Date(),
-            retryCount: 0
-        });
+        notifyQueueChanged();
 
         // Fire-and-forget processing in background if online
         if (typeof window !== 'undefined' && navigator.onLine) {
@@ -127,11 +173,8 @@ export class SyncManager {
             });
         }
 
-        return id as number;
+        return resultId;
     }
-
-    private static readonly CHUNK_SIZE = 3;
-    private static readonly OP_TIMEOUT_MS = 3500;
 
     /**
      * Start processing the sync queue. Coalesces concurrent calls into a single active promise.
@@ -139,7 +182,6 @@ export class SyncManager {
     static async processQueue(): Promise<void> {
         if (typeof window !== 'undefined' && !navigator.onLine) return;
 
-        // If a sync is already running, register intent to re-check and return the active promise
         if (this.activeSyncPromise) {
             this.pendingAfterSync = true;
             return this.activeSyncPromise;
@@ -153,15 +195,60 @@ export class SyncManager {
     }
 
     /**
-     * Executes a single operation against Supabase.
+     * Computes strict dependency priority.
+     * CRITICAL: HISTORY (6) ALWAYS runs BEFORE SESSION DELETE (7) so finished
+     * workout history is confirmed on the server before the session is deleted!
+     */
+    private static getOpPriority(op: SyncOperation): number {
+        switch (op.entityType) {
+            case 'USER': return 1;
+            case 'EXERCISE': return 2;
+            case 'WORKOUT': return 3;
+            case 'SCHEDULE': return 4;
+            case 'SESSION': return op.action === 'DELETE' ? 7 : 5;
+            case 'HISTORY': return 6;
+            default: return 99;
+        }
+    }
+
+    /**
+     * Detects auth / RLS errors that might recover after refreshing the Supabase JWT.
+     */
+    private static isAuthOrRlsError(code: string, message: string): boolean {
+        const lower = message.toLowerCase();
+        return (
+            code === '42501' ||
+            code === 'PGRST301' ||
+            lower.includes('jwt') ||
+            lower.includes('token') ||
+            lower.includes('row-level security') ||
+            lower.includes('unauthorized')
+        );
+    }
+
+    /**
+     * Detects permanent schema/syntax errors (never silently deleted — marked FAILED for visibility).
+     */
+    private static isPermanentSchemaError(code: string, message: string): boolean {
+        const permanentCodes = ['22P02', '42703', 'PGRST204', '23502'];
+        if (permanentCodes.includes(code)) return true;
+
+        return (
+            message.includes('invalid input syntax for type uuid') ||
+            message.includes('Could not find the') ||
+            (message.includes('column') && message.includes('does not exist'))
+        );
+    }
+
+    /**
+     * Executes a single operation against Supabase, with automatic JWT refresh retry on auth/RLS error.
      */
     private static async processSingleOp(
         op: SyncOperation,
         supabase: any,
-        activeUserId: string
-    ): Promise<{ success: boolean; nonRetryable?: boolean; errorMessage?: string }> {
-        // For private entities like HISTORY and SESSION, skip if not matching active user
-        // For WORKOUT, SCHEDULE, EXERCISE, trainer can sync on behalf of student via RLS
+        activeUserId: string,
+        hasRetriedAuth = false
+    ): Promise<{ success: boolean; permanentFailure?: boolean; errorMessage?: string }> {
         const isCrossAccountSafeEntity = ['WORKOUT', 'SCHEDULE', 'EXERCISE'].includes(op.entityType);
         if (!isCrossAccountSafeEntity && op.userId && op.userId !== activeUserId) {
             console.warn(`[SyncManager] Skipping op ${op.id} belonging to user ${op.userId} (active: ${activeUserId})`);
@@ -195,7 +282,7 @@ export class SyncManager {
                     break;
                 default:
                     console.warn(`[SyncManager] Unknown entityType: ${op.entityType}`);
-                    success = true; // Drop unknown ops
+                    return { success: false, permanentFailure: true, errorMessage: `Unknown entityType: ${op.entityType}` };
             }
 
             return { success };
@@ -203,19 +290,32 @@ export class SyncManager {
             const errorCode = error?.code || '';
             const errorMessage = error?.message || String(error);
 
-            if (this.isNonRetryable(errorCode, errorMessage)) {
-                console.warn(`[SyncManager] Non-retryable error for op ${op.id} (${errorCode}), dropping:`, errorMessage);
-                return { success: false, nonRetryable: true, errorMessage };
+            // Auto-refresh JWT once if session expired while user was offline
+            if (!hasRetriedAuth && this.isAuthOrRlsError(errorCode, errorMessage)) {
+                try {
+                    const { data } = await withTimeout(supabase.auth.refreshSession(), 5000);
+                    if (data?.session?.user?.id) {
+                        return await this.processSingleOp(op, supabase, data.session.user.id, true);
+                    }
+                } catch {
+                    // Refresh failed — keep in queue as retryable/failed, NEVER silently drop!
+                }
+            }
+
+            if (this.isPermanentSchemaError(errorCode, errorMessage)) {
+                console.warn(`[SyncManager] Permanent schema error for op ${op.id} (${errorCode}), marking FAILED (never dropping silently):`, errorMessage);
+                return { success: false, permanentFailure: true, errorMessage };
             }
 
             console.error(`[SyncManager] Error syncing op ${op.id} (${op.action} ${op.entityType}):`, errorMessage);
-            return { success: false, nonRetryable: false, errorMessage };
+            return { success: false, permanentFailure: false, errorMessage };
         }
     }
 
     /**
      * Core execution loop of the sync queue.
-     * Uses dependency prioritization, controlled chunk parallelism (3 concurrent) and atomic bulk deletes.
+     * Groups by strict dependency priority level so higher-priority stages ALWAYS finish
+     * before dependent stages start (e.g. WORKOUT before SESSION, HISTORY before SESSION DELETE).
      */
     private static async doProcessQueue(): Promise<void> {
         if (this.isSyncing) return;
@@ -235,79 +335,96 @@ export class SyncManager {
             console.log(`[SyncManager] Processing ${pendingOps.length} pending operations...`);
             const supabase = createClient();
 
-            // Validate auth before processing — prioritizes 0ms local session / cache
             const activeUserId = await this.resolveUserId(supabase);
             if (!activeUserId) {
                 console.warn('[SyncManager] No authenticated user found, deferring sync.');
                 return;
             }
 
-            // Order by dependency priority:
-            // 1: USER, 2: EXERCISE, 3: WORKOUT (Parents / referenced entities)
-            // 4: SCHEDULE, 5: SESSION, 6: HISTORY (Children / referencing entities)
-            const priorityMap: Record<string, number> = {
-                'USER': 1,
-                'EXERCISE': 2,
-                'WORKOUT': 3,
-                'SCHEDULE': 4,
-                'SESSION': 5,
-                'HISTORY': 6
-            };
+            // Group ops by strict priority bucket
+            const buckets = new Map<number, SyncOperation[]>();
+            for (const op of pendingOps) {
+                const p = this.getOpPriority(op);
+                if (!buckets.has(p)) buckets.set(p, []);
+                buckets.get(p)!.push(op);
+            }
 
-            const sortedOps = [...pendingOps].sort((a, b) => {
-                const pA = priorityMap[a.entityType] || 99;
-                const pB = priorityMap[b.entityType] || 99;
-                if (pA !== pB) return pA - pB;
-                return (a.createdAt ? new Date(a.createdAt).getTime() : 0) - (b.createdAt ? new Date(b.createdAt).getTime() : 0);
-            });
+            const sortedPriorities = Array.from(buckets.keys()).sort((a, b) => a - b);
 
-            // Process in concurrent chunks of CHUNK_SIZE to prevent network congestion while eliminating serial wait
-            for (let i = 0; i < sortedOps.length; i += this.CHUNK_SIZE) {
-                // Abort mid-sync if connectivity drops
+            for (const priority of sortedPriorities) {
                 if (typeof window !== 'undefined' && !navigator.onLine) break;
 
-                const chunk = sortedOps.slice(i, i + this.CHUNK_SIZE);
-                const results = await Promise.allSettled(
-                    chunk.map(op => this.processSingleOp(op, supabase, activeUserId))
-                );
+                const stageOps = buckets.get(priority)!.sort((a, b) => {
+                    const tA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+                    const tB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+                    return tA - tB;
+                });
 
-                const idsToDelete: number[] = [];
+                // Track if any HISTORY CREATE failed so we don't execute SESSION DELETE in the next stage
+                let historyStageHadFailure = false;
 
-                for (let j = 0; j < chunk.length; j++) {
-                    const op = chunk[j];
-                    const res = results[j];
+                for (let i = 0; i < stageOps.length; i += this.CHUNK_SIZE) {
+                    if (typeof window !== 'undefined' && !navigator.onLine) break;
 
-                    if (res.status === 'fulfilled') {
-                        const { success, nonRetryable, errorMessage } = res.value;
-                        if (success || nonRetryable) {
-                            if (op.id) idsToDelete.push(op.id);
-                        } else if (errorMessage) {
+                    const chunk = stageOps.slice(i, i + this.CHUNK_SIZE);
+                    const results = await Promise.allSettled(
+                        chunk.map(op => this.processSingleOp(op, supabase, activeUserId))
+                    );
+
+                    const idsToDelete: number[] = [];
+
+                    for (let j = 0; j < chunk.length; j++) {
+                        const op = chunk[j];
+                        const res = results[j];
+
+                        if (res.status === 'fulfilled') {
+                            const { success, permanentFailure, errorMessage } = res.value;
+                            if (success) {
+                                if (op.id) idsToDelete.push(op.id);
+                            } else if (permanentFailure) {
+                                if (op.entityType === 'HISTORY') historyStageHadFailure = true;
+                                await db.syncQueue.update(op.id!, {
+                                    status: 'FAILED',
+                                    retryCount: (op.retryCount || 0) + 1,
+                                    errorMessage: errorMessage || 'Permanent sync error'
+                                });
+                            } else if (errorMessage) {
+                                if (op.entityType === 'HISTORY') historyStageHadFailure = true;
+                                const newRetryCount = (op.retryCount || 0) + 1;
+                                await db.syncQueue.update(op.id!, {
+                                    retryCount: newRetryCount,
+                                    status: newRetryCount >= 8 ? 'FAILED' : 'PENDING',
+                                    errorMessage
+                                });
+                            }
+                        } else {
+                            if (op.entityType === 'HISTORY') historyStageHadFailure = true;
+                            const errorMessage = String(res.reason);
                             const newRetryCount = (op.retryCount || 0) + 1;
                             await db.syncQueue.update(op.id!, {
                                 retryCount: newRetryCount,
-                                status: newRetryCount >= 6 ? 'FAILED' : 'PENDING',
+                                status: newRetryCount >= 8 ? 'FAILED' : 'PENDING',
                                 errorMessage
                             });
                         }
-                    } else {
-                        const errorMessage = String(res.reason);
-                        const newRetryCount = (op.retryCount || 0) + 1;
-                        await db.syncQueue.update(op.id!, {
-                            retryCount: newRetryCount,
-                            status: newRetryCount >= 6 ? 'FAILED' : 'PENDING',
-                            errorMessage
-                        });
+                    }
+
+                    if (idsToDelete.length > 0) {
+                        await db.syncQueue.bulkDelete(idsToDelete);
                     }
                 }
 
-                if (idsToDelete.length > 0) {
-                    await db.syncQueue.bulkDelete(idsToDelete);
+                // Safety barrier: if HISTORY CREATE failed, do NOT delete the corresponding SESSION yet!
+                if (priority === 6 && historyStageHadFailure) {
+                    console.warn('[SyncManager] History sync had failures — deferring SESSION DELETE stage to protect user data.');
+                    break;
                 }
             }
+
+            notifyQueueChanged();
         } finally {
             this.isSyncing = false;
 
-            // If new items were enqueued while we were processing, run again immediately.
             if (this.pendingAfterSync) {
                 this.pendingAfterSync = false;
                 await this.processQueue().catch((err) => {
@@ -317,9 +434,6 @@ export class SyncManager {
         }
     }
 
-    /**
-     * Initialize listeners for connectivity changes.
-     */
     static init() {
         if (typeof window === 'undefined') return;
 
@@ -328,9 +442,6 @@ export class SyncManager {
         });
     }
 
-    /**
-     * Get the count of pending + failed operations in the queue.
-     */
     static async getPendingCount(): Promise<number> {
         if (typeof window === 'undefined') return 0;
         const pending = await db.syncQueue.where('status').equals('PENDING').count();
@@ -338,29 +449,21 @@ export class SyncManager {
         return pending + failed;
     }
 
-    /**
-     * Fetch all items in the queue (pending and failed) for UI display.
-     */
     static async getQueueItems(): Promise<SyncOperation[]> {
         if (typeof window === 'undefined') return [];
         return await db.syncQueue.orderBy('createdAt').reverse().toArray();
     }
 
-    /**
-     * Clear all operations with status FAILED in a single atomic bulkDelete.
-     */
     static async clearFailedOps(): Promise<void> {
         if (typeof window === 'undefined') return;
         const failedOps = await db.syncQueue.where('status').equals('FAILED').toArray();
         const ids = failedOps.map(op => op.id!).filter(Boolean);
         if (ids.length > 0) {
             await db.syncQueue.bulkDelete(ids);
+            notifyQueueChanged();
         }
     }
 
-    /**
-     * Resets status of all FAILED operations to PENDING without triggering queue execution.
-     */
     static async resetFailedOps(): Promise<number> {
         if (typeof window === 'undefined') return 0;
         const failedOps = await db.syncQueue.where('status').equals('FAILED').toArray();
@@ -370,12 +473,37 @@ export class SyncManager {
             retryCount: 0,
             errorMessage: undefined
         });
+        notifyQueueChanged();
         return failedOps.length;
     }
 
     /**
-     * Retry all FAILED operations by resetting them to PENDING and optionally processing the queue.
+     * Auto-recovers transient FAILED operations (timeouts, network drops, expired JWTs)
+     * when the device comes back online, without requiring manual user action.
      */
+    static async resetTransientFailedOps(): Promise<number> {
+        if (typeof window === 'undefined') return 0;
+        const failedOps = await db.syncQueue.where('status').equals('FAILED').toArray();
+        const transientIds = failedOps
+            .filter(op => !this.isPermanentSchemaError('', op.errorMessage || ''))
+            .map(op => op.id!)
+            .filter(Boolean);
+
+        if (transientIds.length === 0) return 0;
+
+        await Promise.all(
+            transientIds.map(id =>
+                db.syncQueue.update(id, {
+                    status: 'PENDING',
+                    retryCount: 0,
+                    errorMessage: undefined
+                })
+            )
+        );
+        notifyQueueChanged();
+        return transientIds.length;
+    }
+
     static async retryFailed(autoProcess = true): Promise<void> {
         await this.resetFailedOps();
         if (autoProcess) {
@@ -385,32 +513,22 @@ export class SyncManager {
 
     // --- Private Helpers ---
 
-    /**
-     * Resolve the current user ID from Supabase auth.
-     * Prioritizes local in-memory session and cached Dexie user (0ms) before network calls.
-     */
     private static async resolveUserId(supabase: any): Promise<string | null> {
         // Fast path 1: local session stored in browser (instant, 0ms)
         try {
-            const { data: { session } } = await withTimeout(supabase.auth.getSession(), 600);
+            const { data: { session } } = await withTimeout(supabase.auth.getSession(), 1000);
             if (session?.user?.id) return session.user.id;
         } catch {
             // getSession timed out or failed
         }
 
-        // Fast path 2: Dexie cached user (instant, 0ms)
-        if (typeof window !== 'undefined') {
-            try {
-                const cached = await (await import('../config/db')).db.users.toCollection().first();
-                if (cached?.id) return cached.id;
-            } catch {
-                // cache lookup failed
-            }
-        }
+        // Fast path 2: dedicated active auth user ID (NEVER db.users.first())
+        const storedId = getStoredActiveAuthUserId();
+        if (storedId) return storedId;
 
-        // Fallback: network getUser (only if local session is absent)
+        // Fallback: network getUser
         try {
-            const { data: { user } } = await withTimeout(supabase.auth.getUser(), 1200);
+            const { data: { user } } = await withTimeout(supabase.auth.getUser(), 3000);
             if (user?.id) return user.id;
         } catch {
             // getUser network failure/timeout
@@ -419,12 +537,8 @@ export class SyncManager {
         return null;
     }
 
-    /**
-     * Ensures that payloads contain the correct user_id.
-     */
     private static ensureUserId(op: SyncOperation, userId: string): any {
         const payload = { ...op.payload };
-
         if (op.action === 'DELETE') return payload;
 
         const userIdFields: Record<string, string> = {
@@ -441,31 +555,6 @@ export class SyncManager {
         }
 
         return payload;
-    }
-
-    /**
-     * Detect errors that should not be retried (e.g., constraint violations that won't self-resolve).
-     */
-    private static isNonRetryable(code: string, message: string): boolean {
-        // 23503 = foreign key violation
-        // 42501 = insufficient privilege (RLS permanent block)
-        // 22P02 = invalid input syntax for type (e.g. invalid UUID)
-        // 42703 / PGRST204 = undefined column in schema
-        // 23502 = not-null violation
-        const nonRetryableCodes = ['23503', '42501', '22P02', '42703', 'PGRST204', '23502'];
-        if (nonRetryableCodes.includes(code)) return true;
-
-        if (
-            message.includes('row-level security') ||
-            message.includes('violates row-level security') ||
-            message.includes('invalid input syntax for type uuid') ||
-            message.includes('Could not find the') ||
-            message.includes('column') && message.includes('does not exist')
-        ) {
-            return true;
-        }
-
-        return false;
     }
 
     private static cleanUpdatePayload(payload: any): any {
@@ -487,7 +576,7 @@ export class SyncManager {
 
     private static cleanHistoryInsertPayload(payload: any, activeUserId: string): any {
         if (!payload || typeof payload !== 'object') return payload;
-        const cleaned: any = {
+        return {
             id: toValidUUIDOrNull(payload.id) || crypto.randomUUID(),
             user_id: toValidUUIDOrNull(payload.user_id || payload.userId) || activeUserId,
             workout_id: toValidUUIDOrNull(payload.workout_id || payload.workoutId),
@@ -500,12 +589,11 @@ export class SyncManager {
             using_creatine: Boolean(payload.using_creatine ?? payload.usingCreatine),
             executions: payload.executions || []
         };
-        return cleaned;
     }
 
     private static cleanSessionInsertPayload(payload: any, activeUserId: string): any {
         if (!payload || typeof payload !== 'object') return payload;
-        const cleaned: any = {
+        return {
             id: toValidUUIDOrNull(payload.id) || crypto.randomUUID(),
             user_id: toValidUUIDOrNull(payload.user_id || payload.userId) || activeUserId,
             workout_id: toValidUUIDOrNull(payload.workout_id || payload.workoutId),
@@ -518,12 +606,11 @@ export class SyncManager {
             paused_at: payload.paused_at ? (payload.paused_at instanceof Date ? payload.paused_at.toISOString() : payload.paused_at) : null,
             resumed_at: payload.resumed_at ? (payload.resumed_at instanceof Date ? payload.resumed_at.toISOString() : payload.resumed_at) : null,
         };
-        return cleaned;
     }
 
     private static cleanWorkoutInsertPayload(payload: any, activeUserId: string): any {
         if (!payload || typeof payload !== 'object') return payload;
-        const cleaned: any = {
+        return {
             id: toValidUUIDOrNull(payload.id) || crypto.randomUUID(),
             user_id: toValidUUIDOrNull(payload.user_id || payload.userId) || activeUserId,
             created_by: toValidUUIDOrNull(payload.created_by || payload.createdBy) || activeUserId,
@@ -533,12 +620,11 @@ export class SyncManager {
             exercises: payload.exercises || [],
             created_at: payload.created_at ? (payload.created_at instanceof Date ? payload.created_at.toISOString() : payload.created_at) : new Date().toISOString(),
         };
-        return cleaned;
     }
 
     private static cleanScheduleInsertPayload(payload: any, activeUserId: string): any {
         if (!payload || typeof payload !== 'object') return payload;
-        const cleaned: any = {
+        return {
             id: toValidUUIDOrNull(payload.id) || crypto.randomUUID(),
             user_id: toValidUUIDOrNull(payload.user_id || payload.userId) || activeUserId,
             created_by: toValidUUIDOrNull(payload.created_by || payload.createdBy) || activeUserId,
@@ -551,7 +637,6 @@ export class SyncManager {
             last_completed: typeof payload.last_completed === 'number' ? payload.last_completed : -1,
             created_at: payload.created_at ? (payload.created_at instanceof Date ? payload.created_at.toISOString() : payload.created_at) : new Date().toISOString(),
         };
-        return cleaned;
     }
 
     private static cleanExerciseInsertPayload(payload: any, activeUserId: string): any {
@@ -574,7 +659,6 @@ export class SyncManager {
             secondary_muscles: payload.secondary_muscles || [],
             translations: payload.translations || {},
         };
-        // Don't send custom numeric temporary ID so PostgreSQL auto-generates identity ID
         if (typeof payload.id === 'number' && payload.id < 100000) {
             cleaned.id = payload.id;
         }
@@ -584,7 +668,6 @@ export class SyncManager {
     private static cleanExerciseUpdatePayload(payload: any): any {
         if (!payload || typeof payload !== 'object') return payload;
         const cleaned = { ...payload };
-        // Delete local-only fields that do not exist in Supabase exercises schema
         delete cleaned.tags;
         delete cleaned.description;
         delete cleaned.how_to;
@@ -620,12 +703,7 @@ export class SyncManager {
             const payload = this.cleanHistoryInsertPayload(op.payload, activeUserId);
             const { error } = await withTimeout(supabase.from('history').insert(payload), this.OP_TIMEOUT_MS);
             if (error) {
-                if (error.code === '23505') {
-                    // Unique violation / already exists -> safely consider synced
-                    return true;
-                }
-                // 23503 = Foreign key constraint on workout_id failed (e.g. custom or deleted workout).
-                // Fallback: save with workout_id = null so user's workout data is NEVER lost!
+                if (error.code === '23505') return true;
                 if (error.code === '23503' && payload.workout_id) {
                     console.warn(`[SyncManager] FK violation on workout_id for history ${op.entityId}, retrying with workout_id = null`);
                     const fallbackPayload = { ...payload, workout_id: null };
@@ -663,15 +741,13 @@ export class SyncManager {
         } else if (op.action === 'UPDATE') {
             const payload = this.cleanUpdatePayload(op.payload);
             const { error } = await withTimeout(supabase.from('sessions').update(payload).eq('id', op.entityId), this.OP_TIMEOUT_MS);
-            // 404 / PGRST116 = row not found; session may have been deleted already — safe to drop
             if (error && error.code !== 'PGRST116') throw error;
         } else if (op.action === 'DELETE') {
             const { error } = await withTimeout(supabase.from('sessions').delete().eq('id', op.entityId), this.OP_TIMEOUT_MS);
             if (error && error.code !== 'PGRST116') throw error;
 
-            // Delete locally only after remote confirmation
+            // Delete locally only after remote confirmation (and AFTER HISTORY CREATE stage succeeded!)
             if (typeof window !== 'undefined') {
-                const { db } = await import('../config/db');
                 await db.sessions.delete(op.entityId as string).catch(() => {});
             }
         }
@@ -713,8 +789,20 @@ export class SyncManager {
     private static async syncExercise(op: SyncOperation, supabase: any, activeUserId: string): Promise<boolean> {
         if (op.action === 'CREATE') {
             const payload = this.cleanExerciseInsertPayload(op.payload, activeUserId);
-            const { error } = await withTimeout(supabase.from('exercises').insert(payload), this.OP_TIMEOUT_MS);
+            const { data, error } = await withTimeout(
+                supabase.from('exercises').insert(payload).select('id').maybeSingle(),
+                this.OP_TIMEOUT_MS
+            );
             if (error && error.code !== '23505') throw error;
+
+            // Se o exercício local usava ID temporário (>100000), atualiza para o ID oficial do Postgres
+            if (data?.id && typeof op.entityId === 'number' && op.entityId >= 100000 && data.id !== op.entityId) {
+                const localEx = await db.exercises.get(op.entityId);
+                if (localEx) {
+                    await db.exercises.put({ ...localEx, id: data.id });
+                    await db.exercises.delete(op.entityId);
+                }
+            }
         } else if (op.action === 'UPDATE') {
             const payload = this.cleanExerciseUpdatePayload(op.payload);
             const { error } = await withTimeout(supabase.from('exercises').update(payload).eq('id', op.entityId), this.OP_TIMEOUT_MS);

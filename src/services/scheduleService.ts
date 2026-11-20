@@ -5,7 +5,7 @@ import { SyncManager } from './syncManager';
 import { connectionService } from './connectionService';
 import { withTimeout } from '@/lib/utils/timeout';
 import { getEffectiveTime, sortByNewest } from '@/utils/dateUtil';
-import { safeBulkPut } from '@/utils/cacheSyncUtil';
+import { safeBulkPut, safeSyncUserCollection } from '@/utils/cacheSyncUtil';
 import { safeParseArray } from '@/utils/jsonUtil';
 
 const mapScheduleFromSupabase = (s: any): Schedule => ({
@@ -72,9 +72,12 @@ export const ScheduleService = {
             }));
             totalCount = count || 0;
 
-            if (typeof window !== 'undefined' && schedules.length > 0) {
+            if (typeof window !== 'undefined') {
                 const validSchedules = schedules.filter((s: Schedule) => Boolean(s.id && s.userId));
-                if (validSchedules.length > 0) {
+                const isFullUnfilteredFetch = !searchQuery.trim() && pagination.page === 1 && pagination.limit >= 50;
+                if (isFullUnfilteredFetch) {
+                    await safeSyncUserCollection(db.schedules, userId, validSchedules, 'SCHEDULE');
+                } else if (validSchedules.length > 0) {
                     await safeBulkPut(db.schedules, validSchedules, 'SCHEDULE');
                 }
             }
@@ -200,7 +203,7 @@ export const ScheduleService = {
             if (error) throw error;
             const schedule = data ? mapScheduleFromSupabase(data) : null;
             if (typeof window !== 'undefined' && schedule) {
-                await db.schedules.put(schedule).catch(() => {});
+                await safeBulkPut(db.schedules, [schedule], 'SCHEDULE');
             }
             return schedule;
         } catch (error) {
@@ -318,34 +321,63 @@ export const ScheduleService = {
         if (scheduleData.active !== undefined) updates.active = scheduleData.active;
         if (scheduleData.lastCompleted !== undefined) updates.last_completed = scheduleData.lastCompleted;
 
-        // Local-first write
+        // Local-first write (always persists to Dexie + SyncManager in browser — never bypasses local DB)
         if (typeof window !== 'undefined') {
-            const current = await db.schedules.get(id);
-            if (current) {
-                // If activating, deactivate others locally
-                if (scheduleData.active === true) {
-                    const userId = scheduleData.userId || current?.userId || callerId;
-                    const otherActive = await db.schedules
-                        .where('userId')
-                        .equals(userId)
-                        .filter(s => s.active === true && s.id !== id)
-                        .toArray();
+            let current = await db.schedules.get(id);
 
-                    for (const s of otherActive) {
-                        await db.schedules.update(s.id!, { active: false });
-                        // Enqueue deactivation for sync
-                        await SyncManager.enqueue('UPDATE', 'SCHEDULE', s.id!, {
-                            id: s.id,
-                            active: false,
-                        }, callerId);
+            // If not yet cached locally (e.g., trainer editing student schedule), try quick fetch first
+            if (!current && navigator.onLine) {
+                try {
+                    const supabase = supabaseInput || createClient();
+                    const { data: fetched } = await withTimeout(
+                        supabase.from('schedules').select('*').eq('id', id).maybeSingle(),
+                        5000
+                    );
+                    if (fetched) {
+                        current = mapScheduleFromSupabase(fetched);
                     }
+                } catch {
+                    // Proceed with local fallback construction
                 }
-
-                const updated = { ...current, ...scheduleData, updatedAt: now };
-                await db.schedules.put(updated);
-                await SyncManager.enqueue('UPDATE', 'SCHEDULE', id, { id, ...updates }, callerId);
-                return updated;
             }
+
+            const targetUserId = scheduleData.userId || current?.userId || callerId;
+
+            // If activating, deactivate others locally
+            if (scheduleData.active === true) {
+                const otherActive = await db.schedules
+                    .where('userId')
+                    .equals(targetUserId)
+                    .filter(s => s.active === true && s.id !== id)
+                    .toArray();
+
+                for (const s of otherActive) {
+                    await db.schedules.update(s.id!, { active: false });
+                    await SyncManager.enqueue('UPDATE', 'SCHEDULE', s.id!, {
+                        id: s.id,
+                        active: false,
+                    }, callerId);
+                }
+            }
+
+            const updated: Schedule = current
+                ? { ...current, ...scheduleData, updatedAt: now }
+                : {
+                    id,
+                    userId: targetUserId,
+                    name: scheduleData.name?.trim() || 'Cronograma',
+                    workouts: scheduleData.workouts || Array(7).fill(null),
+                    startDate: scheduleData.startDate ? new Date(scheduleData.startDate) : now,
+                    endDate: scheduleData.endDate ? new Date(scheduleData.endDate) : undefined,
+                    active: Boolean(scheduleData.active),
+                    lastCompleted: scheduleData.lastCompleted,
+                    createdAt: now,
+                    updatedAt: now,
+                };
+
+            await db.schedules.put(updated);
+            await SyncManager.enqueue('UPDATE', 'SCHEDULE', id, { id, ...updates }, callerId);
+            return updated;
         }
 
         // Fallback: direct Supabase (server-side or no local data)

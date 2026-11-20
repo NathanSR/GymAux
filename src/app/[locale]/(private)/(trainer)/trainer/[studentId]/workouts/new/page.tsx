@@ -1,32 +1,38 @@
-import NewWorkoutClient from '@/components/workouts/NewWorkoutClient';
-import { createClient } from '@/lib/supabase/server';
-import { ExerciseService } from '@/services/exerciseService';
-import { redirect } from 'next/navigation';
+'use client';
 
-export default async function TrainerStudentNewWorkoutPage({
+import { use, useMemo } from 'react';
+import NewWorkoutClient from '@/components/workouts/NewWorkoutClient';
+import { useSession } from '@/hooks/useSession';
+import { useDexieExercises } from '@/hooks/useDexieData';
+import { usePathname } from '@/i18n/routing';
+import { resolveDynamicRouteId } from '@/utils/activeAuthUser';
+
+export default function TrainerStudentNewWorkoutPage({
     params
 }: {
-    params: Promise<{ studentId: string }>
+    params: Promise<{ studentId: string }>;
 }) {
-    const { studentId } = await params;
-    const supabase = await createClient();
+    const resolvedParams = use(params);
+    const pathname = usePathname();
+    const studentId = resolveDynamicRouteId(/\/trainer\/([^/?#]+)\/workouts/, pathname, resolvedParams?.studentId);
+    const { activeUser } = useSession();
+    const allExercises = useDexieExercises();
 
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-        redirect('/');
-    }
-
-    const availableExercises = await ExerciseService.getAllExercises({
-        supabase,
-        studentMode: true,
-        trainerId: user.id
-    });
+    const availableExercises = useMemo(() => {
+        return (allExercises || []).filter(ex => {
+            const isSystem = ex.created_by_type === 'system' || (ex.id !== undefined && ex.id < 1000);
+            if (isSystem) return true;
+            const isTrainer = activeUser?.id ? ex.created_by === activeUser.id : true;
+            const isAccessible = ex.visibility === 'public' || ex.visibility === 'students';
+            return isTrainer && isAccessible;
+        });
+    }, [allExercises, activeUser?.id]);
 
     return (
-        <NewWorkoutClient 
-            availableExercises={availableExercises.exercises} 
-            userId={studentId} 
-            callerId={user.id}
+        <NewWorkoutClient
+            availableExercises={availableExercises}
+            userId={studentId}
+            callerId={activeUser?.id}
             studentMode={true}
             baseUrl={`/trainer/${studentId}/workouts`}
         />

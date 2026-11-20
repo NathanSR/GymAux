@@ -4,7 +4,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { Modal } from '@/components/ui/Modal';
 import { SyncManager } from '@/services/syncManager';
 import { SyncOperation } from '@/config/types';
-import { useNetworkStatus } from '@/hooks/useNetworkStatus';
+import { useOfflineSync } from '@/context/OfflineSyncProvider';
 import { useTranslations } from 'next-intl';
 import {
     Wifi,
@@ -29,7 +29,7 @@ interface SyncStatusModalProps {
 
 export function SyncStatusModal({ isOpen, onClose }: SyncStatusModalProps) {
     const t = useTranslations('OfflineSync');
-    const { isOnline } = useNetworkStatus();
+    const { isOnline } = useOfflineSync();
     const [items, setItems] = useState<SyncOperation[]>([]);
     const [isSyncing, setIsSyncing] = useState(false);
     const [isLoadingItems, setIsLoadingItems] = useState(false);

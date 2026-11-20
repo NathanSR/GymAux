@@ -5,90 +5,117 @@ import { User } from '@/config/types';
 import { userService } from '@/services/userService';
 import { createClient } from '@/lib/supabase/client';
 import { db } from '@/config/db';
-
 import { authService } from '@/services/authService';
+import { getStoredActiveAuthUserId, setStoredActiveAuthUserId } from '@/utils/activeAuthUser';
 
-const supabase = createClient();
+interface SessionSnapshot {
+    activeUser: User | null;
+    loading: boolean;
+}
 
-export function useSession() {
-    const [activeUser, setActiveUser] = useState<User | null>(null);
-    const [loading, setLoading] = useState(true);
+type Listener = (snapshot: SessionSnapshot) => void;
 
-    useEffect(() => {
-        let isMounted = true;
+/**
+ * Store singleton de sessão para evitar múltiplas subscriptions simultâneas
+ * no Supabase (`onAuthStateChange`) e leituras redundantes no Dexie a cada página.
+ */
+class AuthSessionStore {
+    private snapshot: SessionSnapshot = { activeUser: null, loading: true };
+    private listeners = new Set<Listener>();
+    private initialized = false;
 
-        // 1. Carregamento imediato do cache local Dexie (0ms)
-        if (typeof window !== 'undefined') {
-            db.users.toCollection().first().then((cached) => {
-                if (isMounted && cached) {
-                    setActiveUser(cached);
-                    setLoading(false);
+    public getSnapshot(): SessionSnapshot {
+        return this.snapshot;
+    }
+
+    private setSnapshot(next: Partial<SessionSnapshot>) {
+        this.snapshot = { ...this.snapshot, ...next };
+        this.listeners.forEach(l => l(this.snapshot));
+    }
+
+    public subscribe(listener: Listener): () => void {
+        this.listeners.add(listener);
+        if (!this.initialized && typeof window !== 'undefined') {
+            this.init();
+        }
+        listener(this.snapshot);
+        return () => {
+            this.listeners.delete(listener);
+        };
+    }
+
+    private init() {
+        this.initialized = true;
+        const supabase = createClient();
+
+        // 1. Leitura imediata (0ms) pelo ID dedicado da conta autenticada (NUNCA db.users.first()!)
+        const storedId = getStoredActiveAuthUserId();
+        if (storedId) {
+            db.users.get(storedId).then((cached) => {
+                if (cached) {
+                    this.setSnapshot({ activeUser: cached, loading: false });
                 }
-            }).catch(() => {});
+            }).catch(() => { });
         }
 
-        // 2. Validação e resolução completa em background
+        // 2. Resolução completa e revalidação segura em background
         const loadUser = async () => {
             try {
                 const userId = await userService.resolveCurrentUserId();
-
-                if (!isMounted) return;
-
                 if (userId) {
+                    setStoredActiveAuthUserId(userId);
                     const profile = await userService.getUserById(userId);
-                    if (!isMounted) return;
                     if (profile) {
-                        setActiveUser(profile);
-                    } else if (typeof window !== 'undefined') {
-                        const cached = await db.users.get(userId);
-                        if (isMounted && cached) setActiveUser(cached);
+                        this.setSnapshot({ activeUser: profile, loading: false });
+                        return;
                     }
-                } else if (typeof window !== 'undefined') {
-                    const cached = await db.users.toCollection().first();
-                    if (isMounted) setActiveUser(cached || null);
-                } else {
-                    if (isMounted) setActiveUser(null);
+                    const cached = await db.users.get(userId);
+                    if (cached) {
+                        this.setSnapshot({ activeUser: cached, loading: false });
+                        return;
+                    }
                 }
+                this.setSnapshot({ activeUser: this.snapshot.activeUser, loading: false });
             } catch (error: any) {
                 console.warn('[useSession] Error loading session:', error?.message || error);
-                if (isMounted && !activeUser) setActiveUser(null);
-            } finally {
-                if (isMounted) {
-                    setLoading(false);
-                }
+                this.setSnapshot({ loading: false });
             }
         };
 
         loadUser();
 
-        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-            if (!isMounted) return;
-
+        // 3. Única subscription global de auth state
+        supabase.auth.onAuthStateChange(async (event, session) => {
             if (event === 'SIGNED_OUT') {
-                setActiveUser(null);
-                setLoading(false);
-                await authService.clearUserData().catch(() => {});
+                this.setSnapshot({ activeUser: null, loading: false });
+                await authService.clearUserData().catch(() => { });
                 return;
             }
 
-            if (session?.user) {
+            if (session?.user?.id) {
                 try {
                     await authService.ensureUserIsolation(session.user.id);
+                    setStoredActiveAuthUserId(session.user.id);
                     const user = await userService.getUserById(session.user.id);
-                    if (isMounted && user) {
-                        setActiveUser(user);
+                    if (user) {
+                        this.setSnapshot({ activeUser: user, loading: false });
                     }
                 } catch (err) {
                     console.warn('[useSession] onAuthStateChange getUserById failed:', err);
                 }
             }
         });
+    }
+}
 
-        return () => {
-            isMounted = false;
-            subscription.unsubscribe();
-        };
+const sessionStore = new AuthSessionStore();
+
+export function useSession() {
+    const [state, setState] = useState<SessionSnapshot>(() => sessionStore.getSnapshot());
+
+    useEffect(() => {
+        return sessionStore.subscribe(setState);
     }, []);
 
-    return { activeUser, loading };
+    return state;
 }

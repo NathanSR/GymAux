@@ -2,37 +2,16 @@
 
 import SchedulesClient from '@/components/schedules/SchedulesClient';
 import { useSession } from '@/hooks/useSession';
-import { useLiveQuery } from 'dexie-react-hooks';
-import { db } from '@/config/db';
-import { useEffect } from 'react';
-import { ScheduleService } from '@/services/scheduleService';
-import { sortByNewest } from '@/utils/dateUtil';
+import { useDexieSchedules } from '@/hooks/useDexieData';
 
 export default function SchedulesPage() {
     const { activeUser, loading } = useSession();
-
-    const schedules = useLiveQuery(
-        async () => {
-            if (!activeUser?.id) return [];
-            const all = await db.schedules
-                .where('userId')
-                .equals(activeUser.id)
-                .toArray();
-            return sortByNewest(all);
-        },
-        [activeUser?.id]
-    );
-
-    useEffect(() => {
-        if (!activeUser?.id || typeof window === 'undefined' || !navigator.onLine) return;
-        ScheduleService.getSchedulesByUserId(activeUser.id, '', { page: 1, limit: 100 }).catch(() => {});
-    }, [activeUser?.id]);
-
+    const schedules = useDexieSchedules(activeUser?.id);
     const isInitialLoading = (loading && !activeUser) && (schedules === undefined || schedules.length === 0);
 
     return (
-        <SchedulesClient 
-            initialSchedules={schedules || []} 
+        <SchedulesClient
+            initialSchedules={schedules || []}
             initialTotalCount={(schedules || []).length}
             userId={activeUser?.id || ''}
             isSessionLoading={isInitialLoading}

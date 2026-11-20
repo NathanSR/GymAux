@@ -2,8 +2,9 @@ import { createClient } from '@/lib/supabase/client';
 import { User } from '@/config/types';
 import { db } from '@/config/db';
 import { withTimeout } from '@/lib/utils/timeout';
-import { authService } from './authService';
 import { SyncManager } from './syncManager';
+import { safeBulkPut } from '@/utils/cacheSyncUtil';
+import { getStoredActiveAuthUserId, setStoredActiveAuthUserId } from '@/utils/activeAuthUser';
 
 const mapProfileToUser = (profile: any): User => ({
     id: profile.id,
@@ -36,7 +37,7 @@ export const userService = {
 
             if (!error && data) {
                 const user = mapProfileToUser(data);
-                await db.users.put(user).catch(() => {});
+                await safeBulkPut(db.users, [user], 'USER');
             }
         } catch {
             // Revalidação em segundo plano silenciosa
@@ -107,7 +108,7 @@ export const userService = {
             if (!error && data) {
                 const user = mapProfileToUser(data);
                 if (typeof window !== 'undefined') {
-                    await db.users.put(user).catch(() => {});
+                    await db.users.put(user).catch(() => { });
                 }
                 return user;
             }
@@ -164,7 +165,7 @@ export const userService = {
             if (!error && data) {
                 const user = mapProfileToUser(data);
                 if (typeof window !== 'undefined') {
-                    await db.users.put(user).catch(() => {});
+                    await db.users.put(user).catch(() => { });
                 }
                 return user;
             }
@@ -216,10 +217,10 @@ export const userService = {
         // Local-first update
         if (typeof window !== 'undefined') {
             const local = await db.users.get(id);
-            const updated: User = local 
-                ? { ...local, ...updateData } 
+            const updated: User = local
+                ? { ...local, ...updateData }
                 : { id, name: updateData.name || '', weight: updateData.weight || 0, height: updateData.height || 0, role: updateData.role || 'user', createdAt: new Date(), ...updateData };
-            
+
             await db.users.put(updated);
             await SyncManager.enqueue('UPDATE', 'USER', id, updateData, id);
             return updated;
@@ -243,7 +244,7 @@ export const userService = {
         const user = data ? mapProfileToUser(data) : null;
         // Update local cache
         if (user && typeof window !== 'undefined') {
-            await db.users.put(user).catch(() => {});
+            await db.users.put(user).catch(() => { });
         }
         return user;
     },
@@ -254,31 +255,31 @@ export const userService = {
      * This is the SINGLE SOURCE OF TRUTH for "who is the current user".
      */
     async resolveCurrentUserId(): Promise<string | null> {
-        // 1. Tenta recuperar do Dexie local imediatamente (0ms)
-        if (typeof window !== 'undefined') {
-            try {
-                const cached = await db.users.toCollection().first();
-                if (cached?.id) return cached.id;
-            } catch {
-                // Ignore Dexie errors
-            }
-        }
-
-        // 2. Consulta a sessão ativa do Supabase (instantânea dos cookies/storage local)
+        // 1. Consulta a sessão ativa do Supabase (instantânea dos cookies/storage local)
         try {
             const supabase = createClient();
             const { data } = await supabase.auth.getSession();
-            if (data?.session?.user?.id) return data.session.user.id;
+            if (data?.session?.user?.id) {
+                setStoredActiveAuthUserId(data.session.user.id);
+                return data.session.user.id;
+            }
         } catch {
             // Ignore
         }
+
+        // 2. Chave dedicada do usuário autenticado (0ms, NUNCA usa db.users.first() que pode retornar um aluno!)
+        const storedId = getStoredActiveAuthUserId();
+        if (storedId) return storedId;
 
         // 3. Se online e ainda não resolveu, valida com auth.getUser() do servidor com timeout resiliente
         if (typeof window !== 'undefined' && navigator.onLine) {
             try {
                 const supabase = createClient();
                 const { data } = await withTimeout(supabase.auth.getUser(), 5000);
-                if (data?.user?.id) return data.user.id;
+                if (data?.user?.id) {
+                    setStoredActiveAuthUserId(data.user.id);
+                    return data.user.id;
+                }
             } catch {
                 // Auth call failed or timed out
             }

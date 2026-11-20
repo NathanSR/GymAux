@@ -1,20 +1,39 @@
-import { getTranslations } from 'next-intl/server';
+'use client';
+
+import { use, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
+import { useLiveQuery } from 'dexie-react-hooks';
+import { db } from '@/config/db';
 import { userService } from '@/services/userService';
-import { createClient } from '@/lib/supabase/server';
 import { TrainerHeaderExitButton } from '@/components/trainers/TrainerHeaderExitButton';
 import { ShieldCheck, User } from 'lucide-react';
+import { usePathname } from '@/i18n/routing';
+import { resolveDynamicRouteId } from '@/utils/activeAuthUser';
 
-export default async function TrainerLayout({
+export default function TrainerLayout({
     children,
     params
 }: {
-    children: React.ReactNode,
-    params: Promise<any>
+    children: React.ReactNode;
+    params: Promise<{ studentId: string }>;
 }) {
-    const { studentId } = await params;
-    const t = await getTranslations('Trainer');
-    const supabase = await createClient();
-    const student = await userService.getUserById(studentId, supabase);
+    const resolvedParams = use(params);
+    const pathname = usePathname();
+    const studentId = resolveDynamicRouteId(/\/trainer\/([^/?#]+)/, pathname, resolvedParams?.studentId);
+    const t = useTranslations('Trainer');
+
+    const student = useLiveQuery(
+        async () => {
+            if (!studentId) return null;
+            return (await db.users.get(studentId)) || null;
+        },
+        [studentId]
+    );
+
+    useEffect(() => {
+        if (!studentId || typeof window === 'undefined' || !navigator.onLine) return;
+        userService.getUserById(studentId).catch(() => {});
+    }, [studentId]);
 
     return (
         <div className="min-h-dvh flex flex-col font-sans selection:bg-lime-400 selection:text-zinc-950 overflow-x-hidden">

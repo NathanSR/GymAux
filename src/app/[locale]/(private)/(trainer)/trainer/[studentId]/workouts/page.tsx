@@ -1,33 +1,32 @@
-import WorkoutsClient from '@/components/workouts/WorkoutsClient';
-import { createClient } from '@/lib/supabase/server';
-import { WorkoutService } from '@/services/workoutService';
+'use client';
 
-export default async function TrainerStudentWorkoutsPage({
+import { use } from 'react';
+import WorkoutsClient from '@/components/workouts/WorkoutsClient';
+import { useSession } from '@/hooks/useSession';
+import { useDexieWorkouts } from '@/hooks/useDexieData';
+import { usePathname } from '@/i18n/routing';
+import { resolveDynamicRouteId } from '@/utils/activeAuthUser';
+
+export default function TrainerStudentWorkoutsPage({
     params
 }: {
-    params: Promise<{ studentId: string }>
+    params: Promise<{ studentId: string }>;
 }) {
-    const { studentId } = await params;
-    const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    
-    const result = await WorkoutService.getWorkoutsByUserId(
-        studentId,
-        '',
-        { page: 1, limit: 20 },
-        supabase
-    );
-
-    const initialWorkouts = (result as any).workouts || [];
-    const initialTotalCount = (result as any).totalCount || 0;
+    const resolvedParams = use(params);
+    const pathname = usePathname();
+    const studentId = resolveDynamicRouteId(/\/trainer\/([^/?#]+)\/workouts/, pathname, resolvedParams?.studentId);
+    const { activeUser, loading } = useSession();
+    const workouts = useDexieWorkouts(studentId);
+    const isInitialLoading = (loading && !activeUser) && (workouts === undefined || workouts.length === 0);
 
     return (
-        <WorkoutsClient 
-            initialWorkouts={initialWorkouts} 
-            initialTotalCount={initialTotalCount}
+        <WorkoutsClient
+            initialWorkouts={workouts || []}
+            initialTotalCount={(workouts || []).length}
             userId={studentId}
-            callerId={user?.id}
+            callerId={activeUser?.id}
             baseUrl={`/trainer/${studentId}/workouts`}
+            isSessionLoading={isInitialLoading}
         />
     );
 }

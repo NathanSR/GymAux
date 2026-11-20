@@ -8,6 +8,7 @@ import { RPE_EMOJIS } from './SessionConstants';
 
 interface RestTimerProps {
     seconds: number;
+    restEndsAt?: number | null;
     onFinish: () => void;
     onAdjustTime?: (additionalSeconds: number) => void;
     currentRpe?: number;
@@ -16,6 +17,7 @@ interface RestTimerProps {
 
 export const RestTimer = ({
     seconds,
+    restEndsAt,
     onFinish,
     onAdjustTime,
     currentRpe = 7,
@@ -23,10 +25,22 @@ export const RestTimer = ({
 }: RestTimerProps) => {
     const t = useTranslations('RestTimer');
     const ts = useTranslations('Session');
-    const [timeLeft, setTimeLeft] = useState(seconds);
-    const [totalSeconds, setTotalSeconds] = useState(seconds);
+
+    const computeRemaining = (endsAt: number) =>
+        Math.max(0, Math.ceil((endsAt - Date.now()) / 1000));
+
+    const endTimeRef = useRef<number>(
+        restEndsAt && restEndsAt > Date.now()
+            ? restEndsAt
+            : Date.now() + Math.max(1, seconds) * 1000
+    );
+
+    const [timeLeft, setTimeLeft] = useState<number>(() => computeRemaining(endTimeRef.current));
+    const [totalSeconds, setTotalSeconds] = useState<number>(() => Math.max(1, seconds, computeRemaining(endTimeRef.current)));
 
     const audioRef = useRef<HTMLAudioElement | null>(null);
+    const hasPlayedAudioRef = useRef(false);
+    const hasFinishedRef = useRef(false);
 
     useEffect(() => {
         audioRef.current = new Audio('/sounds/3-2-1-ja.mp3');
@@ -34,25 +48,40 @@ export const RestTimer = ({
     }, []);
 
     useEffect(() => {
-        if (timeLeft === 3 && audioRef.current) {
-            audioRef.current.play().catch(e => console.log("Audio error:", e));
-        }
+        const tick = () => {
+            const remaining = computeRemaining(endTimeRef.current);
+            setTimeLeft(remaining);
 
-        if (timeLeft <= 0) {
-            onFinish();
-            return;
-        }
+            if (remaining === 3 && !hasPlayedAudioRef.current && audioRef.current) {
+                hasPlayedAudioRef.current = true;
+                audioRef.current.play().catch(e => console.log("Audio error:", e));
+            }
 
-        const timer = setInterval(() => setTimeLeft(prev => prev - 1), 1000);
-        return () => clearInterval(timer);
-    }, [timeLeft, onFinish]);
+            if (remaining <= 0 && !hasFinishedRef.current) {
+                hasFinishedRef.current = true;
+                onFinish();
+            }
+        };
+
+        tick();
+        const timer = setInterval(tick, 500);
+        const handleVisibility = () => {
+            if (document.visibilityState === 'visible') tick();
+        };
+        document.addEventListener('visibilitychange', handleVisibility);
+
+        return () => {
+            clearInterval(timer);
+            document.removeEventListener('visibilitychange', handleVisibility);
+        };
+    }, [onFinish]);
 
     const handleAdjust = (delta: number) => {
-        setTimeLeft(prev => {
-            const newTime = Math.max(1, prev + delta);
-            setTotalSeconds(prevTotal => Math.max(newTime, prevTotal + delta));
-            return newTime;
-        });
+        const nextRemaining = Math.max(1, computeRemaining(endTimeRef.current) + delta);
+        endTimeRef.current = Date.now() + nextRemaining * 1000;
+        if (nextRemaining > 3) hasPlayedAudioRef.current = false;
+        setTimeLeft(nextRemaining);
+        setTotalSeconds(prevTotal => Math.max(nextRemaining, prevTotal + delta));
         if (onAdjustTime) {
             onAdjustTime(delta);
         }

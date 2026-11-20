@@ -4,7 +4,8 @@ import { db } from '@/config/db';
 import { SyncManager } from './syncManager';
 import { withTimeout } from '@/lib/utils/timeout';
 import { safeBulkPut } from '@/utils/cacheSyncUtil';
-import { safeParseJson, safeParseArray, safeParseNumber, safeParseObject } from '@/utils/jsonUtil';
+import { safeParseArray, safeParseNumber, safeParseObject } from '@/utils/jsonUtil';
+import { getStoredActiveAuthUserId } from '@/utils/activeAuthUser';
 
 const mapGroupFromSupabase = (g: any): ExerciseGroup => {
     if (!g) return null as any;
@@ -133,8 +134,7 @@ export const SessionService = {
 
         let targetUserId = workout.userId;
         if (!targetUserId && typeof window !== 'undefined') {
-            const cachedUser = await db.users.toCollection().first();
-            if (cachedUser?.id) targetUserId = cachedUser.id;
+            targetUserId = getStoredActiveAuthUserId() || '';
         }
 
         const sessionPayload: Session = {
@@ -351,9 +351,9 @@ export const SessionService = {
 
             if (data) {
                 const session = mapSessionFromSupabase(data);
-                // Cache for offline
+                // Cache safely for offline (never overwrites richer local session)
                 if (typeof window !== 'undefined') {
-                    await db.sessions.put(session).catch(() => {});
+                    await safeBulkPut(db.sessions, [session], 'SESSION');
                 }
                 return session;
             }
@@ -367,21 +367,41 @@ export const SessionService = {
     async syncSessionProgress(sessionId: string, updates: Partial<Session>, supabaseInput?: any): Promise<void> {
         if (typeof window !== 'undefined') {
             const localSession = await db.sessions.get(sessionId);
-            if (localSession) {
-                const updatedSession = { ...localSession, ...updates };
-                await db.sessions.put(updatedSession);
+            const mergedSession: Session = localSession
+                ? { ...localSession, ...updates, id: sessionId }
+                : {
+                    id: sessionId,
+                    userId: updates.userId || getStoredActiveAuthUserId() || '',
+                    workoutId: updates.workoutId || '',
+                    workoutName: updates.workoutName || 'Treino',
+                    createdAt: updates.createdAt || new Date(),
+                    exercisesToDo: updates.exercisesToDo || [],
+                    exercisesDone: updates.exercisesDone || [],
+                    current: updates.current || {
+                        step: 'executing',
+                        groupIndex: 0,
+                        exerciseIndex: 0,
+                        setIndex: 0,
+                        roundIndex: 0,
+                    },
+                    duration: updates.duration || 0,
+                    pausedAt: updates.pausedAt ?? null,
+                    resumedAt: updates.resumedAt ?? null,
+                    ...updates,
+                };
 
-                const dbUpdates: any = { id: sessionId };
-                if (updates.exercisesDone) dbUpdates.exercises_done = updates.exercisesDone;
-                if (updates.exercisesToDo) dbUpdates.exercises_to_do = updates.exercisesToDo;
-                if (updates.current) dbUpdates.current_step = updates.current;
-                if (updates.duration !== undefined) dbUpdates.duration = updates.duration;
-                if (updates.pausedAt !== undefined) dbUpdates.paused_at = toISOString(updates.pausedAt);
-                if (updates.resumedAt !== undefined) dbUpdates.resumed_at = toISOString(updates.resumedAt);
+            await db.sessions.put(mergedSession);
 
-                await SyncManager.enqueue('UPDATE', 'SESSION', sessionId, dbUpdates, localSession.userId);
-                return;
-            }
+            const dbUpdates: any = { id: sessionId };
+            if (updates.exercisesDone) dbUpdates.exercises_done = updates.exercisesDone;
+            if (updates.exercisesToDo) dbUpdates.exercises_to_do = updates.exercisesToDo;
+            if (updates.current) dbUpdates.current_step = updates.current;
+            if (updates.duration !== undefined) dbUpdates.duration = updates.duration;
+            if (updates.pausedAt !== undefined) dbUpdates.paused_at = toISOString(updates.pausedAt);
+            if (updates.resumedAt !== undefined) dbUpdates.resumed_at = toISOString(updates.resumedAt);
+
+            await SyncManager.enqueue('UPDATE', 'SESSION', sessionId, dbUpdates, mergedSession.userId);
+            return;
         }
 
         const supabase = supabaseInput || createClient();
@@ -458,27 +478,32 @@ export const SessionService = {
         };
 
         if (typeof window !== 'undefined') {
-            // Save history locally for immediate access
-            await db.history.put({
-                id: historyId,
-                userId: session.userId,
-                workoutId: session.workoutId,
-                workoutName: session.workoutName,
-                date: new Date(session.createdAt),
-                endDate: new Date(),
-                duration: session.duration,
-                weight: additionalData?.weight,
-                description: additionalData?.description,
-                usingCreatine: additionalData?.usingCreatine,
-                executions: session.exercisesDone,
-            }).catch(() => {});
+            // Atomic local persistence: save history AND mark session finished locally together.
+            // NEVER swallow IndexedDB errors here — caller must know if local save failed.
+            await db.transaction('rw', db.history, db.sessions, async () => {
+                await db.history.put({
+                    id: historyId,
+                    userId: session.userId,
+                    workoutId: session.workoutId,
+                    workoutName: session.workoutName,
+                    date: new Date(session.createdAt),
+                    endDate: new Date(),
+                    duration: session.duration,
+                    weight: additionalData?.weight,
+                    description: additionalData?.description,
+                    usingCreatine: additionalData?.usingCreatine,
+                    executions: session.exercisesDone,
+                });
 
-            // CRITICAL: Do NOT delete from sessions immediately.
-            // Mark as finished locally so it's ignored by lists, but remains
-            // available for the current session view until SyncManager deletes it.
-            await db.sessions.update(sessionId, { isFinishedLocally: true });
+                const existingLocal = await db.sessions.get(sessionId);
+                if (existingLocal) {
+                    await db.sessions.update(sessionId, { isFinishedLocally: true });
+                } else {
+                    await db.sessions.put({ ...session, id: sessionId, isFinishedLocally: true });
+                }
+            });
 
-            // Await both enqueue calls so that Dexie write failures surface to the caller
+            // Enqueue HISTORY CREATE first, then SESSION DELETE (SyncManager also enforces strict stage order)
             await SyncManager.enqueue('CREATE', 'HISTORY', historyId, newHistory, session.userId);
             await SyncManager.enqueue('DELETE', 'SESSION', sessionId, { id: sessionId }, session.userId);
             return historyId;
@@ -495,7 +520,7 @@ export const SessionService = {
     async deleteSession(sessionId: string, supabaseInput?: any, userIdInput?: string) {
         if (typeof window !== 'undefined') {
             const local = await db.sessions.get(sessionId);
-            const targetUserId = local?.userId || userIdInput || (await db.users.toCollection().first())?.id;
+            const targetUserId = local?.userId || userIdInput || getStoredActiveAuthUserId() || undefined;
             if (local) {
                 await db.sessions.update(sessionId, { isFinishedLocally: true });
             } else {

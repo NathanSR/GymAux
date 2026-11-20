@@ -8,9 +8,11 @@ import { RoutePrewarmer } from '@/components/pwa/RoutePrewarmer';
 import { RegisterSW } from '@/components/pwa/RegisterSW';
 import { OfflineIndicator } from '@/components/ui/OfflineIndicator';
 import { SyncStatusModal } from '@/components/sync/SyncStatusModal';
+import { useNetworkStatus } from '@/hooks/useNetworkStatus';
 import { useTranslations } from 'next-intl';
 
 interface OfflineSyncContextType {
+    isOnline: boolean;
     isSyncModalOpen: boolean;
     openSyncModal: () => void;
     closeSyncModal: () => void;
@@ -30,6 +32,7 @@ export function useOfflineSync() {
 
 export function OfflineSyncProvider({ children }: { children: React.ReactNode }) {
     const t = useTranslations('OfflineSync');
+    const { isOnline } = useNetworkStatus();
     const toastIdRef = useRef<string | number | null>(null);
     const [isSyncModalOpen, setIsSyncModalOpen] = useState(false);
     const [pendingCount, setPendingCount] = useState(0);
@@ -53,23 +56,27 @@ export function OfflineSyncProvider({ children }: { children: React.ReactNode })
     }, []);
 
     const syncNow = useCallback(async () => {
+        await SyncManager.resetTransientFailedOps();
         await SyncManager.processQueue();
         await updatePendingCount();
     }, [updatePendingCount]);
 
     useEffect(() => {
-        // Initial pending count & initial sync attempt
         updatePendingCount();
         if (typeof window !== 'undefined' && navigator.onLine) {
-            SyncManager.processQueue().then(updatePendingCount).catch(() => {});
+            SyncManager.resetTransientFailedOps()
+                .then(() => SyncManager.processQueue())
+                .then(updatePendingCount)
+                .catch(() => { });
         }
 
-        let onlineTimeout: NodeJS.Timeout | null = null;
+        let onlineTimeout: ReturnType<typeof setTimeout> | null = null;
 
-        // Handle browser online event with slight debounce
+        const handleQueueChanged = () => {
+            updatePendingCount();
+        };
+
         const handleOnline = () => {
-            console.log('[OfflineSyncProvider] Back online event received...');
-
             if (toastIdRef.current) {
                 toast.dismiss(String(toastIdRef.current));
                 toastIdRef.current = null;
@@ -78,6 +85,8 @@ export function OfflineSyncProvider({ children }: { children: React.ReactNode })
             if (onlineTimeout) clearTimeout(onlineTimeout);
             onlineTimeout = setTimeout(async () => {
                 try {
+                    // Auto-recupera falhas transitórias (timeouts/rede fraca) ao reconectar
+                    await SyncManager.resetTransientFailedOps();
                     const pendingBefore = await updatePendingCount();
 
                     if (pendingBefore > 0) {
@@ -85,9 +94,7 @@ export function OfflineSyncProvider({ children }: { children: React.ReactNode })
                             t('syncing', { count: pendingBefore })
                         );
 
-                        // Await actual completion of the queue
                         await SyncManager.processQueue();
-
                         const pendingAfter = await updatePendingCount();
 
                         if (pendingAfter === 0) {
@@ -125,25 +132,26 @@ export function OfflineSyncProvider({ children }: { children: React.ReactNode })
         };
 
         const handleOffline = () => {
-            console.log('[OfflineSyncProvider] You are currently offline. Changes will be saved locally.');
             updatePendingCount();
         };
 
         const handleVisibilityChange = () => {
             if (document.visibilityState === 'visible' && navigator.onLine) {
-                SyncManager.processQueue().then(updatePendingCount).catch(() => {});
+                SyncManager.processQueue().then(updatePendingCount).catch(() => { });
             }
         };
 
-        // Periodic sync and count refresher (every 15s)
+        // Sync periódico somente quando a aba está visível e online (30s)
         const periodicSync = setInterval(() => {
+            if (document.visibilityState !== 'visible') return;
             if (navigator.onLine) {
-                SyncManager.processQueue().then(updatePendingCount).catch(() => {});
+                SyncManager.processQueue().then(updatePendingCount).catch(() => { });
             } else {
                 updatePendingCount();
             }
-        }, 15_000);
+        }, 30_000);
 
+        window.addEventListener('gymaux-sync-queue-changed', handleQueueChanged);
         window.addEventListener('online', handleOnline);
         window.addEventListener('offline', handleOffline);
         document.addEventListener('visibilitychange', handleVisibilityChange);
@@ -151,6 +159,7 @@ export function OfflineSyncProvider({ children }: { children: React.ReactNode })
         return () => {
             if (onlineTimeout) clearTimeout(onlineTimeout);
             clearInterval(periodicSync);
+            window.removeEventListener('gymaux-sync-queue-changed', handleQueueChanged);
             window.removeEventListener('online', handleOnline);
             window.removeEventListener('offline', handleOffline);
             document.removeEventListener('visibilitychange', handleVisibilityChange);
@@ -160,6 +169,7 @@ export function OfflineSyncProvider({ children }: { children: React.ReactNode })
     return (
         <OfflineSyncContext.Provider
             value={{
+                isOnline,
                 isSyncModalOpen,
                 openSyncModal,
                 closeSyncModal,

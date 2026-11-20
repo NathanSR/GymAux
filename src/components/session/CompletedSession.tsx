@@ -9,7 +9,7 @@ import { useRouter } from '@/i18n/routing';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { toast } from '@/utils/toast';
-import { useOnlineStatus } from '@/hooks/useOnlineStatus';
+import { useOfflineSync } from '@/context/OfflineSyncProvider';
 import { useNavigationLoading } from '@/context/NavigationLoadingContext';
 import { WorkoutShareModal } from '@/components/share/WorkoutShareModal';
 import { mapSessionToShareData } from '@/utils/shareUtil';
@@ -28,7 +28,7 @@ export function CompletedSession({ session }: CompletedSessionProps) {
     const t = useTranslations('Session');
     const tShare = useTranslations('Share');
     const router = useRouter();
-    const isOnline = useOnlineStatus();
+    const { isOnline } = useOfflineSync();
     const { showLoading } = useNavigationLoading();
 
     const [isSubmitting, setIsSubmitting] = useState(false);

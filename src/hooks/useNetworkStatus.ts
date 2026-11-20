@@ -20,6 +20,9 @@ export function useNetworkStatus() {
         let consecutiveFailures = 0;
 
         const checkConnectivity = async () => {
+            if (typeof document !== 'undefined' && document.visibilityState !== 'visible') {
+                return;
+            }
             try {
                 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
                 if (!supabaseUrl) {
@@ -50,11 +53,16 @@ export function useNetworkStatus() {
         };
 
         checkConnectivity();
-        const interval = setInterval(checkConnectivity, 15000);
+        const interval = setInterval(checkConnectivity, 30000);
+        const handleVisibility = () => {
+            if (document.visibilityState === 'visible') checkConnectivity();
+        };
+        document.addEventListener('visibilitychange', handleVisibility);
 
         return () => {
             isMounted = false;
             clearInterval(interval);
+            document.removeEventListener('visibilitychange', handleVisibility);
         };
     }, [browserOnline]);
 

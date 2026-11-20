@@ -77,13 +77,17 @@ export default function SchedulesClient({ initialSchedules, initialTotalCount, u
     }, [userId, debouncedSearch]);
 
     useEffect(() => {
-        if (!debouncedSearch.trim()) {
+        const q = debouncedSearch.trim().toLowerCase();
+        if (!q) {
             setInitialData(sortByNewest(initialSchedules));
-            return;
+        } else {
+            // Filtragem 0ms Local-First nos dados já reativos do Dexie
+            const localFiltered = initialSchedules.filter(s =>
+                s.name?.toLowerCase().includes(q)
+            );
+            setInitialData(sortByNewest(localFiltered));
         }
-
-        fetchFirstPage();
-    }, [initialSchedules, debouncedSearch, fetchFirstPage]);
+    }, [initialSchedules, debouncedSearch]);
 
     // Handle online/visibility recovery
     useEffect(() => {

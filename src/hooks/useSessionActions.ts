@@ -97,25 +97,39 @@ export const useSessionActions = () => {
         }
     };
 
-    const forceFinishWorkout = async (session: Session, setSession: (session: Session) => void, synchronizeProgress: () => Promise<void>) => {
+    const forceFinishWorkout = async (
+        session: Session,
+        setSession: (session: Session) => void,
+        synchronizeProgress: (updated: Session) => Promise<void>
+    ) => {
         const result = await confirm({
             title: t('finishWorkoutTitle'),
             text: t('finishWorkoutText'),
             icon: 'warning',
             confirmText: t('finishConfirm'),
             cancelText: t('finishCancel'),
-            danger: false, // In this app Lime is used for finish
+            danger: false,
         });
 
         if (result.isConfirmed) {
+            let finalDuration = session.duration || 0;
             if (!session.pausedAt && session.resumedAt) {
                 const finalSegment = new Date().getTime() - new Date(session.resumedAt).getTime();
-                session.duration += finalSegment;
+                finalDuration += Math.max(0, finalSegment);
             }
 
-            session.current.step = 'completion';
-            setSession({ ...session } as Session);
-            await synchronizeProgress();
+            const updatedSession: Session = {
+                ...session,
+                duration: finalDuration,
+                current: {
+                    ...session.current,
+                    step: 'completion',
+                    restEndsAt: null,
+                },
+            };
+
+            setSession(updatedSession);
+            await synchronizeProgress(updatedSession);
         }
     };
 

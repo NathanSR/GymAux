@@ -9,6 +9,7 @@ import { Session } from '@/config/types';
 import { stopTopLoader } from '@/utils/topLoader';
 import { useNavigationLoading } from '@/context/NavigationLoadingContext';
 import { SessionSkeleton } from '@/components/ui/Skeleton';
+import { resolveDynamicRouteId } from '@/utils/activeAuthUser';
 
 export default function SessionPage({ params }: { params: Promise<{ id: string; locale: string }> }) {
     const resolvedParams = use(params);
@@ -16,26 +17,7 @@ export default function SessionPage({ params }: { params: Promise<{ id: string; 
     const router = useRouter();
     const { showLoading } = useNavigationLoading();
 
-    // Prioridade máxima: ID real da URL ativa (navegação SPA / fallback de shell offline)
-    const resolveSessionId = (): string => {
-        if (typeof window !== 'undefined' && window.location.pathname) {
-            const winMatch = window.location.pathname.match(/\/session\/([^/?#]+)/);
-            if (winMatch && winMatch[1] && winMatch[1] !== 'template' && winMatch[1] !== 'shell') {
-                return winMatch[1];
-            }
-        }
-        if (pathname) {
-            const pathMatch = pathname.match(/\/session\/([^/?#]+)/);
-            if (pathMatch && pathMatch[1] && pathMatch[1] !== 'template' && pathMatch[1] !== 'shell') {
-                return pathMatch[1];
-            }
-        }
-        return (resolvedParams?.id && resolvedParams.id !== 'template' && resolvedParams.id !== 'shell')
-            ? resolvedParams.id
-            : (resolvedParams?.id || '');
-    };
-
-    const rawId = resolveSessionId();
+    const rawId = resolveDynamicRouteId(/\/session\/([^/?#]+)/, pathname, resolvedParams?.id);
 
     const [mounted, setMounted] = useState(false);
     const [sessionData, setSessionData] = useState<Session | null>(null);
@@ -83,7 +65,6 @@ export default function SessionPage({ params }: { params: Promise<{ id: string; 
     }, [rawId, router, showLoading]);
 
     const isReady = mounted && !fetchingSession && !!sessionData;
-    const isReadOnly = sessionData?.current?.step === 'completion';
 
     return (
         <AnimatePresence mode="wait">
@@ -107,7 +88,7 @@ export default function SessionPage({ params }: { params: Promise<{ id: string; 
                     transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
                     className="h-full w-full"
                 >
-                    <SessionClient initialSession={sessionData} isReadOnly={isReadOnly} />
+                    <SessionClient initialSession={sessionData} isReadOnly={false} />
                 </motion.div>
             )}
         </AnimatePresence>

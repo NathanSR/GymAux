@@ -53,6 +53,28 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   headers: async () => [
     {
+      source: '/sw.js',
+      headers: [
+        {
+          key: 'Cache-Control',
+          value: 'no-cache, no-store, must-revalidate',
+        },
+        {
+          key: 'Service-Worker-Allowed',
+          value: '/',
+        },
+      ],
+    },
+    {
+      source: '/manifest.json',
+      headers: [
+        {
+          key: 'Cache-Control',
+          value: 'no-cache, must-revalidate',
+        },
+      ],
+    },
+    {
       source: '/((?!_next/static|_next/image|favicon.ico).*)',
       headers: securityHeaders,
     },

@@ -2,8 +2,8 @@
 
 import React, { useEffect, useState } from 'react';
 import { useRouter } from '@/i18n/routing';
-import { db } from '@/config/db';
 import { createClient } from '@/lib/supabase/client';
+import { getStoredActiveAuthUserId } from '@/utils/activeAuthUser';
 
 /**
  * AuthRouteGuard Component
@@ -24,13 +24,11 @@ export function AuthRouteGuard({ children }: { children: React.ReactNode }) {
 
         const verifyAuth = async () => {
             try {
-                // 1. Checagem Local-First ultra-rápida (0ms Dexie)
-                if (typeof window !== 'undefined') {
-                    const localUser = await db.users.toCollection().first().catch(() => null);
-                    if (localUser) {
-                        router.replace('/home');
-                        return;
-                    }
+                // 1. Checagem Local-First ultra-rápida (0ms chave dedicada de autenticação)
+                const storedAuthUserId = getStoredActiveAuthUserId();
+                if (storedAuthUserId) {
+                    router.replace('/home');
+                    return;
                 }
 
                 // 2. Checagem da sessão ativa do Supabase no cliente

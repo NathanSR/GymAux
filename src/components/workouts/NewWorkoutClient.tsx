@@ -24,6 +24,7 @@ export default function NewWorkoutClient({ availableExercises, userId, callerId,
     const isStudentMode = studentMode ?? Boolean(callerId && callerId !== userId);
 
     const handleCreate = async (data: any) => {
+        if (isLoading) return;
         setIsLoading(true);
         try {
             let effectiveUserId = userId;
@@ -41,11 +42,12 @@ export default function NewWorkoutClient({ availableExercises, userId, callerId,
 
             toast.success(t('createdWorkout'));
             navigateAfterAction(baseUrl);
+            // Safety unlock caso a navegação demore ou seja cancelada por algum motivo
+            setTimeout(() => setIsLoading(false), 1500);
         } catch (error: any) {
             console.error("Erro ao criar treino:", error?.message || error);
-            toast.error(t('errorCreating'));
+            toast.error(error?.message || t('errorCreating'));
             setIsLoading(false);
-        } finally {
         }
     };
 

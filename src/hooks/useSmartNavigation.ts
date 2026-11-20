@@ -241,28 +241,39 @@ export function useSmartNavigation(options: UseSmartNavigationOptions = {}) {
     }, [isDirty, onConfirmLeave, pathname, router]);
 
     /**
-     * Redirecionamento pós-salvamento ou pós-exclusão para evitar empilhar formulários no histórico
+     * Redirecionamento determinístico pós-salvamento ou pós-exclusão.
+     * Sempre utiliza router.replace(target) diretamente para evitar:
+     * - Ficar preso em entradas fantasma de modais no window.history (bug do loading infinito)
+     * - Race conditions de router.refresh() antes de navegar
+     * - Falhas de router.back() após F5 / abertura direta da rota
      */
     const navigateAfterAction = useCallback((customTargetUrl?: string) => {
         const target = customTargetUrl || resolveFallbackUrl();
         const normalizedTarget = normalizePath(target);
-        router.refresh();
 
         if (typeof window !== 'undefined') {
+            const initialPath = window.location.pathname;
             const stack = getSpaHistory();
-            const prevRoute = stack.length >= 2 ? stack[stack.length - 2] : null;
+            const targetIdx = stack.lastIndexOf(normalizedTarget);
 
-            if (prevRoute && (prevRoute === normalizedTarget || normalizedTarget.startsWith(prevRoute))) {
-                stack.pop();
-                saveSpaHistory(stack);
-                router.back();
-                return;
-            }
-
-            if (stack.length > 0) {
+            if (targetIdx !== -1) {
+                saveSpaHistory(stack.slice(0, targetIdx + 1));
+            } else if (stack.length > 0) {
                 stack[stack.length - 1] = normalizedTarget;
                 saveSpaHistory(stack);
+            } else {
+                saveSpaHistory([normalizedTarget]);
             }
+
+            router.replace(target);
+
+            // Fallback de segurança caso router.replace seja interrompido por transição concorrente
+            setTimeout(() => {
+                if (normalizePath(window.location.pathname) === normalizePath(initialPath) && normalizePath(initialPath) !== normalizedTarget) {
+                    router.push(target);
+                }
+            }, 350);
+            return;
         }
 
         router.replace(target);

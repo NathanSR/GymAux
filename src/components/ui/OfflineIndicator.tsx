@@ -1,16 +1,14 @@
 'use client';
 
 import React, { useEffect, useState, useRef } from 'react';
-import { useNetworkStatus } from '@/hooks/useNetworkStatus';
 import { useOfflineSync } from '@/context/OfflineSyncProvider';
-import { WifiOff, CheckCircle2, RefreshCw } from 'lucide-react';
+import { WifiOff, CheckCircle2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export function OfflineIndicator() {
     const t = useTranslations('OfflineSync');
-    const { isOnline } = useNetworkStatus();
-    const { openSyncModal, pendingCount } = useOfflineSync();
+    const { isOnline, openSyncModal, pendingCount } = useOfflineSync();
     const [wasOffline, setWasOffline] = useState(false);
     const [showReconnected, setShowReconnected] = useState(false);
     const [isExpanded, setIsExpanded] = useState(true);

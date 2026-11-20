@@ -7,6 +7,7 @@ import { useSession } from '@/hooks/useSession';
 import { useDexieExercises } from '@/hooks/useDexieData';
 import { Workout } from '@/config/types';
 import { useRouter, usePathname } from '@/i18n/routing';
+import { resolveDynamicRouteId } from '@/utils/activeAuthUser';
 
 interface EditWorkoutPageProps {
     params: Promise<{ id: string }>;
@@ -19,26 +20,7 @@ export default function EditWorkoutPage({ params }: EditWorkoutPageProps) {
     const { activeUser, loading: sessionLoading } = useSession();
     const availableExercises = useDexieExercises();
 
-    // Prioridade máxima: ID real da URL ativa (navegação SPA / fallback de shell offline)
-    const resolveWorkoutId = (): string => {
-        if (typeof window !== 'undefined' && window.location.pathname) {
-            const winMatch = window.location.pathname.match(/\/workouts\/([^/?#]+)\/edit/);
-            if (winMatch && winMatch[1] && winMatch[1] !== 'template' && winMatch[1] !== 'shell') {
-                return winMatch[1];
-            }
-        }
-        if (pathname) {
-            const pathMatch = pathname.match(/\/workouts\/([^/?#]+)\/edit/);
-            if (pathMatch && pathMatch[1] && pathMatch[1] !== 'template' && pathMatch[1] !== 'shell') {
-                return pathMatch[1];
-            }
-        }
-        return (resolvedParams?.id && resolvedParams.id !== 'template' && resolvedParams.id !== 'shell')
-            ? resolvedParams.id
-            : (resolvedParams?.id || '');
-    };
-
-    const rawId = resolveWorkoutId();
+    const rawId = resolveDynamicRouteId(/\/workouts\/([^/?#]+)\/edit/, pathname, resolvedParams?.id);
 
     const [workout, setWorkout] = useState<Workout | null>(null);
     const [fetchingWorkout, setFetchingWorkout] = useState(true);

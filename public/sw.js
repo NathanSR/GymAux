@@ -1,17 +1,18 @@
 /**
- * GymAux - Service Worker Nativo Ultra-Resiliente (Web Standards)
- * Separação estrita entre HTML_CACHE, RSC_CACHE e STATIC_CACHE.
- * Suporte completo a rotas estáticas e dinâmicas ([id], /session, /edit).
- * 100% Offline-First.
+ * GymAux - Service Worker Nativo Local-First (Web Standards)
+ * - Separação estrita entre CORE_CACHE, HTML_CACHE, RSC_CACHE e STATIC_CACHE.
+ * - Isolamento de payloads RSC de prefetch vs navegação real (Next.js 16 App Router).
+ * - Detecção automática de novos deploys via fingerprint de chunks (zero páginas obsoletas).
+ * - Nunca armazena respostas redirecionadas (previne cachear /login sobre /home).
+ * - Suporte multi-idioma (/pt, /en, /es) e rotas de aluno + treinador.
  */
 
-const CACHE_VERSION = 'gymaux-v5.8.0';
+const CACHE_VERSION = 'gymaux-v6.0.0';
 const CORE_CACHE = `gymaux-core-${CACHE_VERSION}`;
 const HTML_CACHE = `gymaux-html-${CACHE_VERSION}`;
 const RSC_CACHE = `gymaux-rsc-${CACHE_VERSION}`;
 const STATIC_CACHE = `gymaux-static-${CACHE_VERSION}`;
 
-// Arquivos vitais pré-carregados na instalação
 const PRECACHE_ASSETS = [
     '/offline.html',
     '/manifest.json',
@@ -27,10 +28,32 @@ const PRECACHE_ASSETS = [
     '/ios/512.png',
 ];
 
+function extractLocale(pathname) {
+    const match = pathname.match(/^\/(pt|en|es)(\/|$)/);
+    return match ? match[1] : 'pt';
+}
+
 /**
- * Localiza no cache qualquer entrada cujo pathname case com a regex informada.
- * Permite servir o shell correto para rotas dinâmicas com IDs desconhecidos no offline.
+ * Extrai assinatura dos chunks do build Next.js presentes no HTML para detectar novos deploys.
  */
+function extractBuildFingerprint(htmlText) {
+    if (!htmlText) return null;
+    const matches = htmlText.match(/\/_next\/static\/chunks\/[a-zA-Z0-9_\-\.]+\.js/g);
+    if (!matches || matches.length === 0) return null;
+    return Array.from(new Set(matches)).sort().slice(0, 6).join('|');
+}
+
+async function notifyAllClients(message) {
+    try {
+        const clients = await self.clients.matchAll({ type: 'window', includeUncontrolled: false });
+        for (const client of clients) {
+            client.postMessage(message);
+        }
+    } catch {
+        // Ignore postMessage errors
+    }
+}
+
 async function findCachedByPattern(cache, pattern) {
     try {
         const keys = await cache.keys();
@@ -41,52 +64,127 @@ async function findCachedByPattern(cache, pattern) {
             }
         }
     } catch {
-        // Ignora erros de leitura de cache
+        // Ignore cache read errors
     }
     return null;
 }
 
-// 1. Instalação: Pré-cache individual e seguro
+async function getDynamicShellFallback(cache, pathname) {
+    const locale = extractLocale(pathname);
+
+    if (pathname === '/' || pathname === '') {
+        return (
+            (await cache.match(`/${locale}/home`)) ||
+            (await cache.match('/pt/home')) ||
+            (await cache.match('/en/home')) ||
+            (await cache.match('/es/home'))
+        );
+    }
+
+    // Rotas de Treinador
+    if (pathname.includes('/trainer/')) {
+        if (/\/trainer\/[^/]+\/workouts\/[^/]+\/edit$/.test(pathname)) {
+            return await findCachedByPattern(cache, new RegExp(`^/${locale}/trainer/[^/]+/workouts/[^/]+/edit$`));
+        }
+        if (/\/trainer\/[^/]+\/workouts\/new$/.test(pathname)) {
+            return await findCachedByPattern(cache, new RegExp(`^/${locale}/trainer/[^/]+/workouts/new$`));
+        }
+        if (/\/trainer\/[^/]+\/workouts$/.test(pathname)) {
+            return await findCachedByPattern(cache, new RegExp(`^/${locale}/trainer/[^/]+/workouts$`));
+        }
+        if (/\/trainer\/[^/]+\/schedule\/[^/]+\/edit$/.test(pathname)) {
+            return await findCachedByPattern(cache, new RegExp(`^/${locale}/trainer/[^/]+/schedule/[^/]+/edit$`));
+        }
+        if (/\/trainer\/[^/]+\/schedule\/new$/.test(pathname)) {
+            return await findCachedByPattern(cache, new RegExp(`^/${locale}/trainer/[^/]+/schedule/new$`));
+        }
+        if (/\/trainer\/[^/]+\/schedule$/.test(pathname)) {
+            return await findCachedByPattern(cache, new RegExp(`^/${locale}/trainer/[^/]+/schedule$`));
+        }
+        if (/\/trainer\/[^/]+\/history$/.test(pathname)) {
+            return await findCachedByPattern(cache, new RegExp(`^/${locale}/trainer/[^/]+/history$`));
+        }
+        if (/\/trainer\/[^/]+\/session$/.test(pathname)) {
+            return await findCachedByPattern(cache, new RegExp(`^/${locale}/trainer/[^/]+/session$`));
+        }
+        return await findCachedByPattern(cache, new RegExp(`^/${locale}/trainer/[^/]+$`));
+    }
+
+    // Rotas do Usuário
+    if (pathname.includes('/session/')) {
+        return await findCachedByPattern(cache, new RegExp(`^/${locale}/session/[^/]+$`));
+    }
+    if (pathname.includes('/workouts/') && pathname.endsWith('/edit')) {
+        return await findCachedByPattern(cache, new RegExp(`^/${locale}/workouts/[^/]+/edit$`));
+    }
+    if (pathname.includes('/schedules/') && pathname.endsWith('/edit')) {
+        return await findCachedByPattern(cache, new RegExp(`^/${locale}/schedules/[^/]+/edit$`));
+    }
+    if (pathname.includes('/exercises/') && pathname.endsWith('/edit')) {
+        return await findCachedByPattern(cache, new RegExp(`^/${locale}/exercises/[^/]+/edit$`));
+    }
+    if (pathname.includes('/exercises/') && !pathname.endsWith('/new')) {
+        return (
+            (await findCachedByPattern(cache, new RegExp(`^/${locale}/exercises/(?!new($|[?#]))[^/]+$`))) ||
+            (await cache.match(`/${locale}/exercises`))
+        );
+    }
+
+    return null;
+}
+
+// 1. Instalação
 self.addEventListener('install', (event) => {
     event.waitUntil(
-        caches.open(CORE_CACHE).then(async (cache) => {
-            for (const asset of PRECACHE_ASSETS) {
-                try {
-                    await cache.add(new Request(asset, { cache: 'reload' }));
-                } catch (err) {
-                    console.warn(`[SW] Precache individual ignorado para ${asset}:`, err);
+        caches
+            .open(CORE_CACHE)
+            .then(async (cache) => {
+                for (const asset of PRECACHE_ASSETS) {
+                    try {
+                        await cache.add(new Request(asset, { cache: 'reload' }));
+                    } catch (err) {
+                        console.warn(`[SW] Precache ignorado para ${asset}:`, err);
+                    }
                 }
-            }
-        }).then(() => self.skipWaiting())
+            })
+            .then(() => self.skipWaiting())
     );
 });
 
-// 2. Ativação: Limpeza de caches antigos
+// 2. Ativação: purga caches de versões antigas
 self.addEventListener('activate', (event) => {
     event.waitUntil(
-        caches.keys().then((keys) => {
-            return Promise.all(
-                keys.map((key) => {
-                    if (
-                        key.startsWith('gymaux-') &&
-                        key !== CORE_CACHE &&
-                        key !== HTML_CACHE &&
-                        key !== RSC_CACHE &&
-                        key !== STATIC_CACHE
-                    ) {
-                        console.log('[SW] Purgando cache antigo:', key);
-                        return caches.delete(key);
-                    }
-                })
-            );
-        }).then(() => self.clients.claim())
+        caches
+            .keys()
+            .then((keys) =>
+                Promise.all(
+                    keys.map((key) => {
+                        if (
+                            key.startsWith('gymaux-') &&
+                            key !== CORE_CACHE &&
+                            key !== HTML_CACHE &&
+                            key !== RSC_CACHE &&
+                            key !== STATIC_CACHE
+                        ) {
+                            return caches.delete(key);
+                        }
+                    })
+                )
+            )
+            .then(() => self.clients.claim())
     );
 });
 
-// 3. Comunicação
+// 3. Mensagens da aplicação
 self.addEventListener('message', (event) => {
-    if (event.data && event.data.type === 'SKIP_WAITING') {
+    if (!event.data) return;
+
+    if (event.data.type === 'SKIP_WAITING') {
         self.skipWaiting();
+    } else if (event.data.type === 'CLEAR_AUTH_CACHES') {
+        event.waitUntil(
+            Promise.all([caches.delete(HTML_CACHE), caches.delete(RSC_CACHE)])
+        );
     }
 });
 
@@ -95,155 +193,129 @@ self.addEventListener('fetch', (event) => {
     const { request } = event;
     const url = new URL(request.url);
 
-    // SEGURANÇA 1: Ignora requisições não-GET
-    if (request.method !== 'GET') {
-        return;
-    }
+    // Apenas GET do mesmo domínio (ou imagens públicas do Supabase Storage)
+    if (request.method !== 'GET') return;
 
-    // SEGURANÇA 2: Bypass para APIs do Supabase e Auth
-    // Imagens públicas estáticas do Storage (/storage/v1/object/public/) são permitidas para cache offline
-    const isSupabaseStorage = (url.hostname.includes('supabase.co') || url.hostname.includes('supabase.in')) && url.pathname.includes('/storage/v1/object/public/');
-    const isSupabaseApi = (url.hostname.includes('supabase.co') || url.hostname.includes('supabase.in')) && !isSupabaseStorage;
-    const isAuthOrApi = url.pathname.startsWith('/api/') || url.pathname.startsWith('/auth/');
-    if (isSupabaseApi || isAuthOrApi) {
-        return;
-    }
+    const isSupabaseStorage =
+        (url.hostname.includes('supabase.co') || url.hostname.includes('supabase.in')) &&
+        url.pathname.includes('/storage/v1/object/public/');
+    const isSameOrigin = url.origin === self.location.origin;
 
-    // SEGURANÇA 3: A rota raiz '/' é sempre um redirecionamento HTTP (307) para o locale padrão (/pt) gerenciado pelo Next.js middleware.
-    // Quando online, damos bypass para o navegador executar o redirecionamento nativamente sem interferência do Service Worker.
+    if (!isSameOrigin && !isSupabaseStorage) return;
+
+    // Nunca interceptar APIs ou Auth callbacks
+    if (url.pathname.startsWith('/api/') || url.pathname.startsWith('/auth/')) return;
+
+    // Raiz '/' -> bypass online para middleware i18n; offline entrega /home cacheada
     if (url.pathname === '/' || url.pathname === '') {
         if (typeof navigator !== 'undefined' && !navigator.onLine) {
             event.respondWith(
                 (async () => {
                     const htmlCache = await caches.open(HTML_CACHE);
-                    const cachedRoot = (await htmlCache.match('/pt')) || (await htmlCache.match('/pt/home'));
+                    const cachedRoot = await getDynamicShellFallback(htmlCache, '/');
                     if (cachedRoot) return cachedRoot;
                     const coreCache = await caches.open(CORE_CACHE);
-                    const offlinePage = await coreCache.match('/offline.html');
-                    return offlinePage || new Response('Offline', { status: 503, statusText: 'Offline' });
+                    return (await coreCache.match('/offline.html')) || new Response('Offline', { status: 503 });
                 })()
             );
         }
-        return; // Bypass quando online!
+        return;
     }
 
-    // SEGURANÇA 3.1: As rotas de autenticação (/login e /register) recebem redirecionamento HTTP (307) para /home quando o usuário está logado.
-    // Quando online, damos bypass para o navegador executar o redirecionamento nativamente sem interferência do Service Worker.
-    const isAuthRoute = /^\/(pt|en|es)?\/(login|register)(\/|$)/.test(url.pathname);
+    // Rotas de autenticação -> bypass online; offline entrega offline.html
+    const isAuthRoute = /^\/(pt|en|es)?\/(login|register|admin\/login)(\/|$)/.test(url.pathname);
     if (isAuthRoute) {
         if (typeof navigator !== 'undefined' && !navigator.onLine) {
             event.respondWith(
                 (async () => {
                     const coreCache = await caches.open(CORE_CACHE);
-                    const offlinePage = await coreCache.match('/offline.html');
-                    return offlinePage || new Response('Offline', { status: 503, statusText: 'Offline' });
+                    return (await coreCache.match('/offline.html')) || new Response('Offline', { status: 503 });
                 })()
             );
         }
-        return; // Bypass quando online!
+        return;
     }
 
     // =========================================================================
-    // ESTRATÉGIA 1: Next.js App Router RSC (Stale-While-Revalidate em 0ms)
+    // ESTRATÉGIA 1: Next.js App Router RSC (SWR 0ms com isolamento prefetch vs nav)
     // =========================================================================
     const isRsc = request.headers.get('RSC') === '1' || url.searchParams.has('_rsc');
     if (isRsc) {
+        const isPrefetch = request.headers.get('Next-Router-Prefetch') === '1';
+        const cacheKeyUrl = `${url.origin}${url.pathname}?__sw_rsc=${isPrefetch ? 'prefetch' : 'nav'}`;
+
         event.respondWith(
             (async () => {
                 const rscCache = await caches.open(RSC_CACHE);
                 const isOnline = typeof navigator !== 'undefined' ? navigator.onLine : true;
 
-                // 1. Tenta recuperar do cache exato imediatamente (0ms)
-                const cachedRsc =
-                    (await rscCache.match(url.pathname + url.search)) ||
-                    (await rscCache.match(url.pathname)) ||
-                    (await rscCache.match(url.pathname, { ignoreSearch: true }));
+                // Prefetch só usa cache de prefetch; navegação usa cache de nav (nunca mistura!)
+                const cachedRsc = await rscCache.match(cacheKeyUrl);
 
-                // Helper para buscar shell dinâmico genérico por padrão
-                const getFallbackRsc = async () => {
-                    if (url.pathname.includes('/session/')) {
-                        return await findCachedByPattern(rscCache, /\/session\/[^/]+$/);
-                    } else if (url.pathname.includes('/workouts/') && url.pathname.endsWith('/edit')) {
-                        return await findCachedByPattern(rscCache, /\/workouts\/[^/]+\/edit$/);
-                    } else if (url.pathname.includes('/schedules/') && url.pathname.endsWith('/edit')) {
-                        return await findCachedByPattern(rscCache, /\/schedules\/[^/]+\/edit$/);
-                    } else if (url.pathname.includes('/exercises/') && url.pathname.endsWith('/edit')) {
-                        return await findCachedByPattern(rscCache, /\/exercises\/[^/]+\/edit$/);
-                    } else if (url.pathname.includes('/exercises/') && !url.pathname.endsWith('/new')) {
-                        // O regex exclui /new explicitamente para nunca abrir a tela de criação no lugar de detalhes
-                        return (await findCachedByPattern(rscCache, /\/exercises\/(?!new($|[?#]))[^/]+$/)) ||
-                               (await rscCache.match('/pt/exercises'));
-                    }
-                    return null;
-                };
-
-                // CENÁRIO A: DISPOSITIVO OFFLINE
                 if (!isOnline) {
                     if (cachedRsc) return cachedRsc;
-                    const fallback = await getFallbackRsc();
-                    if (fallback) return fallback;
-                    // Retorna 503 controlado para que o roteador do Next.js faça fallback para navegação HTML (que entrega offline.html)
+                    if (!isPrefetch) {
+                        const fallback = await getDynamicShellFallback(rscCache, url.pathname);
+                        if (fallback) return fallback;
+                    }
                     return new Response('Offline', { status: 503, statusText: 'Offline' });
                 }
 
-                // CENÁRIO B: DISPOSITIVO ONLINE
-                // Função auxiliar para revalidar/buscar da rede com timeout de proteção generoso (15s) contra sockets travados
                 const fetchFromNetwork = async () => {
                     try {
                         const controller = new AbortController();
-                        const timeoutId = setTimeout(() => controller.abort(), 15000);
+                        const timeoutId = setTimeout(() => controller.abort(), 12000);
                         const networkResponse = await fetch(request, { signal: controller.signal });
                         clearTimeout(timeoutId);
 
-                        if (networkResponse) {
-                            if (
-                                networkResponse.type === 'opaqueredirect' ||
-                                (networkResponse.status >= 300 && networkResponse.status < 400)
-                            ) {
-                                return networkResponse;
-                            }
+                        if (!networkResponse) return null;
 
-                            if (networkResponse.status === 200) {
-                                const clone = networkResponse.clone();
-                                await rscCache.put(url.pathname, clone.clone());
-                                await rscCache.put(url.pathname + url.search, clone);
-                                return networkResponse;
-                            }
-
-                            // Erros de servidor (4xx / 5xx): devolve diretamente para o Next.js gerenciar na UI
+                        // Nunca cachear redirects (ex: 307 para /login)
+                        if (
+                            networkResponse.redirected ||
+                            networkResponse.type === 'opaqueredirect' ||
+                            (networkResponse.status >= 300 && networkResponse.status < 400)
+                        ) {
                             return networkResponse;
                         }
-                        return null;
+
+                        if (networkResponse.status === 200) {
+                            const contentType = networkResponse.headers.get('content-type') || '';
+                            if (contentType.includes('text/x-component') || !contentType.includes('text/html')) {
+                                await rscCache.put(cacheKeyUrl, networkResponse.clone());
+                            }
+                        }
+
+                        return networkResponse;
                     } catch {
                         return null;
                     }
                 };
 
-                // B1. Se houver cache EXATO, devolve em 0ms e revalida em segundo plano (SWR silencioso)
+                // Se existe cache exato, responde em 0ms e revalida silenciosamente
                 if (cachedRsc) {
                     event.waitUntil(fetchFromNetwork());
                     return cachedRsc;
                 }
 
-                // B2. Cache Miss: aguarda a resposta da rede em tempo hábil
+                // Cache miss: busca na rede
                 const fresh = await fetchFromNetwork();
                 if (fresh) return fresh;
 
-                // B3. Falha real de rede (queda de conexão / timeout de 15s): tenta fallback de shell dinâmico
-                const fallbackRsc = await getFallbackRsc();
-                if (fallbackRsc) return fallbackRsc;
+                // Falha de rede: tenta shell dinâmico compatível (apenas em navegação real)
+                if (!isPrefetch) {
+                    const fallback = await getDynamicShellFallback(rscCache, url.pathname);
+                    if (fallback) return fallback;
+                }
 
-                return new Response('Offline', {
-                    status: 503,
-                    statusText: 'Offline'
-                });
+                return new Response('Offline', { status: 503, statusText: 'Offline' });
             })()
         );
         return;
     }
 
     // =========================================================================
-    // ESTRATÉGIA 2: Navegações de Página HTML (Stale-While-Revalidate em 0ms)
+    // ESTRATÉGIA 2: Navegação HTML (SWR 0ms + detecção automática de novo deploy)
     // =========================================================================
     const isHtmlNav =
         request.mode === 'navigate' ||
@@ -251,119 +323,100 @@ self.addEventListener('fetch', (event) => {
         request.headers.get('accept')?.includes('text/html');
 
     if (isHtmlNav) {
+        const htmlCacheKey = `${url.origin}${url.pathname}`;
+
         event.respondWith(
             (async () => {
                 const htmlCache = await caches.open(HTML_CACHE);
                 const isOnline = typeof navigator !== 'undefined' ? navigator.onLine : true;
 
-                // 1. Tenta recuperar página do cache exato (0ms)
-                const cachedHtml =
-                    (await htmlCache.match(url.pathname)) ||
-                    (await htmlCache.match(request)) ||
-                    (await htmlCache.match(url.pathname, { ignoreSearch: true }));
+                const cachedHtml = await htmlCache.match(htmlCacheKey);
 
-                // Helper para buscar shell HTML dinâmico genérico
-                const getFallbackHtml = async () => {
-                    if (url.pathname === '/' || url.pathname === '') {
-                        const cachedHome = (await htmlCache.match('/pt')) || 
-                                           (await htmlCache.match('/pt/home')) || 
-                                           (await htmlCache.match('/en')) || 
-                                           (await htmlCache.match('/es'));
-                        if (cachedHome) return cachedHome;
-                    }
-
-                    if (url.pathname.includes('/session/')) {
-                        return await findCachedByPattern(htmlCache, /\/session\/[^/]+$/);
-                    } else if (url.pathname.includes('/workouts/') && url.pathname.endsWith('/edit')) {
-                        return await findCachedByPattern(htmlCache, /\/workouts\/[^/]+\/edit$/);
-                    } else if (url.pathname.includes('/schedules/') && url.pathname.endsWith('/edit')) {
-                        return await findCachedByPattern(htmlCache, /\/schedules\/[^/]+\/edit$/);
-                    } else if (url.pathname.includes('/exercises/') && url.pathname.endsWith('/edit')) {
-                        return await findCachedByPattern(htmlCache, /\/exercises\/[^/]+\/edit$/);
-                    } else if (url.pathname.includes('/exercises/') && !url.pathname.endsWith('/new')) {
-                        return (await findCachedByPattern(htmlCache, /\/exercises\/(?!new($|[?#]))[^/]+$/)) ||
-                               (await htmlCache.match('/pt/exercises'));
-                    }
-                    return null;
-                };
-
-                // CENÁRIO A: DISPOSITIVO OFFLINE
                 if (!isOnline) {
                     if (cachedHtml) return cachedHtml;
-                    const fallback = await getFallbackHtml();
+                    const fallback = await getDynamicShellFallback(htmlCache, url.pathname);
                     if (fallback) return fallback;
                     const coreCache = await caches.open(CORE_CACHE);
-                    const offlinePage = await coreCache.match('/offline.html');
-                    return offlinePage || new Response('Offline', { status: 503, statusText: 'Offline' });
+                    return (await coreCache.match('/offline.html')) || new Response('Offline', { status: 503 });
                 }
 
-                // CENÁRIO B: DISPOSITIVO ONLINE
-                // Função auxiliar para revalidar/buscar documento na rede com proteção de 15s
-                const fetchHtmlFromNetwork = async () => {
+                const fetchHtmlFromNetwork = async (existingCachedResponse) => {
                     try {
                         const controller = new AbortController();
-                        const timeoutId = setTimeout(() => controller.abort(), 15000);
-                        const networkResponse = await fetch(request.url, {
-                            headers: request.headers,
-                            credentials: request.credentials,
-                            signal: controller.signal
-                        });
+                        const timeoutId = setTimeout(() => controller.abort(), 12000);
+                        const networkResponse = await fetch(request, { signal: controller.signal });
                         clearTimeout(timeoutId);
 
-                        if (networkResponse) {
-                            // Se a resposta for redirecionamento (301, 302, 307, 308) ou opaqueredirect, devolve imediatamente
-                            if (
-                                networkResponse.type === 'opaqueredirect' ||
-                                (networkResponse.status >= 300 && networkResponse.status < 400)
-                            ) {
-                                return networkResponse;
-                            }
+                        if (!networkResponse) return null;
 
-                            if (networkResponse.status === 200) {
-                                const contentType = networkResponse.headers.get('content-type') || '';
-                                if (contentType.includes('text/html')) {
-                                    const clone = networkResponse.clone();
-                                    await htmlCache.put(url.pathname, clone.clone());
-                                    await htmlCache.put(request, clone.clone());
-                                    return networkResponse;
-                                }
-                                return networkResponse;
-                            }
-
-                            // Erros de servidor (4xx / 5xx): devolve para o Next.js renderizar sua própria UI de erro (error.tsx/not-found)
+                        // CRÍTICO: Nunca cachear redirects (evita gravar /login sobre /pt/home!)
+                        if (
+                            networkResponse.redirected ||
+                            networkResponse.type === 'opaqueredirect' ||
+                            (networkResponse.status >= 300 && networkResponse.status < 400)
+                        ) {
                             return networkResponse;
                         }
-                        return null;
+
+                        if (networkResponse.status === 200) {
+                            const contentType = networkResponse.headers.get('content-type') || '';
+                            if (contentType.includes('text/html')) {
+                                const freshCloneForCache = networkResponse.clone();
+                                const freshCloneForCheck = networkResponse.clone();
+
+                                await htmlCache.put(htmlCacheKey, freshCloneForCache);
+
+                                // Detecta automaticamente se houve novo deploy (mudança de chunks Next.js)
+                                if (existingCachedResponse) {
+                                    try {
+                                        const [oldText, newText] = await Promise.all([
+                                            existingCachedResponse.clone().text(),
+                                            freshCloneForCheck.text(),
+                                        ]);
+                                        const oldFp = extractBuildFingerprint(oldText);
+                                        const newFp = extractBuildFingerprint(newText);
+
+                                        if (oldFp && newFp && oldFp !== newFp) {
+                                            console.log('[SW] Novo build detectado! Limpando RSC_CACHE antigo e notificando abas...');
+                                            await caches.delete(RSC_CACHE);
+                                            await notifyAllClients({ type: 'NEW_BUILD_DETECTED' });
+                                        }
+                                    } catch {
+                                        // Ignora erro de comparação de texto
+                                    }
+                                }
+                            }
+                        }
+
+                        return networkResponse;
                     } catch {
                         return null;
                     }
                 };
 
-                // B1. Se houver cache EXATO, devolve em 0ms e revalida em segundo plano (SWR silencioso)
+                // Cache Hit -> entrega instantaneamente (0ms) e revalida + checa versão em background
                 if (cachedHtml) {
-                    event.waitUntil(fetchHtmlFromNetwork());
+                    event.waitUntil(fetchHtmlFromNetwork(cachedHtml));
                     return cachedHtml;
                 }
 
-                // B2. Cache Miss: busca documento na rede com tempo hábil sem abortos prematuros
-                const freshHtml = await fetchHtmlFromNetwork();
+                // Cache Miss -> busca da rede
+                const freshHtml = await fetchHtmlFromNetwork(null);
                 if (freshHtml) return freshHtml;
 
-                // B3. Falha real de rede (queda de conexão / timeout de 15s): tenta fallback de shell
-                const fallbackHtml = await getFallbackHtml();
+                // Falha de rede -> shell dinâmico ou offline.html
+                const fallbackHtml = await getDynamicShellFallback(htmlCache, url.pathname);
                 if (fallbackHtml) return fallbackHtml;
 
-                // Fallback final para tela offline se a rede falhar de fato e não houver shell
                 const coreCache = await caches.open(CORE_CACHE);
-                const offlinePage = await coreCache.match('/offline.html');
-                return offlinePage || new Response('Offline', { status: 503, statusText: 'Offline' });
+                return (await coreCache.match('/offline.html')) || new Response('Offline', { status: 503 });
             })()
         );
         return;
     }
 
     // =========================================================================
-    // ESTRATÉGIA 3: Arquivos Estáticos (JS Chunks, CSS Tailwind, Fontes, Imagens, Áudios)
+    // ESTRATÉGIA 3: Ativos Estáticos (Chunks JS/CSS, Fontes, Imagens, Áudio)
     // =========================================================================
     const isStaticAsset =
         isSupabaseStorage ||
@@ -377,37 +430,50 @@ self.addEventListener('fetch', (event) => {
     if (isStaticAsset) {
         event.respondWith(
             caches.match(request).then((cachedResponse) => {
+                const isImmutable =
+                    url.pathname.startsWith('/_next/static/chunks/') ||
+                    url.pathname.startsWith('/_next/static/media/');
+
                 if (cachedResponse) {
-                    // Chunks do Next.js e mídias compiladas contêm hash no nome e são 100% imutáveis.
-                    // Cache-First puro: retorna imediatamente sem poluir o Network do DevTools.
-                    const isImmutable = url.pathname.startsWith('/_next/static/chunks/') || url.pathname.startsWith('/_next/static/media/');
                     if (!isImmutable) {
-                        // Revalida em segundo plano apenas ativos estáticos mutáveis (ex: sons, ícones gerais)
-                        fetch(request).then(async (networkResponse) => {
-                            if (networkResponse && networkResponse.status === 200) {
-                                const cache = await caches.open(STATIC_CACHE);
-                                cache.put(request, networkResponse.clone());
-                            }
-                        }).catch(() => {});
+                        event.waitUntil(
+                            fetch(request)
+                                .then(async (networkResponse) => {
+                                    if (networkResponse && networkResponse.status === 200) {
+                                        const cache = await caches.open(STATIC_CACHE);
+                                        await cache.put(request, networkResponse.clone());
+                                    }
+                                })
+                                .catch(() => {})
+                        );
                     }
                     return cachedResponse;
                 }
 
-                // Se não estiver em cache, busca na rede e armazena
-                return fetch(request).then(async (networkResponse) => {
-                    if (networkResponse && networkResponse.status === 200) {
-                        const clone = networkResponse.clone();
-                        const cache = await caches.open(STATIC_CACHE);
-                        cache.put(request, clone);
-                    }
-                    return networkResponse;
-                }).catch(() => cachedResponse || new Response('', { status: 408, statusText: 'Offline asset not cached' }));
+                return fetch(request)
+                    .then(async (networkResponse) => {
+                        if (networkResponse && networkResponse.status === 200) {
+                            const cache = await caches.open(STATIC_CACHE);
+                            await cache.put(request, networkResponse.clone());
+                        } else if (networkResponse && networkResponse.status === 404 && isImmutable) {
+                            // Chunk do build antigo não existe mais no servidor -> avisa abas para atualizar!
+                            event.waitUntil(
+                                Promise.all([
+                                    caches.delete(HTML_CACHE),
+                                    caches.delete(RSC_CACHE),
+                                    notifyAllClients({ type: 'NEW_BUILD_DETECTED' }),
+                                ])
+                            );
+                        }
+                        return networkResponse;
+                    })
+                    .catch(() => new Response('', { status: 408, statusText: 'Offline asset not cached' }));
             })
         );
         return;
     }
 
-    // Padrão: Tenta rede, fallback para cache
+    // Fallback padrão: rede com fallback para cache
     event.respondWith(
         fetch(request).catch(async () => {
             return (await caches.match(request)) || (await caches.match(url.pathname));

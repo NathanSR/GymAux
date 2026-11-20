@@ -5,8 +5,9 @@ import { SyncManager } from './syncManager';
 import { connectionService } from './connectionService';
 import { withTimeout } from '@/lib/utils/timeout';
 import { getEffectiveTime, sortByNewest } from '@/utils/dateUtil';
-import { safeBulkPut } from '@/utils/cacheSyncUtil';
-import { safeParseJson, safeParseArray, safeParseNumber, safeParseObject } from '@/utils/jsonUtil';
+import { safeBulkPut, safeSyncUserCollection } from '@/utils/cacheSyncUtil';
+import { safeParseArray, safeParseNumber, safeParseObject } from '@/utils/jsonUtil';
+import { getStoredActiveAuthUserId } from '@/utils/activeAuthUser';
 
 const mapGroupFromSupabase = (g: any): ExerciseGroup => {
     if (!g) {
@@ -121,9 +122,12 @@ export const WorkoutService = {
     },
 
     async getAllWorkouts(supabaseInput?: any) {
-        // 1. Tenta recuperar do Dexie imediatamente (0ms)
+        // 1. Tenta recuperar do Dexie imediatamente (0ms), isolado pelo usuário autenticado
         if (typeof window !== 'undefined') {
-            const local = await db.workouts.toArray();
+            const activeUserId = getStoredActiveAuthUserId();
+            const local = activeUserId
+                ? await db.workouts.where('userId').equals(activeUserId).toArray()
+                : await db.workouts.toArray();
             if (local && local.length > 0) {
                 this.revalidateAllWorkoutsInBackground(supabaseInput);
                 return sortByNewest<Workout>(local);
@@ -153,7 +157,11 @@ export const WorkoutService = {
         } catch (error) {
             console.warn('[WorkoutService] getAllWorkouts failed, falling back to local DB:', error);
             if (typeof window !== 'undefined') {
-                workouts = sortByNewest<Workout>(await db.workouts.toArray());
+                const activeUserId = getStoredActiveAuthUserId();
+                const local = activeUserId
+                    ? await db.workouts.where('userId').equals(activeUserId).toArray()
+                    : await db.workouts.toArray();
+                workouts = sortByNewest<Workout>(local);
             }
         }
         return workouts;
@@ -192,9 +200,12 @@ export const WorkoutService = {
             }));
             totalCount = count || 0;
 
-            if (typeof window !== 'undefined' && workouts.length > 0) {
+            if (typeof window !== 'undefined') {
                 const validWorkouts = workouts.filter((w: Workout) => Boolean(w.id && w.userId));
-                if (validWorkouts.length > 0) {
+                const isFullUnfilteredFetch = !searchQuery.trim() && (!pagination || (pagination.page === 1 && pagination.limit >= 50));
+                if (isFullUnfilteredFetch) {
+                    await safeSyncUserCollection(db.workouts, userId, validWorkouts, 'WORKOUT');
+                } else if (validWorkouts.length > 0) {
                     await safeBulkPut(db.workouts, validWorkouts, 'WORKOUT');
                 }
             }
@@ -257,9 +268,9 @@ export const WorkoutService = {
 
             if (data) {
                 const workout = mapWorkoutFromSupabase(data);
-                // Cache for offline
+                // Cache safely for offline
                 if (typeof window !== 'undefined') {
-                    await db.workouts.put(workout).catch(() => {});
+                    await safeBulkPut(db.workouts, [workout], 'WORKOUT');
                 }
                 return workout;
             }
@@ -363,23 +374,37 @@ export const WorkoutService = {
 
             // Not in local cache — try to fetch and cache first, then update
             try {
-                const supabase = supabaseInput || createClient();
-                const { data: fetchedData } = await withTimeout(
-                    supabase.from('workouts').select('*').eq('id', id).maybeSingle(),
-                    8000
-                );
-                if (fetchedData) {
-                    const workout = mapWorkoutFromSupabase(fetchedData);
-                    const updated = { ...workout, ...workoutData, updatedAt: now };
-                    await db.workouts.put(updated);
-                    await SyncManager.enqueue('UPDATE', 'WORKOUT', id, { id, ...updates }, workoutData.callerId);
-                    return updated;
+                if (navigator.onLine) {
+                    const supabase = supabaseInput || createClient();
+                    const { data: fetchedData } = await withTimeout(
+                        supabase.from('workouts').select('*').eq('id', id).maybeSingle(),
+                        5000
+                    );
+                    if (fetchedData) {
+                        const workout = mapWorkoutFromSupabase(fetchedData);
+                        const updated = { ...workout, ...workoutData, updatedAt: now };
+                        await db.workouts.put(updated);
+                        await SyncManager.enqueue('UPDATE', 'WORKOUT', id, { id, ...updates }, workoutData.callerId);
+                        return updated;
+                    }
                 }
             } catch {
-                // Can't fetch — enqueue anyway with what we have
-                await SyncManager.enqueue('UPDATE', 'WORKOUT', id, { id, ...updates }, workoutData.callerId);
-                return { id, ...workoutData, updatedAt: now } as Workout;
+                // Network failed — fall through to local persist below
             }
+
+            // Always persist locally so Dexie UI updates immediately even on cache miss / offline
+            const fallbackLocal: Workout = {
+                id,
+                userId: workoutData.userId || workoutData.callerId,
+                name: workoutData.name?.trim() || 'Treino',
+                description: workoutData.description,
+                exercises: workoutData.exercises || [],
+                createdAt: workoutData.createdAt ? new Date(workoutData.createdAt) : now,
+                updatedAt: now,
+            };
+            await db.workouts.put(fallbackLocal);
+            await SyncManager.enqueue('UPDATE', 'WORKOUT', id, { id, ...updates }, workoutData.callerId);
+            return fallbackLocal;
         }
 
         // Server-only path

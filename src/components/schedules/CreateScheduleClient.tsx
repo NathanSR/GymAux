@@ -20,6 +20,7 @@ export default function CreateScheduleClient({ userId, callerId, baseUrl = '/sch
     const [isLoading, setIsLoading] = useState(false);
 
     const handleCreate = async (data: any) => {
+        if (isLoading) return;
         setIsLoading(true);
         try {
             let effectiveUserId = userId;
@@ -47,11 +48,11 @@ export default function CreateScheduleClient({ userId, callerId, baseUrl = '/sch
             });
 
             navigateAfterAction(baseUrl);
+            setTimeout(() => setIsLoading(false), 1500);
         } catch (error: any) {
             console.error("Erro ao criar cronograma de treino:", error?.message || error);
-            toast.error(t('createError'));
+            toast.error(error?.message || t('createError'));
             setIsLoading(false);
-        } finally {
         }
     };
 

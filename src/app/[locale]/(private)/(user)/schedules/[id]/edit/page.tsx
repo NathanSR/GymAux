@@ -5,6 +5,7 @@ import EditScheduleClient from '@/components/schedules/EditScheduleClient';
 import { ScheduleService } from '@/services/scheduleService';
 import { useSession } from '@/hooks/useSession';
 import { useRouter, usePathname } from '@/i18n/routing';
+import { resolveDynamicRouteId } from '@/utils/activeAuthUser';
 
 interface EditSchedulePageProps {
     params: Promise<{ id: string }>;
@@ -16,26 +17,7 @@ export default function EditSchedulePage({ params }: EditSchedulePageProps) {
     const router = useRouter();
     const { activeUser, loading: sessionLoading } = useSession();
 
-    // Prioridade máxima: ID real da URL ativa (navegação SPA / fallback de shell offline)
-    const resolveScheduleId = (): string => {
-        if (typeof window !== 'undefined' && window.location.pathname) {
-            const winMatch = window.location.pathname.match(/\/schedules\/([^/?#]+)\/edit/);
-            if (winMatch && winMatch[1] && winMatch[1] !== 'template' && winMatch[1] !== 'shell') {
-                return winMatch[1];
-            }
-        }
-        if (pathname) {
-            const pathMatch = pathname.match(/\/schedules\/([^/?#]+)\/edit/);
-            if (pathMatch && pathMatch[1] && pathMatch[1] !== 'template' && pathMatch[1] !== 'shell') {
-                return pathMatch[1];
-            }
-        }
-        return (resolvedParams?.id && resolvedParams.id !== 'template' && resolvedParams.id !== 'shell')
-            ? resolvedParams.id
-            : (resolvedParams?.id || '');
-    };
-
-    const rawId = resolveScheduleId();
+    const rawId = resolveDynamicRouteId(/\/schedules\/([^/?#]+)\/edit/, pathname, resolvedParams?.id);
 
     const [formattedData, setFormattedData] = useState<any>(null);
     const [fetchingSchedule, setFetchingSchedule] = useState(true);
@@ -53,12 +35,12 @@ export default function EditSchedulePage({ params }: EditSchedulePageProps) {
             if (!data) {
                 router.push('/schedules');
             } else {
-                const startDateStr = data.startDate instanceof Date 
-                    ? data.startDate.toISOString().split('T')[0] 
+                const startDateStr = data.startDate instanceof Date
+                    ? data.startDate.toISOString().split('T')[0]
                     : new Date(data.startDate).toISOString().split('T')[0];
 
-                const endDateStr = data.endDate 
-                    ? (data.endDate instanceof Date ? data.endDate.toISOString().split('T')[0] : new Date(data.endDate).toISOString().split('T')[0]) 
+                const endDateStr = data.endDate
+                    ? (data.endDate instanceof Date ? data.endDate.toISOString().split('T')[0] : new Date(data.endDate).toISOString().split('T')[0])
                     : undefined;
 
                 setFormattedData({
@@ -81,10 +63,10 @@ export default function EditSchedulePage({ params }: EditSchedulePageProps) {
     const isFetching = (sessionLoading || fetchingSchedule) && !formattedData;
 
     return (
-        <EditScheduleClient 
-            initialData={formattedData} 
-            scheduleId={rawId} 
-            callerId={activeUser?.id || ''} 
+        <EditScheduleClient
+            initialData={formattedData}
+            scheduleId={rawId}
+            callerId={activeUser?.id || ''}
             isFetching={isFetching}
         />
     );
