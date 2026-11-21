@@ -1,47 +1,18 @@
-import { CATEGORIES } from '@/config/constants';
 import { Exercise } from '@/config/types';
 import { ExerciseService } from '@/services/exerciseService';
 import {
     Search,
-    Dumbbell,
-    ArrowRight,
     Info,
     Loader2,
     Plus
 } from 'lucide-react';
 import { useTranslations, useLocale } from 'next-intl';
-import { useEffect, useMemo, useState, useCallback } from 'react';
-import { useDebounce } from '@/hooks/useDebounce';
-import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
+import { useEffect, useMemo, useState, useCallback, useRef } from 'react';
 import { Modal } from '@/components/ui/Modal';
 import QuickExerciseDrawer from './QuickExerciseDrawer';
 import { ExerciseFilterPanel } from './ExerciseFilterPanel';
-import { getExerciseLocalized } from '@/utils/exerciseLocalization';
-
-const getLevelBadge = (level?: string, tl?: any) => {
-    if (!level) return null;
-    const colors: Record<string, string> = {
-        beginner: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20',
-        intermediate: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20',
-        advanced: 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20',
-    };
-    const label = tl && tl.has(level) ? tl(level) : level;
-    return (
-        <span className={`px-2 py-0.5 text-[8px] font-black uppercase tracking-wider rounded-lg border ${colors[level] || 'bg-zinc-100 dark:bg-zinc-800 text-zinc-500 border-zinc-200 dark:border-zinc-700'}`}>
-            {label}
-        </span>
-    );
-};
-
-const getEquipmentBadge = (equipment?: string, teq?: any) => {
-    if (!equipment || equipment === 'none') return null;
-    const label = teq && teq.has(equipment) ? teq(equipment) : equipment;
-    return (
-        <span className="px-2 py-0.5 text-[8px] font-black uppercase tracking-wider rounded-lg bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 border border-zinc-200/50 dark:border-zinc-700/50">
-            {label}
-        </span>
-    );
-};
+import { ExerciseCard } from './ExerciseCard';
+import { matchesExerciseSearch } from '@/utils/exerciseLocalization';
 
 export const ExerciseSelector = ({
     isOpen,
@@ -59,10 +30,8 @@ export const ExerciseSelector = ({
     const locale = useLocale();
     const t = useTranslations('ExerciseSelector');
     const te = useTranslations('Exercises');
-    const tc = useTranslations('Categories');
+    const tt = useTranslations('Tags');
     const tf = useTranslations('ExerciseForm');
-    const teq = useTranslations('Equipment');
-    const tl = useTranslations('Levels');
 
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('all');
@@ -70,68 +39,45 @@ export const ExerciseSelector = ({
     const [selectedLevel, setSelectedLevel] = useState('all');
     const [isLoading, setIsLoading] = useState(false);
     const [isQuickAddOpen, setIsQuickAddOpen] = useState(false);
+    const [allExercises, setAllExercises] = useState<Exercise[]>([]);
+    const hasLoadedRef = useRef(false);
 
-    const debouncedSearchTerm = useDebounce(searchTerm, 500);
-    const [initialData, setInitialData] = useState<Exercise[]>([]);
-
-    const fetchMoreExercises = useCallback(async (page: number, pageSize: number) => {
-        try {
-            const res = await ExerciseService.getAllExercises({
-                searchQuery: debouncedSearchTerm,
-                category: selectedCategory,
-                equipment: selectedEquipment,
-                level: selectedLevel,
-                pagination: { page, limit: pageSize },
-                translations: { te, tt: te },
-                locale,
-                studentMode,
-                trainerId,
-            });
-            return res.exercises;
-        } catch (error) {
-            console.error('Error fetching more exercises:', error);
-            return [];
+    const fetchAllExercises = useCallback(async (silent = false) => {
+        if (!silent && !hasLoadedRef.current) {
+            setIsLoading(true);
         }
-    }, [debouncedSearchTerm, selectedCategory, selectedEquipment, selectedLevel, te, locale, studentMode, trainerId]);
-
-    const fetchFirstPage = useCallback(async () => {
-        setIsLoading(true);
         try {
             const res = await ExerciseService.getAllExercises({
-                searchQuery: debouncedSearchTerm,
-                category: selectedCategory,
-                equipment: selectedEquipment,
-                level: selectedLevel,
-                pagination: { page: 1, limit: 10 },
-                translations: { te, tt: te },
+                pagination: { page: 1, limit: 10000 },
                 locale,
                 studentMode,
                 trainerId,
             });
-            setInitialData(res.exercises);
+            setAllExercises(res.exercises);
+            hasLoadedRef.current = true;
         } catch (error: any) {
             console.error('Error fetching exercises:', error?.message || error);
         } finally {
             setIsLoading(false);
         }
-    }, [debouncedSearchTerm, selectedCategory, selectedEquipment, selectedLevel, te, locale, studentMode, trainerId]);
+    }, [locale, studentMode, trainerId]);
 
     useEffect(() => {
         if (isOpen) {
-            fetchFirstPage();
+            fetchAllExercises();
         }
-    }, [isOpen, debouncedSearchTerm, selectedCategory, selectedEquipment, selectedLevel, fetchFirstPage]);
+    }, [isOpen, fetchAllExercises]);
 
     useEffect(() => {
         if (!isOpen) return;
 
         const onReconnect = () => {
-            fetchFirstPage();
+            fetchAllExercises(true);
         };
 
         const onVisibilityChange = () => {
             if (document.visibilityState === 'visible') {
-                fetchFirstPage();
+                fetchAllExercises(true);
             }
         };
 
@@ -142,19 +88,42 @@ export const ExerciseSelector = ({
             window.removeEventListener('online', onReconnect);
             document.removeEventListener('visibilitychange', onVisibilityChange);
         };
-    }, [isOpen]);
+    }, [isOpen, fetchAllExercises]);
 
-    const { visibleData: exercises, isLoadingMore, lastItemRef } = useInfiniteScroll(initialData, {
-        pageSize: 10,
-        fetchData: fetchMoreExercises,
-        keyExtractor: (item) => item.id as number
-    });
+    const filteredExercises = useMemo(() => {
+        const trimmedSearch = searchTerm.trim();
+        const isTagSearch = trimmedSearch.startsWith('#');
+        const cleanQuery = (isTagSearch ? trimmedSearch.substring(1) : trimmedSearch).toLowerCase().trim();
 
-    const categories = useMemo(() => {
-        return ['all', ...CATEGORIES];
-    }, []);
+        return allExercises.filter((ex) => {
+            if (selectedCategory !== 'all' && ex.category !== selectedCategory) {
+                return false;
+            }
+            if (selectedEquipment !== 'all' && ex.equipment !== selectedEquipment) {
+                return false;
+            }
+            if (selectedLevel !== 'all' && ex.level !== selectedLevel) {
+                return false;
+            }
+            if (cleanQuery.length > 0) {
+                if (isTagSearch) {
+                    const matchTranslatedTag = ex.tags?.some((tag) => {
+                        const translatedTag = tt.has(tag) ? tt(tag).toLowerCase() : tag.toLowerCase();
+                        return translatedTag.includes(cleanQuery);
+                    });
+                    if (matchTranslatedTag) return true;
+                } else {
+                    const translatedName = te.has(ex.name) ? te(ex.name).toLowerCase() : ex.name.toLowerCase();
+                    if (translatedName.includes(cleanQuery)) return true;
+                }
+                return matchesExerciseSearch(ex, trimmedSearch, locale);
+            }
+            return true;
+        });
+    }, [allExercises, selectedCategory, selectedEquipment, selectedLevel, searchTerm, te, tt, locale]);
 
     const handleExerciseCreated = (exercise: Exercise) => {
+        setAllExercises((prev) => [exercise, ...prev]);
         onSelect(exercise);
         setIsQuickAddOpen(false);
         onClose();
@@ -195,7 +164,7 @@ export const ExerciseSelector = ({
                             )}
                         </div>
 
-                        <ExerciseFilterPanel 
+                        <ExerciseFilterPanel
                             selectedCategory={selectedCategory}
                             onCategoryChange={setSelectedCategory}
                             selectedEquipment={selectedEquipment}
@@ -207,47 +176,21 @@ export const ExerciseSelector = ({
                     </div>
 
                     {/* Lista com Altura Fixa para evitar saltos */}
-                    <div className="flex-1 overflow-y-auto p-4 space-y-2 min-h-[450px] sm:min-h-[500px]">
+                    <div className="flex-1 overflow-y-auto p-4 space-y-2.5 min-h-[450px] sm:min-h-[500px]">
                         {isLoading ? (
                             <div className="flex flex-col items-center justify-center py-32 text-zinc-400">
                                 <Loader2 size={40} className="animate-spin mb-4 text-lime-500 opacity-50" />
                                 <p className="text-[10px] font-black uppercase tracking-[0.2em] animate-pulse">{t('loading')}</p>
                             </div>
-                        ) : exercises.length > 0 ? (
-                            <>
-                                {exercises.map((ex, index) => (
-                                    <button
-                                        key={ex.id}
-                                        ref={index === exercises.length - 1 ? lastItemRef : null}
-                                        onClick={() => onSelect(ex)}
-                                        className="w-full flex items-center gap-4 p-4 rounded-[24px] bg-zinc-50 dark:bg-zinc-900/30 hover:bg-white dark:hover:bg-zinc-900 border border-zinc-100/50 dark:border-zinc-800/50 hover:border-lime-200 dark:hover:border-lime-500/30 hover:shadow-xl hover:shadow-lime-500/5 transition-all text-left group cursor-pointer active:scale-[0.98]"
-                                    >
-                                        <div className="w-14 h-14 bg-zinc-200/50 dark:bg-zinc-800/50 rounded-2xl flex items-center justify-center group-hover:bg-lime-400 transition-colors shadow-inner">
-                                            <Dumbbell className="text-zinc-500 dark:text-zinc-400 group-hover:text-zinc-950 transition-colors" size={24} />
-                                        </div>
-                                        <div className="flex-1">
-                                            <p className="font-black text-zinc-900 dark:text-white uppercase text-[13px] leading-tight tracking-tight">
-                                                {getExerciseLocalized(ex, locale).name || (te.has(ex.name) ? te(ex.name) : ex.name)}
-                                            </p>
-                                            <div className="flex flex-wrap items-center gap-1.5 mt-1.5">
-                                                <span className="text-[9px] text-zinc-400 font-bold uppercase tracking-widest">
-                                                    {tc(ex.category)}
-                                                </span>
-                                                {getEquipmentBadge(ex.equipment, teq)}
-                                                {getLevelBadge(ex.level, tl)}
-                                            </div>
-                                        </div>
-                                        <div className="w-10 h-10 flex items-center justify-center rounded-full bg-zinc-100 dark:bg-zinc-800 opacity-0 group-hover:opacity-100 transition-all">
-                                            <ArrowRight size={18} className="text-lime-500" />
-                                        </div>
-                                    </button>
-                                ))}
-                                {isLoadingMore && (
-                                    <div className="flex justify-center py-8">
-                                        <Loader2 size={24} className="animate-spin text-lime-500" />
-                                    </div>
-                                )}
-                            </>
+                        ) : filteredExercises.length > 0 ? (
+                            filteredExercises.map((ex) => (
+                                <ExerciseCard
+                                    key={ex.id}
+                                    exercise={ex}
+                                    onSelect={onSelect}
+                                    compact
+                                />
+                            ))
                         ) : (
                             <div className="flex flex-col items-center justify-center py-20 text-zinc-400 text-center px-10">
                                 <div className="w-20 h-20 bg-zinc-100 dark:bg-zinc-900 rounded-full flex items-center justify-center mb-6 opacity-50">
@@ -255,12 +198,14 @@ export const ExerciseSelector = ({
                                 </div>
                                 <h4 className="font-black uppercase tracking-tight text-zinc-900 dark:text-white mb-2">{t('emptyResultsTitle')}</h4>
                                 <p className="text-[11px] font-bold text-zinc-500 uppercase tracking-widest leading-relaxed" dangerouslySetInnerHTML={{ __html: t('emptyResultsDescription') }} />
-                                <button
-                                    onClick={() => setIsQuickAddOpen(true)}
-                                    className="mt-8 px-8 py-4 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 rounded-2xl font-black uppercase text-[10px] tracking-widest hover:scale-105 transition-all active:scale-95"
-                                >
-                                    {t('createNew')}
-                                </button>
+                                {!studentMode && (
+                                    <button
+                                        onClick={() => setIsQuickAddOpen(true)}
+                                        className="mt-8 px-8 py-4 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 rounded-2xl font-black uppercase text-[10px] tracking-widest hover:scale-105 transition-all active:scale-95"
+                                    >
+                                        {t('createNew')}
+                                    </button>
+                                )}
                             </div>
                         )}
                     </div>
